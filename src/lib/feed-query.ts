@@ -43,6 +43,21 @@ export function feedLimitFor(filters: FeedFilters): number {
   return filters.q?.trim() ? SEARCH_FEED_LIMIT : HOME_FEED_LIMIT;
 }
 
+/** Merge `services` + `items` rows, newest first, de-dupe by id, cap the homepage. */
+export function mergeNewest(groups: FeedCard[][], limit: number): FeedCard[] {
+  const cap = Math.min(Math.max(limit, 1), SEARCH_FEED_LIMIT);
+  const seen = new Set<string>();
+  return groups
+    .flat()
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
+    .filter((c) => {
+      if (seen.has(c.id)) return false;
+      seen.add(c.id);
+      return true;
+    })
+    .slice(0, cap);
+}
+
 export function applyFeedFilters(cards: FeedCard[], f: FeedFilters): FeedCard[] {
   const q = f.q?.trim().toLowerCase();
   const district = knownDistrictId(f.district);

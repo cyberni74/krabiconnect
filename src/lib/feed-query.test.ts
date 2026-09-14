@@ -7,6 +7,7 @@ import {
   feedLimitFor,
   isPublicListingStatus,
   knownDistrictId,
+  mergeNewest,
 } from "./feed-query.ts";
 
 function card(partial: Partial<FeedCard> & Pick<FeedCard, "id" | "kind">): FeedCard {
@@ -116,5 +117,38 @@ describe("feedLimitFor", () => {
     assert.equal(HOME_FEED_LIMIT, 15);
     assert.equal(feedLimitFor({}), 15);
     assert.equal(feedLimitFor({ q: "scooter" }), 80);
+  });
+});
+
+describe("mergeNewest", () => {
+  it("unions services and items, newest first, capped at 15", () => {
+    const services = [
+      card({ id: "svc-old", kind: "service", createdAt: "2026-01-01T00:00:00.000Z" }),
+      card({ id: "svc-new", kind: "job", createdAt: "2026-09-14T12:00:00.000Z" }),
+    ];
+    const items = [
+      card({ id: "item-1", kind: "market", createdAt: "2026-09-14T10:00:00.000Z" }),
+      card({ id: "svc-new", kind: "market", createdAt: "2026-09-14T11:00:00.000Z" }),
+    ];
+    const merged = mergeNewest([services, items], 15);
+    assert.deepEqual(
+      merged.map((c) => c.id),
+      ["svc-new", "item-1", "svc-old"],
+    );
+  });
+
+  it("still returns services when items is empty", () => {
+    const services = Array.from({ length: 20 }, (_, i) =>
+      card({
+        id: `s${i}`,
+        kind: i % 3 === 0 ? "job" : i % 3 === 1 ? "market" : "service",
+        createdAt: `2026-09-${String(10 + (i % 20)).padStart(2, "0")}T00:00:00.000Z`,
+      }),
+    );
+    const merged = mergeNewest([services, []], 15);
+    assert.equal(merged.length, 15);
+    assert.ok(merged.some((c) => c.kind === "service"));
+    assert.ok(merged.some((c) => c.kind === "market"));
+    assert.ok(merged.some((c) => c.kind === "job"));
   });
 });

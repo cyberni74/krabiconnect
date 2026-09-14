@@ -6,7 +6,7 @@ import {
   feedLimitFor,
   type FeedFilters,
 } from "@/lib/feed-query";
-import { ensureProfile, fetchPublicServices, fetchServices, getDb } from "./helpers";
+import { ensureProfile, fetchPublicFeed, fetchItems, fetchServices, getDb } from "./helpers";
 import { writeListing } from "./listing-write";
 
 export type { FeedFilters };
@@ -16,21 +16,23 @@ export const listFeed = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const filters = data ?? {};
     const sql = await getDb();
-    const services = await fetchPublicServices(sql, {
+    const listings = await fetchPublicFeed(sql, {
       kind: filters.kind,
       category: filters.category,
       district: filters.district,
       limit: feedLimitFor(filters),
     });
-    return applyFeedFilters(services, filters);
+    return applyFeedFilters(listings, filters);
   });
 
 export const getListing = createServerFn({ method: "GET" })
   .validator((input: { kind?: string; id: string }) => input)
   .handler(async ({ data }) => {
     const sql = await getDb();
-    const rows = await fetchServices(sql, { id: data.id });
-    return rows[0] ?? null;
+    const fromServices = await fetchServices(sql, { id: data.id });
+    if (fromServices[0]) return fromServices[0];
+    const fromItems = await fetchItems(sql, { id: data.id });
+    return fromItems[0] ?? null;
   });
 
 export const myListings = createServerFn({ method: "GET" })
