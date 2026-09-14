@@ -1,5 +1,11 @@
 import { getSql, type Sql } from "@/lib/db";
 import type { ListingKind } from "@/lib/constants";
+import {
+  HOME_FEED_LIMIT,
+  SEARCH_FEED_LIMIT,
+  knownDistrictId,
+  type FeedKindFilter,
+} from "@/lib/feed-query";
 import { parseImages } from "@/lib/utils";
 import type { FeedCard } from "@/lib/types";
 
@@ -62,7 +68,9 @@ const SERVICE_SELECT = `
 `;
 
 function asKind(raw: string | null): ListingKind {
-  if (raw === "job" || raw === "market") return raw;
+  const s = (raw ?? "").toLowerCase();
+  if (s === "job" || s === "jobs") return "job";
+  if (s === "market") return "market";
   return "service";
 }
 
@@ -124,6 +132,65 @@ export async function fetchServices(
       `select ${SERVICE_SELECT} from services s left join profiles p on p.id = s.user_id order by s.created_at desc`,
     );
   }
+  return rows.map(mapService);
+}
+
+/**
+ * Public Discover/search catalog: `services` rows (market/agent listings live
+ * here — `items` is unused), live statuses only, newest first, bounded.
+ */
+export async function fetchPublicServices(
+  sql: Sql,
+  opts: {
+    kind?: FeedKindFilter;
+    category?: string;
+    district?: string;
+    limit?: number;
+  } = {},
+): Promise<FeedCard[]> {
+  const params: unknown[] = [];
+  const where: string[] = [
+    `lower(coalesce(nullif(trim(s.status), ''), 'active')) in ('active', 'available', 'published')`,
+  ];
+
+  const kind = opts.kind && opts.kind !== "all" ? opts.kind : undefined;
+  if (kind === "services") {
+    where.push(`(s.kind is null or lower(s.kind) in ('service', 'services', 'help', ''))`);
+    where.push(`lower(coalesce(s.offer_type, 'offer')) <> 'wanted'`);
+  } else if (kind === "jobs") {
+    where.push(`lower(coalesce(s.kind, '')) in ('job', 'jobs')`);
+    where.push(`lower(coalesce(s.offer_type, 'offer')) <> 'wanted'`);
+  } else if (kind === "market") {
+    where.push(`lower(coalesce(s.kind, '')) = 'market'`);
+    where.push(`lower(coalesce(s.offer_type, 'offer')) <> 'wanted'`);
+  } else if (kind === "looking") {
+    where.push(`lower(coalesce(s.offer_type, 'offer')) = 'wanted'`);
+  }
+
+  const category = opts.category?.trim();
+  if (category) {
+    params.push(category);
+    where.push(`s.category = $${params.length}`);
+  }
+
+  const district = knownDistrictId(opts.district);
+  if (district) {
+    params.push(district);
+    where.push(`s.district = $${params.length}`);
+  }
+
+  const limit = Math.min(Math.max(opts.limit ?? HOME_FEED_LIMIT, 1), SEARCH_FEED_LIMIT);
+  params.push(limit);
+
+  const rows = await sql.query<ServiceJoin>(
+    `select ${SERVICE_SELECT}
+     from services s
+     left join profiles p on p.id = s.user_id
+     where ${where.join(" and ")}
+     order by s.created_at desc
+     limit $${params.length}`,
+    params,
+  );
   return rows.map(mapService);
 }
 

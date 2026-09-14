@@ -31,7 +31,7 @@ function SearchPage() {
       listFeed({
         data: {
           q: q || undefined,
-          kind,
+          kind: kind === "all" ? undefined : kind,
           category: category || undefined,
         },
       }),

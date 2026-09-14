@@ -1,51 +1,28 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { type ListingKind, type OfferType } from "@/lib/constants";
-import type { FeedCard } from "@/lib/types";
-import { ensureProfile, fetchServices, getDb } from "./helpers";
+import {
+  applyFeedFilters,
+  feedLimitFor,
+  type FeedFilters,
+} from "@/lib/feed-query";
+import { ensureProfile, fetchPublicServices, fetchServices, getDb } from "./helpers";
 import { writeListing } from "./listing-write";
 
-export type FeedFilters = {
-  q?: string;
-  kind?: "all" | "services" | "jobs" | "market" | "looking";
-  category?: string;
-  district?: string;
-  freeOnly?: boolean;
-  task?: string;
-};
+export type { FeedFilters };
 
-function applyFilters(cards: FeedCard[], f: FeedFilters): FeedCard[] {
-  const q = f.q?.trim().toLowerCase();
-  return cards.filter((c) => {
-    if (f.kind === "services" && (c.kind !== "service" || c.type === "wanted")) return false;
-    if (f.kind === "jobs" && (c.kind !== "job" || c.type === "wanted")) return false;
-    if (f.kind === "market" && (c.kind !== "market" || c.type === "wanted")) return false;
-    if (f.kind === "looking" && c.type !== "wanted") return false;
-    if (f.category && c.category !== f.category) return false;
-    if (f.district && c.district !== f.district) return false;
-    if (f.task && !c.tasks.includes(f.task)) return false;
-    if (f.freeOnly) {
-      const isFree = (c.price ?? 0) === 0;
-      if (!isFree) return false;
-    }
-    if (q) {
-      const hay = `${c.titleTh} ${c.titleEn} ${c.descriptionTh} ${c.descriptionEn} ${c.ownerName} ${c.tasks.join(" ")}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-}
-
-export const listFeed = createServerFn({ method: "GET" })
+export const listFeed = createServerFn({ method: "POST" })
   .validator((input: FeedFilters = {}) => input ?? {})
   .handler(async ({ data }) => {
+    const filters = data ?? {};
     const sql = await getDb();
-    const { ensureAdmin } = await import("./admin-boot.server");
-    await ensureAdmin();
-    const services = await fetchServices(sql);
-    return applyFilters(services, data ?? {}).sort((a, b) =>
-      a.createdAt < b.createdAt ? 1 : -1,
-    );
+    const services = await fetchPublicServices(sql, {
+      kind: filters.kind,
+      category: filters.category,
+      district: filters.district,
+      limit: feedLimitFor(filters),
+    });
+    return applyFeedFilters(services, filters);
   });
 
 export const getListing = createServerFn({ method: "GET" })
