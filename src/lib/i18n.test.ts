@@ -65,6 +65,7 @@ describe("loc listing overlay", () => {
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "ล้างแอร์บ้าน"), true);
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", ""), true);
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "Home air-con cleaning"), false);
+    assert.equal(needsEnglishOverlay("ล้างแอร์อ่าวนาง", "Air-con cleaning in อ่าวนาง"), false);
   });
 
   it("does not invent English — empty overlay still falls back to Thai until fill", () => {

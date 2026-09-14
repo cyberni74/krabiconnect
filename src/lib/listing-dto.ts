@@ -12,6 +12,8 @@ export type ListingCopyRow = {
 
 function asText(value: unknown): string | undefined {
   if (typeof value === "string") return value;
+  if (value == null) return undefined;
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
   return undefined;
 }
 
@@ -26,12 +28,17 @@ function firstCopy(...vals: unknown[]): string {
   return blank;
 }
 
+function readCopy(row: object, ...keys: string[]): unknown[] {
+  const rec = row as Record<string, unknown>;
+  return keys.map((k) => rec[k]);
+}
+
 /**
  * Always-defined listing copy for JSON to the client.
- * Reads `titleEn`/`title_en` and `descriptionEn`/`description_en` so a
- * snake_case Neon row or an already-mapped DTO both serialize the EN fields.
+ * Discover feed maps Neon `title_en`/`description_en` onto `titleEn`/`descriptionEn`
+ * (camelCase aliases accepted). DB snake_case wins when both are nonempty.
  */
-export function listingCopyFields(row: ListingCopyRow | null | undefined): {
+export function listingCopyFields(row: ListingCopyRow | Record<string, unknown> | null | undefined): {
   titleTh: string;
   titleEn: string;
   descriptionTh: string;
@@ -39,10 +46,24 @@ export function listingCopyFields(row: ListingCopyRow | null | undefined): {
 } {
   const r = row ?? {};
   return {
-    titleTh: firstCopy(r.titleTh, r.title_th),
-    titleEn: firstCopy(r.titleEn, r.title_en),
-    descriptionTh: firstCopy(r.descriptionTh, r.description_th),
-    descriptionEn: firstCopy(r.descriptionEn, r.description_en),
+    titleTh: firstCopy(...readCopy(r, "title_th", "titleTh")),
+    titleEn: firstCopy(...readCopy(r, "title_en", "titleEn")),
+    descriptionTh: firstCopy(...readCopy(r, "description_th", "descriptionTh")),
+    descriptionEn: firstCopy(...readCopy(r, "description_en", "descriptionEn")),
+  };
+}
+
+/** Prefer a live overlay only when it is nonempty; otherwise keep mapped card copy. */
+export function overlayOrMapped(
+  overlay: { titleEn?: string | null; descriptionEn?: string | null } | null | undefined,
+  card: ListingCopyRow,
+): { titleTh: string; titleEn: string; descriptionTh: string; descriptionEn: string } {
+  const copy = listingCopyFields(card);
+  return {
+    titleTh: copy.titleTh,
+    descriptionTh: copy.descriptionTh,
+    titleEn: firstCopy(overlay?.titleEn, copy.titleEn),
+    descriptionEn: firstCopy(overlay?.descriptionEn, copy.descriptionEn),
   };
 }
 
