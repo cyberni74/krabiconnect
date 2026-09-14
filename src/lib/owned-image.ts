@@ -4,7 +4,8 @@
  *
  * Listing `<img src>` uses a relative `/api/img?u=` so photos load on the
  * Vercel host even when SITE_URL points at a parked custom domain.
- * Public Vercel Blob HTTPS URLs are valid covers and are not rewritten.
+ * Public Vercel Blob HTTPS URLs are valid covers (same allowlist as Facebook CDN).
+ * Listing cards may use the Blob URL directly or `/api/img?u=` (same-origin).
  */
 
 import { parseImages } from "./utils.ts";
@@ -33,29 +34,44 @@ function hostnameOf(url: URL): string {
   return url.hostname.replace(/\.$/, "").replace(/^www\./i, "").toLowerCase();
 }
 
-/** Hosts the image proxy is allowed to fetch (Facebook CDN + Vercel Blob). */
-export function isAllowedImageHost(hostname: string): boolean {
-  const host = hostname.replace(/\.$/, "").toLowerCase();
+function normalizeHost(hostname: string): string {
+  return hostname.replace(/\.$/, "").toLowerCase();
+}
+
+/**
+ * Public Vercel Blob hosts. Production listing-card previously only allowlisted
+ * fbcdn/scontent — Blob heroes were treated as invalid covers.
+ */
+export function isVercelBlobHost(hostname: string): boolean {
+  const host = normalizeHost(hostname);
+  if (!host) return false;
+  return (
+    host === "blob.vercel-storage.com" ||
+    host.endsWith(".blob.vercel-storage.com") ||
+    host === "public.blob.vercel-storage.com" ||
+    host.includes("public.blob.vercel-storage.com")
+  );
+}
+
+/** Facebook / Instagram CDN hosts that blank out in <img> due to hotlink checks. */
+export function isHotlinkCdnHost(hostname: string): boolean {
+  const host = normalizeHost(hostname);
   if (!host) return false;
   if (host === "fbcdn.net" || host.endsWith(".fbcdn.net")) return true;
   if (host.startsWith("scontent")) return true;
   if (host === "cdninstagram.com" || host.endsWith(".cdninstagram.com")) return true;
   if (host === "fbsbx.com" || host.endsWith(".fbsbx.com")) return true;
-  if (host === "blob.vercel-storage.com" || host.endsWith(".blob.vercel-storage.com")) return true;
-  if (host === "public.blob.vercel-storage.com" || host.endsWith(".public.blob.vercel-storage.com")) {
-    return true;
-  }
   return false;
 }
 
-/** Facebook / Instagram CDN hosts that blank out in <img> due to hotlink checks. */
-export function isHotlinkCdnHost(hostname: string): boolean {
-  const host = hostname.replace(/\.$/, "").toLowerCase();
-  if (host === "fbcdn.net" || host.endsWith(".fbcdn.net")) return true;
-  if (host.startsWith("scontent")) return true;
-  if (host === "cdninstagram.com" || host.endsWith(".cdninstagram.com")) return true;
-  if (host === "fbsbx.com" || host.endsWith(".fbsbx.com")) return true;
-  return false;
+/**
+ * Hosts allowed as listing covers and `/api/img` proxy targets.
+ * Facebook CDN + Vercel Blob. Same-origin `/api/img` paths are handled separately.
+ */
+export function isAllowedImageHost(hostname: string): boolean {
+  const host = normalizeHost(hostname);
+  if (!host) return false;
+  return isHotlinkCdnHost(host) || isVercelBlobHost(host);
 }
 
 function proxyPathname(pathname: string): boolean {
@@ -99,7 +115,7 @@ export function needsOwnedProxy(raw: string): boolean {
   const inner = unwrapOwnedImageUrl(raw);
   if (!inner || inner.startsWith("data:")) return false;
   try {
-    return isHotlinkCdnHost(hostnameOf(new URL(inner)));
+    return isAllowedImageHost(hostnameOf(new URL(inner)));
   } catch {
     return false;
   }
@@ -107,8 +123,8 @@ export function needsOwnedProxy(raw: string): boolean {
 
 /**
  * Map a stored listing photo to a same-origin owned URL.
- * Facebook CDN (and already-proxied URLs on any host, e.g. a parked SITE_URL)
- * → `/api/img?u=…` so the browser hits the Vercel app, not a foreign origin.
+ * Facebook CDN and Vercel Blob (and already-proxied URLs on any host, e.g. a
+ * parked SITE_URL) → `/api/img?u=…` so Discover `<img src>` stays allowlisted.
  * Pass `origin` only when an absolute URL is required (emails, agent payloads).
  */
 export function toOwnedImageUrl(raw: string, origin = ""): string {
@@ -125,18 +141,11 @@ export function toOwnedImageUrls(urls: string[]): string[] {
   return urls.map((u) => toOwnedImageUrl(u));
 }
 
-/** Public Vercel Blob HTTPS hosts that are valid listing covers (HEAD 200, no proxy). */
+/** Public Vercel Blob HTTPS URLs that are valid listing covers. */
 export function isVercelBlobImageUrl(raw: string): boolean {
   try {
     const url = new URL(raw.trim());
-    if (url.protocol !== "https:") return false;
-    const host = hostnameOf(url);
-    return (
-      host === "blob.vercel-storage.com" ||
-      host.endsWith(".blob.vercel-storage.com") ||
-      host === "public.blob.vercel-storage.com" ||
-      host.endsWith(".public.blob.vercel-storage.com")
-    );
+    return url.protocol === "https:" && isVercelBlobHost(hostnameOf(url));
   } catch {
     return false;
   }
@@ -164,6 +173,7 @@ export function isDisplayableCoverUrl(raw: unknown): raw is string {
     }
     if (url.protocol !== "http:" && url.protocol !== "https:") return false;
     const host = hostnameOf(url);
+    if (isAllowedImageHost(host)) return true;
     if (isFacebookHtmlCoverHost(host) && !url.pathname.includes("/picture")) return false;
     return true;
   } catch {
@@ -180,8 +190,7 @@ export type CoverSource = {
 
 /**
  * First usable listing hero. Accepts coverUrl/cover/image/images[], including
- * public `*.public.blob.vercel-storage.com` HTTPS URLs. Does not require an
- * owned `/api/img` host.
+ * public `*.public.blob.vercel-storage.com` HTTPS URLs and `/api/img` paths.
  */
 export function pickCoverImage(source: CoverSource): string | undefined {
   const candidates: unknown[] = [source.coverUrl, source.cover, source.image, ...parseImages(source.images)];
@@ -194,7 +203,7 @@ export function pickCoverImage(source: CoverSource): string | undefined {
   return undefined;
 }
 
-/** Cover URL for `<img src>`: Blob HTTPS stays as-is; Facebook CDN goes through `/api/img`. */
+/** Cover URL for `<img src>`: Blob + Facebook CDN go through `/api/img` (allowlisted). */
 export function listingCoverSrc(source: CoverSource, origin = ""): string | undefined {
   const picked = pickCoverImage(source);
   if (!picked) return undefined;

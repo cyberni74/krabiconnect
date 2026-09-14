@@ -324,8 +324,9 @@ export async function processListingImages(
   const images: string[] = [];
   let rehosted = 0;
   for (const url of incoming) {
-    if (isOwnedBlobUrl(url)) {
-      images.push(url);
+    const inner = unwrapOwnedImageUrl(url);
+    if (isOwnedBlobUrl(url) || isOwnedBlobUrl(inner)) {
+      images.push(isOwnedBlobUrl(inner) ? inner : url);
       continue;
     }
     try {
