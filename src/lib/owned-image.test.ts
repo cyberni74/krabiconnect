@@ -6,6 +6,7 @@ import {
   isDisplayableCoverUrl,
   isHotlinkCdnHost,
   isOwnedProxyUrl,
+  isVercelBlobHost,
   isVercelBlobImageUrl,
   listingCoverSrc,
   needsOwnedProxy,
@@ -26,6 +27,10 @@ describe("isAllowedImageHost", () => {
     assert.equal(isAllowedImageHost("fbcdn.net"), true);
     assert.equal(isAllowedImageHost("scontent.cdninstagram.com"), true);
     assert.equal(isAllowedImageHost("abc.public.blob.vercel-storage.com"), true);
+    assert.equal(isAllowedImageHost("blob.vercel-storage.com"), true);
+    assert.equal(isAllowedImageHost("store.blob.vercel-storage.com"), true);
+    assert.equal(isVercelBlobHost("abc.public.blob.vercel-storage.com"), true);
+    assert.equal(isVercelBlobHost("scontent.xx.fbcdn.net"), false);
   });
 
   it("rejects unrelated hosts", () => {
@@ -64,23 +69,30 @@ describe("toOwnedImageUrl", () => {
     assert.equal(toOwnedImageUrl(FBCDN), `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(FBCDN)}`);
   });
 
-  it("passes through Blob, ordinary HTTPS, and data URIs", () => {
-    assert.equal(toOwnedImageUrl(BLOB), BLOB);
+  it("wraps Blob HTTPS through /api/img so listing-card allowlist accepts it", () => {
+    const owned = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(BLOB)}`;
+    assert.equal(needsOwnedProxy(BLOB), true);
+    assert.equal(toOwnedImageUrl(BLOB), owned);
+    assert.equal(listingCoverSrc({ images: [BLOB] }), owned);
     assert.equal(toOwnedImageUrl(CDN), CDN);
     assert.equal(toOwnedImageUrl("data:image/jpeg;base64,aa"), "data:image/jpeg;base64,aa");
-    assert.equal(needsOwnedProxy(BLOB), false);
     assert.equal(isVercelBlobImageUrl(BLOB), true);
     assert.equal(isVercelBlobImageUrl("https://store.blob.vercel-storage.com/x.webp"), true);
     assert.equal(isDisplayableCoverUrl(BLOB), true);
+    assert.equal(isHotlinkCdnHost("abc.public.blob.vercel-storage.com"), false);
+    assert.equal(isAllowedImageHost("abc.public.blob.vercel-storage.com"), true);
   });
 });
 
 describe("pickCoverImage", () => {
-  it("accepts public Vercel Blob HTTPS URLs without requiring coverUrl or an owned host", () => {
+  it("accepts public Vercel Blob HTTPS URLs without requiring coverUrl", () => {
     assert.equal(pickCoverImage({ images: [BLOB] }), BLOB);
     assert.equal(pickCoverImage({ coverUrl: BLOB }), BLOB);
     assert.equal(pickCoverImage({ cover: BLOB }), BLOB);
-    assert.equal(listingCoverSrc({ images: [BLOB] }), BLOB);
+    assert.equal(
+      listingCoverSrc({ images: [BLOB] }),
+      `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(BLOB)}`,
+    );
   });
 
   it("pulls Blob URLs out of object rows and JSON text", () => {
@@ -94,8 +106,9 @@ describe("pickCoverImage", () => {
     assert.equal(pickCoverImage({ images: [html, BLOB] }), BLOB);
   });
 
-  it("does not strip Blob URLs that are not on an owned /api/img host", () => {
-    assert.equal(listingCoverSrc({ images: [BLOB, CDN] }), BLOB);
-    assert.notEqual(listingCoverSrc({ images: [BLOB] })?.startsWith(IMAGE_PROXY_PATH), true);
+  it("emits /api/img for Blob covers so Discover <img src> is allowlisted", () => {
+    const owned = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(BLOB)}`;
+    assert.equal(listingCoverSrc({ images: [BLOB, CDN] }), owned);
+    assert.equal(listingCoverSrc({ images: [BLOB] })?.startsWith(IMAGE_PROXY_PATH), true);
   });
 });
