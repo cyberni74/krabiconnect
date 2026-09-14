@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { AO_NANG, asCoord, districtCentroid, listingsToGeoJSON, pointFor } from "./map-point.ts";
+import { AO_NANG, asCoord, clusterPins, districtCentroid, listingPins, listingsToGeoJSON, pointFor } from "./map-point.ts";
 import type { MappableListing } from "./map-point.ts";
 
 function listing(partial: Partial<MappableListing>): MappableListing {
@@ -71,5 +71,38 @@ describe("pointFor / listingsToGeoJSON", () => {
   it("returns no features for an empty feed, not a dummy pin", () => {
     assert.equal(listingsToGeoJSON([]).features.length, 0);
     assert.equal(listingsToGeoJSON(undefined).features.length, 0);
+  });
+
+  it("swaps inverted lat/lng columns (lng stored in lat)", () => {
+    assert.deepEqual(pointFor(listing({ lat: 98.9, lng: 8.1 })), [98.9, 8.1]);
+  });
+});
+
+describe("listingPins / clusterPins", () => {
+  it("emits one pin per listing including missing coords", () => {
+    const items = [
+      listing({ id: "a", lat: 8.04, lng: 98.82 }),
+      listing({ id: "b", lat: null, lng: null, district: "krabi-town" }),
+      listing({ id: "c", lat: null, lng: null, district: "" }),
+    ];
+    const pins = listingPins(items);
+    assert.equal(pins.length, 3);
+    assert.equal(pins[0]?.listingIds[0], "a");
+  });
+
+  it("clusters nearby pins at city zoom and splits at street zoom", () => {
+    const pins = listingPins([
+      listing({ id: "a", lat: 8.0363, lng: 98.8222 }),
+      listing({ id: "b", lat: 8.0364, lng: 98.8223 }),
+      listing({ id: "c", lat: 8.0863, lng: 98.9063 }),
+    ]);
+    const city = clusterPins(pins, 11);
+    assert.ok(city.length <= 3);
+    assert.equal(
+      city.reduce((s, p) => s + p.count, 0),
+      3,
+    );
+    const street = clusterPins(pins, 14);
+    assert.equal(street.length, 3);
   });
 });

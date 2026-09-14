@@ -228,18 +228,30 @@ function Home() {
             <div key={i} className="h-64 animate-pulse rounded-2xl bg-surface-2" />
           ))}
         </div>
-      ) : view === "map" ? (
-        <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
-          <MapView items={listings} selectedId={selectedId} onSelect={setSelectedId} />
-        </Suspense>
-      ) : listings.length === 0 ? (
-        <EmptyHome t={t} />
       ) : (
-        <div className="grid gap-4">
-          {listings.map((c) => (
-            <ListingCard key={`${c.kind}-${c.id}`} card={c} />
-          ))}
-        </div>
+        <>
+          {view === "list" ? (
+            listings.length === 0 ? (
+              <EmptyHome t={t} />
+            ) : (
+              <div className="grid gap-4">
+                {listings.map((c) => (
+                  <ListingCard key={`${c.kind}-${c.id}`} card={c} />
+                ))}
+              </div>
+            )
+          ) : null}
+          <div className={view === "map" ? "block" : "hidden"}>
+            <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
+              <MapView
+                items={listings}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                active={view === "map"}
+              />
+            </Suspense>
+          </div>
+        </>
       )}
 
       <div className="pointer-events-none fixed inset-x-0 bottom-24 z-30 mx-auto flex max-w-lg justify-end px-4">
