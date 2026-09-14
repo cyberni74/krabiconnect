@@ -2,8 +2,8 @@
  * Same-origin owned URLs for listing photos that browsers cannot load
  * directly (Facebook CDN hotlink protection). Safe to import from client or server.
  *
- * SITE_URL (optional): public origin, e.g. https://your-app.vercel.app
- * Falls back to VITE_PUBLIC_HOSTNAME / VERCEL_URL. Empty → relative `/api/img?u=`.
+ * Listing `<img src>` uses a relative `/api/img?u=` so photos load on the
+ * Vercel host even when SITE_URL points at a parked custom domain.
  */
 
 export const IMAGE_PROXY_PATH = "/api/img";
@@ -103,15 +103,17 @@ export function needsOwnedProxy(raw: string): boolean {
 }
 
 /**
- * Map a stored listing photo to an owned HTTPS (or same-origin) URL.
- * Facebook CDN → `${SITE_URL}/api/img?u=…`. Already-proxied and non-CDN URLs pass through.
+ * Map a stored listing photo to a same-origin owned URL.
+ * Facebook CDN (and already-proxied URLs on any host, e.g. a parked SITE_URL)
+ * → `/api/img?u=…` so the browser hits the Vercel app, not a foreign origin.
+ * Pass `origin` only when an absolute URL is required (emails, agent payloads).
  */
-export function toOwnedImageUrl(raw: string, origin = publicSiteUrl()): string {
+export function toOwnedImageUrl(raw: string, origin = ""): string {
   const trimmed = raw.trim();
   if (!trimmed || trimmed.startsWith("data:image/")) return trimmed;
-  if (isOwnedProxyUrl(trimmed)) return trimmed;
-  if (!needsOwnedProxy(trimmed)) return trimmed;
-  const path = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(unwrapOwnedImageUrl(trimmed))}`;
+  const inner = unwrapOwnedImageUrl(trimmed);
+  if (!needsOwnedProxy(inner)) return isOwnedProxyUrl(trimmed) ? inner : trimmed;
+  const path = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(inner)}`;
   const base = origin.replace(/\/+$/, "");
   return base ? `${base}${path}` : path;
 }

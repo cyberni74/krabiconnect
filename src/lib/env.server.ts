@@ -15,9 +15,8 @@ export function isWorkspacePreview(): boolean {
 
 /**
  * Image hosting (optional):
- * - SITE_URL — public origin for owned listing photos, e.g. https://your-app.vercel.app
- *   Used by toOwnedImageUrl as `${SITE_URL}/api/img?u=…`. Falls back to
- *   VITE_PUBLIC_HOSTNAME / VERCEL_URL; empty origin yields a relative `/api/img` path.
+ * - SITE_URL — optional public origin. Listing heroes use a relative `/api/img?u=`
+ *   so they load on the Vercel host even if this domain is parked / not attached.
  * - BLOB_READ_WRITE_TOKEN — Vercel Blob read-write token for POST /api/agent/rehost.
  *   When unset, rehost returns 503. GET /api/img still works without Blob.
  */

@@ -54,6 +54,12 @@ describe("toOwnedImageUrl", () => {
     assert.equal(unwrapOwnedImageUrl(once), FBCDN);
   });
 
+  it("rewrites absolute /api/img URLs on a parked host to same-origin", () => {
+    const parked = `https://krabiconnect.com${IMAGE_PROXY_PATH}?u=${encodeURIComponent(FBCDN)}`;
+    assert.equal(toOwnedImageUrl(parked), `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(FBCDN)}`);
+    assert.equal(toOwnedImageUrl(FBCDN), `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(FBCDN)}`);
+  });
+
   it("passes through Blob, ordinary HTTPS, and data URIs", () => {
     assert.equal(toOwnedImageUrl(BLOB), BLOB);
     assert.equal(toOwnedImageUrl(CDN), CDN);
