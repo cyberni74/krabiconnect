@@ -1,5 +1,10 @@
-import { useT } from "@/lib/i18n";
+import { useT, type Lang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+
+const OPTIONS: { locale: Lang; label: string }[] = [
+  { locale: "th", label: "TH" },
+  { locale: "en", label: "EN" },
+];
 
 export function LanguagePill({ className }: { className?: string }) {
   const { lang, setLang } = useT();
@@ -12,26 +17,23 @@ export function LanguagePill({ className }: { className?: string }) {
       role="group"
       aria-label="Language"
     >
-      <button
-        type="button"
-        onClick={() => setLang("th")}
-        className={cn(
-          "h-8 min-w-9 rounded-full px-2.5 text-xs font-semibold",
-          lang === "th" ? "bg-primary text-primary-fg" : "text-muted",
-        )}
-      >
-        TH
-      </button>
-      <button
-        type="button"
-        onClick={() => setLang("en")}
-        className={cn(
-          "h-8 min-w-9 rounded-full px-2.5 text-xs font-semibold",
-          lang === "en" ? "bg-primary text-primary-fg" : "text-muted",
-        )}
-      >
-        EN
-      </button>
+      {OPTIONS.map(({ locale, label }) => {
+        const active = lang === locale;
+        return (
+          <button
+            key={locale}
+            type="button"
+            onClick={() => setLang(locale)}
+            aria-pressed={active}
+            className={cn(
+              "h-8 min-w-9 rounded-full px-2.5 text-xs font-semibold",
+              active ? "bg-primary text-primary-fg" : "text-muted",
+            )}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

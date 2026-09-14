@@ -525,35 +525,48 @@ type LangState = {
   setLang: (lang: Lang) => void;
 };
 
+function applyDocumentLang(lang: Lang) {
+  if (typeof document !== "undefined") document.documentElement.lang = lang;
+}
+
 export const useLangStore = create<LangState>()(
   persist(
     (set) => ({
       lang: "en",
       locked: false,
-      setLang: (lang) => set({ lang, locked: true }),
+      setLang: (lang) => {
+        applyDocumentLang(lang);
+        set({ lang, locked: true });
+      },
     }),
     {
       name: "krabimarketplace-lang",
+      partialize: (s) => ({ lang: s.lang, locked: s.locked }),
       onRehydrateStorage: () => (state) => {
-        if (state?.locked) return;
+        if (state?.locked) {
+          if (state.lang) applyDocumentLang(state.lang);
+          return;
+        }
         const next = detectDeviceLang();
         useLangStore.setState({ lang: next, locked: false });
-        if (typeof document !== "undefined") document.documentElement.lang = next;
+        applyDocumentLang(next);
       },
     },
   ),
 );
 
 export function t(lang: Lang, key: I18nKey): string {
-  return strings[lang][key] ?? strings.en[key];
+  const dict = lang === "th" ? strings.th : strings.en;
+  return dict[key] ?? strings.en[key];
 }
 
 export function useT() {
   const lang = useLangStore((s) => s.lang);
+  const setLang = useLangStore((s) => s.setLang);
   return {
     lang,
     t: (key: I18nKey) => t(lang, key),
-    setLang: useLangStore.getState().setLang,
+    setLang,
   };
 }
 
@@ -568,5 +581,5 @@ export function initDeviceLanguage() {
   if (state.locked) return;
   const next = detectDeviceLang();
   if (state.lang !== next) useLangStore.setState({ lang: next, locked: false });
-  document.documentElement.lang = next;
+  applyDocumentLang(next);
 }

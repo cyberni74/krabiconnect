@@ -5,6 +5,7 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { GrokChromeGate } from "@/components/grok-chrome-gate";
 import { QueryProvider } from "@/components/query-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { useLangStore } from "@/lib/i18n";
 import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 
@@ -30,6 +31,7 @@ export const Route = createRootRoute({
         name: "description",
         content: "KrabiMarketplace — local services, jobs and classifieds in Krabi. Thai and English, auto-translated.",
       },
+      { name: "google", content: "notranslate" },
     ],
     links: [
       { rel: "icon", type: "image/jpeg", href: "/brand/mark.jpg" },
@@ -48,8 +50,9 @@ export const Route = createRootRoute({
 });
 
 function Root() {
+  const lang = useLangStore((s) => s.lang);
   return (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html lang={lang} translate="no" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
