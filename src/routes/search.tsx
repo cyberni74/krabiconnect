@@ -26,13 +26,14 @@ function SearchPage() {
   const [category, setCategory] = useState("");
 
   const feed = useQuery({
-    queryKey: ["search", q, kind, category],
+    queryKey: ["search", q, kind, category, lang],
     queryFn: () =>
       listFeed({
         data: {
           q: q || undefined,
           kind,
           category: category || undefined,
+          locale: lang,
         },
       }),
   });

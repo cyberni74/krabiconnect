@@ -35,7 +35,7 @@ let inFlight = false;
 
 async function flushOverlays() {
   if (inFlight) return;
-  const ids = [...queued].slice(0, 12);
+  const ids = [...queued].slice(0, 40);
   if (!ids.length) return;
   for (const id of ids) queued.delete(id);
   inFlight = true;
@@ -57,31 +57,22 @@ export function useEnsureEnglishOverlay(card: {
   titleEn: string;
   descriptionTh: string;
   descriptionEn: string;
-}): ListingOverlay | undefined {
+}): ListingOverlay {
   const lang = useT().locale;
   const overlay = useListingOverlayStore((s) => s.byId[card.id]);
   const attempted = useListingOverlayStore((s) => s.attempted[card.id]);
+  const titleEn = overlay?.titleEn || card.titleEn;
+  const descriptionEn = overlay?.descriptionEn || card.descriptionEn;
 
   useEffect(() => {
-    if (lang !== "en" || attempted) return;
-    const titleEn = overlay?.titleEn ?? card.titleEn;
-    const descriptionEn = overlay?.descriptionEn ?? card.descriptionEn;
+    if (lang !== "en" || attempted || !card.id) return;
     if (!needsEnglishOverlay(card.titleTh, titleEn) && !needsEnglishOverlay(card.descriptionTh, descriptionEn)) {
       return;
     }
     queued.add(card.id);
     if (flushTimer) clearTimeout(flushTimer);
     flushTimer = setTimeout(() => void flushOverlays(), 80);
-  }, [
-    lang,
-    attempted,
-    card.id,
-    card.titleTh,
-    card.titleEn,
-    card.descriptionTh,
-    card.descriptionEn,
-    overlay,
-  ]);
+  }, [lang, attempted, card.id, card.titleTh, titleEn, descriptionEn]);
 
-  return overlay;
+  return { titleEn, descriptionEn };
 }

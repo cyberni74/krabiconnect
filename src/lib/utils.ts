@@ -85,6 +85,14 @@ export function hasThaiScript(text: string): boolean {
   return /[\u0E00-\u0E7F]/.test(text);
 }
 
+/** Latin letters allowed with Thai place names — still a usable English overlay. */
+export function isUsableEnglish(text: string | null | undefined): boolean {
+  const s = typeof text === "string" ? text.trim() : "";
+  if (!s) return false;
+  if (/[A-Za-z]/.test(s)) return true;
+  return !hasThaiScript(s);
+}
+
 export function haversineKm(
   a: { lat: number; lng: number },
   b: { lat: number; lng: number },

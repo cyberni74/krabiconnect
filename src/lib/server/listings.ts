@@ -12,6 +12,7 @@ export type FeedFilters = {
   district?: string;
   freeOnly?: boolean;
   task?: string;
+  locale?: "en" | "th";
 };
 
 function applyFilters(cards: FeedCard[], f: FeedFilters): FeedCard[] {
@@ -43,17 +44,21 @@ export const listFeed = createServerFn({ method: "GET" })
     const { ensureAdmin } = await import("./admin-boot.server");
     await ensureAdmin();
     const services = await fetchServices(sql);
-    return applyFilters(services, data ?? {}).sort((a, b) =>
+    const filtered = applyFilters(services, data ?? {}).sort((a, b) =>
       a.createdAt < b.createdAt ? 1 : -1,
     );
+    const { withEnglishOverlays } = await import("./english-overlay");
+    return withEnglishOverlays(filtered, data?.locale);
   });
 
 export const getListing = createServerFn({ method: "GET" })
-  .validator((input: { kind?: string; id: string }) => input)
+  .validator((input: { kind?: string; id: string; locale?: "en" | "th" }) => input)
   .handler(async ({ data }) => {
     const sql = await getDb();
     const rows = await fetchServices(sql, { id: data.id });
-    return rows[0] ?? null;
+    const { withEnglishOverlays } = await import("./english-overlay");
+    const [card] = await withEnglishOverlays(rows, data.locale);
+    return card ?? null;
   });
 
 export const myListings = createServerFn({ method: "GET" })
