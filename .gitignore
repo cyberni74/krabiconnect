@@ -1,0 +1,15 @@
+node_modules
+.vercel
+.output
+dist
+.tanstack
+.pglite
+*.log
+.DS_Store
+screenshots
+tmp
+.cache
+.grok/skills
+.grok/references
+.grok/status
+.grok/*.png
