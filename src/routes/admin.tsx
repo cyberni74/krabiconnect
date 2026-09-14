@@ -211,6 +211,8 @@ API
 GET   ${origin}/api/agent/listings   (validate key first)
 POST  ${origin}/api/agent/listings
 PATCH ${origin}/api/agent/listings/:id
+POST  ${origin}/api/agent/listings/rehost-image
+POST  ${origin}/api/agent/listings/rehost-backfill
 Authorization: Bearer ${token}
 Content-Type: application/json
 
@@ -234,6 +236,14 @@ If the existing row has no usable photos (blank, or only Facebook photo.php?fbid
 and images[] has HTTPS/fbcdn URLs, those images are merged onto the existing row
 (cover = images[0]). PATCH /api/agent/listings/:id with { "images": ["https://…"] }
 replaces photos on a known id.
+
+Owned images (required — fbcdn hotlinks die)
+POST ${origin}/api/agent/listings/rehost-image
+{ "url": "https://scontent.xx.fbcdn.net/v/…" }
+→ { "ok": true, "url": "https://….public.blob.vercel-storage.com/…" }
+Put those owned URLs in images[] on POST/PATCH. Multipart field "file" also works.
+When BLOB_READ_WRITE_TOKEN is set on Vercel Production, POST/PATCH also rehost automatically.
+POST ${origin}/api/agent/listings/rehost-backfill  (optional { "id", "limit" }) rehosts stored rows.
 
 kind: market | service | job
 category (market): vehicles | boats | property | electronics | furniture | fashion | other
