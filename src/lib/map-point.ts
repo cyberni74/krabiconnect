@@ -1,5 +1,5 @@
-import { DISTRICTS } from "./constants";
-import type { FeedCard } from "./types";
+import { DISTRICTS } from "./constants.ts";
+import type { FeedCard } from "./types.ts";
 
 /** Ao Nang — MapLibre / GeoJSON order is [lng, lat]. */
 export const AO_NANG: [number, number] = [98.8222, 8.0363];
