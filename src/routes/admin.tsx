@@ -211,6 +211,8 @@ API
 GET   ${origin}/api/agent/listings   (validate key first)
 POST  ${origin}/api/agent/listings
 PATCH ${origin}/api/agent/listings/:id
+POST  ${origin}/api/agent/listings/rehost-image
+POST  ${origin}/api/agent/listings/rehost-backfill
 Authorization: Bearer ${token}
 Content-Type: application/json
 
@@ -237,6 +239,14 @@ heroes render without a Blob token. PATCH /api/agent/listings/:id with { "images
 replaces photos on a known id.
 POST ${origin}/api/agent/rehost { "url": "https://scontent…/photo.jpg" } copies to Vercel Blob
 when BLOB_READ_WRITE_TOKEN is set (503 if missing). GET ${origin}/api/img?u=… is public.
+
+Owned images (required — fbcdn hotlinks die)
+POST ${origin}/api/agent/listings/rehost-image
+{ "url": "https://scontent.xx.fbcdn.net/v/…" }
+→ { "ok": true, "url": "https://….public.blob.vercel-storage.com/…" }
+Put those owned URLs in images[] on POST/PATCH. Multipart field "file" also works.
+When BLOB_READ_WRITE_TOKEN is set on Vercel Production, POST/PATCH also rehost automatically.
+POST ${origin}/api/agent/listings/rehost-backfill  (optional { "id", "limit" }) rehosts stored rows.
 
 kind: market | service | job
 category (market): vehicles | boats | property | electronics | furniture | fashion | other

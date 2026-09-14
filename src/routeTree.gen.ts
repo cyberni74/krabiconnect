@@ -26,6 +26,8 @@ import { Route as ApiAgentRehostRouteImport } from './routes/api/agent.rehost'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiImgSplatRouteImport } from './routes/api/img.$'
 import { Route as ApiAgentListingsIdRouteImport } from './routes/api/agent.listings.$id'
+import { Route as ApiAgentListingsRehostBackfillRouteImport } from './routes/api/agent.listings.rehost-backfill'
+import { Route as ApiAgentListingsRehostImageRouteImport } from './routes/api/agent.listings.rehost-image'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -112,6 +114,18 @@ const ApiAgentListingsIdRoute = ApiAgentListingsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAgentListingsRoute,
 } as any)
+const ApiAgentListingsRehostBackfillRoute =
+  ApiAgentListingsRehostBackfillRouteImport.update({
+    id: '/rehost-backfill',
+    path: '/rehost-backfill',
+    getParentRoute: () => ApiAgentListingsRoute,
+  } as any)
+const ApiAgentListingsRehostImageRoute =
+  ApiAgentListingsRehostImageRouteImport.update({
+    id: '/rehost-image',
+    path: '/rehost-image',
+    getParentRoute: () => ApiAgentListingsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +145,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$': typeof ApiImgSplatRoute
   '/api/agent/listings/$id': typeof ApiAgentListingsIdRoute
+  '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
+  '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +166,8 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$': typeof ApiImgSplatRoute
   '/api/agent/listings/$id': typeof ApiAgentListingsIdRoute
+  '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
+  '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +188,8 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$': typeof ApiImgSplatRoute
   '/api/agent/listings/$id': typeof ApiAgentListingsIdRoute
+  '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
+  '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +211,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/img/$'
     | '/api/agent/listings/$id'
+    | '/api/agent/listings/rehost-backfill'
+    | '/api/agent/listings/rehost-image'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +232,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/img/$'
     | '/api/agent/listings/$id'
+    | '/api/agent/listings/rehost-backfill'
+    | '/api/agent/listings/rehost-image'
   id:
     | '__root__'
     | '/'
@@ -229,6 +253,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/img/$'
     | '/api/agent/listings/$id'
+    | '/api/agent/listings/rehost-backfill'
+    | '/api/agent/listings/rehost-image'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -367,6 +393,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentListingsIdRouteImport
       parentRoute: typeof ApiAgentListingsRoute
     }
+    '/api/agent/listings/rehost-backfill': {
+      id: '/api/agent/listings/rehost-backfill'
+      path: '/rehost-backfill'
+      fullPath: '/api/agent/listings/rehost-backfill'
+      preLoaderRoute: typeof ApiAgentListingsRehostBackfillRouteImport
+      parentRoute: typeof ApiAgentListingsRoute
+    }
+    '/api/agent/listings/rehost-image': {
+      id: '/api/agent/listings/rehost-image'
+      path: '/rehost-image'
+      fullPath: '/api/agent/listings/rehost-image'
+      preLoaderRoute: typeof ApiAgentListingsRehostImageRouteImport
+      parentRoute: typeof ApiAgentListingsRoute
+    }
   }
 }
 
@@ -382,10 +422,14 @@ const ChatsRouteWithChildren = ChatsRoute._addFileChildren(ChatsRouteChildren)
 
 interface ApiAgentListingsRouteChildren {
   ApiAgentListingsIdRoute: typeof ApiAgentListingsIdRoute
+  ApiAgentListingsRehostBackfillRoute: typeof ApiAgentListingsRehostBackfillRoute
+  ApiAgentListingsRehostImageRoute: typeof ApiAgentListingsRehostImageRoute
 }
 
 const ApiAgentListingsRouteChildren: ApiAgentListingsRouteChildren = {
   ApiAgentListingsIdRoute: ApiAgentListingsIdRoute,
+  ApiAgentListingsRehostBackfillRoute: ApiAgentListingsRehostBackfillRoute,
+  ApiAgentListingsRehostImageRoute: ApiAgentListingsRehostImageRoute,
 }
 
 const ApiAgentListingsRouteWithChildren =

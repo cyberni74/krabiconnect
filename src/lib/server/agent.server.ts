@@ -147,6 +147,26 @@ export async function patchAgentListingImages(id: string, body: unknown) {
   return patchListingImages(id, images);
 }
 
+export async function rehostAgentImage(request: Request) {
+  const { rehostFromRequest } = await import("./image-rehost");
+  return rehostFromRequest(request);
+}
+
+export async function rehostBackfillAgentListings(body: unknown) {
+  const { rehostBackfill } = await import("./image-rehost");
+  const opts =
+    body && typeof body === "object"
+      ? (body as { id?: unknown; limit?: unknown })
+      : {};
+  const id = typeof opts.id === "string" ? opts.id : undefined;
+  const limit = typeof opts.limit === "number" ? opts.limit : undefined;
+  return rehostBackfill({ id, limit });
+}
+
+export function agentBlobStatus() {
+  return import("./image-rehost").then(({ blobStatus }) => blobStatus());
+}
+
 export const AGENT_SCHEMA = {
   endpoint: "/api/agent/listings",
   validate: "GET /api/agent/listings with Authorization: Bearer kc_live_…",
@@ -160,7 +180,9 @@ export const AGENT_SCHEMA = {
     kind: "market | service | job",
     category: "vehicles | boats | property | electronics | furniture | fashion | other",
     district: "ao-nang | krabi-town | nong-thale | klong-muang | krabi-noi | railay",
-    images: ["https://… (fbcdn is stored as /api/img?u=… so listing heroes render; Facebook photo.php?fbid= HTML is ignored)"],
+    images: [
+      "https://… (fbcdn is rewritten to /api/img?u=… so listing heroes render without Blob; when BLOB_READ_WRITE_TOKEN is set, PATCH/POST rehost to Vercel Blob. Facebook photo.php?fbid= HTML is ignored)",
+    ],
     facebookUrl: "https://www.facebook.com/seller-profile",
     facebookName: "string",
     sourceUrl: "https://www.facebook.com/marketplace/item/…",
@@ -171,12 +193,35 @@ export const AGENT_SCHEMA = {
     endpoint: "PATCH /api/agent/listings/:id",
     body: { images: ["https://…"] },
     result: { ok: true, id: "string", images: ["https://…"], cover: "https://… | null" },
-    notes: "Replaces listing images. cover is images[0]. Same Bearer token as POST. fbcdn URLs are rewritten to /api/img?u=…",
+    notes:
+      "Replaces listing images. cover is images[0]. Same Bearer token as POST. fbcdn URLs are rewritten to /api/img?u=…. When BLOB_READ_WRITE_TOKEN is set, they are also rehosted to Vercel Blob before save.",
   },
   images: {
-    proxy: "GET /api/img?u=<https url> — public, no agent token. Streams allowlisted https images (*.fbcdn.net, scontent*, Vercel Blob) with Cache-Control: public, max-age=604800. 400 bad url, 502 upstream fail.",
+    proxy:
+      "GET /api/img?u=<https url> — public, no agent token. Streams allowlisted https images (*.fbcdn.net, scontent*, Vercel Blob) with Cache-Control: public, max-age=604800. 400 bad url, 502 upstream fail.",
     rehost:
       "POST /api/agent/rehost { url } Bearer token → Vercel Blob { ok, url }. Requires BLOB_READ_WRITE_TOKEN; returns 503 when unset. Proxy still works.",
+  },
+  rehostImage: {
+    endpoint: "POST /api/agent/listings/rehost-image",
+    auth: "Authorization: Bearer kc_live_<48 hex>",
+    body: { url: "https://scontent.xx.fbcdn.net/v/…" },
+    multipart: 'field "file" or "image" (bytes) or "url"',
+    result: { ok: true, url: "https://….public.blob.vercel-storage.com/…" },
+    env: "BLOB_READ_WRITE_TOKEN must be set on Vercel Production (Storage → Blob, public). Never commit the token.",
+    notes:
+      "Downloads a remote HTTPS/fbcdn image (or accepts upload bytes), stores it on Vercel Blob, returns an owned HTTPS URL. Use that URL in POST/PATCH images[]. Already-owned blob URLs are returned as-is.",
+  },
+  rehostBackfill: {
+    endpoint: "POST /api/agent/listings/rehost-backfill",
+    auth: "Authorization: Bearer kc_live_<48 hex>",
+    body: { id: "optional listing id", limit: "optional, default 25, max 50" },
+    result: {
+      ok: true,
+      updated: [{ id: "string", images: ["https://…"], cover: "https://…", rehosted: 1 }],
+      scanned: 0,
+    },
+    notes: "Rehosts stored non-owned image URLs onto existing listing rows. Requires BLOB_READ_WRITE_TOKEN.",
   },
   result: {
     ok: true,
