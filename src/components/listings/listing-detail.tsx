@@ -19,7 +19,7 @@ import { LocalizedText, TranslationBanner } from "@/components/translated";
 import { categoryName, districtName, kindLabel, taskName } from "@/lib/constants";
 import { useT, type I18nKey } from "@/lib/i18n";
 import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
-import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
+import { useLocalizedListing } from "@/lib/use-localized-listing";
 import { createBooking, openConversation, sendMessage } from "@/lib/server/community";
 import type { FeedCard } from "@/lib/types";
 import { initials } from "@/lib/utils";
@@ -36,9 +36,7 @@ function ctaKey(card: FeedCard): I18nKey {
 
 export function ListingDetail({ card }: { card: FeedCard }) {
   const { lang, t } = useT();
-  const overlay = useEnsureEnglishOverlay(card);
-  const titleEn = overlay?.titleEn ?? card.titleEn;
-  const descriptionEn = overlay?.descriptionEn ?? card.descriptionEn;
+  const copy = useLocalizedListing(card);
   const nav = useNavigate();
   const user = useCurrentUser();
   const { isPending } = useCurrentUserState();
@@ -122,8 +120,8 @@ export function ListingDetail({ card }: { card: FeedCard }) {
             as="h1"
             className="text-2xl font-semibold leading-tight tracking-tight"
             lang={lang}
-            th={card.titleTh}
-            en={titleEn}
+            th={copy.titleTh}
+            en={copy.titleEn}
             sourceLanguage={card.sourceLanguage}
           />
           <TranslationBanner sourceLanguage={card.sourceLanguage} className="mt-1" />
@@ -169,8 +167,8 @@ export function ListingDetail({ card }: { card: FeedCard }) {
           as="p"
           className="leading-relaxed text-fg"
           lang={lang}
-          th={card.descriptionTh}
-          en={descriptionEn}
+          th={copy.descriptionTh}
+          en={copy.descriptionEn}
           sourceLanguage={card.sourceLanguage}
         />
         <ul className="grid grid-cols-2 gap-2 text-sm">

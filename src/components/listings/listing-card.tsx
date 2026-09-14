@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { Globe, MapPin, Star } from "lucide-react";
 import { categoryName, districtById, districtName, kindLabel, taskName } from "@/lib/constants";
-import { loc, useT, type I18nKey } from "@/lib/i18n";
+import { useT, type I18nKey } from "@/lib/i18n";
 import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
-import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
+import { useLocalizedListing } from "@/lib/use-localized-listing";
 import type { FeedCard } from "@/lib/types";
 import { cn, formatThb, haversineKm, initials } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ function distanceLabel(card: FeedCard, originId: string) {
 
 export function ListingCard({ card, compact }: { card: FeedCard; compact?: boolean }) {
   const { lang, t } = useT();
-  const overlay = useEnsureEnglishOverlay(card);
+  const { title } = useLocalizedListing(card);
   const origin = useAreaStore((s) => s.district);
   const href = `/service/${card.id}`;
   const img = listingCoverSrc(card);
@@ -93,9 +93,7 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
       </div>
       <div className={cn("space-y-1.5", compact ? "p-2.5" : "p-3.5")}>
         <h3 className="flex items-start gap-1.5 text-base font-semibold leading-snug">
-          <span className="line-clamp-2 min-w-0 flex-1">
-            {loc(lang, card.titleTh, overlay?.titleEn ?? card.titleEn)}
-          </span>
+          <span className="line-clamp-2 min-w-0 flex-1">{title}</span>
           {translated ? (
             <Globe className="mt-0.5 size-3.5 shrink-0 text-primary" aria-label={t("autoTranslated")} />
           ) : null}

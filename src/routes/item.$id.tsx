@@ -8,10 +8,10 @@ export const Route = createFileRoute("/item/$id")({ component: ItemPage });
 
 function ItemPage() {
   const { id } = Route.useParams();
-  const { t } = useT();
+  const { lang, t } = useT();
   const q = useQuery({
-    queryKey: ["item", id],
-    queryFn: () => getListing({ data: { id } }),
+    queryKey: ["item", id, lang],
+    queryFn: () => getListing({ data: { id, locale: lang } }),
   });
   if (q.isLoading) return <div className="h-64 animate-pulse bg-surface-2" />;
   if (!q.data) return <p className="p-6 text-sm text-muted">{t("loadError")}</p>;

@@ -74,13 +74,14 @@ function Home() {
   const district = useAreaStore((s) => s.district);
 
   const feed = useQuery({
-    queryKey: ["feed", kind, district, category],
+    queryKey: ["feed", kind, district, category, lang],
     queryFn: () =>
       listFeed({
         data: {
           kind,
           district: district || undefined,
           category: category || undefined,
+          locale: lang,
         },
       }),
     placeholderData: keepPreviousData,

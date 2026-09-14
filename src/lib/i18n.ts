@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Lang } from "./constants";
-import { hasThaiScript } from "./utils.ts";
+import { hasThaiScript, isUsableEnglish } from "./utils.ts";
 
 export type { Lang };
 
@@ -608,7 +608,16 @@ export function useT() {
   };
 }
 
-/** Thai original vs English overlay, even if DB columns were stored swapped. */
+function nonemptyText(value: string | null | undefined): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export { isUsableEnglish };
+
+/**
+ * Column unswap helper for server restore only. Display uses `loc()` which reads
+ * title_th / title_en as stored.
+ */
 export function bilingualPair(th: string, en: string): { th: string; en: string } {
   const thIsThai = hasThaiScript(th);
   const enIsThai = hasThaiScript(en);
@@ -617,20 +626,25 @@ export function bilingualPair(th: string, en: string): { th: string; en: string 
   return { th: thai, en: english };
 }
 
+/** Fill `*_en` only when the English field is missing, blank, or a copy of Thai. */
 export function needsEnglishOverlay(th: string, en: string): boolean {
-  const pair = bilingualPair(th, en);
-  return hasThaiScript(pair.th) && (!pair.en.trim() || hasThaiScript(pair.en));
+  const thai = nonemptyText(th);
+  const english = nonemptyText(en);
+  if (!thai || !hasThaiScript(thai)) return false;
+  if (!english) return true;
+  if (english === thai) return true;
+  return false;
 }
 
 /**
- * Listing + chrome helper: TH shows Thai original; EN shows English overlay.
- * Does not invent copy — callers fill a missing English overlay separately.
+ * locale=th → Thai original. locale=en → English overlay when present and
+ * non-empty (Thai place names allowed), else Thai fallback.
  */
 export function loc(lang: Lang, th: string, en: string): string {
-  const pair = bilingualPair(th, en);
-  if (lang === "th") return pair.th || pair.en;
-  if (pair.en && !hasThaiScript(pair.en)) return pair.en;
-  return pair.en || pair.th;
+  const thai = nonemptyText(th);
+  const english = nonemptyText(en);
+  if (lang === "th") return thai || english;
+  return english || thai;
 }
 
 export function initDeviceLanguage() {
