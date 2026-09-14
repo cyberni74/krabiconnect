@@ -1,9 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, List, Map as MapIcon, Search as SearchIcon, Store, Wrench } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { lazy, Suspense, useState, type FormEvent, type ReactNode } from "react";
 import { ListingCard } from "@/components/listings/listing-card";
-import { KrabiMap } from "@/components/map/krabi-map";
 import { listFeed } from "@/lib/server/listings";
 import { useT, type I18nKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -14,6 +13,10 @@ import {
   categoryName,
 } from "@/lib/constants";
 import { useAreaStore } from "@/lib/area";
+
+const KrabiMap = lazy(() =>
+  import("@/components/map/krabi-map").then((m) => ({ default: m.KrabiMap })),
+);
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -170,7 +173,9 @@ function Home() {
           ))}
         </div>
       ) : view === "map" ? (
-        <KrabiMap items={cards} />
+        <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
+          <KrabiMap items={cards} />
+        </Suspense>
       ) : cards.length === 0 ? (
         <EmptyHome t={t} />
       ) : (

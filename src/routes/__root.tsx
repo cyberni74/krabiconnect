@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { createServerFn } from "@tanstack/react-start";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { GrokChromeGate } from "@/components/grok-chrome-gate";
 import { QueryProvider } from "@/components/query-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "sonner";
@@ -54,6 +55,7 @@ function Root() {
       </head>
       <body className="bg-bg text-fg">
         <PreviewHostBridge />
+        <GrokChromeGate />
         <AuthProvider>
           <QueryProvider>
             <AppShell>

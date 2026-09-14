@@ -116,6 +116,37 @@ export function resolvePublicHost(hostHeader) {
   );
 }
 
+function envFlag(name) {
+  const raw = typeof process !== "undefined" ? process.env?.[name] : undefined;
+  const value = String(raw ?? "").trim().toLowerCase();
+  return value === "1" || value === "true" || value === "yes" || value === "on";
+}
+
+/**
+ * Published / standalone apps omit the "Created with Grok" + Remix widget.
+ * Local preview (no grok.me host, no STANDALONE / HIDE_GROK_CHROME) keeps it.
+ */
+export function shouldHideGrokChrome({ host } = {}) {
+  if (
+    envFlag("STANDALONE") ||
+    envFlag("HIDE_GROK_CHROME") ||
+    envFlag("VITE_STANDALONE") ||
+    envFlag("VITE_HIDE_GROK_CHROME")
+  ) {
+    return true;
+  }
+  const resolved = resolvePublicHost(host);
+  return typeof resolved === "string" && resolved.endsWith(".grok.me");
+}
+
+/** Remove a previously injected extensions.js tag (idempotent hide). */
+export function stripGrokExtensionsScript(html) {
+  return String(html).replace(
+    /<script\b[^>]*\bsrc=["'][^"']*grok-app-builder\/extensions\.js[^"']*["'][^>]*>\s*<\/script>/gi,
+    "",
+  );
+}
+
 export function isInstallQuery(url) {
   const query = String(url ?? "").split("?", 2)[1] ?? "";
   const params = new URLSearchParams(query);
@@ -447,7 +478,9 @@ export function injectGrokPwaHead(html, ctx = {}) {
     grokOgHeadTags({ host, appName, site, documentTitle, cwd }).join(""),
   );
 
-  if (!next.includes("/grok-app-builder/extensions.js")) {
+  if (shouldHideGrokChrome({ host })) {
+    next = stripGrokExtensionsScript(next);
+  } else if (!next.includes("/grok-app-builder/extensions.js")) {
     missing.push(...grokExtensionsHeadTags(projectId));
   } else if (projectId && !next.includes('name="grok-project-id"')) {
     missing.push(`<meta name="grok-project-id" content="${escapeHtml(projectId)}">`);
