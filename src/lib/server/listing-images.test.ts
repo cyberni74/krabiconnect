@@ -41,6 +41,13 @@ describe("isUsableListingImage", () => {
       isUsableListingImage("https://abc123.public.blob.vercel-storage.com/listings/photo.jpg"),
       true,
     );
+    assert.equal(
+      isUsableListingImage(
+        "/api/img?u=" +
+          encodeURIComponent("https://abc123.public.blob.vercel-storage.com/listings/photo.jpg"),
+      ),
+      true,
+    );
   });
 
   it("rejects empty and non-URL values", () => {
