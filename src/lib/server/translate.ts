@@ -50,7 +50,7 @@ export async function translateListing(
   const target = source === "en" ? "Thai" : "English";
   const raw = await grokJson(
     `Title: ${title}\n\nDescription: ${description}`,
-    `Translate this KrabiConnect portal listing into ${target}. Keep Thai place names (Ao Nang, Krabi, Railay). Return ONLY JSON {"title":"...","description":"..."}.`,
+    `Translate this KrabiMarketplace listing into ${target}. Keep Thai place names (Ao Nang, Krabi, Railay). Return ONLY JSON {"title":"...","description":"..."}.`,
   );
   const parsed = raw ? extractJson(raw) : null;
   const tTitle = parsed?.title?.trim() || title;

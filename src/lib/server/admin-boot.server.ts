@@ -5,16 +5,16 @@ import { getDb } from "./helpers";
 export { ADMIN_EMAIL };
 const ADMIN_PASSWORD = "AoNang#2026";
 const ADMIN_NAME = "Manni";
-const ADMIN_USER_ID = "admin-krabiconnect";
+const ADMIN_USER_ID = "admin-krabimarketplace";
 
-const g = globalThis as typeof globalThis & { __krabiconnectAdminBoot__?: Promise<void> };
+const g = globalThis as typeof globalThis & { __krabimarketplaceAdminBoot__?: Promise<void> };
 
 export async function ensureAdmin() {
-  g.__krabiconnectAdminBoot__ ??= bootstrapAdmin().catch((err) => {
-    g.__krabiconnectAdminBoot__ = undefined;
+  g.__krabimarketplaceAdminBoot__ ??= bootstrapAdmin().catch((err) => {
+    g.__krabimarketplaceAdminBoot__ = undefined;
     throw err;
   });
-  return g.__krabiconnectAdminBoot__;
+  return g.__krabimarketplaceAdminBoot__;
 }
 
 async function bootstrapAdmin() {

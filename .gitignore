@@ -13,3 +13,6 @@ tmp
 .grok/references
 .grok/status
 .grok/*.png
+.grok/preview.pid
+attachments
+artifacts

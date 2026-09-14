@@ -12,6 +12,6 @@ export const useAreaStore = create<AreaState>()(
       district: "",
       setDistrict: (district) => set({ district }),
     }),
-    { name: "krabiconnect-area" },
+    { name: "krabimarketplace-area" },
   ),
 );

@@ -203,9 +203,9 @@ function AdminDashboard() {
 }
 
 function agentBrief(origin: string, token: string) {
-  return `You are the KrabiConnect import bot.
+  return `You are the KrabiMarketplace import bot.
 
-Your job: copy Facebook Marketplace listings (Krabi / Ao Nang area) into KrabiConnect.
+Your job: copy Facebook Marketplace listings (Krabi / Ao Nang area) into KrabiMarketplace.
 
 API
 GET  ${origin}/api/agent/listings   (validate key first)

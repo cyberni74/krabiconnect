@@ -14,9 +14,8 @@ import {
   publicAppHost,
   renderWebManifest,
   resolveOgCardAsset,
-  shouldHideGrokChrome,
   snapshotOgIdentity,
-  stripGrokExtensionsScript,
+  shouldHideGrokChrome,
   stripInstallParams,
 } from "./grok-pwa-shared.mjs";
 import { renderInstallPage } from "./grok-pwa-plugin.mjs";
@@ -272,7 +271,6 @@ test("published VITE_PUBLIC_HOSTNAME wins over request Host for og:image", () =>
       /property="og:image" content="https:\/\/plum-plaza-reef-dream\.grok\.me\/og\.jpg"/,
     );
     assert.doesNotMatch(vercelHost, /vercel\.app/);
-    assert.doesNotMatch(vercelHost, /grok-app-builder\/extensions\.js/);
 
     const otherPublicHost = injectGrokPwaHead("<html><head><title>RACK</title></head></html>", {
       host: "custom.example.com",
@@ -391,43 +389,6 @@ test("does not duplicate the extensions script", () => {
   assert.equal(twice.split("extensions.js").length - 1, 1);
 });
 
-test("hides Grok chrome on published grok.me hosts", () => {
-  assert.equal(shouldHideGrokChrome({ host: "ivory-arrow-drift-cliff.grok.me" }), true);
-  assert.equal(shouldHideGrokChrome({ host: "localhost:8080" }), false);
-  const out = injectGrokPwaHead("<html><head></head></html>", {
-    host: "ivory-arrow-drift-cliff.grok.me",
-    projectId: "proj-123",
-  });
-  assert.doesNotMatch(out, /grok-app-builder\/extensions\.js/);
-});
-
-test("hides Grok chrome when STANDALONE or HIDE_GROK_CHROME is set", () => {
-  const keys = ["STANDALONE", "HIDE_GROK_CHROME", "VITE_STANDALONE", "VITE_HIDE_GROK_CHROME"];
-  const prev = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
-  try {
-    for (const key of keys) {
-      for (const k of keys) delete process.env[k];
-      process.env[key] = "1";
-      assert.equal(shouldHideGrokChrome({ host: "localhost" }), true, key);
-      const out = injectGrokPwaHead("<html><head></head></html>", { host: "localhost" });
-      assert.doesNotMatch(out, /grok-app-builder\/extensions\.js/);
-    }
-  } finally {
-    for (const key of keys) {
-      if (prev[key] === undefined) delete process.env[key];
-      else process.env[key] = prev[key];
-    }
-  }
-});
-
-test("strips an already-injected extensions script when hiding chrome", () => {
-  const withScript = injectGrokPwaHead("<html><head></head></html>", { host: "localhost" });
-  assert.match(withScript, /grok-app-builder\/extensions\.js/);
-  const hidden = injectGrokPwaHead(withScript, { host: "ivory-arrow-drift-cliff.grok.me" });
-  assert.doesNotMatch(hidden, /grok-app-builder\/extensions\.js/);
-  assert.match(stripGrokExtensionsScript(withScript), /<head>/);
-});
-
 test("is idempotent", () => {
   const once = injectGrokPwaHead("<html><head></head></html>");
   const twice = injectGrokPwaHead(once);
@@ -437,6 +398,39 @@ test("is idempotent", () => {
 test("uses the app name in the injected title tag", () => {
   const out = injectGrokPwaHead("<html><head></head></html>", { appName: "Wild Race" });
   assert.match(out, /apple-mobile-web-app-title" content="Wild Race"/);
+});
+
+test("omits Created with Grok chrome on production hostname", () => {
+  const out = injectGrokPwaHead("<html><head></head></html>", {
+    host: "ivory-arrow-drift-cliff.grok.me",
+    projectId: "proj-123",
+  });
+  assert.doesNotMatch(out, /grok-app-builder\/extensions\.js/);
+  assert.match(out, /name="grok-project-id" content="proj-123"/);
+});
+
+test("strips a pre-injected extensions script on production hostname", () => {
+  const html =
+    '<html><head><script src="https://grok.com/grok-app-builder/extensions.js" defer></script></head></html>';
+  const out = injectGrokPwaHead(html, { host: "ivory-arrow-drift-cliff.grok.me" });
+  assert.doesNotMatch(out, /extensions\.js/);
+});
+
+test("omits chrome when HIDE_GROK_CHROME=true", () => {
+  assert.equal(shouldHideGrokChrome("", { HIDE_GROK_CHROME: "true" }), true);
+  assert.equal(shouldHideGrokChrome("preview.example", { HIDE_GROK_CHROME: "1" }), true);
+  const out = injectGrokPwaHead("<html><head></head></html>", {
+    projectId: "p1",
+    hideChrome: true,
+  });
+  assert.doesNotMatch(out, /extensions\.js/);
+});
+
+test("preview sandbox host still injects Remix chrome", () => {
+  const out = injectGrokPwaHead("<html><head></head></html>", {
+    host: "hds-wjo1ympggho7-6014-1vq4q.grok-code-wild.hades-www.grok-sandbox.com",
+  });
+  assert.match(out, /grok-app-builder\/extensions\.js/);
 });
 
 test("streaming injector handles </head> split across chunks", () => {

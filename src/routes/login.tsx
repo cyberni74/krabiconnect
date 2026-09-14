@@ -57,7 +57,7 @@ function Login() {
       </div>
       <div className="mx-auto w-full max-w-sm space-y-6">
         <div className="space-y-3 text-center">
-          <Logo variant="photo" className="mx-auto size-20" />
+          <Logo variant="full" className="mx-auto h-32 w-full max-w-[280px] bg-transparent" />
           <h1 className="text-2xl font-semibold tracking-tight">{t("signInTitle")}</h1>
           <p className="text-sm leading-relaxed text-muted">{t("signInBody")}</p>
         </div>

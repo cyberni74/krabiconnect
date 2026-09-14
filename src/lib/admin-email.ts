@@ -1,1 +1,1 @@
-export const ADMIN_EMAIL = "admin@krabiconnect.app";
+export const ADMIN_EMAIL = "admin@krabimarketplace.app";

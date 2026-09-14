@@ -116,37 +116,6 @@ export function resolvePublicHost(hostHeader) {
   );
 }
 
-function envFlag(name) {
-  const raw = typeof process !== "undefined" ? process.env?.[name] : undefined;
-  const value = String(raw ?? "").trim().toLowerCase();
-  return value === "1" || value === "true" || value === "yes" || value === "on";
-}
-
-/**
- * Published / standalone apps omit the "Created with Grok" + Remix widget.
- * Local preview (no grok.me host, no STANDALONE / HIDE_GROK_CHROME) keeps it.
- */
-export function shouldHideGrokChrome({ host } = {}) {
-  if (
-    envFlag("STANDALONE") ||
-    envFlag("HIDE_GROK_CHROME") ||
-    envFlag("VITE_STANDALONE") ||
-    envFlag("VITE_HIDE_GROK_CHROME")
-  ) {
-    return true;
-  }
-  const resolved = resolvePublicHost(host);
-  return typeof resolved === "string" && resolved.endsWith(".grok.me");
-}
-
-/** Remove a previously injected extensions.js tag (idempotent hide). */
-export function stripGrokExtensionsScript(html) {
-  return String(html).replace(
-    /<script\b[^>]*\bsrc=["'][^"']*grok-app-builder\/extensions\.js[^"']*["'][^>]*>\s*<\/script>/gi,
-    "",
-  );
-}
-
 export function isInstallQuery(url) {
   const query = String(url ?? "").split("?", 2)[1] ?? "";
   const params = new URLSearchParams(query);
@@ -231,7 +200,32 @@ export function grokPwaHeadTags(appName = DEFAULT_APP_NAME) {
   ];
 }
 
+/** Platform "Created with Grok" / Remix banner — injected into every HTML document. */
 export const GROK_EXTENSIONS_SCRIPT_SRC = "https://grok.com/grok-app-builder/extensions.js";
+
+/** Live production host for KrabiMarketplace (ivory-arrow). */
+export const PRODUCTION_GROK_HOST = "ivory-arrow-drift-cliff.grok.me";
+
+export function shouldHideGrokChrome(
+  host = "",
+  env = typeof process !== "undefined" ? process.env : undefined,
+) {
+  const flag = String(env?.HIDE_GROK_CHROME ?? "").trim().toLowerCase();
+  if (flag === "true" || flag === "1" || flag === "yes") return true;
+  const h = String(host ?? "")
+    .split(",")[0]
+    .trim()
+    .split(":")[0]
+    .toLowerCase();
+  return h === PRODUCTION_GROK_HOST;
+}
+
+export function stripGrokChrome(html) {
+  return String(html).replace(
+    /<script\b[^>]*\bsrc=["']https:\/\/grok\.com\/grok-app-builder\/extensions\.js["'][^>]*>\s*<\/script>/gi,
+    "",
+  );
+}
 
 export function readGrokProjectId() {
   const fromProcess = typeof process !== "undefined" ? process.env?.VITE_PROJECT_ID : "";
@@ -478,11 +472,15 @@ export function injectGrokPwaHead(html, ctx = {}) {
     grokOgHeadTags({ host, appName, site, documentTitle, cwd }).join(""),
   );
 
-  if (shouldHideGrokChrome({ host })) {
-    next = stripGrokExtensionsScript(next);
+  const hideChrome = ctx.hideChrome ?? shouldHideGrokChrome(host);
+  if (hideChrome) {
+    next = stripGrokChrome(next);
   } else if (!next.includes("/grok-app-builder/extensions.js")) {
     missing.push(...grokExtensionsHeadTags(projectId));
   } else if (projectId && !next.includes('name="grok-project-id"')) {
+    missing.push(`<meta name="grok-project-id" content="${escapeHtml(projectId)}">`);
+  }
+  if (hideChrome && projectId && !next.includes('name="grok-project-id"')) {
     missing.push(`<meta name="grok-project-id" content="${escapeHtml(projectId)}">`);
   }
   if (

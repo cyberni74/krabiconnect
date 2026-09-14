@@ -46,13 +46,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           {isHome ? (
             <>
               <Link to="/" className="shrink-0" aria-label={t("appName")}>
-                <Logo className="size-8" />
+                <Logo className="size-10" />
               </Link>
               <LocationSelect />
             </>
           ) : (
             <Link to="/" className="flex min-w-0 items-center gap-2">
-              <Logo className="size-8" />
+              <Logo className="size-10" />
               <span className="truncate font-semibold tracking-tight">{t("appName")}</span>
             </Link>
           )}

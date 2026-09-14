@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/agent")({
       OPTIONS: () => new Response(null, { status: 204, headers: cors }),
       GET: async () => {
         const { AGENT_SCHEMA } = await import("@/lib/server/agent.server");
-        return Response.json({ name: "KrabiConnect agent API", schema: AGENT_SCHEMA }, { headers: cors });
+        return Response.json({ name: "KrabiMarketplace agent API", schema: AGENT_SCHEMA }, { headers: cors });
       },
     },
   },

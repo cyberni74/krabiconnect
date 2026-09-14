@@ -8,7 +8,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "KrabiConnect";
+const APP_NAME = "KrabiMarketplace";
 
 const fetchSessionUser = createServerFn({ method: "GET" }).handler(async () => {
   const { ensureAdmin } = await import("@/lib/server/admin-boot.server");
@@ -28,11 +28,11 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#0088A3" },
       {
         name: "description",
-        content: "KrabiConnect — local services, jobs and marketplace in Krabi. Thai and English, auto-translated.",
+        content: "KrabiMarketplace — local services, jobs and classifieds in Krabi. Thai and English, auto-translated.",
       },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/jpeg", href: "/brand/mark.jpg" },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },

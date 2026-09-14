@@ -15,7 +15,7 @@ function unauthorized(body: unknown) {
     status: 401,
     headers: {
       ...cors,
-      "WWW-Authenticate": 'Bearer realm="KrabiConnect agent", error="invalid_token"',
+      "WWW-Authenticate": 'Bearer realm="KrabiMarketplace agent", error="invalid_token"',
     },
   });
 }

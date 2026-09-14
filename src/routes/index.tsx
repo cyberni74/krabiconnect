@@ -1,6 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Briefcase, List, Map as MapIcon, Search as SearchIcon, Store, Wrench } from "lucide-react";
+import {
+  Briefcase,
+  Car,
+  Home as HomeIcon,
+  List,
+  Map as MapIcon,
+  Palmtree,
+  Search as SearchIcon,
+  Smartphone,
+  Store,
+  Wrench,
+} from "lucide-react";
 import { lazy, Suspense, useState, type FormEvent, type ReactNode } from "react";
 import { ListingCard } from "@/components/listings/listing-card";
 import { listFeed } from "@/lib/server/listings";
@@ -14,11 +25,9 @@ import {
 } from "@/lib/constants";
 import { useAreaStore } from "@/lib/area";
 
-const KrabiMap = lazy(() =>
-  import("@/components/map/krabi-map").then((m) => ({ default: m.KrabiMap })),
-);
-
 export const Route = createFileRoute("/")({ component: Home });
+
+const MapView = lazy(() => import("@/components/map/MapViewMapLibre"));
 
 const MODULES = [
   {
@@ -41,10 +50,20 @@ const MODULES = [
   },
 ];
 
+const FEATURED = [
+  { kind: "market" as const, category: "vehicles", icon: Car },
+  { kind: "market" as const, category: "property", icon: HomeIcon },
+  { kind: "jobs" as const, category: "hospitality", icon: Briefcase },
+  { kind: "services" as const, category: "trades", icon: Wrench },
+  { kind: "services" as const, category: "tours", icon: Palmtree },
+  { kind: "market" as const, category: "electronics", icon: Smartphone },
+];
+
 function Home() {
   const { lang, t } = useT();
   const nav = useNavigate();
   const [view, setView] = useState<"list" | "map">("list");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [kind, setKind] = useState<"all" | "services" | "jobs" | "market">("all");
   const [category, setCategory] = useState("");
   const [q, setQ] = useState("");
@@ -79,23 +98,15 @@ function Home() {
 
   return (
     <main className="px-4 pb-8">
-      <section className="relative mb-6">
-        <div className="relative overflow-hidden rounded-3xl shadow-card">
-          <img src="/brand/hero.jpg" alt="" className="h-56 w-full object-cover" />
-          <div className="absolute inset-0 bg-linear-to-t from-fg/90 via-fg/40 to-fg/15" />
-          <div className="absolute inset-x-0 bottom-0 px-5 pb-11">
-            <p className="text-2xs font-medium uppercase tracking-wider text-primary-fg/75">
-              {t("coast")}
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold leading-tight text-primary-fg">
-              {t("heroHeadline")}
-            </h1>
-            <p className="mt-1 text-sm leading-snug text-primary-fg/90">{t("heroSub")}</p>
-          </div>
-        </div>
+      <section className="relative mb-5">
+        <img
+          src="/brand/hero.png"
+          alt="KrabiMarketplace"
+          className="mx-auto h-44 w-full object-contain"
+        />
         <form
           onSubmit={onSearch}
-          className="relative z-10 mx-3 -mt-6 flex items-center gap-1 rounded-full bg-surface p-1.5 shadow-float"
+          className="relative z-10 mt-3 flex items-center gap-1 rounded-full bg-surface p-1.5 shadow-float"
         >
           <SearchIcon className="ml-3 size-4 shrink-0 text-muted" />
           <input
@@ -114,7 +125,7 @@ function Home() {
         </form>
       </section>
 
-      <div className="mb-5 grid grid-cols-3 gap-2">
+      <div className="mb-4 grid grid-cols-3 gap-2">
         {MODULES.map((m) => {
           const Icon = m.icon;
           const active = kind === m.id;
@@ -139,6 +150,44 @@ function Home() {
             </button>
           );
         })}
+      </div>
+
+      <div className="mb-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">{t("popular")}</p>
+        <div className="grid grid-cols-3 gap-2">
+          {FEATURED.map((f) => {
+            const Icon = f.icon;
+            const active = kind === f.kind && category === f.category;
+            return (
+              <button
+                key={`${f.kind}-${f.category}`}
+                type="button"
+                onClick={() => {
+                  if (active) {
+                    setKind("all");
+                    setCategory("");
+                  } else {
+                    setKind(f.kind);
+                    setCategory(f.category);
+                  }
+                }}
+                className={cn(
+                  "flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left shadow-card",
+                  active ? "bg-primary text-primary-fg" : "bg-surface text-fg",
+                )}
+              >
+                <Icon className="size-4 shrink-0" />
+                <span className="truncate text-xs font-semibold">
+                  {categoryName(
+                    f.kind === "jobs" ? "job" : f.kind === "market" ? "market" : "service",
+                    f.category,
+                    lang,
+                  )}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {cats.length ? (
@@ -174,7 +223,7 @@ function Home() {
         </div>
       ) : view === "map" ? (
         <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
-          <KrabiMap items={cards} />
+          <MapView items={cards} selectedId={selectedId} onSelect={setSelectedId} />
         </Suspense>
       ) : cards.length === 0 ? (
         <EmptyHome t={t} />
