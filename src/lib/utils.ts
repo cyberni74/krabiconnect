@@ -26,6 +26,10 @@ export function detectLang(text: string): "en" | "th" {
   return /[\u0E00-\u0E7F]/.test(text) ? "th" : "en";
 }
 
+export function hasThaiScript(text: string): boolean {
+  return /[\u0E00-\u0E7F]/.test(text);
+}
+
 export function haversineKm(
   a: { lat: number; lng: number },
   b: { lat: number; lng: number },

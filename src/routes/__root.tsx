@@ -55,6 +55,11 @@ function Root() {
       </head>
       <body className="bg-bg text-fg">
         <PreviewHostBridge />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=document.cookie.match(/(?:^|; )krabimarketplace-lang=(th|en)/);var lang=m?m[1]:null;if(!lang){var n=String(navigator.language||"").toLowerCase().replace("_","-");lang=n.indexOf("th")===0?"th":"en";}document.documentElement.lang=lang;}catch(e){}})();`,
+          }}
+        />
         <GrokChromeGate />
         <AuthProvider>
           <QueryProvider>

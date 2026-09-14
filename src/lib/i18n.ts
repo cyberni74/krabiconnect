@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Lang } from "./constants";
+import { hasThaiScript } from "./utils.ts";
 
 export type { Lang };
 
@@ -511,62 +512,137 @@ const strings = {
 
 export type I18nKey = keyof typeof strings.en;
 
+/** Toggle source of truth: label TH always selects locale `th`, EN always `en`. */
+export const LOCALES = [
+  { locale: "th" as const, label: "TH", name: "ไทย" },
+  { locale: "en" as const, label: "EN", name: "English" },
+] as const;
+
+export const LOCALE_STORAGE_KEY = "krabimarketplace-lang";
+export const LOCALE_COOKIE = "krabimarketplace-lang";
+
+/** Default locale: browser/OS language starting with `th` → Thai, else English. */
+export function localeFromLanguageTags(tags: readonly string[]): Lang {
+  const primary = tags.find((tag) => tag.trim().length > 0);
+  if (!primary) return "en";
+  return primary.trim().toLowerCase().replace(/_/g, "-").startsWith("th") ? "th" : "en";
+}
+
 function detectDeviceLang(): Lang {
   if (typeof navigator === "undefined") return "en";
-  const tags = [navigator.language, ...(navigator.languages ?? [])]
-    .filter(Boolean)
-    .map((x) => x.toLowerCase());
-  return tags.some((tag) => tag === "th" || tag.startsWith("th-")) ? "th" : "en";
+  return localeFromLanguageTags([navigator.language, ...(navigator.languages ?? [])].filter(Boolean));
+}
+
+function readLocaleCookie(): Lang | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|; )krabimarketplace-lang=(th|en)(?:;|$)/);
+  return match ? (match[1] as Lang) : null;
+}
+
+export function writeLocaleCookie(lang: Lang) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${LOCALE_COOKIE}=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
+}
+
+function applyDocumentLang(lang: Lang) {
+  if (typeof document !== "undefined") document.documentElement.lang = lang;
 }
 
 type LangState = {
   lang: Lang;
   locked: boolean;
   setLang: (lang: Lang) => void;
+  setLocale: (lang: Lang) => void;
 };
+
+function commitLang(lang: Lang): Pick<LangState, "lang" | "locked"> {
+  applyDocumentLang(lang);
+  writeLocaleCookie(lang);
+  return { lang, locked: true };
+}
 
 export const useLangStore = create<LangState>()(
   persist(
-    (set) => ({
-      lang: "en",
-      locked: false,
-      setLang: (lang) => set({ lang, locked: true }),
-    }),
+    (set) => {
+      const setLang = (lang: Lang) => set(commitLang(lang));
+      return {
+        lang: "en",
+        locked: false,
+        setLang,
+        setLocale: setLang,
+      };
+    },
     {
-      name: "krabimarketplace-lang",
+      name: LOCALE_STORAGE_KEY,
       onRehydrateStorage: () => (state) => {
-        if (state?.locked) return;
-        const next = detectDeviceLang();
-        useLangStore.setState({ lang: next, locked: false });
-        if (typeof document !== "undefined") document.documentElement.lang = next;
+        const current = useLangStore.getState();
+        if (current.locked || state?.locked) {
+          applyDocumentLang(current.lang);
+          writeLocaleCookie(current.lang);
+          return;
+        }
+        const next = readLocaleCookie() ?? detectDeviceLang();
+        const locked = Boolean(readLocaleCookie());
+        useLangStore.setState({ lang: next, locked });
+        applyDocumentLang(next);
+        if (locked) writeLocaleCookie(next);
       },
     },
   ),
 );
 
 export function t(lang: Lang, key: I18nKey): string {
-  return strings[lang][key] ?? strings.en[key];
+  const dict = lang === "th" ? strings.th : strings.en;
+  return dict[key] ?? strings.en[key];
 }
 
 export function useT() {
   const lang = useLangStore((s) => s.lang);
+  const setLang = useLangStore((s) => s.setLang);
   return {
     lang,
+    locale: lang,
     t: (key: I18nKey) => t(lang, key),
-    setLang: useLangStore.getState().setLang,
+    setLang,
+    setLocale: setLang,
   };
 }
 
+/** Thai original vs English overlay, even if DB columns were stored swapped. */
+export function bilingualPair(th: string, en: string): { th: string; en: string } {
+  const thIsThai = hasThaiScript(th);
+  const enIsThai = hasThaiScript(en);
+  const thai = thIsThai ? th : enIsThai ? en : th;
+  const english = enIsThai ? (thIsThai ? "" : th) : en;
+  return { th: thai, en: english };
+}
+
+export function needsEnglishOverlay(th: string, en: string): boolean {
+  const pair = bilingualPair(th, en);
+  return hasThaiScript(pair.th) && (!pair.en.trim() || hasThaiScript(pair.en));
+}
+
+/**
+ * Listing + chrome helper: TH shows Thai original; EN shows English overlay.
+ * Does not invent copy — callers fill a missing English overlay separately.
+ */
 export function loc(lang: Lang, th: string, en: string): string {
-  const v = lang === "th" ? th : en;
-  return v || en || th;
+  const pair = bilingualPair(th, en);
+  if (lang === "th") return pair.th || pair.en;
+  if (pair.en && !hasThaiScript(pair.en)) return pair.en;
+  return pair.en || pair.th;
 }
 
 export function initDeviceLanguage() {
   if (typeof window === "undefined") return;
   const state = useLangStore.getState();
   if (state.locked) return;
+  const fromCookie = readLocaleCookie();
+  if (fromCookie) {
+    useLangStore.setState(commitLang(fromCookie));
+    return;
+  }
   const next = detectDeviceLang();
   if (state.lang !== next) useLangStore.setState({ lang: next, locked: false });
-  document.documentElement.lang = next;
+  applyDocumentLang(next);
 }
