@@ -18,7 +18,7 @@ import { Input, Label, Textarea } from "@/components/ui/input";
 import { LocalizedText, TranslationBanner } from "@/components/translated";
 import { categoryName, districtName, kindLabel, taskName } from "@/lib/constants";
 import { useT, type I18nKey } from "@/lib/i18n";
-import { toOwnedImageUrl } from "@/lib/owned-image";
+import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
 import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
 import { createBooking, openConversation, sendMessage } from "@/lib/server/community";
 import type { FeedCard } from "@/lib/types";
@@ -83,7 +83,7 @@ export function ListingDetail({ card }: { card: FeedCard }) {
   });
 
   const isMine = user?.id === card.userId;
-  const img = card.images[0] ? toOwnedImageUrl(card.images[0]) : undefined;
+  const img = listingCoverSrc(card);
   const sellerName = card.facebookName || card.ownerName;
   const sellerPhotoRaw = card.facebookPhoto || card.ownerAvatar;
   const sellerPhoto = sellerPhotoRaw ? toOwnedImageUrl(sellerPhotoRaw) : null;
