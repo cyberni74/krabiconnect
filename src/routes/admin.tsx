@@ -235,11 +235,10 @@ Send one object or { "listings": [ ... ] } — max 20 per request.
 Duplicates: matching sourceUrl or id does not create a second row.
 If the existing row has no usable photos (blank, or only Facebook photo.php?fbid= HTML)
 and images[] has HTTPS/fbcdn URLs, those images are merged onto the existing row
-(cover = images[0]). fbcdn photos are rewritten to ${origin}/api/img?u=… so Discover
-heroes render without a Blob token. PATCH /api/agent/listings/:id with { "images": ["https://…"] }
-replaces photos on a known id. PATCH { "titleEn", "descriptionEn" } seeds the English overlay
-without changing title_th / description_th. POST …/listings/:id/translate-seed fills English
-from Thai via MyMemory when XAI_API_KEY is unset.
+(cover = images[0]). Re-POST the same sourceUrl/id with titleEn/descriptionEn to seed
+the English overlay only — title_th / description_th stay Thai.
+PATCH /api/agent/listings/:id with { "images": ["https://…"] } replaces photos.
+PATCH { "titleEn", "descriptionEn" } (no images required) seeds English overlay.
 POST ${origin}/api/agent/rehost { "url": "https://scontent…/photo.jpg" } copies to Vercel Blob
 when BLOB_READ_WRITE_TOKEN is set (503 if missing). GET ${origin}/api/img?u=… is public.
 
