@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { type ListingKind, type OfferType } from "@/lib/constants";
 import type { FeedCard } from "@/lib/types";
+import { withListingCopy } from "@/lib/listing-dto";
 import { ensureProfile, fetchServices, getDb } from "./helpers";
 import { writeListing } from "./listing-write";
 
@@ -43,9 +44,9 @@ export const listFeed = createServerFn({ method: "GET" })
     const { ensureAdmin } = await import("./admin-boot.server");
     await ensureAdmin();
     const services = await fetchServices(sql);
-    return applyFilters(services, data ?? {}).sort((a, b) =>
-      a.createdAt < b.createdAt ? 1 : -1,
-    );
+    return applyFilters(services, data ?? {})
+      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+      .map(withListingCopy);
   });
 
 export const getListing = createServerFn({ method: "GET" })
@@ -53,7 +54,8 @@ export const getListing = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const sql = await getDb();
     const rows = await fetchServices(sql, { id: data.id });
-    return rows[0] ?? null;
+    const row = rows[0];
+    return row ? withListingCopy(row) : null;
   });
 
 export const myListings = createServerFn({ method: "GET" })
@@ -61,7 +63,9 @@ export const myListings = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const sql = await getDb();
     await ensureProfile(sql, context.userId);
-    const all = await fetchServices(sql, { userId: context.userId });
+    const all = await fetchServices(sql, { userId: context.userId }).then((rows) =>
+      rows.map(withListingCopy),
+    );
     return {
       services: all.filter((s) => s.kind === "service" && s.type !== "wanted"),
       jobs: all.filter((s) => s.kind === "job" && s.type !== "wanted"),
