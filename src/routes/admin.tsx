@@ -208,8 +208,9 @@ function agentBrief(origin: string, token: string) {
 Your job: copy Facebook Marketplace listings (Krabi / Ao Nang area) into KrabiMarketplace.
 
 API
-GET  ${origin}/api/agent/listings   (validate key first)
-POST ${origin}/api/agent/listings
+GET   ${origin}/api/agent/listings   (validate key first)
+POST  ${origin}/api/agent/listings
+PATCH ${origin}/api/agent/listings/:id
 Authorization: Bearer ${token}
 Content-Type: application/json
 
@@ -222,11 +223,17 @@ Send one object or { "listings": [ ... ] } — max 20 per request.
   "kind": "market",
   "category": "vehicles",
   "district": "ao-nang",
-  "images": ["https://image-url"],
+  "images": ["https://scontent.xx.fbcdn.net/v/…"],
   "facebookUrl": "https://www.facebook.com/seller.profile",
   "facebookName": "Seller name",
   "sourceUrl": "https://www.facebook.com/marketplace/item/123"
 }
+
+Duplicates: matching sourceUrl or id does not create a second row.
+If the existing row has no usable photos (blank, or only Facebook photo.php?fbid= HTML)
+and images[] has HTTPS/fbcdn URLs, those images are merged onto the existing row
+(cover = images[0]). PATCH /api/agent/listings/:id with { "images": ["https://…"] }
+replaces photos on a known id.
 
 kind: market | service | job
 category (market): vehicles | boats | property | electronics | furniture | fashion | other
@@ -235,6 +242,7 @@ district: ao-nang | krabi-town | nong-thale | klong-muang | krabi-noi | railay
 Rules
 - facebookUrl = seller PROFILE, not only the Marketplace item
 - sourceUrl = Marketplace item link (prevents duplicates)
+- Re-POST the same sourceUrl with images[] to attach photos onto blank listings
 - Do not translate. Send original Thai or English.
 
 401 Unauthorized
