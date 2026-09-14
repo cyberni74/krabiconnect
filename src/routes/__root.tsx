@@ -5,6 +5,7 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { GrokChromeGate } from "@/components/grok-chrome-gate";
 import { QueryProvider } from "@/components/query-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { useLangStore } from "@/lib/i18n";
 import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 
@@ -30,6 +31,7 @@ export const Route = createRootRoute({
         name: "description",
         content: "KrabiMarketplace — local services, jobs and classifieds in Krabi. Thai and English, auto-translated.",
       },
+      { name: "google", content: "notranslate" },
     ],
     links: [
       { rel: "icon", type: "image/jpeg", href: "/brand/mark.jpg" },
@@ -48,8 +50,9 @@ export const Route = createRootRoute({
 });
 
 function Root() {
+  const lang = useLangStore((s) => s.lang);
   return (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html lang={lang} translate="no" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -57,7 +60,7 @@ function Root() {
         <PreviewHostBridge />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=document.cookie.match(/(?:^|; )krabimarketplace-lang=(th|en)/);var lang=m?m[1]:null;if(!lang){var n=String(navigator.language||"").toLowerCase().replace("_","-");lang=n.indexOf("th")===0?"th":"en";}document.documentElement.lang=lang;}catch(e){}})();`,
+            __html: `(function(){try{var lang=null;try{lang=localStorage.getItem("km_locale")}catch(e){}if(lang!=="th"&&lang!=="en"){try{var legacy=localStorage.getItem("krabimarketplace-lang");if(legacy==="th"||legacy==="en")lang=legacy;else if(legacy){var p=JSON.parse(legacy);var l=(p&&p.state&&p.state.lang)||(p&&p.lang);if(l==="th"||l==="en")lang=l}}}catch(e){}}if(lang!=="th"&&lang!=="en"){var m=document.cookie.match(/(?:^|; )(?:km_locale|krabimarketplace-lang)=(th|en)/);if(m)lang=m[1]}if(lang!=="th"&&lang!=="en"){var n=String(navigator.language||"").toLowerCase().replace("_","-");lang=n.indexOf("th")===0?"th":"en"}document.documentElement.lang=lang}catch(e){}})();`,
           }}
         />
         <GrokChromeGate />

@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type { Lang } from "./constants";
 import { hasThaiScript } from "./utils.ts";
 
@@ -518,8 +517,9 @@ export const LOCALES = [
   { locale: "en" as const, label: "EN", name: "English" },
 ] as const;
 
-export const LOCALE_STORAGE_KEY = "krabimarketplace-lang";
-export const LOCALE_COOKIE = "krabimarketplace-lang";
+/** Explicit user choice. Plain `"th"` / `"en"` — not a zustand JSON blob. */
+export const LOCALE_STORAGE_KEY = "km_locale";
+export const LEGACY_LOCALE_STORAGE_KEY = "krabimarketplace-lang";
 
 /** Default locale: browser/OS language starting with `th` → Thai, else English. */
 export function localeFromLanguageTags(tags: readonly string[]): Lang {
@@ -533,15 +533,50 @@ function detectDeviceLang(): Lang {
   return localeFromLanguageTags([navigator.language, ...(navigator.languages ?? [])].filter(Boolean));
 }
 
+export function parseStoredLocale(raw: string | null): Lang | null {
+  if (raw === "th" || raw === "en") return raw;
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { state?: { lang?: unknown }; lang?: unknown };
+    const lang = parsed?.state?.lang ?? parsed?.lang;
+    if (lang === "th" || lang === "en") return lang;
+  } catch {
+    /* not JSON */
+  }
+  return null;
+}
+
 function readLocaleCookie(): Lang | null {
   if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|; )krabimarketplace-lang=(th|en)(?:;|$)/);
+  const match = document.cookie.match(/(?:^|; )(?:km_locale|krabimarketplace-lang)=(th|en)(?:;|$)/);
   return match ? (match[1] as Lang) : null;
 }
 
-export function writeLocaleCookie(lang: Lang) {
-  if (typeof document === "undefined") return;
-  document.cookie = `${LOCALE_COOKIE}=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
+export function readStoredLocale(): Lang | null {
+  if (typeof localStorage !== "undefined") {
+    try {
+      const current = parseStoredLocale(localStorage.getItem(LOCALE_STORAGE_KEY));
+      if (current) return current;
+      const legacy = parseStoredLocale(localStorage.getItem(LEGACY_LOCALE_STORAGE_KEY));
+      if (legacy) return legacy;
+    } catch {
+      /* private mode */
+    }
+  }
+  return readLocaleCookie();
+}
+
+export function writeStoredLocale(lang: Lang) {
+  if (typeof localStorage !== "undefined") {
+    try {
+      localStorage.setItem(LOCALE_STORAGE_KEY, lang);
+    } catch {
+      /* private mode */
+    }
+  }
+  if (typeof document !== "undefined") {
+    document.cookie = `${LOCALE_STORAGE_KEY}=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  }
 }
 
 function applyDocumentLang(lang: Lang) {
@@ -557,39 +592,30 @@ type LangState = {
 
 function commitLang(lang: Lang): Pick<LangState, "lang" | "locked"> {
   applyDocumentLang(lang);
-  writeLocaleCookie(lang);
+  writeStoredLocale(lang);
   return { lang, locked: true };
 }
 
-export const useLangStore = create<LangState>()(
-  persist(
-    (set) => {
-      const setLang = (lang: Lang) => set(commitLang(lang));
-      return {
-        lang: "en",
-        locked: false,
-        setLang,
-        setLocale: setLang,
-      };
-    },
-    {
-      name: LOCALE_STORAGE_KEY,
-      onRehydrateStorage: () => (state) => {
-        const current = useLangStore.getState();
-        if (current.locked || state?.locked) {
-          applyDocumentLang(current.lang);
-          writeLocaleCookie(current.lang);
-          return;
-        }
-        const next = readLocaleCookie() ?? detectDeviceLang();
-        const locked = Boolean(readLocaleCookie());
-        useLangStore.setState({ lang: next, locked });
-        applyDocumentLang(next);
-        if (locked) writeLocaleCookie(next);
-      },
-    },
-  ),
-);
+function initialLangState(): Pick<LangState, "lang" | "locked"> {
+  if (typeof window === "undefined") return { lang: "en", locked: false };
+  const stored = readStoredLocale();
+  if (stored) {
+    applyDocumentLang(stored);
+    return { lang: stored, locked: true };
+  }
+  const next = detectDeviceLang();
+  applyDocumentLang(next);
+  return { lang: next, locked: false };
+}
+
+export const useLangStore = create<LangState>()((set) => {
+  const setLang = (lang: Lang) => set(commitLang(lang));
+  return {
+    ...initialLangState(),
+    setLang,
+    setLocale: setLang,
+  };
+});
 
 export function t(lang: Lang, key: I18nKey): string {
   const dict = lang === "th" ? strings.th : strings.en;
@@ -635,13 +661,13 @@ export function loc(lang: Lang, th: string, en: string): string {
 
 export function initDeviceLanguage() {
   if (typeof window === "undefined") return;
-  const state = useLangStore.getState();
-  if (state.locked) return;
-  const fromCookie = readLocaleCookie();
-  if (fromCookie) {
-    useLangStore.setState(commitLang(fromCookie));
+  const stored = readStoredLocale();
+  if (stored) {
+    useLangStore.setState(commitLang(stored));
     return;
   }
+  const state = useLangStore.getState();
+  if (state.locked) return;
   const next = detectDeviceLang();
   if (state.lang !== next) useLangStore.setState({ lang: next, locked: false });
   applyDocumentLang(next);

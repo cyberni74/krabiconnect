@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOCALES, loc, localeFromLanguageTags, needsEnglishOverlay, t } from "./i18n.ts";
+import { LOCALES, loc, localeFromLanguageTags, needsEnglishOverlay, parseStoredLocale, t } from "./i18n.ts";
 
 describe("locale toggle mapping", () => {
   it("TH label is bound to locale th, EN to en", () => {
@@ -55,5 +55,19 @@ describe("loc listing overlay", () => {
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "ล้างแอร์บ้าน"), true);
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", ""), true);
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "Home air-con cleaning"), false);
+  });
+});
+
+describe("km_locale persistence", () => {
+  it("reads a plain th/en value", () => {
+    assert.equal(parseStoredLocale("th"), "th");
+    assert.equal(parseStoredLocale("en"), "en");
+    assert.equal(parseStoredLocale("de"), null);
+    assert.equal(parseStoredLocale(null), null);
+  });
+
+  it("migrates the legacy zustand persist blob", () => {
+    assert.equal(parseStoredLocale(JSON.stringify({ state: { lang: "th", locked: true }, version: 0 })), "th");
+    assert.equal(parseStoredLocale(JSON.stringify({ lang: "en" })), "en");
   });
 });
