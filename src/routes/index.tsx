@@ -16,6 +16,7 @@ import { lazy, Suspense, useState, type FormEvent, type ReactNode } from "react"
 import { ListingCard } from "@/components/listings/listing-card";
 import { listFeed } from "@/lib/server/listings";
 import { useT, type I18nKey } from "@/lib/i18n";
+import { useEnsureEnglishOverlays } from "@/lib/use-english-overlay";
 import { cn } from "@/lib/utils";
 import {
   JOB_CATEGORIES,
@@ -88,6 +89,7 @@ function Home() {
 
   // Same array for list cards and map pins — do not strip null lat/lng.
   const listings = feed.data ?? EMPTY_LISTINGS;
+  useEnsureEnglishOverlays(listings);
   const showSkeleton = feed.isLoading && listings.length === 0;
   const cats =
     kind === "jobs"
