@@ -31,6 +31,8 @@ describe("isAllowedImageHost", () => {
     assert.equal(isAllowedImageHost("store.blob.vercel-storage.com"), true);
     assert.equal(isVercelBlobHost("abc.public.blob.vercel-storage.com"), true);
     assert.equal(isVercelBlobHost("scontent.xx.fbcdn.net"), false);
+    assert.equal(isHotlinkCdnHost("abc.public.blob.vercel-storage.com"), true);
+    assert.equal(isHotlinkCdnHost("store.blob.vercel-storage.com"), true);
   });
 
   it("rejects unrelated hosts", () => {
@@ -79,7 +81,7 @@ describe("toOwnedImageUrl", () => {
     assert.equal(isVercelBlobImageUrl(BLOB), true);
     assert.equal(isVercelBlobImageUrl("https://store.blob.vercel-storage.com/x.webp"), true);
     assert.equal(isDisplayableCoverUrl(BLOB), true);
-    assert.equal(isHotlinkCdnHost("abc.public.blob.vercel-storage.com"), false);
+    assert.equal(isHotlinkCdnHost("abc.public.blob.vercel-storage.com"), true);
     assert.equal(isAllowedImageHost("abc.public.blob.vercel-storage.com"), true);
   });
 });

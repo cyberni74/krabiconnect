@@ -53,7 +53,7 @@ export function isVercelBlobHost(hostname: string): boolean {
   );
 }
 
-/** Facebook / Instagram CDN hosts that blank out in <img> due to hotlink checks. */
+/** Hosts listing-card may use as covers / proxy (fbcdn, scontent, instagram, fbsbx, Vercel Blob). */
 export function isHotlinkCdnHost(hostname: string): boolean {
   const host = normalizeHost(hostname);
   if (!host) return false;
@@ -61,7 +61,7 @@ export function isHotlinkCdnHost(hostname: string): boolean {
   if (host.startsWith("scontent")) return true;
   if (host === "cdninstagram.com" || host.endsWith(".cdninstagram.com")) return true;
   if (host === "fbsbx.com" || host.endsWith(".fbsbx.com")) return true;
-  return false;
+  return isVercelBlobHost(host);
 }
 
 /**
