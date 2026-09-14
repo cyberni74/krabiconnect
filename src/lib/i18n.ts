@@ -511,6 +511,12 @@ const strings = {
 
 export type I18nKey = keyof typeof strings.en;
 
+/** Toggle source of truth: label TH always selects locale `th`, EN always `en`. */
+export const LOCALES = [
+  { locale: "th" as const, label: "TH", name: "ไทย" },
+  { locale: "en" as const, label: "EN", name: "English" },
+] as const;
+
 function detectDeviceLang(): Lang {
   if (typeof navigator === "undefined") return "en";
   const tags = [navigator.language, ...(navigator.languages ?? [])]
@@ -519,47 +525,80 @@ function detectDeviceLang(): Lang {
   return tags.some((tag) => tag === "th" || tag.startsWith("th-")) ? "th" : "en";
 }
 
+function applyDocumentLang(lang: Lang) {
+  if (typeof document !== "undefined") document.documentElement.lang = lang;
+}
+
 type LangState = {
   lang: Lang;
   locked: boolean;
   setLang: (lang: Lang) => void;
+  setLocale: (lang: Lang) => void;
 };
+
+function commitLang(lang: Lang): Pick<LangState, "lang" | "locked"> {
+  applyDocumentLang(lang);
+  return { lang, locked: true };
+}
 
 export const useLangStore = create<LangState>()(
   persist(
-    (set) => ({
-      lang: "en",
-      locked: false,
-      setLang: (lang) => set({ lang, locked: true }),
-    }),
+    (set) => {
+      const setLang = (lang: Lang) => set(commitLang(lang));
+      return {
+        lang: "en",
+        locked: false,
+        setLang,
+        setLocale: setLang,
+      };
+    },
     {
       name: "krabimarketplace-lang",
       onRehydrateStorage: () => (state) => {
-        if (state?.locked) return;
+        // Never clobber a choice already made this session (click-before-rehydrate race).
+        if (useLangStore.getState().locked || state?.locked) {
+          applyDocumentLang(useLangStore.getState().lang);
+          return;
+        }
         const next = detectDeviceLang();
         useLangStore.setState({ lang: next, locked: false });
-        if (typeof document !== "undefined") document.documentElement.lang = next;
+        applyDocumentLang(next);
       },
     },
   ),
 );
 
 export function t(lang: Lang, key: I18nKey): string {
-  return strings[lang][key] ?? strings.en[key];
+  const dict = lang === "th" ? strings.th : strings.en;
+  return dict[key] ?? strings.en[key];
 }
 
 export function useT() {
   const lang = useLangStore((s) => s.lang);
+  const setLang = useLangStore((s) => s.setLang);
   return {
     lang,
+    locale: lang,
     t: (key: I18nKey) => t(lang, key),
-    setLang: useLangStore.getState().setLang,
+    setLang,
+    setLocale: setLang,
   };
 }
 
+const THAI_CHAR = /[\u0E00-\u0E7F]/;
+
+/**
+ * Pick the Thai or English field for the active locale.
+ * If stored columns are swapped (English sitting in `th`, Thai in `en`), unswap by script.
+ */
 export function loc(lang: Lang, th: string, en: string): string {
-  const v = lang === "th" ? th : en;
-  return v || en || th;
+  const thHasThai = THAI_CHAR.test(th);
+  const enHasThai = THAI_CHAR.test(en);
+  const swapped = !thHasThai && enHasThai && th.length > 0 && en.length > 0;
+  const thaiText = swapped ? en : th;
+  const englishText = swapped ? th : en;
+  const preferred = lang === "th" ? thaiText : englishText;
+  return preferred || englishText || thaiText;
 }
 
 export function initDeviceLanguage() {
@@ -568,5 +607,5 @@ export function initDeviceLanguage() {
   if (state.locked) return;
   const next = detectDeviceLang();
   if (state.lang !== next) useLangStore.setState({ lang: next, locked: false });
-  document.documentElement.lang = next;
+  applyDocumentLang(next);
 }
