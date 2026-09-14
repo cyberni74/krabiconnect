@@ -53,7 +53,10 @@ export function isVercelBlobHost(hostname: string): boolean {
   );
 }
 
-/** Facebook / Instagram CDN hosts that blank out in <img> due to hotlink checks. */
+/**
+ * Cover-host allowlist compiled into listing-card (production `D()` was this check).
+ * Facebook CDN + public Vercel Blob. Same-origin `/api/img` paths are handled separately.
+ */
 export function isHotlinkCdnHost(hostname: string): boolean {
   const host = normalizeHost(hostname);
   if (!host) return false;
@@ -61,17 +64,19 @@ export function isHotlinkCdnHost(hostname: string): boolean {
   if (host.startsWith("scontent")) return true;
   if (host === "cdninstagram.com" || host.endsWith(".cdninstagram.com")) return true;
   if (host === "fbsbx.com" || host.endsWith(".fbsbx.com")) return true;
+  if (host === "blob.vercel-storage.com" || host.endsWith(".blob.vercel-storage.com")) return true;
+  if (host === "public.blob.vercel-storage.com" || host.includes("public.blob.vercel-storage.com")) {
+    return true;
+  }
   return false;
 }
 
 /**
  * Hosts allowed as listing covers and `/api/img` proxy targets.
- * Facebook CDN + Vercel Blob. Same-origin `/api/img` paths are handled separately.
+ * Facebook CDN + Vercel Blob (`*.blob.vercel-storage.com` / `public.blob.vercel-storage.com`).
  */
 export function isAllowedImageHost(hostname: string): boolean {
-  const host = normalizeHost(hostname);
-  if (!host) return false;
-  return isHotlinkCdnHost(host) || isVercelBlobHost(host);
+  return isHotlinkCdnHost(hostname);
 }
 
 function proxyPathname(pathname: string): boolean {
@@ -115,16 +120,18 @@ export function needsOwnedProxy(raw: string): boolean {
   const inner = unwrapOwnedImageUrl(raw);
   if (!inner || inner.startsWith("data:")) return false;
   try {
-    return isAllowedImageHost(hostnameOf(new URL(inner)));
+    const host = hostnameOf(new URL(inner));
+    // Public Blob is a valid <img src> (HEAD 200). Only Facebook CDN needs /api/img.
+    if (isVercelBlobHost(host)) return false;
+    return isHotlinkCdnHost(host);
   } catch {
     return false;
   }
 }
 
 /**
- * Map a stored listing photo to a same-origin owned URL.
- * Facebook CDN and Vercel Blob (and already-proxied URLs on any host, e.g. a
- * parked SITE_URL) → `/api/img?u=…` so Discover `<img src>` stays allowlisted.
+ * Map a stored listing photo to a display URL.
+ * Facebook CDN → `/api/img?u=…`. Public Vercel Blob HTTPS stays as-is (allowlisted).
  * Pass `origin` only when an absolute URL is required (emails, agent payloads).
  */
 export function toOwnedImageUrl(raw: string, origin = ""): string {
@@ -203,7 +210,7 @@ export function pickCoverImage(source: CoverSource): string | undefined {
   return undefined;
 }
 
-/** Cover URL for `<img src>`: Blob + Facebook CDN go through `/api/img` (allowlisted). */
+/** Cover URL for `<img src>`: Blob HTTPS as-is; Facebook CDN through `/api/img`. */
 export function listingCoverSrc(source: CoverSource, origin = ""): string | undefined {
   const picked = pickCoverImage(source);
   if (!picked) return undefined;

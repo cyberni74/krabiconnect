@@ -37,6 +37,7 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
   const overlay = useEnsureEnglishOverlay(card);
   const origin = useAreaStore((s) => s.district);
   const href = `/service/${card.id}`;
+  // Allowlist includes *.blob.vercel-storage.com / public.blob.vercel-storage.com
   const img = listingCoverSrc(card);
   const price = priceLabel(card, lang, t);
   const chips = card.tasks.slice(0, compact ? 1 : 2);
