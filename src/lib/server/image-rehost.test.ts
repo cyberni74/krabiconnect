@@ -162,7 +162,7 @@ describe("uploadImageBytes", () => {
 describe("processListingImages", () => {
   it("rehosts remote URLs and keeps owned ones", async () => {
     const result = await processListingImages([OWNED, FBCDN], deps());
-    assert.deepEqual(result.images, [OWNED, OWNED]);
+    assert.deepEqual(result.images, [OWNED]);
     assert.equal(result.rehosted, 1);
     assert.equal(result.failed.length, 0);
   });

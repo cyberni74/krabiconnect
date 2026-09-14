@@ -17,7 +17,7 @@ export type FeedCard = {
   deposit: number | null;
   status: string;
   images: string[];
-  /** First displayable cover (Blob HTTPS, /api/img, or other https). Same as pickCoverImage. */
+  /** Best displayable cover: Blob HTTPS, then scontent/fbcdn, never facebook.com/photo HTML. */
   cover: string | null;
   tasks: string[];
   district: string;

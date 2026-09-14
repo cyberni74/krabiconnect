@@ -1,5 +1,5 @@
 import { parseImages } from "../utils.ts";
-import { isDisplayableCoverUrl, toOwnedImageUrl } from "../owned-image.ts";
+import { isDisplayableCoverUrl, preferCoverImages, toOwnedImageUrl } from "../owned-image.ts";
 
 const MAX_IMAGES = 8;
 
@@ -13,12 +13,13 @@ export function isUsableListingImage(url: string): boolean {
 }
 
 export function cleanImages(raw?: string[] | null): string[] {
-  return (raw ?? [])
-    .filter((u): u is string => typeof u === "string")
-    .map((u) => u.trim())
-    .filter(isUsableListingImage)
-    .map((u) => toOwnedImageUrl(u))
-    .slice(0, MAX_IMAGES);
+  return preferCoverImages(
+    (raw ?? [])
+      .filter((u): u is string => typeof u === "string")
+      .map((u) => u.trim())
+      .filter(isUsableListingImage)
+      .map((u) => toOwnedImageUrl(u)),
+  ).slice(0, MAX_IMAGES);
 }
 
 export function hasUsableImages(stored: unknown): boolean {

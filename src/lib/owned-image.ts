@@ -8,7 +8,9 @@
  * Listing cards may use the Blob URL directly or `/api/img?u=` (same-origin).
  */
 
-import { parseImages } from "./utils.ts";
+import { isFacebookFbidHtmlUrl, parseImages } from "./utils.ts";
+
+export { isFacebookFbidHtmlUrl };
 
 export const IMAGE_PROXY_PATH = "/api/img";
 
@@ -137,7 +139,13 @@ export function needsOwnedProxy(raw: string): boolean {
 export function toOwnedImageUrl(raw: string, origin = ""): string {
   const trimmed = raw.trim();
   if (!trimmed || trimmed.startsWith("data:image/")) return trimmed;
+  if (isFacebookFbidHtmlUrl(trimmed)) return trimmed;
   const inner = unwrapOwnedImageUrl(trimmed);
+  if (isFacebookFbidHtmlUrl(inner)) return inner;
+  // Public Blob is a valid <img src> — never wrap it through /api/img.
+  if (isVercelBlobImageUrl(inner) || isVercelBlobImageUrl(trimmed)) {
+    return isVercelBlobImageUrl(inner) ? inner : trimmed;
+  }
   if (!needsOwnedProxy(inner)) return isOwnedProxyUrl(trimmed) ? inner : trimmed;
   const path = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(inner)}`;
   const base = origin.replace(/\/+$/, "");
@@ -164,19 +172,55 @@ function isFacebookHtmlCoverHost(host: string): boolean {
   return host === "facebook.com" || host.endsWith(".facebook.com");
 }
 
+function coverTarget(raw: string): string {
+  return unwrapOwnedImageUrl(raw.trim());
+}
+
+/**
+ * Cover preference: 1 Blob, 2 https scontent/fbcdn, 3 working /api/img, 4 other https.
+ * 0 = never use as a cover (Facebook fbid HTML, empty, unparseable).
+ */
+export function coverPreferenceRank(raw: string): number {
+  const trimmed = raw.trim();
+  if (!trimmed || isFacebookFbidHtmlUrl(trimmed)) return 0;
+  const inner = coverTarget(trimmed);
+  if (!inner || isFacebookFbidHtmlUrl(inner)) return 0;
+  if (inner.startsWith("data:image/")) return 4;
+  if (isVercelBlobImageUrl(inner) || isVercelBlobImageUrl(trimmed)) return 1;
+  try {
+    const url = inner.startsWith("/") ? new URL(inner, "https://owned.invalid") : new URL(inner);
+    if (proxyPathname(url.pathname) || url.pathname.startsWith(`${IMAGE_PROXY_PATH}/`)) {
+      return 0;
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") return 0;
+    const host = hostnameOf(url);
+    if (isVercelBlobHost(host)) return 1;
+    if (isAllowedImageHost(host)) return 2;
+    if (isFacebookHtmlCoverHost(host) && !url.pathname.includes("/picture")) return 0;
+    if (isOwnedProxyUrl(trimmed) && isAllowedImageHost(host)) return 3;
+    if (isDisplayableCoverUrl(inner) || isDisplayableCoverUrl(trimmed)) return 4;
+    return 0;
+  } catch {
+    return 0;
+  }
+}
+
 /** True when `raw` can be used as an `<img src>` cover (blob, proxy, https, data URI). */
 export function isDisplayableCoverUrl(raw: unknown): raw is string {
   if (typeof raw !== "string") return false;
   const trimmed = raw.trim();
   if (!trimmed) return false;
+  if (isFacebookFbidHtmlUrl(trimmed)) return false;
   if (trimmed.startsWith("data:image/")) return true;
-  if (isVercelBlobImageUrl(trimmed)) return true;
+  const inner = coverTarget(trimmed);
+  if (!inner || isFacebookFbidHtmlUrl(inner)) return false;
+  if (isVercelBlobImageUrl(inner) || isVercelBlobImageUrl(trimmed)) return true;
   try {
-    const url = trimmed.startsWith("/")
-      ? new URL(trimmed, "https://owned.invalid")
-      : new URL(trimmed);
+    const url = inner.startsWith("/")
+      ? new URL(inner, "https://owned.invalid")
+      : new URL(inner);
     if (proxyPathname(url.pathname) || url.pathname.startsWith(`${IMAGE_PROXY_PATH}/`)) {
-      return true;
+      return false;
     }
     if (url.protocol !== "http:" && url.protocol !== "https:") return false;
     const host = hostnameOf(url);
@@ -195,24 +239,55 @@ export type CoverSource = {
   images?: unknown;
 };
 
-/**
- * First usable listing hero. Accepts coverUrl/cover/image/images[], including
- * public `*.public.blob.vercel-storage.com` HTTPS URLs and `/api/img` paths.
- */
-export function pickCoverImage(source: CoverSource): string | undefined {
-  const candidates: unknown[] = [source.coverUrl, source.cover, source.image, ...parseImages(source.images)];
-  for (const candidate of candidates) {
+function coverCandidates(source: CoverSource): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const candidate of [source.coverUrl, source.cover, source.image, ...parseImages(source.images)]) {
     if (typeof candidate !== "string") continue;
     const trimmed = candidate.trim();
-    if (!trimmed) continue;
-    if (isVercelBlobImageUrl(trimmed) || isDisplayableCoverUrl(trimmed)) return trimmed;
+    if (!trimmed || seen.has(trimmed)) continue;
+    if (isFacebookFbidHtmlUrl(trimmed)) continue;
+    if (coverPreferenceRank(trimmed) === 0) continue;
+    if (!isDisplayableCoverUrl(trimmed)) continue;
+    seen.add(trimmed);
+    out.push(trimmed);
   }
-  return undefined;
+  out.sort((a, b) => coverPreferenceRank(a) - coverPreferenceRank(b));
+  return out;
+}
+
+/** Drop fbid HTML and put Blob / fbcdn heroes ahead of weaker URLs. */
+export function preferCoverImages(urls: string[]): string[] {
+  return coverCandidates({ images: urls });
+}
+
+/**
+ * First usable listing hero. Skips facebook.com/photo and fbid HTML.
+ * Prefers public Vercel Blob, then https scontent/fbcdn, then /api/img.
+ */
+export function pickCoverImage(source: CoverSource): string | undefined {
+  const best = coverCandidates(source)[0];
+  if (!best) return undefined;
+  const inner = coverTarget(best);
+  if (isVercelBlobImageUrl(inner)) return inner;
+  return best;
+}
+
+/** Ranked display URLs for `<img src>` (Blob as-is; Facebook CDN through `/api/img`). */
+export function listingCoverSrcs(source: CoverSource, origin = ""): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const candidate of coverCandidates(source)) {
+    const src = toOwnedImageUrl(candidate, origin);
+    if (!src || isFacebookFbidHtmlUrl(src) || !isDisplayableCoverUrl(src)) continue;
+    if (seen.has(src)) continue;
+    seen.add(src);
+    out.push(src);
+  }
+  return out;
 }
 
 /** Cover URL for `<img src>`: Blob HTTPS as-is; Facebook CDN through `/api/img`. */
 export function listingCoverSrc(source: CoverSource, origin = ""): string | undefined {
-  const picked = pickCoverImage(source);
-  if (!picked) return undefined;
-  return toOwnedImageUrl(picked, origin);
+  return listingCoverSrcs(source, origin)[0];
 }

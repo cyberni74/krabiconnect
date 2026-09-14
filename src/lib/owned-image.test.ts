@@ -9,6 +9,7 @@ import {
   isVercelBlobHost,
   isVercelBlobImageUrl,
   listingCoverSrc,
+  listingCoverSrcs,
   needsOwnedProxy,
   pickCoverImage,
   toOwnedImageUrl,
@@ -105,8 +106,35 @@ describe("pickCoverImage", () => {
     assert.equal(pickCoverImage({ images: [html, BLOB] }), BLOB);
   });
 
+  it("never uses facebook.com/photo/?fbid= HTML as a cover", () => {
+    const html = "https://www.facebook.com/photo/?fbid=1029384756";
+    const wrapped = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(html)}`;
+    assert.equal(isDisplayableCoverUrl(html), false);
+    assert.equal(isDisplayableCoverUrl(wrapped), false);
+    assert.equal(pickCoverImage({ images: [html] }), undefined);
+    assert.equal(pickCoverImage({ cover: html, images: [BLOB] }), BLOB);
+    assert.equal(listingCoverSrc({ images: [html, BLOB] }), BLOB);
+    assert.equal(listingCoverSrc({ cover: wrapped, images: [BLOB] }), BLOB);
+  });
+
+  it("prefers Blob over a failing /api/img?u=fbcdn proxy", () => {
+    const proxy = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(FBCDN)}`;
+    assert.equal(pickCoverImage({ images: [proxy, BLOB] }), BLOB);
+    assert.equal(listingCoverSrc({ images: [proxy, BLOB] }), BLOB);
+    assert.equal(listingCoverSrc({ cover: proxy, images: [CDN, BLOB] }), BLOB);
+    assert.deepEqual(listingCoverSrcs({ images: [proxy, BLOB] }), [BLOB, proxy]);
+  });
+
+  it("does not wrap already-owned Blob URLs through /api/img", () => {
+    const wrappedBlob = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(BLOB)}`;
+    assert.equal(toOwnedImageUrl(wrappedBlob), BLOB);
+    assert.equal(listingCoverSrc({ images: [wrappedBlob] }), BLOB);
+    assert.equal(pickCoverImage({ images: [wrappedBlob, FBCDN] }), BLOB);
+  });
+
   it("does not reject Blob URLs that are not on an owned /api/img host", () => {
     assert.equal(listingCoverSrc({ images: [BLOB, CDN] }), BLOB);
+    assert.equal(listingCoverSrc({ images: [CDN, BLOB] }), BLOB);
     assert.equal(listingCoverSrc({ images: [BLOB] }), BLOB);
   });
 });
