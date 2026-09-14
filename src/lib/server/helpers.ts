@@ -1,5 +1,6 @@
 import { getSql, type Sql } from "@/lib/db";
 import type { ListingKind } from "@/lib/constants";
+import { listingCopyFields } from "@/lib/listing-dto";
 import { pickCoverImage, toOwnedImageUrl } from "@/lib/owned-image";
 import { parseImages } from "@/lib/utils";
 import type { FeedCard } from "@/lib/types";
@@ -74,14 +75,15 @@ export function mapFeedImages(raw: unknown): string[] {
 
 export function mapService(row: ServiceJoin): FeedCard {
   const images = mapFeedImages(row.images);
+  const copy = listingCopyFields(row);
   return {
     kind: asKind(row.kind),
     id: row.id,
     userId: row.user_id,
-    titleTh: row.title_th,
-    titleEn: row.title_en,
-    descriptionTh: row.description_th,
-    descriptionEn: row.description_en,
+    titleTh: copy.titleTh,
+    titleEn: copy.titleEn,
+    descriptionTh: copy.descriptionTh,
+    descriptionEn: copy.descriptionEn,
     category: row.category,
     type: row.offer_type,
     pricingType: row.pricing_type,

@@ -624,13 +624,17 @@ export function needsEnglishOverlay(th: string, en: string): boolean {
 
 /**
  * Listing + chrome helper: TH shows Thai original; EN shows English overlay.
- * Does not invent copy — callers fill a missing English overlay separately.
+ * Uses the stored EN field when it is non-empty, including overlays that keep
+ * Thai place names. Does not invent copy.
  */
 export function loc(lang: Lang, th: string, en: string): string {
-  const pair = bilingualPair(th, en);
-  if (lang === "th") return pair.th || pair.en;
-  if (pair.en && !hasThaiScript(pair.en)) return pair.en;
-  return pair.en || pair.th;
+  const thai = typeof th === "string" ? th.trim() : "";
+  const english = typeof en === "string" ? en.trim() : "";
+  if (lang === "th") {
+    const pair = bilingualPair(th ?? "", en ?? "");
+    return pair.th || pair.en || thai || english;
+  }
+  return english || thai;
 }
 
 export function initDeviceLanguage() {
