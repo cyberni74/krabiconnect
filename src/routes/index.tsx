@@ -24,6 +24,7 @@ import {
   categoryName,
 } from "@/lib/constants";
 import { useAreaStore } from "@/lib/area";
+import { knownDistrictId } from "@/lib/feed-query";
 import type { FeedCard } from "@/lib/types";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -78,8 +79,8 @@ function Home() {
     queryFn: () =>
       listFeed({
         data: {
-          kind,
-          district: district || undefined,
+          kind: kind === "all" ? undefined : kind,
+          district: knownDistrictId(district),
           category: category || undefined,
         },
       }),
