@@ -90,3 +90,16 @@
 .hide-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* Published standalone apps: hide leftover Grok/Remix builder chrome. */
+html[data-hide-grok-chrome] iframe[src*="grok-app-builder"],
+html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
+  display: none !important;
+}
+
+.maplibregl-map {
+  font-family: inherit;
+}
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+}

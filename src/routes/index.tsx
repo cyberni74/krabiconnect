@@ -1,9 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, List, Map as MapIcon, Search as SearchIcon, Store, Wrench } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { lazy, Suspense, useState, type FormEvent, type ReactNode } from "react";
 import { ListingCard } from "@/components/listings/listing-card";
-import { KrabiMap } from "@/components/map/krabi-map";
 import { listFeed } from "@/lib/server/listings";
 import { useT, type I18nKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -14,6 +13,10 @@ import {
   categoryName,
 } from "@/lib/constants";
 import { useAreaStore } from "@/lib/area";
+
+const KrabiMap = lazy(() =>
+  import("@/components/map/krabi-map").then((m) => ({ default: m.KrabiMap })),
+);
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -170,7 +173,9 @@ function Home() {
           ))}
         </div>
       ) : view === "map" ? (
-        <KrabiMap items={cards} />
+        <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
+          <KrabiMap items={cards} />
+        </Suspense>
       ) : cards.length === 0 ? (
         <EmptyHome t={t} />
       ) : (
@@ -181,18 +186,16 @@ function Home() {
         </div>
       )}
 
-      {cards.length > 0 || view === "map" ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-24 z-30 mx-auto flex max-w-lg justify-end px-4">
-          <button
-            type="button"
-            onClick={() => setView((v) => (v === "map" ? "list" : "map"))}
-            className="pointer-events-auto inline-flex h-12 items-center gap-2 rounded-full bg-fg px-4 text-sm font-medium text-primary-fg shadow-float"
-          >
-            {view === "map" ? <List className="size-4" /> : <MapIcon className="size-4" />}
-            {view === "map" ? t("showList") : t("showMap")}
-          </button>
-        </div>
-      ) : null}
+      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-30 mx-auto flex max-w-lg justify-end px-4">
+        <button
+          type="button"
+          onClick={() => setView((v) => (v === "map" ? "list" : "map"))}
+          className="pointer-events-auto inline-flex h-12 items-center gap-2 rounded-full bg-fg px-4 text-sm font-medium text-primary-fg shadow-float"
+        >
+          {view === "map" ? <List className="size-4" /> : <MapIcon className="size-4" />}
+          {view === "map" ? t("showList") : t("showMap")}
+        </button>
+      </div>
     </main>
   );
 }
