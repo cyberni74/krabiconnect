@@ -3,6 +3,7 @@ import { getDb } from "./helpers";
 import { AGENT_USER_ID, writeListing, type ListingWriteResult } from "./listing-write";
 
 export type AgentListingInput = {
+  id?: string | null;
   title: string;
   description?: string;
   priceThb?: number | null;
@@ -118,6 +119,7 @@ export async function ingestAgentListings(
     results.push(
       await writeListing({
         userId: AGENT_USER_ID,
+        id: item.id,
         title: item.title,
         description: item.description ?? "",
         kind: item.kind ?? "market",
@@ -136,21 +138,51 @@ export async function ingestAgentListings(
   return { ok: true, results };
 }
 
+export async function patchAgentListingImages(id: string, body: unknown) {
+  const { patchListingImages } = await import("./listing-write");
+  const images =
+    body && typeof body === "object" && "images" in body
+      ? (body as { images: unknown }).images
+      : undefined;
+  return patchListingImages(id, images);
+}
+
 export const AGENT_SCHEMA = {
   endpoint: "/api/agent/listings",
   validate: "GET /api/agent/listings with Authorization: Bearer kc_live_…",
   method: "POST",
   auth: "Authorization: Bearer kc_live_<48 hex>",
   body: {
+    id: "string (optional — match an existing listing by id)",
     title: "string (required)",
     description: "string",
     priceThb: "number",
     kind: "market | service | job",
     category: "vehicles | boats | property | electronics | furniture | fashion | other",
     district: "ao-nang | krabi-town | nong-thale | klong-muang | krabi-noi | railay",
-    images: ["https://…"],
+    images: ["https://… (fbcdn or other HTTPS; Facebook photo.php?fbid= HTML is ignored)"],
     facebookUrl: "https://www.facebook.com/seller-profile",
     facebookName: "string",
     sourceUrl: "https://www.facebook.com/marketplace/item/…",
+  },
+  duplicate:
+    "POST matching sourceUrl or id does not insert a second row. If the existing row has 0 usable images (empty/missing, or only Facebook fbid HTML) and images[] is non-empty, those HTTPS URLs are merged onto the existing row (cover = images[0]). Rows that already have usable photos are left unchanged.",
+  patch: {
+    endpoint: "PATCH /api/agent/listings/:id",
+    body: { images: ["https://…"] },
+    result: { ok: true, id: "string", images: ["https://…"], cover: "https://… | null" },
+    notes: "Replaces listing images. cover is images[0]. Same Bearer token as POST.",
+  },
+  result: {
+    ok: true,
+    results: [
+      {
+        id: "string",
+        kind: "market | service | job",
+        duplicate: "boolean",
+        imagesUpdated: "boolean (set when duplicate received photos)",
+        cover: "https://… (when imagesUpdated)",
+      },
+    ],
   },
 };

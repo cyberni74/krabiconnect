@@ -21,6 +21,7 @@ import { Route as ChatsIdRouteImport } from './routes/chats.$id'
 import { Route as ItemIdRouteImport } from './routes/item.$id'
 import { Route as ServiceIdRouteImport } from './routes/service.$id'
 import { Route as ApiAgentListingsRouteImport } from './routes/api/agent.listings'
+import { Route as ApiAgentListingsIdRouteImport } from './routes/api/agent.listings.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -83,6 +84,11 @@ const ApiAgentListingsRoute = ApiAgentListingsRouteImport.update({
   path: '/listings',
   getParentRoute: () => ApiAgentRoute,
 } as any)
+const ApiAgentListingsIdRoute = ApiAgentListingsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAgentListingsRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -101,7 +107,8 @@ export interface FileRoutesByFullPath {
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/service/$id': typeof ServiceIdRoute
-  '/api/agent/listings': typeof ApiAgentListingsRoute
+  '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
+  '/api/agent/listings/$id': typeof ApiAgentListingsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -116,7 +123,8 @@ export interface FileRoutesByTo {
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/service/$id': typeof ServiceIdRoute
-  '/api/agent/listings': typeof ApiAgentListingsRoute
+  '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
+  '/api/agent/listings/$id': typeof ApiAgentListingsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -132,7 +140,8 @@ export interface FileRoutesById {
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/service/$id': typeof ServiceIdRoute
-  '/api/agent/listings': typeof ApiAgentListingsRoute
+  '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
+  '/api/agent/listings/$id': typeof ApiAgentListingsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/item/$id'
     | '/service/$id'
     | '/api/agent/listings'
+    | '/api/agent/listings/$id'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/item/$id'
     | '/service/$id'
     | '/api/agent/listings'
+    | '/api/agent/listings/$id'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/item/$id'
     | '/service/$id'
     | '/api/agent/listings'
+    | '/api/agent/listings/$id'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -283,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentListingsRouteImport
       parentRoute: typeof ApiAgentRoute
     }
+    '/api/agent/listings/$id': {
+      id: '/api/agent/listings/$id'
+      path: '/$id'
+      fullPath: '/api/agent/listings/$id'
+      preLoaderRoute: typeof ApiAgentListingsIdRouteImport
+      parentRoute: typeof ApiAgentListingsRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -303,12 +322,24 @@ const ChatsRouteChildren: ChatsRouteChildren = {
 
 const ChatsRouteWithChildren = ChatsRoute._addFileChildren(ChatsRouteChildren)
 
+interface ApiAgentListingsRouteChildren {
+  ApiAgentListingsIdRoute: typeof ApiAgentListingsIdRoute
+}
+
+const ApiAgentListingsRouteChildren: ApiAgentListingsRouteChildren = {
+  ApiAgentListingsIdRoute: ApiAgentListingsIdRoute,
+}
+
+const ApiAgentListingsRouteWithChildren = ApiAgentListingsRoute._addFileChildren(
+  ApiAgentListingsRouteChildren,
+)
+
 interface ApiAgentRouteChildren {
-  ApiAgentListingsRoute: typeof ApiAgentListingsRoute
+  ApiAgentListingsRoute: typeof ApiAgentListingsRouteWithChildren
 }
 
 const ApiAgentRouteChildren: ApiAgentRouteChildren = {
-  ApiAgentListingsRoute: ApiAgentListingsRoute,
+  ApiAgentListingsRoute: ApiAgentListingsRouteWithChildren,
 }
 
 const ApiAgentRouteWithChildren = ApiAgentRoute._addFileChildren(

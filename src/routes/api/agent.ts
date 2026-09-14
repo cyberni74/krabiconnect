@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
 };
 
 export const Route = createFileRoute("/api/agent")({
@@ -12,7 +12,19 @@ export const Route = createFileRoute("/api/agent")({
       OPTIONS: () => new Response(null, { status: 204, headers: cors }),
       GET: async () => {
         const { AGENT_SCHEMA } = await import("@/lib/server/agent.server");
-        return Response.json({ name: "KrabiMarketplace agent API", schema: AGENT_SCHEMA }, { headers: cors });
+        return Response.json(
+          {
+            name: "KrabiMarketplace agent API",
+            schema: AGENT_SCHEMA,
+            endpoints: {
+              "GET /api/agent/listings": "Validate Bearer token → { ok, valid }",
+              "POST /api/agent/listings":
+                "Create listings. Duplicate sourceUrl/id is not a second row; empty/fbid-HTML images are upgraded from incoming images[].",
+              "PATCH /api/agent/listings/:id": "Replace images (cover = images[0]). Bearer token required.",
+            },
+          },
+          { headers: cors },
+        );
       },
     },
   },

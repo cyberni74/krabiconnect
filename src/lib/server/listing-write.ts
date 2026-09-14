@@ -10,12 +10,15 @@ import {
 import type { Sql } from "@/lib/db";
 import { detectLang, parseFacebookUrl, uid } from "@/lib/utils";
 import { ensureProfile, getDb } from "./helpers";
+import { cleanImages, imagesToApplyOnDuplicate } from "./listing-images";
 import { translateListing } from "./translate";
 
 export const AGENT_USER_ID = "grok-agent";
 
 export type ListingWriteInput = {
   userId: string;
+  /** When set, match an existing row by primary key (after sourceUrl). */
+  id?: string | null;
   title: string;
   description: string;
   kind?: string | null;
@@ -35,6 +38,8 @@ export type ListingWriteResult = {
   id: string;
   kind: ListingKind;
   duplicate: boolean;
+  imagesUpdated?: boolean;
+  cover?: string | null;
   warning?: string;
 };
 
@@ -78,12 +83,26 @@ export function resolveCategory(kind: ListingKind, raw?: string | null): string 
   return list[0]?.id ?? "other";
 }
 
-function cleanImages(raw?: string[] | null): string[] {
-  return (raw ?? [])
-    .filter((u): u is string => typeof u === "string")
-    .map((u) => u.trim())
-    .filter((u) => /^https?:\/\//i.test(u) || u.startsWith("data:image/"))
-    .slice(0, 8);
+type ExistingListingRow = { id: string; kind: string | null; images: unknown };
+
+async function findExistingListing(
+  sql: Sql,
+  opts: { sourceUrl: string | null; id?: string | null },
+): Promise<ExistingListingRow | null> {
+  if (opts.sourceUrl) {
+    const rows = await sql<ExistingListingRow>`
+      select id, kind, images from services where source_url = ${opts.sourceUrl} limit 1
+    `;
+    if (rows[0]) return rows[0];
+  }
+  const id = opts.id?.trim();
+  if (id) {
+    const rows = await sql<ExistingListingRow>`
+      select id, kind, images from services where id = ${id} limit 1
+    `;
+    if (rows[0]) return rows[0];
+  }
+  return null;
 }
 
 export async function ensureAgentProfile(sql: Sql) {
@@ -103,17 +122,26 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
   if (data.userId === AGENT_USER_ID) await ensureAgentProfile(sql);
 
   const sourceUrl = data.sourceUrl?.trim() || null;
-  if (sourceUrl) {
-    const existing = await sql<{ id: string; kind: string | null }>`
-      select id, kind from services where source_url = ${sourceUrl} limit 1
-    `;
-    if (existing[0]) {
+  const existing = await findExistingListing(sql, { sourceUrl, id: data.id });
+  if (existing) {
+    const nextImages = imagesToApplyOnDuplicate(data.images, existing.images);
+    if (nextImages) {
+      await sql`
+        update services set images = ${JSON.stringify(nextImages)} where id = ${existing.id}
+      `;
       return {
-        id: existing[0].id,
-        kind: resolveKind(existing[0].kind),
+        id: existing.id,
+        kind: resolveKind(existing.kind),
         duplicate: true,
+        imagesUpdated: true,
+        cover: nextImages[0] ?? null,
       };
     }
+    return {
+      id: existing.id,
+      kind: resolveKind(existing.kind),
+      duplicate: true,
+    };
   }
 
   const kind = resolveKind(data.kind);
@@ -170,4 +198,26 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
     duplicate: false,
     warning: facebookUrl ? undefined : "No Facebook profile — buyers cannot contact the seller",
   };
+}
+
+export async function patchListingImages(
+  id: string,
+  imagesRaw: unknown,
+): Promise<{ ok: true; id: string; images: string[]; cover: string | null }> {
+  const listingId = id.trim();
+  if (!listingId) throw new Error("Listing id required");
+  if (!Array.isArray(imagesRaw)) throw new Error("Body must include images: string[]");
+  const images = cleanImages(imagesRaw.filter((u): u is string => typeof u === "string"));
+  if (imagesRaw.length > 0 && images.length === 0) {
+    throw new Error("No usable HTTPS image URLs (Facebook photo.php/fbid HTML is ignored)");
+  }
+  const sql = await getDb();
+  const rows = await sql<{ id: string }>`select id from services where id = ${listingId} limit 1`;
+  if (!rows[0]) {
+    const err = new Error("Listing not found") as Error & { status: number };
+    err.status = 404;
+    throw err;
+  }
+  await sql`update services set images = ${JSON.stringify(images)} where id = ${listingId}`;
+  return { ok: true, id: listingId, images, cover: images[0] ?? null };
 }
