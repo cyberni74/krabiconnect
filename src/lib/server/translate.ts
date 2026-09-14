@@ -1,7 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { detectLang } from "@/lib/utils";
-import { isUsableEnglish, translateTextPublic } from "./th-en-fallback";
+import {
+  isUsableEnglish,
+  listingPairFromTranslation,
+  translateListingFallback,
+  translateTextPublic,
+} from "./th-en-fallback";
 import {
   overlayRowFromClient,
   overlaySource,
@@ -62,19 +67,6 @@ async function pairFromGrok(title: string, description: string, source: "en" | "
   return { title: tTitle || title, description: tDesc || description };
 }
 
-async function pairFromPublicApi(
-  title: string,
-  description: string,
-  source: "en" | "th",
-): Promise<Pair | null> {
-  const tTitle = await translateTextPublic(title, source);
-  const tDesc = description.trim()
-    ? await translateTextPublic(description, source)
-    : tTitle;
-  if (!tTitle && !tDesc) return null;
-  return { title: tTitle || title, description: tDesc || description || tTitle || title };
-}
-
 function usableForTarget(text: string, source: "en" | "th"): boolean {
   if (source === "th") return isUsableEnglish(text);
   return /[\u0E00-\u0E7F]/.test(text);
@@ -91,17 +83,13 @@ export async function translateListing(
 ): Promise<{ titleTh: string; titleEn: string; descriptionTh: string; descriptionEn: string }> {
   let pair = await pairFromGrok(title, description, source);
   if (!pair || !usableForTarget(pair.title, source)) {
-    pair = (await pairFromPublicApi(title, description, source)) ?? pair;
+    return translateListingFallback(title, description, source);
   }
-  if (source === "th") {
-    const titleEn = pair && isUsableEnglish(pair.title) ? pair.title : "";
-    const descriptionEn =
-      pair && isUsableEnglish(pair.description) ? pair.description : titleEn;
-    return { titleTh: title, titleEn, descriptionTh: description, descriptionEn };
+  const mapped = listingPairFromTranslation(title, description, source, pair);
+  if (source === "th" && !mapped.titleEn) {
+    return translateListingFallback(title, description, source);
   }
-  const titleTh = pair?.title?.trim() || "";
-  const descriptionTh = pair?.description?.trim() || titleTh;
-  return { titleTh, titleEn: title, descriptionTh, descriptionEn: description };
+  return mapped;
 }
 
 export async function translateText(

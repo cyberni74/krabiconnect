@@ -1,6 +1,10 @@
-import { hasThaiScript } from "@/lib/utils";
-
 export type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
+
+const THAI = /[\u0E00-\u0E7F]/;
+
+export function hasThaiScript(text: string): boolean {
+  return THAI.test(text);
+}
 
 const MYMEMORY = "https://api.mymemory.translated.net/get";
 const LIBRE_ENDPOINTS = [
@@ -131,3 +135,45 @@ export async function translateThaiToEnglish(
 ): Promise<string | null> {
   return translateTextPublic(text, "th", fetchImpl);
 }
+
+export type ListingPair = {
+  titleTh: string;
+  titleEn: string;
+  descriptionTh: string;
+  descriptionEn: string;
+};
+
+/** Map a translated pair onto overlay columns. Never copies Thai into title_en. */
+export function listingPairFromTranslation(
+  title: string,
+  description: string,
+  source: "en" | "th",
+  pair: { title?: string; description?: string } | null,
+): ListingPair {
+  if (source === "th") {
+    const titleEn = pair?.title && isUsableEnglish(pair.title) ? pair.title.trim() : "";
+    const descriptionEn =
+      pair?.description && isUsableEnglish(pair.description) ? pair.description.trim() : titleEn;
+    return { titleTh: title, titleEn, descriptionTh: description, descriptionEn };
+  }
+  const titleTh = pair?.title?.trim() || "";
+  const descriptionTh = pair?.description?.trim() || titleTh;
+  return { titleTh, titleEn: title, descriptionTh, descriptionEn: description };
+}
+
+export async function translateListingFallback(
+  title: string,
+  description: string,
+  source: "en" | "th",
+  fetchImpl: FetchLike = fetch,
+): Promise<ListingPair> {
+  const tTitle = await translateTextPublic(title, source, fetchImpl);
+  const tDesc = description.trim()
+    ? await translateTextPublic(description, source, fetchImpl)
+    : tTitle;
+  return listingPairFromTranslation(title, description, source, {
+    title: tTitle ?? undefined,
+    description: tDesc ?? undefined,
+  });
+}
+

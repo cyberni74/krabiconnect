@@ -1,5 +1,4 @@
-import { hasThaiScript } from "@/lib/utils";
-import { isUsableEnglish } from "./th-en-fallback";
+import { hasThaiScript, isUsableEnglish } from "./th-en-fallback.ts";
 
 export type OverlayRow = {
   id: string;
