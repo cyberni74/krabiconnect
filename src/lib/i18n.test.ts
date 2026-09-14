@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOCALES, loc, t } from "./i18n.ts";
+import { LOCALES, loc, localeFromLanguageTags, needsEnglishOverlay, t } from "./i18n.ts";
 
 describe("locale toggle mapping", () => {
   it("TH label is bound to locale th, EN to en", () => {
@@ -23,14 +23,37 @@ describe("locale toggle mapping", () => {
   });
 });
 
-describe("loc", () => {
-  it("selects the Thai field when locale is th, English when locale is en", () => {
+describe("default browser locale", () => {
+  it("selects th when the primary language tag starts with th", () => {
+    assert.equal(localeFromLanguageTags(["th"]), "th");
+    assert.equal(localeFromLanguageTags(["th-TH"]), "th");
+    assert.equal(localeFromLanguageTags(["th_TH"]), "th");
+    assert.equal(localeFromLanguageTags(["th-TH", "en"]), "th");
+  });
+
+  it("selects en otherwise", () => {
+    assert.equal(localeFromLanguageTags(["en"]), "en");
+    assert.equal(localeFromLanguageTags(["en-US"]), "en");
+    assert.equal(localeFromLanguageTags(["en-US", "th-TH"]), "en");
+    assert.equal(localeFromLanguageTags(["de-DE"]), "en");
+    assert.equal(localeFromLanguageTags([]), "en");
+  });
+});
+
+describe("loc listing overlay", () => {
+  it("TH shows Thai original, EN shows English overlay", () => {
     assert.equal(loc("th", "สวัสดี", "Hello"), "สวัสดี");
     assert.equal(loc("en", "สวัสดี", "Hello"), "Hello");
   });
 
-  it("unswaps columns when Thai copy was stored in the English field", () => {
+  it("keeps Thai original when columns were stored swapped", () => {
     assert.equal(loc("th", "Hello", "สวัสดี"), "สวัสดี");
     assert.equal(loc("en", "Hello", "สวัสดี"), "Hello");
+  });
+
+  it("flags missing English overlay when only Thai exists", () => {
+    assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "ล้างแอร์บ้าน"), true);
+    assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", ""), true);
+    assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "Home air-con cleaning"), false);
   });
 });

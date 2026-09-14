@@ -82,3 +82,73 @@ export const previewTranslation = createServerFn({ method: "POST" })
     const pair = await translateListing(data.title, data.description, source);
     return { source, ...pair };
   });
+
+export type EnglishOverlay = {
+  id: string;
+  titleEn: string;
+  descriptionEn: string;
+};
+
+const OVERLAY_CAP = 12;
+
+/**
+ * Fill English overlay columns for Thai originals. Never writes title_th / description_th
+ * except to restore Thai source into title_th when it was stored in the English column.
+ */
+export const fillEnglishOverlays = createServerFn({ method: "POST" })
+  .validator((input: { ids: string[] }) => ({
+    ids: (input?.ids ?? []).filter((id) => typeof id === "string" && id.trim()).slice(0, OVERLAY_CAP),
+  }))
+  .handler(async ({ data }): Promise<EnglishOverlay[]> => {
+    if (data.ids.length === 0 || !process.env.XAI_API_KEY) return [];
+    const { getDb } = await import("./helpers");
+    const { hasThaiScript } = await import("@/lib/utils");
+    const sql = await getDb();
+    const rows = await sql.query<{
+      id: string;
+      title_th: string;
+      title_en: string;
+      description_th: string;
+      description_en: string;
+    }>(
+      `select id, title_th, title_en, description_th, description_en from services where id = any($1)`,
+      [data.ids],
+    );
+    const out: EnglishOverlay[] = [];
+    for (const row of rows) {
+      const thaiTitle = hasThaiScript(row.title_th)
+        ? row.title_th
+        : hasThaiScript(row.title_en)
+          ? row.title_en
+          : "";
+      const thaiDesc = hasThaiScript(row.description_th)
+        ? row.description_th
+        : hasThaiScript(row.description_en)
+          ? row.description_en
+          : row.description_th;
+      const enTitleLooksEnglish = row.title_en.trim() && !hasThaiScript(row.title_en);
+      if (!thaiTitle || enTitleLooksEnglish) continue;
+      const overlay = await translateListing(thaiTitle, thaiDesc || thaiTitle, "th");
+      if (!overlay.titleEn.trim() || hasThaiScript(overlay.titleEn)) continue;
+      const restoreThaiSource = !hasThaiScript(row.title_th) && hasThaiScript(row.title_en);
+      if (restoreThaiSource) {
+        await sql`
+          update services set
+            title_th = ${row.title_en},
+            description_th = ${hasThaiScript(row.description_en) ? row.description_en : row.description_th},
+            title_en = ${overlay.titleEn},
+            description_en = ${overlay.descriptionEn}
+          where id = ${row.id}
+        `;
+      } else {
+        await sql`
+          update services set
+            title_en = ${overlay.titleEn},
+            description_en = ${overlay.descriptionEn}
+          where id = ${row.id}
+        `;
+      }
+      out.push({ id: row.id, titleEn: overlay.titleEn, descriptionEn: overlay.descriptionEn });
+    }
+    return out;
+  });
