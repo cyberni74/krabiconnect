@@ -21,9 +21,12 @@ export const Route = createFileRoute("/api/agent")({
             endpoints: {
               "GET /api/agent/listings": "Validate Bearer token → { ok, valid }",
               "POST /api/agent/listings":
-                "Create listings. Duplicate sourceUrl/id is not a second row; empty/fbid-HTML images are upgraded from incoming images[]. Images are rehosted to Vercel Blob when BLOB_READ_WRITE_TOKEN is set.",
+                "Create listings. Duplicate sourceUrl/id is not a second row; empty/fbid-HTML images are upgraded from incoming images[]. fbcdn is rewritten to /api/img?u=…; rehosted to Vercel Blob when BLOB_READ_WRITE_TOKEN is set.",
               "PATCH /api/agent/listings/:id":
-                "Replace images (cover = images[0]). Rehosts fbcdn/HTTPS to Vercel Blob when the token is set. Bearer token required.",
+                "Replace images (cover = images[0]). fbcdn → /api/img?u=…; Blob rehost when the token is set. Bearer token required.",
+              "GET /api/img?u=": "Public image proxy for listing heroes (fbcdn). No agent token.",
+              "POST /api/agent/rehost":
+                "Bearer token. { url } → Vercel Blob { ok, url }. 503 if BLOB_READ_WRITE_TOKEN is unset.",
               "POST /api/agent/listings/rehost-image":
                 'Body { "url": "https://…" } or multipart file → { ok: true, url: "https://….public.blob.vercel-storage.com/…" }. Requires BLOB_READ_WRITE_TOKEN.',
               "POST /api/agent/listings/rehost-backfill":

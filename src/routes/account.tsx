@@ -14,6 +14,7 @@ import { loc, useT } from "@/lib/i18n";
 import { getMyProfile, listReviews, myBookings, updateMyProfile } from "@/lib/server/community";
 import { deleteListing, myListings, updateListingStatus } from "@/lib/server/listings";
 import type { FeedCard } from "@/lib/types";
+import { toOwnedImageUrl } from "@/lib/owned-image";
 import { initials } from "@/lib/utils";
 import { priceLabel } from "@/components/listings/listing-card";
 
@@ -309,7 +310,11 @@ function InventoryList({ items }: { items: FeedCard[] }) {
           <li key={card.id} className="flex gap-3 rounded-2xl bg-surface p-3 shadow-card">
             <Link to={href} className="size-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">
               {card.images[0] ? (
-                <img src={card.images[0]} alt="" className="size-full object-cover" />
+                <img
+                  src={toOwnedImageUrl(card.images[0])}
+                  alt=""
+                  className="size-full object-cover"
+                />
               ) : null}
             </Link>
             <div className="min-w-0 flex-1">

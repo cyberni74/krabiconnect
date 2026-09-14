@@ -181,7 +181,7 @@ export const AGENT_SCHEMA = {
     category: "vehicles | boats | property | electronics | furniture | fashion | other",
     district: "ao-nang | krabi-town | nong-thale | klong-muang | krabi-noi | railay",
     images: [
-      "https://….public.blob.vercel-storage.com/… (owned). fbcdn hotlinks die — POST /api/agent/listings/rehost-image first, or PATCH/POST will rehost when BLOB_READ_WRITE_TOKEN is set.",
+      "https://… (fbcdn is rewritten to /api/img?u=… so listing heroes render without Blob; when BLOB_READ_WRITE_TOKEN is set, PATCH/POST rehost to Vercel Blob. Facebook photo.php?fbid= HTML is ignored)",
     ],
     facebookUrl: "https://www.facebook.com/seller-profile",
     facebookName: "string",
@@ -194,7 +194,13 @@ export const AGENT_SCHEMA = {
     body: { images: ["https://…"] },
     result: { ok: true, id: "string", images: ["https://…"], cover: "https://… | null" },
     notes:
-      "Replaces listing images. cover is images[0]. Same Bearer token as POST. When BLOB_READ_WRITE_TOKEN is set, fbcdn/HTTPS URLs are rehosted to Vercel Blob before save.",
+      "Replaces listing images. cover is images[0]. Same Bearer token as POST. fbcdn URLs are rewritten to /api/img?u=…. When BLOB_READ_WRITE_TOKEN is set, they are also rehosted to Vercel Blob before save.",
+  },
+  images: {
+    proxy:
+      "GET /api/img?u=<https url> — public, no agent token. Streams allowlisted https images (*.fbcdn.net, scontent*, Vercel Blob) with Cache-Control: public, max-age=604800. 400 bad url, 502 upstream fail.",
+    rehost:
+      "POST /api/agent/rehost { url } Bearer token → Vercel Blob { ok, url }. Requires BLOB_READ_WRITE_TOKEN; returns 503 when unset. Proxy still works.",
   },
   rehostImage: {
     endpoint: "POST /api/agent/listings/rehost-image",

@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { toOwnedImageUrl } from "../owned-image.ts";
 import {
   assertPublicImageUrl,
   blobWriteReady,
@@ -166,9 +167,9 @@ describe("processListingImages", () => {
     assert.equal(result.failed.length, 0);
   });
 
-  it("returns URLs as-is when Blob is not configured", async () => {
+  it("returns proxy URLs when Blob is not configured", async () => {
     const result = await processListingImages([FBCDN], deps({ token: "" }));
-    assert.deepEqual(result.images, [FBCDN]);
+    assert.deepEqual(result.images, [toOwnedImageUrl(FBCDN)]);
     assert.equal(result.rehosted, 0);
     assert.equal(result.skipped, 1);
   });
@@ -180,9 +181,9 @@ describe("processListingImages", () => {
         fetch: async () => new Response("nope", { status: 403 }),
       }),
     );
-    assert.deepEqual(result.images, [FBCDN]);
+    assert.deepEqual(result.images, [toOwnedImageUrl(FBCDN)]);
     assert.equal(result.rehosted, 0);
-    assert.deepEqual(result.failed, [FBCDN]);
+    assert.deepEqual(result.failed, [toOwnedImageUrl(FBCDN)]);
   });
 });
 

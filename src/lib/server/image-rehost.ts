@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { put } from "@vercel/blob";
+import { unwrapOwnedImageUrl } from "../owned-image.ts";
 import { parseImages } from "../utils.ts";
 import { cleanImages, isUsableListingImage } from "./listing-images.ts";
 
@@ -74,8 +75,9 @@ export function isOwnedBlobUrl(url: string): boolean {
 }
 
 export function needsRehost(url: string): boolean {
-  if (isOwnedBlobUrl(url)) return false;
-  return isUsableListingImage(url);
+  const inner = unwrapOwnedImageUrl(url);
+  if (isOwnedBlobUrl(url) || isOwnedBlobUrl(inner)) return false;
+  return isUsableListingImage(inner);
 }
 
 function hostnameOf(url: URL): string {
@@ -288,7 +290,7 @@ async function fetchPublicImage(url: string, deps?: RehostDeps): Promise<Respons
 }
 
 export async function rehostRemoteUrl(url: string, deps?: RehostDeps): Promise<RehostOk> {
-  const trimmed = url.trim();
+  const trimmed = unwrapOwnedImageUrl(url.trim());
   if (isOwnedBlobUrl(trimmed)) return { ok: true, url: trimmed };
   assertPublicImageUrl(trimmed);
   requireBlobReady(deps);
@@ -413,4 +415,9 @@ export async function rehostBackfill(opts: { id?: string; limit?: number } = {},
     });
   }
   return { ok: true as const, updated, scanned: rows.length };
+}
+
+/** Alias used by POST /api/agent/rehost. */
+export async function rehostRemoteImage(raw: string, deps?: RehostDeps): Promise<RehostOk> {
+  return rehostRemoteUrl(raw, deps);
 }
