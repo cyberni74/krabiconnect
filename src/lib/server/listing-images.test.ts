@@ -62,10 +62,9 @@ describe("cleanImages", () => {
     assert.deepEqual(cleanImages([FBID_HTML, FBCDN, MARKET]), [toOwnedImageUrl(FBCDN)]);
   });
 
-  it("keeps public Vercel Blob HTTPS URLs as owned /api/img covers", () => {
+  it("keeps public Vercel Blob HTTPS URLs as-is", () => {
     const blob = "https://abc123.public.blob.vercel-storage.com/listings/photo.jpg";
-    assert.deepEqual(cleanImages([blob]), [toOwnedImageUrl(blob)]);
-    assert.equal(toOwnedImageUrl(blob).startsWith("/api/img"), true);
+    assert.deepEqual(cleanImages([blob]), [blob]);
   });
 
   it("caps at 8 images", () => {
