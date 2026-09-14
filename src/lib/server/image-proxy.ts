@@ -1,5 +1,6 @@
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
+import { get } from "@vercel/blob";
 import {
   IMAGE_PROXY_PATH,
   isAllowedImageHost,
@@ -98,6 +99,12 @@ export function inspectImageUrl(raw: string): ImageTargetOk | ImageTargetErr {
 export async function assertSafeImageUrl(url: URL): Promise<ImageTargetOk | ImageTargetErr> {
   const inspected = inspectImageUrl(url.href);
   if (!inspected.ok) return inspected;
+  const host = hostnameOf(url);
+  // Allowlisted Blob hostnames are not SSRF targets; skip DNS so private-store
+  // reads work in tests and don't depend on extra lookups.
+  if (host === "blob.vercel-storage.com" || host.endsWith(".blob.vercel-storage.com")) {
+    return inspected;
+  }
   let records: { address: string }[];
   try {
     records = await lookup(url.hostname, { all: true });
@@ -136,6 +143,52 @@ function isImageContentType(value: string | null): boolean {
   return false;
 }
 
+export type ImageProxyDeps = {
+  fetch?: typeof fetch;
+  getPrivate?: (
+    urlOrPathname: string,
+    token?: string,
+  ) => Promise<{
+    statusCode: number;
+    stream: ReadableStream | null;
+    blob?: { contentType?: string | null };
+  } | null>;
+  token?: string | null;
+};
+
+function blobToken(deps?: ImageProxyDeps): string | undefined {
+  if (deps && deps.token !== undefined) return deps.token?.trim() || undefined;
+  return process.env.BLOB_READ_WRITE_TOKEN?.trim() || undefined;
+}
+
+function isPrivateBlobHost(host: string): boolean {
+  return host.includes(".private.blob.vercel-storage.com");
+}
+
+async function defaultPrivateGet(urlOrPathname: string, token?: string) {
+  return get(urlOrPathname, {
+    access: "private",
+    ...(token ? { token } : {}),
+  });
+}
+
+async function fetchPrivateBlob(url: URL, deps?: ImageProxyDeps): Promise<Response | ImageTargetErr> {
+  try {
+    const result = await (deps?.getPrivate ?? defaultPrivateGet)(url.href, blobToken(deps));
+    if (!result || result.statusCode !== 200 || !result.stream) {
+      return fail(502, "Private blob not found");
+    }
+    const contentType = result.blob?.contentType || "image/jpeg";
+    return new Response(result.stream, {
+      status: 200,
+      headers: { "content-type": contentType },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "read failed";
+    return fail(502, `Private blob read failed (${message})`);
+  }
+}
+
 function jsonError(status: number, error: string): Response {
   return Response.json(
     { ok: false, error },
@@ -149,14 +202,18 @@ function jsonError(status: number, error: string): Response {
   );
 }
 
-async function fetchFollowing(start: URL): Promise<Response | ImageTargetErr> {
+async function fetchFollowing(start: URL, deps?: ImageProxyDeps): Promise<Response | ImageTargetErr> {
   let current = start;
   for (let i = 0; i <= MAX_REDIRECTS; i++) {
     const guard = await assertSafeImageUrl(current);
     if (!guard.ok) return guard;
+    if (isPrivateBlobHost(hostnameOf(current))) {
+      return fetchPrivateBlob(current, deps);
+    }
+    const doFetch = deps?.fetch ?? fetch;
     let res: Response;
     try {
-      res = await fetch(current, {
+      res = await doFetch(current, {
         method: "GET",
         redirect: "manual",
         headers: fetchHeaders(current),
@@ -181,10 +238,10 @@ async function fetchFollowing(start: URL): Promise<Response | ImageTargetErr> {
   return fail(502, "Too many image redirects");
 }
 
-export async function proxyRemoteImage(raw: string): Promise<Response> {
+export async function proxyRemoteImage(raw: string, deps?: ImageProxyDeps): Promise<Response> {
   const inspected = inspectImageUrl(raw);
   if (!inspected.ok) return jsonError(inspected.status, inspected.error);
-  const fetched = await fetchFollowing(inspected.url);
+  const fetched = await fetchFollowing(inspected.url, deps);
   if (!(fetched instanceof Response)) return jsonError(fetched.status, fetched.error);
   const contentType = fetched.headers.get("content-type");
   if (!isImageContentType(contentType)) {

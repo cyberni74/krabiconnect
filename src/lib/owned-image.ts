@@ -55,6 +55,11 @@ export function isHotlinkCdnHost(hostname: string): boolean {
   return false;
 }
 
+/** Private Vercel Blob URLs are not loadable in <img> without a signed or proxied read URL. */
+export function isPrivateBlobHost(hostname: string): boolean {
+  return hostname.replace(/\.$/, "").toLowerCase().includes(".private.blob.vercel-storage.com");
+}
+
 function proxyPathname(pathname: string): boolean {
   return pathname === IMAGE_PROXY_PATH || pathname === `${IMAGE_PROXY_PATH}/`;
 }
@@ -96,7 +101,8 @@ export function needsOwnedProxy(raw: string): boolean {
   const inner = unwrapOwnedImageUrl(raw);
   if (!inner || inner.startsWith("data:")) return false;
   try {
-    return isHotlinkCdnHost(hostnameOf(new URL(inner)));
+    const host = hostnameOf(new URL(inner));
+    return isHotlinkCdnHost(host) || isPrivateBlobHost(host);
   } catch {
     return false;
   }
@@ -104,14 +110,30 @@ export function needsOwnedProxy(raw: string): boolean {
 
 /**
  * Map a stored listing photo to an owned HTTPS (or same-origin) URL.
- * Facebook CDN → `${SITE_URL}/api/img?u=…`. Already-proxied and non-CDN URLs pass through.
+ * Facebook CDN and private Vercel Blob → `${SITE_URL}/api/img?u=…`.
+ * Already-proxied, public Blob, and ordinary HTTPS URLs pass through.
  */
 export function toOwnedImageUrl(raw: string, origin = publicSiteUrl()): string {
   const trimmed = raw.trim();
   if (!trimmed || trimmed.startsWith("data:image/")) return trimmed;
   if (isOwnedProxyUrl(trimmed)) return trimmed;
   if (!needsOwnedProxy(trimmed)) return trimmed;
-  const path = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(unwrapOwnedImageUrl(trimmed))}`;
+  let inner = unwrapOwnedImageUrl(trimmed);
+  try {
+    const parsed = new URL(inner);
+    if (isPrivateBlobHost(hostnameOf(parsed))) {
+      parsed.hash = "";
+      for (const key of [...parsed.searchParams.keys()]) {
+        if (key.startsWith("vercel-blob-") || key === "cache") parsed.searchParams.delete(key);
+      }
+      const qs = parsed.searchParams.toString();
+      parsed.search = qs ? `?${qs}` : "";
+      inner = parsed.toString();
+    }
+  } catch {
+    // keep inner
+  }
+  const path = `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(inner)}`;
   const base = origin.replace(/\/+$/, "");
   return base ? `${base}${path}` : path;
 }

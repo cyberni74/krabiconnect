@@ -181,7 +181,7 @@ export const AGENT_SCHEMA = {
     category: "vehicles | boats | property | electronics | furniture | fashion | other",
     district: "ao-nang | krabi-town | nong-thale | klong-muang | krabi-noi | railay",
     images: [
-      "https://… (fbcdn is rewritten to /api/img?u=… so listing heroes render without Blob; when BLOB_READ_WRITE_TOKEN is set, PATCH/POST rehost to Vercel Blob. Facebook photo.php?fbid= HTML is ignored)",
+      "https://… (fbcdn is rewritten to /api/img?u=… so listing heroes render. When BLOB_READ_WRITE_TOKEN is set, PATCH/POST rehost to Vercel Blob — public store CDN URLs, or signed /api/img URLs on a private store. Facebook photo.php?fbid= HTML is ignored)",
     ],
     facebookUrl: "https://www.facebook.com/seller-profile",
     facebookName: "string",
@@ -207,10 +207,10 @@ export const AGENT_SCHEMA = {
     auth: "Authorization: Bearer kc_live_<48 hex>",
     body: { url: "https://scontent.xx.fbcdn.net/v/…" },
     multipart: 'field "file" or "image" (bytes) or "url"',
-    result: { ok: true, url: "https://….public.blob.vercel-storage.com/…" },
-    env: "BLOB_READ_WRITE_TOKEN must be set on Vercel Production (Storage → Blob, public). Never commit the token.",
+    result: { ok: true, url: "https://….public.blob.vercel-storage.com/… or signed private GET / /api/img?u=…" },
+    env: "BLOB_READ_WRITE_TOKEN must be set. Optional BLOB_ACCESS=public|private (default auto: try public, then private). Never commit the token.",
     notes:
-      "Downloads a remote HTTPS/fbcdn image (or accepts upload bytes), stores it on Vercel Blob, returns an owned HTTPS URL. Use that URL in POST/PATCH images[]. Already-owned blob URLs are returned as-is.",
+      "Downloads a remote HTTPS/fbcdn image (or accepts upload bytes), stores it on Vercel Blob, returns a URL that works in <img src> without cookies. Public stores return the CDN URL. Private stores return a signed GET URL (7-day expiry) or GET /api/img?u=… fallback. Use that URL in POST/PATCH images[]. Already-owned blob URLs are returned as readable URLs.",
   },
   rehostBackfill: {
     endpoint: "POST /api/agent/listings/rehost-backfill",

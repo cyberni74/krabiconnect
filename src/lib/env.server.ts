@@ -18,6 +18,12 @@ export function isWorkspacePreview(): boolean {
  * - SITE_URL — public origin for owned listing photos, e.g. https://your-app.vercel.app
  *   Used by toOwnedImageUrl as `${SITE_URL}/api/img?u=…`. Falls back to
  *   VITE_PUBLIC_HOSTNAME / VERCEL_URL; empty origin yields a relative `/api/img` path.
- * - BLOB_READ_WRITE_TOKEN — Vercel Blob read-write token for POST /api/agent/rehost.
- *   When unset, rehost returns 503. GET /api/img still works without Blob.
+ * - BLOB_READ_WRITE_TOKEN — Vercel Blob read-write token for rehost.
+ *   When unset, rehost returns 503. GET /api/img still works for fbcdn without Blob.
+ * - BLOB_ACCESS — public | private. Default auto: try public put, then private if the
+ *   store is private. Private blobs are not hotlinkable; heroes use a signed GET URL
+ *   or GET /api/img?u=… (tokenized read, no cookies).
  */
+export function siteUrl(): string | undefined {
+  return env("SITE_URL") || (env("VERCEL_URL") ? `https://${env("VERCEL_URL")!.replace(/^https?:\/\//, "")}` : undefined);
+}

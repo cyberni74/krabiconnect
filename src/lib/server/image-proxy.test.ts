@@ -97,4 +97,23 @@ describe("proxyRemoteImage", () => {
       globalThis.fetch = original;
     }
   });
+
+  it("reads private Vercel Blob via get() without cookies", async () => {
+    const privateBlob = "https://abc123.private.blob.vercel-storage.com/listings/a.jpg";
+    const jpeg = Uint8Array.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+    const res = await proxyRemoteImage(privateBlob, {
+      token: "vercel_blob_rw_test",
+      getPrivate: async (urlOrPathname, token) => {
+        assert.equal(urlOrPathname, privateBlob);
+        assert.equal(token, "vercel_blob_rw_test");
+        return {
+          statusCode: 200,
+          stream: new Blob([jpeg]).stream(),
+          blob: { contentType: "image/jpeg" },
+        };
+      },
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get("content-type"), "image/jpeg");
+  });
 });

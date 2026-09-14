@@ -1,8 +1,27 @@
 import { randomBytes } from "node:crypto";
-import { put } from "@vercel/blob";
+import { issueSignedToken, presignUrl, put, type IssuedSignedToken } from "@vercel/blob";
 import { unwrapOwnedImageUrl } from "../owned-image.ts";
 import { parseImages } from "../utils.ts";
+import {
+  type BlobAccess,
+  blobAccessMode,
+  blobAccessOrder,
+  blobPathnameFromUrl,
+  canonicalizeBlobUrl,
+  isOwnedBlobUrl,
+  isPrivateBlobUrl,
+  isPrivateStorePublicAccessError,
+  siteOrigin,
+  toHeroSrc,
+} from "./blob-url.ts";
 import { cleanImages, isUsableListingImage } from "./listing-images.ts";
+
+export {
+  IMAGE_PROXY_PATH,
+  isOwnedBlobUrl,
+  isPrivateBlobUrl,
+  toHeroSrc,
+} from "./blob-url.ts";
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export const MAX_REHOST_IMAGES = 8;
@@ -38,11 +57,25 @@ export type BlobPutFn = (
   contentType: string,
 ) => Promise<{ url: string }>;
 
+export type SdkPutFn = (
+  pathname: string,
+  body: Buffer,
+  opts: { access: BlobAccess; contentType: string },
+) => Promise<{ url: string; pathname?: string }>;
+
+export type SignGetUrlFn = (pathname: string, blobUrl: string) => Promise<string>;
+
 export type RehostDeps = {
   fetch?: typeof fetch;
   put?: BlobPutFn;
+  sdkPut?: SdkPutFn;
+  signGetUrl?: SignGetUrlFn;
   token?: string | null;
   now?: () => number;
+  /** public | private | auto — defaults to env BLOB_ACCESS (auto). */
+  blobAccess?: string | null;
+  /** Public site origin for /api/img fallback URLs. */
+  origin?: string | null;
 };
 
 export type RehostOk = { ok: true; url: string };
@@ -50,7 +83,7 @@ export type RehostOk = { ok: true; url: string };
 export function blobWriteReady(deps?: RehostDeps): boolean {
   if (deps) {
     if (deps.token !== undefined) return Boolean(deps.token?.trim());
-    return Boolean(deps.put);
+    return Boolean(deps.put || deps.sdkPut);
   }
   if (process.env.BLOB_READ_WRITE_TOKEN?.trim()) return true;
   if (process.env.BLOB_STORE_ID?.trim() && process.env.VERCEL_OIDC_TOKEN?.trim()) return true;
@@ -58,20 +91,14 @@ export function blobWriteReady(deps?: RehostDeps): boolean {
 }
 
 export function blobStatus() {
+  const access = blobAccessMode();
   return {
     env: "BLOB_READ_WRITE_TOKEN",
+    access,
     configured: blobWriteReady(),
-    note: "Set BLOB_READ_WRITE_TOKEN on Vercel Production (Storage → Blob store, public). Never commit the token.",
+    note:
+      "Set BLOB_READ_WRITE_TOKEN on Vercel Production. BLOB_ACCESS=public|private (default auto: try public, then private if the store is private). Private blobs are not hotlinkable — listing heroes use a 7-day signed GET URL, with GET /api/img?u=… as a cookie-free fallback. A public store is still the simplest setup. Never commit the token.",
   };
-}
-
-export function isOwnedBlobUrl(url: string): boolean {
-  try {
-    const host = new URL(url).hostname.toLowerCase();
-    return host === "blob.vercel-storage.com" || host.endsWith(".blob.vercel-storage.com");
-  } catch {
-    return false;
-  }
 }
 
 export function needsRehost(url: string): boolean {
@@ -216,21 +243,110 @@ function extFor(contentType: string): string {
 function requireBlobReady(deps?: RehostDeps) {
   if (blobWriteReady(deps)) return;
   throw new RehostError(
-    "BLOB_READ_WRITE_TOKEN is not set. Create a public Blob store on Vercel Production and add the token to the project env.",
+    "BLOB_READ_WRITE_TOKEN is not set. Connect a Blob store on Vercel Production (public or private) and add the token. Private stores: leave BLOB_ACCESS unset (auto) or set BLOB_ACCESS=private.",
     503,
     "blob_not_configured",
   );
 }
 
-async function defaultPut(pathname: string, body: Buffer, contentType: string): Promise<{ url: string }> {
+function rwToken(deps?: RehostDeps): string | undefined {
+  if (deps && deps.token !== undefined) return deps.token?.trim() || undefined;
+  return process.env.BLOB_READ_WRITE_TOKEN?.trim() || undefined;
+}
+
+async function defaultSdkPut(
+  pathname: string,
+  body: Buffer,
+  opts: { access: BlobAccess; contentType: string },
+): Promise<{ url: string; pathname?: string }> {
   const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
   const result = await put(pathname, body, {
-    access: "public",
-    contentType,
+    access: opts.access,
+    contentType: opts.contentType,
     addRandomSuffix: true,
     ...(token ? { token } : {}),
   });
-  return { url: result.url };
+  return { url: result.url, pathname: result.pathname };
+}
+
+const SIGNED_GET_MS = 7 * 24 * 60 * 60 * 1000 - 60_000;
+
+let cachedGetToken: { token: IssuedSignedToken; exp: number } | null = null;
+
+async function defaultSignGetUrl(pathname: string, blobUrl: string, deps?: RehostDeps): Promise<string> {
+  const now = deps?.now?.() ?? Date.now();
+  const token = rwToken(deps);
+  if (!cachedGetToken || cachedGetToken.exp <= now + 60_000) {
+    const issued = await issueSignedToken({
+      pathname: "*",
+      operations: ["get"],
+      validUntil: now + SIGNED_GET_MS,
+      ...(token ? { token } : {}),
+    });
+    cachedGetToken = { token: issued, exp: issued.validUntil };
+  }
+  const { presignedUrl } = await presignUrl(cachedGetToken.token, {
+    pathname,
+    operation: "get",
+    access: "private",
+    validUntil: Math.min(now + SIGNED_GET_MS, cachedGetToken.exp),
+  });
+  return presignedUrl || blobUrl;
+}
+
+export async function putListingBlob(
+  pathname: string,
+  body: Buffer,
+  contentType: string,
+  deps?: RehostDeps,
+): Promise<{ url: string; access: BlobAccess }> {
+  const order = blobAccessOrder(deps?.blobAccess);
+  const sdkPut = deps?.sdkPut ?? defaultSdkPut;
+  let lastErr: unknown;
+  for (let i = 0; i < order.length; i++) {
+    const access = order[i]!;
+    try {
+      const result = await sdkPut(pathname, body, { access, contentType });
+      if (!result?.url) throw new RehostError("Blob upload returned no URL", 502, "blob_failed");
+      return { url: result.url, access };
+    } catch (err) {
+      lastErr = err;
+      const canFallback =
+        access === "public" &&
+        order[i + 1] === "private" &&
+        isPrivateStorePublicAccessError(err);
+      if (canFallback) continue;
+      if (err instanceof RehostError) throw err;
+      throw new RehostError(
+        err instanceof Error ? err.message : "Blob upload failed",
+        502,
+        "blob_failed",
+      );
+    }
+  }
+  throw lastErr instanceof RehostError
+    ? lastErr
+    : new RehostError(
+        lastErr instanceof Error ? lastErr.message : "Blob upload failed",
+        502,
+        "blob_failed",
+      );
+}
+
+/** Private blob → signed GET URL (7d, works in <img>) or /api/img fallback. */
+export async function makeReadableBlobUrl(url: string, deps?: RehostDeps): Promise<string> {
+  const canonical = canonicalizeBlobUrl(url);
+  if (!isPrivateBlobUrl(canonical)) return toHeroSrc(url, deps?.origin);
+  const pathname = blobPathnameFromUrl(canonical);
+  if (pathname) {
+    try {
+      const sign = deps?.signGetUrl ?? ((p, blobUrl) => defaultSignGetUrl(p, blobUrl, deps));
+      return await sign(pathname, canonical);
+    } catch {
+      // Signed URLs are best-effort; /api/img still loads in <img> without cookies.
+    }
+  }
+  return toHeroSrc(canonical, deps?.origin);
 }
 
 export async function uploadImageBytes(
@@ -248,10 +364,14 @@ export async function uploadImageBytes(
     throw new RehostError("Unsupported image type (jpeg, png, webp, gif, avif)", 415, "unsupported_type");
   }
   const pathname = `listings/${randomBytes(16).toString("hex")}.${extFor(contentType)}`;
-  const putFn = deps?.put ?? defaultPut;
-  const uploaded = await putFn(pathname, Buffer.from(bytes), contentType);
+  let uploaded: { url: string };
+  if (deps?.put) {
+    uploaded = await deps.put(pathname, Buffer.from(bytes), contentType);
+  } else {
+    uploaded = await putListingBlob(pathname, Buffer.from(bytes), contentType, deps);
+  }
   if (!uploaded?.url) throw new RehostError("Blob upload returned no URL", 502, "blob_failed");
-  return { ok: true, url: uploaded.url };
+  return { ok: true, url: await makeReadableBlobUrl(uploaded.url, deps) };
 }
 
 async function fetchPublicImage(url: string, deps?: RehostDeps): Promise<Response> {
@@ -291,7 +411,7 @@ async function fetchPublicImage(url: string, deps?: RehostDeps): Promise<Respons
 
 export async function rehostRemoteUrl(url: string, deps?: RehostDeps): Promise<RehostOk> {
   const trimmed = unwrapOwnedImageUrl(url.trim());
-  if (isOwnedBlobUrl(trimmed)) return { ok: true, url: trimmed };
+  if (isOwnedBlobUrl(trimmed)) return { ok: true, url: await makeReadableBlobUrl(trimmed, deps) };
   assertPublicImageUrl(trimmed);
   requireBlobReady(deps);
   const res = await fetchPublicImage(trimmed, deps);
@@ -325,7 +445,7 @@ export async function processListingImages(
   let rehosted = 0;
   for (const url of incoming) {
     if (isOwnedBlobUrl(url)) {
-      images.push(url);
+      images.push(await makeReadableBlobUrl(url, deps));
       continue;
     }
     try {
@@ -353,16 +473,18 @@ export async function processListingImages(
 }
 
 export async function rehostFromRequest(request: Request, deps?: RehostDeps): Promise<RehostOk> {
+  const origin = deps?.origin ?? siteOrigin(new URL(request.url).origin);
+  const resolved: RehostDeps = { ...deps, origin };
   const ct = request.headers.get("content-type") ?? "";
   if (ct.includes("multipart/form-data")) {
     const form = await request.formData();
     const file = form.get("file") ?? form.get("image");
     const urlField = form.get("url");
     if (file instanceof Blob && file.size > 0) {
-      return uploadImageBytes(new Uint8Array(await file.arrayBuffer()), file.type, deps);
+      return uploadImageBytes(new Uint8Array(await file.arrayBuffer()), file.type, resolved);
     }
     if (typeof urlField === "string" && urlField.trim()) {
-      return rehostRemoteUrl(urlField.trim(), deps);
+      return rehostRemoteUrl(urlField.trim(), resolved);
     }
     throw new RehostError('Provide multipart field "file"/"image" or "url"', 400, "missing_input");
   }
@@ -379,7 +501,7 @@ export async function rehostFromRequest(request: Request, deps?: RehostDeps): Pr
   if (typeof url !== "string" || !url.trim()) {
     throw new RehostError('Body must include url: "https://…"', 400, "missing_url");
   }
-  return rehostRemoteUrl(url.trim(), deps);
+  return rehostRemoteUrl(url.trim(), resolved);
 }
 
 export async function rehostBackfill(opts: { id?: string; limit?: number } = {}, deps?: RehostDeps) {

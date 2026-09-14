@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/agent")({
               "POST /api/agent/rehost":
                 "Bearer token. { url } → Vercel Blob { ok, url }. 503 if BLOB_READ_WRITE_TOKEN is unset.",
               "POST /api/agent/listings/rehost-image":
-                'Body { "url": "https://…" } or multipart file → { ok: true, url: "https://….public.blob.vercel-storage.com/…" }. Requires BLOB_READ_WRITE_TOKEN.',
+                'Body { "url": "https://…" } or multipart file → { ok: true, url }. Requires BLOB_READ_WRITE_TOKEN. Private stores: auto-fallback from public put; returned URL is signed or /api/img so <img> works without cookies.',
               "POST /api/agent/listings/rehost-backfill":
                 "Rehost stored listing images onto owned Blob URLs. Optional { id, limit }. Requires BLOB_READ_WRITE_TOKEN.",
             },

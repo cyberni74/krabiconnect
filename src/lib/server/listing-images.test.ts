@@ -37,6 +37,10 @@ describe("isUsableListingImage", () => {
     assert.equal(isUsableListingImage(DATA), true);
     assert.equal(isUsableListingImage("https://cdn.example.com/listing.webp"), true);
     assert.equal(isUsableListingImage(toOwnedImageUrl(FBCDN)), true);
+    assert.equal(
+      isUsableListingImage("/api/img?u=https://abc123.private.blob.vercel-storage.com/listings/a.jpg"),
+      true,
+    );
   });
 
   it("rejects empty and non-URL values", () => {

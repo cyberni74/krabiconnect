@@ -54,10 +54,18 @@ describe("toOwnedImageUrl", () => {
     assert.equal(unwrapOwnedImageUrl(once), FBCDN);
   });
 
-  it("passes through Blob, ordinary HTTPS, and data URIs", () => {
+  it("passes through public Blob, ordinary HTTPS, and data URIs", () => {
     assert.equal(toOwnedImageUrl(BLOB), BLOB);
     assert.equal(toOwnedImageUrl(CDN), CDN);
     assert.equal(toOwnedImageUrl("data:image/jpeg;base64,aa"), "data:image/jpeg;base64,aa");
     assert.equal(needsOwnedProxy(BLOB), false);
+  });
+
+  it("wraps private Blob URLs so listing heroes load without cookies", () => {
+    const privateBlob = "https://abc123.private.blob.vercel-storage.com/listings/a.jpg";
+    const signed = `${privateBlob}?vercel-blob-delegation=tok`;
+    assert.equal(needsOwnedProxy(privateBlob), true);
+    assert.equal(toOwnedImageUrl(privateBlob, ""), `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(privateBlob)}`);
+    assert.equal(toOwnedImageUrl(signed, ""), `${IMAGE_PROXY_PATH}?u=${encodeURIComponent(privateBlob)}`);
   });
 });

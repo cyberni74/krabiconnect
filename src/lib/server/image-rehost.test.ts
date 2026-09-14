@@ -5,8 +5,10 @@ import {
   assertPublicImageUrl,
   blobWriteReady,
   isOwnedBlobUrl,
+  makeReadableBlobUrl,
   needsRehost,
   processListingImages,
+  putListingBlob,
   rehostFromRequest,
   rehostRemoteUrl,
   RehostError,
@@ -18,6 +20,8 @@ import {
 const FBCDN =
   "https://scontent.xx.fbcdn.net/v/t39.30808-6/123_n.jpg?_nc_cat=1&oh=abc&oe=def";
 const OWNED = "https://abc123.public.blob.vercel-storage.com/listings/a.jpg";
+const PRIVATE = "https://abc123.private.blob.vercel-storage.com/listings/a.jpg";
+const SIGNED = `${PRIVATE}?vercel-blob-delegation=tok`;
 const JPEG = Uint8Array.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
 
 function deps(over: Partial<RehostDeps> = {}): RehostDeps {
@@ -34,6 +38,12 @@ describe("isOwnedBlobUrl", () => {
     assert.equal(isOwnedBlobUrl(OWNED), true);
     assert.equal(isOwnedBlobUrl("https://store.public.blob.vercel-storage.com/x.webp"), true);
     assert.equal(isOwnedBlobUrl(FBCDN), false);
+  });
+
+  it("detects private blob and /api/img URLs as owned", () => {
+    assert.equal(isOwnedBlobUrl(PRIVATE), true);
+    assert.equal(isOwnedBlobUrl(SIGNED), true);
+    assert.equal(isOwnedBlobUrl(`/api/img?u=${encodeURIComponent(PRIVATE)}`), true);
   });
 });
 
@@ -229,3 +239,97 @@ describe("rehostFromRequest", () => {
     );
   });
 });
+
+describe("putListingBlob", () => {
+  it("falls back to private when public access is rejected", async () => {
+    const seen: string[] = [];
+    const result = await putListingBlob("listings/a.jpg", Buffer.from(JPEG), "image/jpeg", {
+      token: "vercel_blob_rw_test",
+      sdkPut: async (_pathname, _body, opts) => {
+        seen.push(opts.access);
+        if (opts.access === "public") {
+          throw new Error("Vercel Blob: Cannot use public access on a private store");
+        }
+        return { url: PRIVATE };
+      },
+    });
+    assert.deepEqual(seen, ["public", "private"]);
+    assert.equal(result.access, "private");
+    assert.equal(result.url, PRIVATE);
+  });
+
+  it("does not fall back when BLOB_ACCESS=public", async () => {
+    await assert.rejects(
+      () =>
+        putListingBlob("listings/a.jpg", Buffer.from(JPEG), "image/jpeg", {
+          token: "t",
+          blobAccess: "public",
+          sdkPut: async () => {
+            throw new Error("Vercel Blob: Cannot use public access on a private store");
+          },
+        }),
+      (err: unknown) =>
+        err instanceof RehostError &&
+        err.code === "blob_failed" &&
+        /private store/i.test(err.message),
+    );
+  });
+
+  it("puts private first when BLOB_ACCESS=private", async () => {
+    const seen: string[] = [];
+    const result = await putListingBlob("listings/a.jpg", Buffer.from(JPEG), "image/jpeg", {
+      token: "t",
+      blobAccess: "private",
+      sdkPut: async (_p, _b, opts) => {
+        seen.push(opts.access);
+        return { url: PRIVATE };
+      },
+    });
+    assert.deepEqual(seen, ["private"]);
+    assert.equal(result.access, "private");
+  });
+});
+
+describe("uploadImageBytes private store", () => {
+  it("returns a signed GET URL so <img src> works without cookies", async () => {
+    const result = await uploadImageBytes(JPEG, "image/jpeg", {
+      token: "t",
+      sdkPut: async (_p, _b, opts) => {
+        if (opts.access === "public") {
+          throw new Error("Vercel Blob: Cannot use public access on a private store");
+        }
+        return { url: PRIVATE };
+      },
+      signGetUrl: async (pathname, blobUrl) => {
+        assert.equal(pathname, "listings/a.jpg");
+        assert.equal(blobUrl, PRIVATE);
+        return SIGNED;
+      },
+    });
+    assert.equal(result.ok, true);
+    assert.equal(result.url, SIGNED);
+  });
+
+  it("falls back to /api/img when signing fails", async () => {
+    const result = await uploadImageBytes(JPEG, "image/jpeg", {
+      token: "t",
+      origin: "https://krabimarketplace.vercel.app",
+      blobAccess: "private",
+      sdkPut: async () => ({ url: PRIVATE }),
+      signGetUrl: async () => {
+        throw new Error("signing unavailable");
+      },
+    });
+    assert.equal(
+      result.url,
+      `https://krabimarketplace.vercel.app/api/img?u=${encodeURIComponent(PRIVATE)}`,
+    );
+  });
+});
+
+describe("makeReadableBlobUrl", () => {
+  it("leaves public CDN URLs unchanged", async () => {
+    assert.equal(await makeReadableBlobUrl(OWNED), OWNED);
+  });
+});
+

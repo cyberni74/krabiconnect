@@ -49,6 +49,7 @@ export function isUsableListingImage(url: string): boolean {
   const u = unwrapOwnedImageUrl(url.trim());
   if (!u) return false;
   if (u.startsWith("data:image/")) return true;
+  if (u.startsWith("/api/img?")) return true;
   if (!/^https?:\/\//i.test(u)) return false;
   let parsed: URL;
   try {

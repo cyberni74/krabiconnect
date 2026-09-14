@@ -243,9 +243,10 @@ when BLOB_READ_WRITE_TOKEN is set (503 if missing). GET ${origin}/api/img?u=… 
 Owned images (required — fbcdn hotlinks die)
 POST ${origin}/api/agent/listings/rehost-image
 { "url": "https://scontent.xx.fbcdn.net/v/…" }
-→ { "ok": true, "url": "https://….public.blob.vercel-storage.com/…" }
+→ { "ok": true, "url": "<owned HTTPS that works in img src>" }
 Put those owned URLs in images[] on POST/PATCH. Multipart field "file" also works.
 When BLOB_READ_WRITE_TOKEN is set on Vercel Production, POST/PATCH also rehost automatically.
+Public Blob store: returned URL is the CDN link. Private store: BLOB_ACCESS=private (or leave unset — auto tries public then private). Heroes load via a signed GET URL or GET /api/img?u=… (no cookies).
 POST ${origin}/api/agent/listings/rehost-backfill  (optional { "id", "limit" }) rehosts stored rows.
 
 kind: market | service | job
