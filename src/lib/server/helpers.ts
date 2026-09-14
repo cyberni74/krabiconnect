@@ -1,7 +1,7 @@
 import { getSql, type Sql } from "@/lib/db";
 import type { ListingKind } from "@/lib/constants";
 import { listingCopyFields } from "@/lib/listing-dto";
-import { pickCoverImage, toOwnedImageUrl } from "@/lib/owned-image";
+import { pickCoverImage, preferCoverImages, toOwnedImageUrl } from "@/lib/owned-image";
 import { parseImages } from "@/lib/utils";
 import type { FeedCard } from "@/lib/types";
 
@@ -68,9 +68,9 @@ function asKind(raw: string | null): ListingKind {
   return "service";
 }
 
-/** Feed images as stored — Blob HTTPS URLs are not rewritten or dropped. */
+/** Feed images with fbid HTML stripped; Blob/CDN heroes sorted first. */
 export function mapFeedImages(raw: unknown): string[] {
-  return parseImages(raw);
+  return preferCoverImages(parseImages(raw));
 }
 
 export function mapService(row: ServiceJoin): FeedCard {

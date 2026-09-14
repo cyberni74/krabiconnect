@@ -30,6 +30,10 @@ describe("isUsableListingImage", () => {
     assert.equal(isUsableListingImage(FB_PHOTO), false);
     assert.equal(isUsableListingImage(MARKET), false);
     assert.equal(isUsableListingImage("https://facebook.com/foo"), false);
+    assert.equal(
+      isUsableListingImage("/api/img?u=" + encodeURIComponent(FB_PHOTO)),
+      false,
+    );
   });
 
   it("accepts Graph picture endpoints, data URIs, ordinary HTTPS, and owned proxy URLs", () => {
@@ -62,9 +66,10 @@ describe("cleanImages", () => {
     assert.deepEqual(cleanImages([FBID_HTML, FBCDN, MARKET]), [toOwnedImageUrl(FBCDN)]);
   });
 
-  it("keeps public Vercel Blob HTTPS URLs as-is", () => {
+  it("keeps public Vercel Blob HTTPS URLs as-is and ahead of fbcdn proxies", () => {
     const blob = "https://abc123.public.blob.vercel-storage.com/listings/photo.jpg";
     assert.deepEqual(cleanImages([blob]), [blob]);
+    assert.deepEqual(cleanImages([FBCDN, blob]), [blob, toOwnedImageUrl(FBCDN)]);
   });
 
   it("caps at 8 images", () => {

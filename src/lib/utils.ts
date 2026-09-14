@@ -31,17 +31,96 @@ function extractHttpUrls(text: string): string[] {
   return matches.map((u) => u.replace(/[),.;}\]]+$/g, ""));
 }
 
+function hostnameOfLoose(url: URL): string {
+  return url.hostname.replace(/\.$/, "").replace(/^www\./i, "").toLowerCase();
+}
+
+function proxyInnerTargets(raw: string): string[] {
+  const trimmed = raw.trim();
+  const out = [trimmed];
+  try {
+    const url = trimmed.startsWith("/") ? new URL(trimmed, "https://owned.invalid") : new URL(trimmed);
+    const path = url.pathname.replace(/\/+$/, "") || "/";
+    if (path === "/api/img") {
+      const inner = url.searchParams.get("u") ?? url.searchParams.get("url");
+      if (inner?.trim()) out.push(inner.trim());
+    }
+    if (url.pathname.startsWith("/api/img/")) {
+      const rest = url.pathname.slice("/api/img/".length);
+      if (rest) {
+        try {
+          out.push(decodeURIComponent(rest));
+        } catch {
+          out.push(rest);
+        }
+      }
+    }
+  } catch {
+    // keep the raw string only
+  }
+  return out;
+}
+
+function looksLikeFacebookHtmlPage(target: string): boolean {
+  const trimmed = target.trim();
+  if (!trimmed) return false;
+  if (/facebook\.com\/photo(?:\.php|\/|\?|$)/i.test(trimmed)) return true;
+  if (
+    /[?&]fbid=/i.test(trimmed) &&
+    /(?:^https?:\/\/|\/\/)(?:www\.|m\.|web\.)?(?:facebook\.com|fb\.com|fb\.me)\b/i.test(trimmed) &&
+    !/\.fbcdn\.net/i.test(trimmed)
+  ) {
+    return true;
+  }
+  try {
+    const url = new URL(trimmed);
+    const host = hostnameOfLoose(url);
+    if (host === "graph.facebook.com" || host.endsWith(".graph.facebook.com")) return false;
+    const isFb =
+      host === "facebook.com" ||
+      host.endsWith(".facebook.com") ||
+      host === "fb.com" ||
+      host === "fb.me";
+    if (!isFb) return false;
+    if (url.pathname.includes("/picture")) return false;
+    return true;
+  } catch {
+    return /(?:facebook\.com|fb\.com)\/(?:photo|permalink|marketplace|share|posts|videos)/i.test(
+      trimmed,
+    );
+  }
+}
+
+/**
+ * Facebook HTML photo/permalink/marketplace pages. These are not image bytes
+ * (`<img>` naturalWidth 0). Includes `/api/img?u=` wrappers around the same URLs.
+ */
+export function isFacebookFbidHtmlUrl(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (!trimmed) return false;
+  return proxyInnerTargets(trimmed).some(looksLikeFacebookHtmlPage);
+}
+
+function keepParsedToken(value: string): boolean {
+  return !isFacebookFbidHtmlUrl(value);
+}
+
 /**
  * Normalize listing `images` from Neon (JSON text, jsonb, object rows, or a lone URL).
  * Task ID arrays also flow through here — non-URL strings are kept as-is.
+ * Facebook `photo/?fbid=` HTML pages are never returned as covers.
  */
 export function parseImages(raw: unknown): string[] {
+  return parseImagesUnfiltered(raw).filter(keepParsedToken);
+}
+
+function parseImagesUnfiltered(raw: unknown): string[] {
   if (raw == null || raw === "") return [];
   if (Array.isArray(raw)) {
     const out: string[] = [];
     for (const item of raw) {
       if (Array.isArray(item)) {
-        out.push(...parseImages(item));
+        out.push(...parseImagesUnfiltered(item));
         continue;
       }
       const url = asStoredUrl(item);
@@ -56,7 +135,7 @@ export function parseImages(raw: unknown): string[] {
     try {
       const parsed = JSON.parse(trimmed) as unknown;
       if (parsed !== trimmed) {
-        const nested = parseImages(parsed);
+        const nested = parseImagesUnfiltered(parsed);
         if (nested.length) return nested;
       }
     } catch {

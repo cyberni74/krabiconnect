@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { put } from "@vercel/blob";
-import { unwrapOwnedImageUrl } from "../owned-image.ts";
+import { pickCoverImage, preferCoverImages, unwrapOwnedImageUrl } from "../owned-image.ts";
 import { parseImages } from "../utils.ts";
 import { cleanImages, isUsableListingImage } from "./listing-images.ts";
 
@@ -350,7 +350,7 @@ export async function processListingImages(
       images.push(url);
     }
   }
-  return { images, rehosted, failed, skipped: 0 };
+  return { images: preferCoverImages(images), rehosted, failed, skipped: 0 };
 }
 
 export async function rehostFromRequest(request: Request, deps?: RehostDeps): Promise<RehostOk> {
@@ -411,7 +411,7 @@ export async function rehostBackfill(opts: { id?: string; limit?: number } = {},
     updated.push({
       id: row.id,
       images: processed.images,
-      cover: processed.images[0] ?? null,
+      cover: pickCoverImage({ images: processed.images }) ?? processed.images[0] ?? null,
       rehosted: processed.rehosted,
     });
   }

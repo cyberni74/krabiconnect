@@ -14,9 +14,8 @@ import { loc, useT } from "@/lib/i18n";
 import { getMyProfile, listReviews, myBookings, updateMyProfile } from "@/lib/server/community";
 import { deleteListing, myListings, updateListingStatus } from "@/lib/server/listings";
 import type { FeedCard } from "@/lib/types";
-import { listingCoverSrc } from "@/lib/owned-image";
 import { initials } from "@/lib/utils";
-import { priceLabel } from "@/components/listings/listing-card";
+import { CoverPhoto, priceLabel } from "@/components/listings/listing-card";
 
 export const Route = createFileRoute("/account")({ component: AccountPage });
 
@@ -306,11 +305,10 @@ function InventoryList({ items }: { items: FeedCard[] }) {
       {items.map((card) => {
         const on = card.status === "available" || card.status === "active";
         const href = `/service/${card.id}`;
-        const cover = listingCoverSrc(card);
         return (
           <li key={card.id} className="flex gap-3 rounded-2xl bg-surface p-3 shadow-card">
             <Link to={href} className="size-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-              {cover ? <img src={cover} alt="" className="size-full object-cover" /> : null}
+              <CoverPhoto card={card} className="size-full object-cover" />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{loc(lang, card.titleTh, card.titleEn)}</p>

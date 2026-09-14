@@ -1,14 +1,39 @@
 import { Link } from "@tanstack/react-router";
 import { Globe, MapPin, Star } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { categoryName, districtById, districtName, kindLabel, taskName } from "@/lib/constants";
 import { loc, useT, type I18nKey } from "@/lib/i18n";
 import { overlayOrMapped } from "@/lib/listing-dto";
-import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
+import { listingCoverSrcs, toOwnedImageUrl } from "@/lib/owned-image";
 import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
 import type { FeedCard } from "@/lib/types";
 import { cn, formatThb, haversineKm, initials } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useAreaStore } from "@/lib/area";
+
+/** Listing hero that never keeps a facebook.com/photo or dead /api/img src. */
+export function CoverPhoto({
+  card,
+  className,
+  fallback,
+}: {
+  card: FeedCard;
+  className?: string;
+  fallback?: ReactNode;
+}) {
+  const srcs = listingCoverSrcs(card);
+  const [i, setI] = useState(0);
+  const src = srcs[i];
+  if (!src) return fallback ?? null;
+  return (
+    <img
+      src={src}
+      alt=""
+      className={className}
+      onError={() => setI((n) => n + 1)}
+    />
+  );
+}
 
 export function priceLabel(card: FeedCard, lang: "en" | "th", t: (k: I18nKey) => string) {
   if (card.type === "wanted" && (card.price == null || card.price === 0) && card.pricingType !== "hourly") {
@@ -39,8 +64,6 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
   const copy = overlayOrMapped(overlay, card);
   const origin = useAreaStore((s) => s.district);
   const href = `/service/${card.id}`;
-  // Allowlist includes *.blob.vercel-storage.com / public.blob.vercel-storage.com
-  const img = listingCoverSrc(card);
   const price = priceLabel(card, lang, t);
   const chips = card.tasks.slice(0, compact ? 1 : 2);
   const translated = card.sourceLanguage !== lang;
@@ -59,13 +82,15 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
       )}
     >
       <div className={cn("relative bg-surface-2", compact ? "aspect-[4/3]" : "aspect-[4/3]")}>
-        {img ? (
-          <img src={img} alt="" className="size-full object-cover" />
-        ) : (
-          <div className="grid size-full place-items-center bg-primary-soft text-primary">
-            {categoryName(card.kind, card.category, lang)}
-          </div>
-        )}
+        <CoverPhoto
+          card={card}
+          className="size-full object-cover"
+          fallback={
+            <div className="grid size-full place-items-center bg-primary-soft text-primary">
+              {categoryName(card.kind, card.category, lang)}
+            </div>
+          }
+        />
         <div className="absolute left-2 top-2 flex items-center gap-1.5">
           <span
             className={cn(

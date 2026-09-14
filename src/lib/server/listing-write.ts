@@ -9,6 +9,7 @@ import {
 } from "@/lib/constants";
 import type { Sql } from "@/lib/db";
 import { detectLang, parseFacebookUrl, uid } from "@/lib/utils";
+import { pickCoverImage } from "@/lib/owned-image";
 import { ensureProfile, getDb } from "./helpers";
 import { cleanImages, imagesToApplyOnDuplicate } from "./listing-images";
 import { translateListing } from "./translate";
@@ -142,7 +143,7 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
         update services set images = ${JSON.stringify(processed.images)} where id = ${existing.id}
       `;
       imagesUpdated = true;
-      cover = processed.images[0] ?? null;
+      cover = pickCoverImage({ images: processed.images }) ?? processed.images[0] ?? null;
       rehosted = processed.rehosted;
     }
     const { englishOverlayFromFields } = await import("./listing-overlay");
@@ -223,7 +224,7 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
     id,
     kind,
     duplicate: false,
-    cover: processed.images[0] ?? null,
+    cover: pickCoverImage({ images: processed.images }) ?? processed.images[0] ?? null,
     rehosted: processed.rehosted,
     warning: facebookUrl ? undefined : "No Facebook profile — buyers cannot contact the seller",
   };
@@ -257,7 +258,7 @@ export async function patchListingImages(
     throw err;
   }
   await sql`update services set images = ${JSON.stringify(images)} where id = ${listingId}`;
-  return { ok: true, id: listingId, images, cover: images[0] ?? null, rehosted: processed.rehosted };
+  return { ok: true, id: listingId, images, cover: pickCoverImage({ images }) ?? images[0] ?? null, rehosted: processed.rehosted };
 }
 
 /** Write English overlay only. Never touches title_th / description_th. */

@@ -18,14 +18,14 @@ import { Input, Label, Textarea } from "@/components/ui/input";
 import { LocalizedText, TranslationBanner } from "@/components/translated";
 import { categoryName, districtName, kindLabel, taskName } from "@/lib/constants";
 import { useT, type I18nKey } from "@/lib/i18n";
+import { CoverPhoto, priceLabel } from "@/components/listings/listing-card";
 import { overlayOrMapped } from "@/lib/listing-dto";
-import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
+import { toOwnedImageUrl } from "@/lib/owned-image";
 import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
 import { createBooking, openConversation, sendMessage } from "@/lib/server/community";
 import type { FeedCard } from "@/lib/types";
 import { initials } from "@/lib/utils";
 import { useCurrentUser, useCurrentUserState } from "@/lib/auth/use-current-user";
-import { priceLabel } from "@/components/listings/listing-card";
 import { LanguagePill } from "@/components/layout/language-pill";
 import { SignInGate } from "@/lib/auth/gates";
 
@@ -83,7 +83,6 @@ export function ListingDetail({ card }: { card: FeedCard }) {
   });
 
   const isMine = user?.id === card.userId;
-  const img = listingCoverSrc(card);
   const sellerName = card.facebookName || card.ownerName;
   const sellerPhotoRaw = card.facebookPhoto || card.ownerAvatar;
   const sellerPhoto = sellerPhotoRaw ? toOwnedImageUrl(sellerPhotoRaw) : null;
@@ -91,11 +90,11 @@ export function ListingDetail({ card }: { card: FeedCard }) {
   return (
     <article>
       <div className="relative">
-        {img ? (
-          <img src={img} alt="" className="aspect-[5/3] w-full object-cover" />
-        ) : (
-          <div className="aspect-[5/3] bg-primary-soft" />
-        )}
+        <CoverPhoto
+          card={card}
+          className="aspect-[5/3] w-full object-cover"
+          fallback={<div className="aspect-[5/3] bg-primary-soft" />}
+        />
         <Link
           to="/"
           className="absolute left-3 top-3 grid size-11 place-items-center rounded-full bg-surface/90 text-fg shadow-card"
