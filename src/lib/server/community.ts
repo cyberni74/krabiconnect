@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { toOwnedImageUrl } from "@/lib/owned-image";
 import { detectLang, parseFacebookUrl, parseImages, uid } from "@/lib/utils";
 import type { Booking, ChatMessage, Conversation, Profile, Review } from "@/lib/types";
 import { ensureProfile, getDb } from "./helpers";
@@ -70,7 +71,7 @@ async function loadProfile(sql: SqlClient, id: string): Promise<Profile | null> 
     isAdmin: Boolean(s?.is_admin),
     facebookUrl: p.facebook_url ?? null,
     facebookName: p.facebook_name ?? null,
-    facebookPhoto: p.facebook_photo ?? null,
+    facebookPhoto: p.facebook_photo ? toOwnedImageUrl(p.facebook_photo) : null,
   };
 }
 
@@ -241,7 +242,7 @@ export const listConversations = createServerFn({ method: "GET" })
     );
     return rows.map((r): Conversation => {
       const isRequester = r.requester_id === context.userId;
-      const imgs = parseImages(r.item_images ?? r.svc_images);
+      const imgs = parseImages(r.item_images ?? r.svc_images).map((u) => toOwnedImageUrl(u));
       return {
         id: r.id,
         requesterId: r.requester_id,
@@ -332,7 +333,7 @@ export const getMessages = createServerFn({ method: "GET" })
             select title_th, title_en, images from services where id = ${c.service_id}
           `
         : [];
-    const imgs = listing[0] ? parseImages(listing[0].images) : [];
+    const imgs = listing[0] ? parseImages(listing[0].images).map((u) => toOwnedImageUrl(u)) : [];
     const summary: Conversation = {
       id: c.id,
       requesterId: c.requester_id,

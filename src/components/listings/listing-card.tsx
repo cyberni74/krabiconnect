@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Globe, MapPin, Star } from "lucide-react";
 import { categoryName, districtById, districtName, kindLabel, taskName } from "@/lib/constants";
 import { loc, useT, type I18nKey } from "@/lib/i18n";
+import { toOwnedImageUrl } from "@/lib/owned-image";
 import type { FeedCard } from "@/lib/types";
 import { cn, formatThb, haversineKm, initials } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -34,12 +35,13 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
   const { lang, t } = useT();
   const origin = useAreaStore((s) => s.district);
   const href = `/service/${card.id}`;
-  const img = card.images[0];
+  const img = card.images[0] ? toOwnedImageUrl(card.images[0]) : undefined;
   const price = priceLabel(card, lang, t);
   const chips = card.tasks.slice(0, compact ? 1 : 2);
   const translated = card.sourceLanguage !== lang;
   const sellerName = card.facebookName || card.ownerName;
-  const sellerPhoto = card.facebookPhoto || card.ownerAvatar;
+  const sellerPhotoRaw = card.facebookPhoto || card.ownerAvatar;
+  const sellerPhoto = sellerPhotoRaw ? toOwnedImageUrl(sellerPhotoRaw) : null;
   const open = card.status === "active" || card.status === "available";
   const dist = distanceLabel(card, origin);
 

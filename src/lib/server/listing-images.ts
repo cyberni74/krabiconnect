@@ -1,4 +1,5 @@
 import { parseImages } from "../utils.ts";
+import { toOwnedImageUrl, unwrapOwnedImageUrl } from "../owned-image.ts";
 
 const MAX_IMAGES = 8;
 
@@ -45,7 +46,7 @@ function isGraphPicture(url: URL, host: string): boolean {
  * Facebook `photo.php?fbid=` / marketplace HTML pages are not usable.
  */
 export function isUsableListingImage(url: string): boolean {
-  const u = url.trim();
+  const u = unwrapOwnedImageUrl(url.trim());
   if (!u) return false;
   if (u.startsWith("data:image/")) return true;
   if (!/^https?:\/\//i.test(u)) return false;
@@ -68,6 +69,7 @@ export function cleanImages(raw?: string[] | null): string[] {
     .filter((u): u is string => typeof u === "string")
     .map((u) => u.trim())
     .filter(isUsableListingImage)
+    .map((u) => toOwnedImageUrl(u))
     .slice(0, MAX_IMAGES);
 }
 

@@ -1,5 +1,6 @@
 import { getSql, type Sql } from "@/lib/db";
 import type { ListingKind } from "@/lib/constants";
+import { toOwnedImageUrl } from "@/lib/owned-image";
 import { parseImages } from "@/lib/utils";
 import type { FeedCard } from "@/lib/types";
 
@@ -81,7 +82,7 @@ export function mapService(row: ServiceJoin): FeedCard {
     price: row.rate_thb,
     deposit: null,
     status: row.status,
-    images: parseImages(row.images),
+    images: parseImages(row.images).map((u) => toOwnedImageUrl(u)),
     tasks: parseImages(row.tasks),
     district: row.district ?? "",
     lat: row.lat == null ? null : Number(row.lat),
@@ -100,7 +101,7 @@ export function mapService(row: ServiceJoin): FeedCard {
     facebookUrl: row.facebook_url ?? null,
     facebookId: row.facebook_id ?? null,
     facebookName: row.facebook_name ?? null,
-    facebookPhoto: row.facebook_photo ?? null,
+    facebookPhoto: row.facebook_photo ? toOwnedImageUrl(row.facebook_photo) : null,
   };
 }
 

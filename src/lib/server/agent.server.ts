@@ -160,7 +160,7 @@ export const AGENT_SCHEMA = {
     kind: "market | service | job",
     category: "vehicles | boats | property | electronics | furniture | fashion | other",
     district: "ao-nang | krabi-town | nong-thale | klong-muang | krabi-noi | railay",
-    images: ["https://… (fbcdn or other HTTPS; Facebook photo.php?fbid= HTML is ignored)"],
+    images: ["https://… (fbcdn is stored as /api/img?u=… so listing heroes render; Facebook photo.php?fbid= HTML is ignored)"],
     facebookUrl: "https://www.facebook.com/seller-profile",
     facebookName: "string",
     sourceUrl: "https://www.facebook.com/marketplace/item/…",
@@ -171,7 +171,12 @@ export const AGENT_SCHEMA = {
     endpoint: "PATCH /api/agent/listings/:id",
     body: { images: ["https://…"] },
     result: { ok: true, id: "string", images: ["https://…"], cover: "https://… | null" },
-    notes: "Replaces listing images. cover is images[0]. Same Bearer token as POST.",
+    notes: "Replaces listing images. cover is images[0]. Same Bearer token as POST. fbcdn URLs are rewritten to /api/img?u=…",
+  },
+  images: {
+    proxy: "GET /api/img?u=<https url> — public, no agent token. Streams allowlisted https images (*.fbcdn.net, scontent*, Vercel Blob) with Cache-Control: public, max-age=604800. 400 bad url, 502 upstream fail.",
+    rehost:
+      "POST /api/agent/rehost { url } Bearer token → Vercel Blob { ok, url }. Requires BLOB_READ_WRITE_TOKEN; returns 503 when unset. Proxy still works.",
   },
   result: {
     ok: true,

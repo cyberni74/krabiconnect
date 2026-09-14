@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { toOwnedImageUrl } from "../owned-image.ts";
 import {
   cleanImages,
   hasUsableImages,
@@ -31,10 +32,11 @@ describe("isUsableListingImage", () => {
     assert.equal(isUsableListingImage("https://facebook.com/foo"), false);
   });
 
-  it("accepts Graph picture endpoints, data URIs, and ordinary HTTPS images", () => {
+  it("accepts Graph picture endpoints, data URIs, ordinary HTTPS, and owned proxy URLs", () => {
     assert.equal(isUsableListingImage(GRAPH), true);
     assert.equal(isUsableListingImage(DATA), true);
     assert.equal(isUsableListingImage("https://cdn.example.com/listing.webp"), true);
+    assert.equal(isUsableListingImage(toOwnedImageUrl(FBCDN)), true);
   });
 
   it("rejects empty and non-URL values", () => {
@@ -45,8 +47,8 @@ describe("isUsableListingImage", () => {
 });
 
 describe("cleanImages", () => {
-  it("keeps fbcdn URLs and drops fbid HTML", () => {
-    assert.deepEqual(cleanImages([FBID_HTML, FBCDN, MARKET]), [FBCDN]);
+  it("keeps fbcdn URLs as owned /api/img URLs and drops fbid HTML", () => {
+    assert.deepEqual(cleanImages([FBID_HTML, FBCDN, MARKET]), [toOwnedImageUrl(FBCDN)]);
   });
 
   it("caps at 8 images", () => {
@@ -57,12 +59,15 @@ describe("cleanImages", () => {
 
 describe("imagesToApplyOnDuplicate", () => {
   it("fills an empty existing row from incoming fbcdn URLs", () => {
-    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], "[]"), [FBCDN]);
-    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], null), [FBCDN]);
+    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], "[]"), [toOwnedImageUrl(FBCDN)]);
+    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], null), [toOwnedImageUrl(FBCDN)]);
   });
 
   it("upgrades a row that only has fbid HTML", () => {
-    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], JSON.stringify([FBID_HTML])), [FBCDN]);
+    assert.deepEqual(
+      imagesToApplyOnDuplicate([FBCDN], JSON.stringify([FBID_HTML])),
+      [toOwnedImageUrl(FBCDN)],
+    );
   });
 
   it("does not overwrite a row that already has usable images", () => {
@@ -79,7 +84,7 @@ describe("imagesToApplyOnDuplicate", () => {
   });
 
   it("treats parsed arrays the same as JSON strings", () => {
-    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], [FBID_HTML]), [FBCDN]);
+    assert.deepEqual(imagesToApplyOnDuplicate([FBCDN], [FBID_HTML]), [toOwnedImageUrl(FBCDN)]);
     assert.equal(hasUsableImages([FBCDN]), true);
     assert.equal(hasUsableImages([FBID_HTML]), false);
   });

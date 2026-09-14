@@ -21,6 +21,9 @@ export const Route = createFileRoute("/api/agent")({
               "POST /api/agent/listings":
                 "Create listings. Duplicate sourceUrl/id is not a second row; empty/fbid-HTML images are upgraded from incoming images[].",
               "PATCH /api/agent/listings/:id": "Replace images (cover = images[0]). Bearer token required.",
+              "GET /api/img?u=": "Public image proxy for listing heroes (fbcdn). No agent token.",
+              "POST /api/agent/rehost":
+                "Bearer token. { url } → Vercel Blob { ok, url }. 503 if BLOB_READ_WRITE_TOKEN is unset.",
             },
           },
           { headers: cors },
