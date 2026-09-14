@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { loc, useT } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
+import { listingTitle } from "@/lib/listing-copy";
 import { listConversations } from "@/lib/server/community";
 import { initials } from "@/lib/utils";
 
@@ -58,7 +59,7 @@ function ChatsPage() {
                     </span>
                   </span>
                   <span className="block truncate text-sm text-muted">
-                    {loc(lang, c.listingTitleTh, c.listingTitleEn)}
+                    {listingTitle(lang, c)}
                   </span>
                   {c.lastText ? (
                     <span className="block truncate text-xs text-faint">{c.lastText}</span>

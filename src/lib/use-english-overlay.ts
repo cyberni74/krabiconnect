@@ -57,15 +57,15 @@ export function useEnsureEnglishOverlay(card: {
   titleEn: string;
   descriptionTh: string;
   descriptionEn: string;
-}): ListingOverlay | undefined {
+}): ListingOverlay {
   const lang = useT().locale;
   const overlay = useListingOverlayStore((s) => s.byId[card.id]);
   const attempted = useListingOverlayStore((s) => s.attempted[card.id]);
+  const titleEn = overlay?.titleEn || card.titleEn;
+  const descriptionEn = overlay?.descriptionEn || card.descriptionEn;
 
   useEffect(() => {
-    if (lang !== "en" || attempted) return;
-    const titleEn = overlay?.titleEn ?? card.titleEn;
-    const descriptionEn = overlay?.descriptionEn ?? card.descriptionEn;
+    if (lang !== "en" || attempted || !card.id) return;
     if (!needsEnglishOverlay(card.titleTh, titleEn) && !needsEnglishOverlay(card.descriptionTh, descriptionEn)) {
       return;
     }
@@ -77,11 +77,9 @@ export function useEnsureEnglishOverlay(card: {
     attempted,
     card.id,
     card.titleTh,
-    card.titleEn,
-    card.descriptionTh,
-    card.descriptionEn,
-    overlay,
+    titleEn,
+    descriptionEn,
   ]);
 
-  return overlay;
+  return { titleEn, descriptionEn };
 }

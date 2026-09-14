@@ -11,6 +11,8 @@ import { Input, Label, Textarea } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { DISTRICTS, districtName } from "@/lib/constants";
 import { loc, useT } from "@/lib/i18n";
+import { listingTitle } from "@/lib/listing-copy";
+import { useLocalizedListing } from "@/lib/use-localized-listing";
 import { getMyProfile, listReviews, myBookings, updateMyProfile } from "@/lib/server/community";
 import { deleteListing, myListings, updateListingStatus } from "@/lib/server/listings";
 import type { FeedCard } from "@/lib/types";
@@ -275,7 +277,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function InventoryList({ items }: { items: FeedCard[] }) {
-  const { lang, t } = useT();
+  const { t } = useT();
   const qc = useQueryClient();
   const nav = useNavigate();
 
@@ -303,39 +305,54 @@ function InventoryList({ items }: { items: FeedCard[] }) {
 
   return (
     <ul className="space-y-3">
-      {items.map((card) => {
-        const on = card.status === "available" || card.status === "active";
-        const href = `/service/${card.id}`;
-        return (
-          <li key={card.id} className="flex gap-3 rounded-2xl bg-surface p-3 shadow-card">
-            <Link to={href} className="size-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-              {card.images[0] ? (
-                <img
-                  src={toOwnedImageUrl(card.images[0])}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              ) : null}
-            </Link>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{loc(lang, card.titleTh, card.titleEn)}</p>
-              <p className="text-sm text-muted">{priceLabel(card, lang, t)}</p>
-              <div className="mt-2 flex items-center gap-2">
-                <Switch checked={on} onCheckedChange={() => toggle.mutate(card)} />
-                <span className="text-xs text-muted">{on ? t("toggleAvail") : t("paused")}</span>
-                <button
-                  type="button"
-                  className="ml-auto text-xs text-danger"
-                  onClick={() => remove.mutate(card)}
-                >
-                  {t("delete")}
-                </button>
-              </div>
-            </div>
-          </li>
-        );
-      })}
+      {items.map((card) => (
+        <InventoryRow
+          key={card.id}
+          card={card}
+          onToggle={() => toggle.mutate(card)}
+          onRemove={() => remove.mutate(card)}
+        />
+      ))}
     </ul>
+  );
+}
+
+function InventoryRow({
+  card,
+  onToggle,
+  onRemove,
+}: {
+  card: FeedCard;
+  onToggle: () => void;
+  onRemove: () => void;
+}) {
+  const { lang, t } = useT();
+  const { title } = useLocalizedListing(card);
+  const on = card.status === "available" || card.status === "active";
+  const href = `/service/${card.id}`;
+  return (
+    <li className="flex gap-3 rounded-2xl bg-surface p-3 shadow-card">
+      <Link to={href} className="size-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">
+        {card.images[0] ? (
+          <img
+            src={toOwnedImageUrl(card.images[0])}
+            alt=""
+            className="size-full object-cover"
+          />
+        ) : null}
+      </Link>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{title}</p>
+        <p className="text-sm text-muted">{priceLabel(card, lang, t)}</p>
+        <div className="mt-2 flex items-center gap-2">
+          <Switch checked={on} onCheckedChange={onToggle} />
+          <span className="text-xs text-muted">{on ? t("toggleAvail") : t("paused")}</span>
+          <button type="button" className="ml-auto text-xs text-danger" onClick={onRemove}>
+            {t("delete")}
+          </button>
+        </div>
+      </div>
+    </li>
   );
 }
 
@@ -354,7 +371,7 @@ function BookingList({
       <ul className="space-y-2">
         {rows.map((b) => (
           <li key={b.id} className="rounded-xl bg-surface px-3 py-2 shadow-card">
-            <p className="text-sm font-medium">{loc(lang, b.listingTitleTh, b.listingTitleEn)}</p>
+            <p className="text-sm font-medium">{listingTitle(lang, b)}</p>
             <p className="text-xs text-muted">
               {b.otherName} · {b.startDate} → {b.endDate}{" "}
               <Badge tone={b.status === "confirmed" ? "success" : "muted"}>{b.status}</Badge>

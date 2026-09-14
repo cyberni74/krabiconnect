@@ -94,6 +94,7 @@ const OVERLAY_CAP = 12;
 /**
  * Fill English overlay columns for Thai originals. Never writes title_th / description_th
  * except to restore Thai source into title_th when it was stored in the English column.
+ * English overlays may keep Thai place names — those are still saved to *_en only.
  */
 export const fillEnglishOverlays = createServerFn({ method: "POST" })
   .validator((input: { ids: string[] }) => ({
@@ -102,8 +103,10 @@ export const fillEnglishOverlays = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<EnglishOverlay[]> => {
     if (data.ids.length === 0 || !process.env.XAI_API_KEY) return [];
     const { getDb } = await import("./helpers");
-    const { hasThaiScript } = await import("@/lib/utils");
+    const { hasThaiScript, isUsableEnglish } = await import("@/lib/utils");
+    const { needsEnglishOverlay } = await import("@/lib/i18n");
     const sql = await getDb();
+    const placeholders = data.ids.map((_, i) => `$${i + 1}`).join(", ");
     const rows = await sql.query<{
       id: string;
       title_th: string;
@@ -111,44 +114,54 @@ export const fillEnglishOverlays = createServerFn({ method: "POST" })
       description_th: string;
       description_en: string;
     }>(
-      `select id, title_th, title_en, description_th, description_en from services where id = any($1)`,
-      [data.ids],
+      `select id, title_th, title_en, description_th, description_en from services where id in (${placeholders})`,
+      data.ids,
     );
     const out: EnglishOverlay[] = [];
     for (const row of rows) {
+      const titleNeeds = needsEnglishOverlay(row.title_th, row.title_en);
+      const descNeeds = needsEnglishOverlay(row.description_th, row.description_en);
+      if (!titleNeeds && !descNeeds) continue;
       const thaiTitle = hasThaiScript(row.title_th)
         ? row.title_th
         : hasThaiScript(row.title_en)
           ? row.title_en
-          : "";
+          : row.title_th;
       const thaiDesc = hasThaiScript(row.description_th)
         ? row.description_th
         : hasThaiScript(row.description_en)
           ? row.description_en
           : row.description_th;
-      const enTitleLooksEnglish = row.title_en.trim() && !hasThaiScript(row.title_en);
-      if (!thaiTitle || enTitleLooksEnglish) continue;
+      if (!thaiTitle.trim()) continue;
       const overlay = await translateListing(thaiTitle, thaiDesc || thaiTitle, "th");
-      if (!overlay.titleEn.trim() || hasThaiScript(overlay.titleEn)) continue;
+      const nextTitleEn =
+        titleNeeds && isUsableEnglish(overlay.titleEn) ? overlay.titleEn.trim() : (row.title_en ?? "").trim();
+      const nextDescEn =
+        descNeeds && isUsableEnglish(overlay.descriptionEn)
+          ? overlay.descriptionEn.trim()
+          : (row.description_en ?? "").trim();
+      if (nextTitleEn === (row.title_en ?? "").trim() && nextDescEn === (row.description_en ?? "").trim()) {
+        continue;
+      }
       const restoreThaiSource = !hasThaiScript(row.title_th) && hasThaiScript(row.title_en);
       if (restoreThaiSource) {
         await sql`
           update services set
             title_th = ${row.title_en},
             description_th = ${hasThaiScript(row.description_en) ? row.description_en : row.description_th},
-            title_en = ${overlay.titleEn},
-            description_en = ${overlay.descriptionEn}
+            title_en = ${nextTitleEn},
+            description_en = ${nextDescEn}
           where id = ${row.id}
         `;
       } else {
         await sql`
           update services set
-            title_en = ${overlay.titleEn},
-            description_en = ${overlay.descriptionEn}
+            title_en = ${nextTitleEn},
+            description_en = ${nextDescEn}
           where id = ${row.id}
         `;
       }
-      out.push({ id: row.id, titleEn: overlay.titleEn, descriptionEn: overlay.descriptionEn });
+      out.push({ id: row.id, titleEn: nextTitleEn, descriptionEn: nextDescEn });
     }
     return out;
   });

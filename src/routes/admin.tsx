@@ -5,6 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { loc, useT } from "@/lib/i18n";
+import { useLocalizedListing } from "@/lib/use-localized-listing";
+import type { FeedCard } from "@/lib/types";
 import {
   adminDeleteListing,
   adminDeleteReview,
@@ -103,35 +105,19 @@ function AdminDashboard() {
               {t("emptyFeed")}
             </p>
           ) : (
-            listings.map((card) => {
-              const on = card.status === "active" || card.status === "available";
-              return (
-                <li key={card.id} className="rounded-2xl bg-surface p-3 shadow-card">
-                  <p className="font-medium">{loc(lang, card.titleTh, card.titleEn)}</p>
-                  <p className="mt-0.5 text-xs text-muted">
-                    {kindLabel(card.kind, lang)} · {card.ownerName} · {districtName(card.district, lang)} ·{" "}
-                    {priceLabel(card, lang, t)}
-                  </p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <Badge tone={on ? "success" : "muted"}>{on ? t("active") : t("paused")}</Badge>
-                    <button
-                      type="button"
-                      className="text-xs font-medium text-primary"
-                      onClick={() => pause.mutate({ id: card.id, status: on ? "paused" : "active" })}
-                    >
-                      {on ? t("paused") : t("toggleAvail")}
-                    </button>
-                    <button
-                      type="button"
-                      className="ml-auto text-xs text-danger"
-                      onClick={() => delListing.mutate(card.id)}
-                    >
-                      {t("delete")}
-                    </button>
-                  </div>
-                </li>
-              );
-            })
+            listings.map((card) => (
+              <AdminListingRow
+                key={card.id}
+                card={card}
+                onPause={() =>
+                  pause.mutate({
+                    id: card.id,
+                    status: card.status === "active" || card.status === "available" ? "paused" : "active",
+                  })
+                }
+                onDelete={() => delListing.mutate(card.id)}
+              />
+            ))
           )}
         </ul>
       ) : null}
@@ -346,6 +332,38 @@ function AgentPanel() {
         </pre>
       </section>
     </div>
+  );
+}
+
+function AdminListingRow({
+  card,
+  onPause,
+  onDelete,
+}: {
+  card: FeedCard;
+  onPause: () => void;
+  onDelete: () => void;
+}) {
+  const { lang, t } = useT();
+  const { title } = useLocalizedListing(card);
+  const on = card.status === "active" || card.status === "available";
+  return (
+    <li className="rounded-2xl bg-surface p-3 shadow-card">
+      <p className="font-medium">{title}</p>
+      <p className="mt-0.5 text-xs text-muted">
+        {kindLabel(card.kind, lang)} · {card.ownerName} · {districtName(card.district, lang)} ·{" "}
+        {priceLabel(card, lang, t)}
+      </p>
+      <div className="mt-2 flex items-center gap-2">
+        <Badge tone={on ? "success" : "muted"}>{on ? t("active") : t("paused")}</Badge>
+        <button type="button" className="text-xs font-medium text-primary" onClick={onPause}>
+          {on ? t("paused") : t("toggleAvail")}
+        </button>
+        <button type="button" className="ml-auto text-xs text-danger" onClick={onDelete}>
+          {t("delete")}
+        </button>
+      </div>
+    </li>
   );
 }
 

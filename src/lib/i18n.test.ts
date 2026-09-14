@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOCALES, loc, localeFromLanguageTags, needsEnglishOverlay, t } from "./i18n.ts";
+import { LOCALES, loc, localeFromLanguageTags, needsEnglishOverlay, t, isUsableEnglish } from "./i18n.ts";
 
 describe("locale toggle mapping", () => {
   it("TH label is bound to locale th, EN to en", () => {
@@ -46,14 +46,32 @@ describe("loc listing overlay", () => {
     assert.equal(loc("en", "สวัสดี", "Hello"), "Hello");
   });
 
-  it("keeps Thai original when columns were stored swapped", () => {
-    assert.equal(loc("th", "Hello", "สวัสดี"), "สวัสดี");
-    assert.equal(loc("en", "Hello", "สวัสดี"), "Hello");
+  it("falls back to Thai when the English field is missing or blank", () => {
+    assert.equal(loc("en", "ล้างแอร์บ้าน", ""), "ล้างแอร์บ้าน");
+    assert.equal(loc("en", "ล้างแอร์บ้าน", "   "), "ล้างแอร์บ้าน");
+    assert.equal(loc("th", "ล้างแอร์บ้าน", ""), "ล้างแอร์บ้าน");
+    assert.equal(loc("th", "", "Hello"), "Hello");
+  });
+
+  it("shows titleEn on EN even when it includes Thai place names", () => {
+    assert.equal(
+      loc("en", "ล้างแอร์อ่าวนาง", "Air-con cleaning in อ่าวนาง"),
+      "Air-con cleaning in อ่าวนาง",
+    );
+    assert.equal(loc("th", "ล้างแอร์อ่าวนาง", "Air-con cleaning in อ่าวนาง"), "ล้างแอร์อ่าวนาง");
   });
 
   it("flags missing English overlay when only Thai exists", () => {
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "ล้างแอร์บ้าน"), true);
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", ""), true);
     assert.equal(needsEnglishOverlay("ล้างแอร์บ้าน", "Home air-con cleaning"), false);
+    assert.equal(needsEnglishOverlay("ล้างแอร์อ่าวนาง", "Air-con cleaning in อ่าวนาง"), false);
+  });
+
+  it("treats mixed Latin + Thai place names as a usable English overlay", () => {
+    assert.equal(isUsableEnglish("Air-con cleaning in อ่าวนาง"), true);
+    assert.equal(isUsableEnglish("Home air-con cleaning"), true);
+    assert.equal(isUsableEnglish("ล้างแอร์บ้าน"), false);
+    assert.equal(isUsableEnglish(""), false);
   });
 });

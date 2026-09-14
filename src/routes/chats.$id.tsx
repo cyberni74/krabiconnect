@@ -6,7 +6,8 @@ import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUser, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button } from "@/components/ui/button";
 import { LanguagePill } from "@/components/layout/language-pill";
-import { loc, useT } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
+import { listingTitle } from "@/lib/listing-copy";
 import { getMessages, sendMessage, setBookingStatus } from "@/lib/server/community";
 import { cn, initials } from "@/lib/utils";
 
@@ -71,7 +72,7 @@ function ThreadPage() {
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{conv?.otherName ?? t("chat")}</p>
           <p className="truncate text-xs text-muted">
-            {conv ? loc(lang, conv.listingTitleTh, conv.listingTitleEn) : ""}
+            {conv ? listingTitle(lang, conv) : ""}
           </p>
         </div>
         <LanguagePill />
