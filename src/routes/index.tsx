@@ -186,18 +186,16 @@ function Home() {
         </div>
       )}
 
-      {cards.length > 0 || view === "map" ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-24 z-30 mx-auto flex max-w-lg justify-end px-4">
-          <button
-            type="button"
-            onClick={() => setView((v) => (v === "map" ? "list" : "map"))}
-            className="pointer-events-auto inline-flex h-12 items-center gap-2 rounded-full bg-fg px-4 text-sm font-medium text-primary-fg shadow-float"
-          >
-            {view === "map" ? <List className="size-4" /> : <MapIcon className="size-4" />}
-            {view === "map" ? t("showList") : t("showMap")}
-          </button>
-        </div>
-      ) : null}
+      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-30 mx-auto flex max-w-lg justify-end px-4">
+        <button
+          type="button"
+          onClick={() => setView((v) => (v === "map" ? "list" : "map"))}
+          className="pointer-events-auto inline-flex h-12 items-center gap-2 rounded-full bg-fg px-4 text-sm font-medium text-primary-fg shadow-float"
+        >
+          {view === "map" ? <List className="size-4" /> : <MapIcon className="size-4" />}
+          {view === "map" ? t("showList") : t("showMap")}
+        </button>
+      </div>
     </main>
   );
 }
