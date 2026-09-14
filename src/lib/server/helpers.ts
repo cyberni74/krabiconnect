@@ -83,7 +83,7 @@ export function mapService(row: ServiceJoin): FeedCard {
     status: row.status,
     images: parseImages(row.images),
     tasks: parseImages(row.tasks),
-    district: row.district,
+    district: row.district ?? "",
     lat: row.lat == null ? null : Number(row.lat),
     lng: row.lng == null ? null : Number(row.lng),
     condition: null,

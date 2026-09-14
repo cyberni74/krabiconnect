@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Briefcase,
   Car,
@@ -24,8 +24,12 @@ import {
   categoryName,
 } from "@/lib/constants";
 import { useAreaStore } from "@/lib/area";
+import type { FeedCard } from "@/lib/types";
 
 export const Route = createFileRoute("/")({ component: Home });
+
+/** Stable empty feed so MapView does not see a new [] identity every render. */
+const EMPTY_LISTINGS: FeedCard[] = [];
 
 const MapView = lazy(() => import("@/components/map/MapViewMapLibre"));
 
@@ -79,9 +83,12 @@ function Home() {
           category: category || undefined,
         },
       }),
+    placeholderData: keepPreviousData,
   });
 
-  const cards = feed.data ?? [];
+  // Same array for list cards and map pins — do not strip null lat/lng.
+  const listings = feed.data ?? EMPTY_LISTINGS;
+  const showSkeleton = feed.isLoading && listings.length === 0;
   const cats =
     kind === "jobs"
       ? JOB_CATEGORIES
@@ -211,11 +218,11 @@ function Home() {
         </div>
       ) : null}
 
-      {cards.length > 0 && view === "list" ? (
+      {listings.length > 0 && view === "list" ? (
         <h2 className="mb-3 text-sm font-semibold text-muted">{t("latest")}</h2>
       ) : null}
 
-      {feed.isLoading ? (
+      {showSkeleton ? (
         <div className="grid gap-4">
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-64 animate-pulse rounded-2xl bg-surface-2" />
@@ -223,13 +230,13 @@ function Home() {
         </div>
       ) : view === "map" ? (
         <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
-          <MapView items={cards} selectedId={selectedId} onSelect={setSelectedId} />
+          <MapView items={listings} selectedId={selectedId} onSelect={setSelectedId} />
         </Suspense>
-      ) : cards.length === 0 ? (
+      ) : listings.length === 0 ? (
         <EmptyHome t={t} />
       ) : (
         <div className="grid gap-4">
-          {cards.map((c) => (
+          {listings.map((c) => (
             <ListingCard key={`${c.kind}-${c.id}`} card={c} />
           ))}
         </div>
