@@ -139,12 +139,58 @@ export async function ingestAgentListings(
 }
 
 export async function patchAgentListingImages(id: string, body: unknown) {
-  const { patchListingImages } = await import("./listing-write");
-  const images =
-    body && typeof body === "object" && "images" in body
-      ? (body as { images: unknown }).images
-      : undefined;
-  return patchListingImages(id, images);
+  return patchAgentListing(id, body);
+}
+
+export async function patchAgentListing(id: string, body: unknown) {
+  const { hasAgentListingPatch, parseAgentListingPatch } = await import("./listing-overlay");
+  const patch = parseAgentListingPatch(body);
+  if (!hasAgentListingPatch(patch)) {
+    throw new Error("Body must include images, titleEn, descriptionEn, or translate: true");
+  }
+  const { patchListingEnglish, patchListingImages } = await import("./listing-write");
+  let imagesResult: Awaited<ReturnType<typeof patchListingImages>> | undefined;
+  if (patch.images !== undefined) {
+    imagesResult = await patchListingImages(id, patch.images);
+  }
+  let overlay: { titleEn: string; descriptionEn: string } | undefined;
+  if (patch.titleEn || patch.descriptionEn) {
+    overlay = await patchListingEnglish(id, {
+      titleEn: patch.titleEn,
+      descriptionEn: patch.descriptionEn,
+    });
+  }
+  if (patch.translate) {
+    overlay = await seedAgentListingEnglish(id);
+  }
+  return {
+    ok: true as const,
+    id,
+    ...(imagesResult ?? {}),
+    ...(overlay ? { titleEn: overlay.titleEn, descriptionEn: overlay.descriptionEn } : {}),
+  };
+}
+
+export async function seedAgentListingEnglish(id: string) {
+  const listingId = id.trim();
+  if (!listingId) throw new Error("Listing id required");
+  const { getDb } = await import("./helpers");
+  const sql = await getDb();
+  const rows = await sql<{ id: string }>`select id from services where id = ${listingId} limit 1`;
+  if (!rows[0]) {
+    const err = new Error("Listing not found") as Error & { status: number };
+    err.status = 404;
+    throw err;
+  }
+  const { fillEnglishOverlaysForIds } = await import("./translate");
+  const overlays = await fillEnglishOverlaysForIds([listingId]);
+  const overlay = overlays[0];
+  if (!overlay) {
+    const err = new Error("Could not seed English overlay") as Error & { status: number };
+    err.status = 422;
+    throw err;
+  }
+  return { ok: true as const, id: listingId, titleEn: overlay.titleEn, descriptionEn: overlay.descriptionEn };
 }
 
 export async function rehostAgentImage(request: Request) {
@@ -191,10 +237,29 @@ export const AGENT_SCHEMA = {
     "POST matching sourceUrl or id does not insert a second row. If the existing row has 0 usable images (empty/missing, or only Facebook fbid HTML) and images[] is non-empty, those HTTPS URLs are merged onto the existing row (cover = images[0]). Rows that already have usable photos are left unchanged.",
   patch: {
     endpoint: "PATCH /api/agent/listings/:id",
-    body: { images: ["https://…"] },
-    result: { ok: true, id: "string", images: ["https://…"], cover: "https://… | null" },
+    body: {
+      images: ["https://…"],
+      titleEn: "English title (optional)",
+      descriptionEn: "English description (optional)",
+      translate: "true — seed title_en/description_en from Thai via public MT (no XAI key)",
+    },
+    result: {
+      ok: true,
+      id: "string",
+      images: ["https://…"],
+      cover: "https://… | null",
+      titleEn: "string",
+      descriptionEn: "string",
+    },
     notes:
-      "Replaces listing images. cover is images[0]. Same Bearer token as POST. fbcdn URLs are rewritten to /api/img?u=…. When BLOB_READ_WRITE_TOKEN is set, they are also rehosted to Vercel Blob before save.",
+      "Replaces listing images and/or seeds English overlay columns. title_th / description_th are never overwritten. cover is images[0]. Same Bearer token as POST. fbcdn URLs are rewritten to /api/img?u=…. When BLOB_READ_WRITE_TOKEN is set, they are also rehosted to Vercel Blob before save.",
+  },
+  translateSeed: {
+    endpoint: "POST /api/agent/listings/:id/translate-seed",
+    body: {},
+    result: { ok: true, id: "string", titleEn: "string", descriptionEn: "string" },
+    notes:
+      "Fills title_en / description_en from the Thai original using xAI when XAI_API_KEY is set, otherwise MyMemory / LibreTranslate. Does not change title_th / description_th.",
   },
   images: {
     proxy:

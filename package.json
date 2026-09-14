@@ -16,7 +16,7 @@
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/map-point.test.ts src/lib/owned-image.test.ts src/lib/utils.test.ts src/lib/img-csp.test.ts src/lib/server/listing-images.test.ts src/lib/server/image-proxy.test.ts src/lib/server/image-rehost.test.ts src/lib/i18n.test.ts",
+    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/map-point.test.ts src/lib/owned-image.test.ts src/lib/utils.test.ts src/lib/img-csp.test.ts src/lib/server/listing-images.test.ts src/lib/server/image-proxy.test.ts src/lib/server/image-rehost.test.ts src/lib/i18n.test.ts src/lib/server/th-en-fallback.test.ts src/lib/server/listing-overlay.test.ts src/lib/server/translate.test.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

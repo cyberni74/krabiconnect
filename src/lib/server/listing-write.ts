@@ -238,3 +238,38 @@ export async function patchListingImages(
   await sql`update services set images = ${JSON.stringify(images)} where id = ${listingId}`;
   return { ok: true, id: listingId, images, cover: images[0] ?? null, rehosted: processed.rehosted };
 }
+
+/** Write English overlay only. Never touches title_th / description_th. */
+export async function patchListingEnglish(
+  id: string,
+  overlay: { titleEn?: string; descriptionEn?: string },
+): Promise<{ ok: true; id: string; titleEn: string; descriptionEn: string }> {
+  const { assertEnglishOverlayField } = await import("./listing-overlay");
+  const listingId = id.trim();
+  if (!listingId) throw new Error("Listing id required");
+  const titleEn = overlay.titleEn?.trim();
+  const descriptionEn = overlay.descriptionEn?.trim();
+  if (!titleEn && !descriptionEn) throw new Error("titleEn or descriptionEn required");
+  if (titleEn) assertEnglishOverlayField("titleEn", titleEn);
+  if (descriptionEn) assertEnglishOverlayField("descriptionEn", descriptionEn);
+  const sql = await getDb();
+  const rows = await sql<{
+    id: string;
+    title_en: string;
+    description_en: string;
+  }>`select id, title_en, description_en from services where id = ${listingId} limit 1`;
+  if (!rows[0]) {
+    const err = new Error("Listing not found") as Error & { status: number };
+    err.status = 404;
+    throw err;
+  }
+  const nextTitle = titleEn ?? rows[0].title_en;
+  const nextDesc = descriptionEn ?? rows[0].description_en;
+  await sql`
+    update services set
+      title_en = ${nextTitle},
+      description_en = ${nextDesc}
+    where id = ${listingId}
+  `;
+  return { ok: true, id: listingId, titleEn: nextTitle, descriptionEn: nextDesc };
+}
