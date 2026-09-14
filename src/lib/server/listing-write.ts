@@ -32,6 +32,9 @@ export type ListingWriteInput = {
   facebookUrl?: string | null;
   facebookName?: string | null;
   sourceUrl?: string | null;
+  /** English overlay only — never written to title_th / description_th. */
+  titleEn?: string | null;
+  descriptionEn?: string | null;
 };
 
 export type ListingWriteResult = {
@@ -39,6 +42,9 @@ export type ListingWriteResult = {
   kind: ListingKind;
   duplicate: boolean;
   imagesUpdated?: boolean;
+  overlayUpdated?: boolean;
+  titleEn?: string;
+  descriptionEn?: string;
   cover?: string | null;
   rehosted?: number;
   warning?: string;
@@ -126,25 +132,40 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
   const existing = await findExistingListing(sql, { sourceUrl, id: data.id });
   if (existing) {
     const nextImages = imagesToApplyOnDuplicate(data.images, existing.images);
+    let imagesUpdated = false;
+    let cover: string | null | undefined;
+    let rehosted: number | undefined;
     if (nextImages) {
       const { processListingImages } = await import("./image-rehost");
       const processed = await processListingImages(nextImages);
       await sql`
         update services set images = ${JSON.stringify(processed.images)} where id = ${existing.id}
       `;
-      return {
-        id: existing.id,
-        kind: resolveKind(existing.kind),
-        duplicate: true,
-        imagesUpdated: true,
-        cover: processed.images[0] ?? null,
-        rehosted: processed.rehosted,
-      };
+      imagesUpdated = true;
+      cover = processed.images[0] ?? null;
+      rehosted = processed.rehosted;
+    }
+    const { englishOverlayFromFields } = await import("./listing-overlay");
+    const overlay = englishOverlayFromFields(data);
+    let overlayUpdated = false;
+    let titleEn: string | undefined;
+    let descriptionEn: string | undefined;
+    if (overlay) {
+      const seeded = await patchListingEnglish(existing.id, overlay);
+      overlayUpdated = true;
+      titleEn = seeded.titleEn;
+      descriptionEn = seeded.descriptionEn;
     }
     return {
       id: existing.id,
       kind: resolveKind(existing.kind),
       duplicate: true,
+      imagesUpdated,
+      overlayUpdated,
+      cover,
+      rehosted,
+      titleEn,
+      descriptionEn,
     };
   }
 

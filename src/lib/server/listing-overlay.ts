@@ -88,3 +88,18 @@ export function hasAgentListingPatch(patch: AgentListingPatch): boolean {
   if (patch.titleEn || patch.descriptionEn) return true;
   return patch.images !== undefined;
 }
+
+/** English overlay fields from agent POST/PATCH. Does not read Thai title/description. */
+export function englishOverlayFromFields(input: {
+  titleEn?: string | null;
+  descriptionEn?: string | null;
+  title_en?: string | null;
+  description_en?: string | null;
+}): { titleEn?: string; descriptionEn?: string } | null {
+  const titleEn = readString(input.titleEn) ?? readString(input.title_en ?? undefined);
+  const descriptionEn = readString(input.descriptionEn) ?? readString(input.description_en ?? undefined);
+  if (!titleEn && !descriptionEn) return null;
+  if (titleEn) assertEnglishOverlayField("titleEn", titleEn);
+  if (descriptionEn) assertEnglishOverlayField("descriptionEn", descriptionEn);
+  return { titleEn, descriptionEn };
+}

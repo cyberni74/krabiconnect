@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/agent")({
             endpoints: {
               "GET /api/agent/listings": "Validate Bearer token → { ok, valid }",
               "POST /api/agent/listings":
-                "Create listings. Duplicate sourceUrl/id is not a second row; empty/fbid-HTML images are upgraded from incoming images[]. fbcdn is rewritten to /api/img?u=…; rehosted to Vercel Blob when BLOB_READ_WRITE_TOKEN is set.",
+                "Create listings. Duplicate sourceUrl/id is not a second row; empty/fbid-HTML images are upgraded from incoming images[]. Duplicate POST may also seed titleEn/descriptionEn (Thai columns untouched). fbcdn is rewritten to /api/img?u=…; rehosted to Vercel Blob when BLOB_READ_WRITE_TOKEN is set.",
               "PATCH /api/agent/listings/:id":
                 "Replace images and/or seed English overlay { titleEn, descriptionEn }. Thai columns stay untouched. translate: true fills English via public MT when XAI_API_KEY is unset. Bearer token required.",
               "POST /api/agent/listings/:id/translate-seed":

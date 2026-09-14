@@ -16,6 +16,8 @@ export type AgentListingInput = {
   facebookName?: string | null;
   sourceUrl?: string | null;
   tasks?: string[] | null;
+  titleEn?: string | null;
+  descriptionEn?: string | null;
 };
 
 function hashToken(token: string): string {
@@ -132,6 +134,8 @@ export async function ingestAgentListings(
         facebookUrl: item.facebookUrl,
         facebookName: item.facebookName,
         sourceUrl: item.sourceUrl,
+        titleEn: item.titleEn,
+        descriptionEn: item.descriptionEn,
       }),
     );
   }
@@ -232,9 +236,11 @@ export const AGENT_SCHEMA = {
     facebookUrl: "https://www.facebook.com/seller-profile",
     facebookName: "string",
     sourceUrl: "https://www.facebook.com/marketplace/item/…",
+    titleEn: "English title (optional — seeds title_en only)",
+    descriptionEn: "English description (optional — seeds description_en only)",
   },
   duplicate:
-    "POST matching sourceUrl or id does not insert a second row. If the existing row has 0 usable images (empty/missing, or only Facebook fbid HTML) and images[] is non-empty, those HTTPS URLs are merged onto the existing row (cover = images[0]). Rows that already have usable photos are left unchanged.",
+    "POST matching sourceUrl or id does not insert a second row. If the existing row has 0 usable images (empty/missing, or only Facebook fbid HTML) and images[] is non-empty, those HTTPS URLs are merged onto the existing row (cover = images[0]). Rows that already have usable photos are left unchanged. titleEn / descriptionEn on a duplicate POST seed title_en / description_en only — title_th / description_th are never overwritten.",
   patch: {
     endpoint: "PATCH /api/agent/listings/:id",
     body: {
@@ -296,6 +302,9 @@ export const AGENT_SCHEMA = {
         kind: "market | service | job",
         duplicate: "boolean",
         imagesUpdated: "boolean (set when duplicate received photos)",
+        overlayUpdated: "boolean (set when duplicate received titleEn/descriptionEn)",
+        titleEn: "string (when overlayUpdated)",
+        descriptionEn: "string (when overlayUpdated)",
         cover: "https://… (when imagesUpdated)",
       },
     ],

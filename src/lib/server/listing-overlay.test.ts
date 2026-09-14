@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   assertEnglishOverlayField,
+  englishOverlayFromFields,
   hasAgentListingPatch,
   overlayRowFromClient,
   overlaySource,
@@ -82,5 +83,14 @@ describe("parseAgentListingPatch", () => {
     });
     assert.equal(row.title_th, "ขายรถ");
     assert.equal(row.title_en, "");
+  });
+
+  it("extracts English overlay from duplicate POST fields without using Thai title", () => {
+    assert.deepEqual(englishOverlayFromFields({ titleEn: "Honda PCX 160", descriptionEn: "Ao Nang scooter" }), {
+      titleEn: "Honda PCX 160",
+      descriptionEn: "Ao Nang scooter",
+    });
+    assert.equal(englishOverlayFromFields({ titleEn: null, descriptionEn: "  " }), null);
+    assert.throws(() => englishOverlayFromFields({ titleEn: "ขายมอเตอร์ไซค์" }), /must be English/);
   });
 });
