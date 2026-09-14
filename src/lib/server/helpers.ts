@@ -131,7 +131,7 @@ export async function fetchServices(
     );
   } else {
     rows = await sql.query<ServiceJoin>(
-      `select ${SERVICE_SELECT} from services s left join profiles p on p.id = s.user_id order by s.created_at desc`,
+      `select ${SERVICE_SELECT} from services s left join profiles p on p.id = s.user_id where s.status in ('active','available') order by s.created_at desc`,
     );
   }
   return rows.map(mapService);
