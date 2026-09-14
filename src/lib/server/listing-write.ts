@@ -40,6 +40,7 @@ export type ListingWriteResult = {
   duplicate: boolean;
   imagesUpdated?: boolean;
   cover?: string | null;
+  rehosted?: number;
   warning?: string;
 };
 
@@ -126,15 +127,18 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
   if (existing) {
     const nextImages = imagesToApplyOnDuplicate(data.images, existing.images);
     if (nextImages) {
+      const { processListingImages } = await import("./image-rehost");
+      const processed = await processListingImages(nextImages);
       await sql`
-        update services set images = ${JSON.stringify(nextImages)} where id = ${existing.id}
+        update services set images = ${JSON.stringify(processed.images)} where id = ${existing.id}
       `;
       return {
         id: existing.id,
         kind: resolveKind(existing.kind),
         duplicate: true,
         imagesUpdated: true,
-        cover: nextImages[0] ?? null,
+        cover: processed.images[0] ?? null,
+        rehosted: processed.rehosted,
       };
     }
     return {
@@ -175,7 +179,9 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
     }
   }
   const id = uid();
-  const images = JSON.stringify(cleanImages(data.images));
+  const { processListingImages } = await import("./image-rehost");
+  const processed = await processListingImages(cleanImages(data.images));
+  const images = JSON.stringify(processed.images);
   const tasks = JSON.stringify((data.tasks ?? []).slice(0, 12));
   await sql`
     insert into services (
@@ -196,6 +202,8 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
     id,
     kind,
     duplicate: false,
+    cover: processed.images[0] ?? null,
+    rehosted: processed.rehosted,
     warning: facebookUrl ? undefined : "No Facebook profile — buyers cannot contact the seller",
   };
 }
@@ -203,14 +211,23 @@ export async function writeListing(data: ListingWriteInput): Promise<ListingWrit
 export async function patchListingImages(
   id: string,
   imagesRaw: unknown,
-): Promise<{ ok: true; id: string; images: string[]; cover: string | null }> {
+): Promise<{
+  ok: true;
+  id: string;
+  images: string[];
+  cover: string | null;
+  rehosted: number;
+}> {
   const listingId = id.trim();
   if (!listingId) throw new Error("Listing id required");
   if (!Array.isArray(imagesRaw)) throw new Error("Body must include images: string[]");
-  const images = cleanImages(imagesRaw.filter((u): u is string => typeof u === "string"));
-  if (imagesRaw.length > 0 && images.length === 0) {
+  const cleaned = cleanImages(imagesRaw.filter((u): u is string => typeof u === "string"));
+  if (imagesRaw.length > 0 && cleaned.length === 0) {
     throw new Error("No usable HTTPS image URLs (Facebook photo.php/fbid HTML is ignored)");
   }
+  const { processListingImages } = await import("./image-rehost");
+  const processed = await processListingImages(cleaned);
+  const images = processed.images;
   const sql = await getDb();
   const rows = await sql<{ id: string }>`select id from services where id = ${listingId} limit 1`;
   if (!rows[0]) {
@@ -219,5 +236,5 @@ export async function patchListingImages(
     throw err;
   }
   await sql`update services set images = ${JSON.stringify(images)} where id = ${listingId}`;
-  return { ok: true, id: listingId, images, cover: images[0] ?? null };
+  return { ok: true, id: listingId, images, cover: images[0] ?? null, rehosted: processed.rehosted };
 }
