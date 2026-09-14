@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Globe, MapPin, Star } from "lucide-react";
 import { categoryName, districtById, districtName, kindLabel, taskName } from "@/lib/constants";
 import { loc, useT, type I18nKey } from "@/lib/i18n";
+import { overlayOrMapped } from "@/lib/listing-dto";
 import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
 import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
 import type { FeedCard } from "@/lib/types";
@@ -35,6 +36,7 @@ function distanceLabel(card: FeedCard, originId: string) {
 export function ListingCard({ card, compact }: { card: FeedCard; compact?: boolean }) {
   const { lang, t } = useT();
   const overlay = useEnsureEnglishOverlay(card);
+  const copy = overlayOrMapped(overlay, card);
   const origin = useAreaStore((s) => s.district);
   const href = `/service/${card.id}`;
   // Allowlist includes *.blob.vercel-storage.com / public.blob.vercel-storage.com
@@ -95,7 +97,7 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
       <div className={cn("space-y-1.5", compact ? "p-2.5" : "p-3.5")}>
         <h3 className="flex items-start gap-1.5 text-base font-semibold leading-snug">
           <span className="line-clamp-2 min-w-0 flex-1">
-            {loc(lang, card.titleTh, overlay?.titleEn ?? card.titleEn)}
+            {loc(lang, copy.titleTh, copy.titleEn)}
           </span>
           {translated ? (
             <Globe className="mt-0.5 size-3.5 shrink-0 text-primary" aria-label={t("autoTranslated")} />

@@ -18,6 +18,7 @@ import { Input, Label, Textarea } from "@/components/ui/input";
 import { LocalizedText, TranslationBanner } from "@/components/translated";
 import { categoryName, districtName, kindLabel, taskName } from "@/lib/constants";
 import { useT, type I18nKey } from "@/lib/i18n";
+import { overlayOrMapped } from "@/lib/listing-dto";
 import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
 import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
 import { createBooking, openConversation, sendMessage } from "@/lib/server/community";
@@ -37,8 +38,7 @@ function ctaKey(card: FeedCard): I18nKey {
 export function ListingDetail({ card }: { card: FeedCard }) {
   const { lang, t } = useT();
   const overlay = useEnsureEnglishOverlay(card);
-  const titleEn = overlay?.titleEn ?? card.titleEn;
-  const descriptionEn = overlay?.descriptionEn ?? card.descriptionEn;
+  const { titleEn, descriptionEn } = overlayOrMapped(overlay, card);
   const nav = useNavigate();
   const user = useCurrentUser();
   const { isPending } = useCurrentUserState();

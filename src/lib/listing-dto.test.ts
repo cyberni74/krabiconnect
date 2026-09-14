@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { listingCopyFields, withListingCopy } from "./listing-dto.ts";
+import { listingCopyFields, overlayOrMapped, withListingCopy } from "./listing-dto.ts";
 
 describe("listingCopyFields", () => {
   it("maps Neon snake_case title_en / description_en onto the client DTO", () => {
@@ -42,6 +42,21 @@ describe("listingCopyFields", () => {
     assert.equal(copy.descriptionEn, "Weekly service");
   });
 
+  it("prefers Neon title_en / description_en over a stale camelCase value", () => {
+    const copy = listingCopyFields({
+      titleTh: "ล้างแอร์บ้าน",
+      title_th: "ล้างแอร์บ้าน",
+      titleEn: "ล้างแอร์บ้าน",
+      title_en: "Home air-con cleaning",
+      descriptionTh: "ล้างคอยล์",
+      description_th: "ล้างคอยล์",
+      descriptionEn: "ล้างคอยล์",
+      description_en: "Coil clean in Ao Nang",
+    });
+    assert.equal(copy.titleEn, "Home air-con cleaning");
+    assert.equal(copy.descriptionEn, "Coil clean in Ao Nang");
+  });
+
   it("always emits string fields so JSON.stringify keeps the keys", () => {
     const json = JSON.stringify(listingCopyFields({ title_th: "สวัสดี" }));
     const parsed = JSON.parse(json) as Record<string, unknown>;
@@ -68,5 +83,16 @@ describe("withListingCopy", () => {
     assert.equal(parsed.titleEn, "Home air-con cleaning");
     assert.equal(parsed.descriptionEn, "Coil clean");
     assert.equal(parsed.titleTh, "ล้างแอร์บ้าน");
+  });
+});
+
+describe("overlayOrMapped", () => {
+  it("does not let an empty overlay clobber mapped titleEn from title_en", () => {
+    const copy = overlayOrMapped(
+      { titleEn: "", descriptionEn: "   " },
+      { title_th: "ล้างแอร์บ้าน", title_en: "Home air-con cleaning", description_en: "Coil clean" },
+    );
+    assert.equal(copy.titleEn, "Home air-con cleaning");
+    assert.equal(copy.descriptionEn, "Coil clean");
   });
 });

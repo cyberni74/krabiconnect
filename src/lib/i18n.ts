@@ -618,6 +618,8 @@ export function bilingualPair(th: string, en: string): { th: string; en: string 
 }
 
 export function needsEnglishOverlay(th: string, en: string): boolean {
+  const english = (en ?? "").trim();
+  if (english && /[A-Za-z]/.test(english)) return false;
   const pair = bilingualPair(th, en);
   return hasThaiScript(pair.th) && (!pair.en.trim() || hasThaiScript(pair.en));
 }
