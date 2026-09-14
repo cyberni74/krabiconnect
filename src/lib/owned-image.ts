@@ -4,7 +4,10 @@
  *
  * Listing `<img src>` uses a relative `/api/img?u=` so photos load on the
  * Vercel host even when SITE_URL points at a parked custom domain.
+ * Public Vercel Blob HTTPS URLs are valid covers and are not rewritten.
  */
+
+import { parseImages } from "./utils.ts";
 
 export const IMAGE_PROXY_PATH = "/api/img";
 
@@ -120,4 +123,80 @@ export function toOwnedImageUrl(raw: string, origin = ""): string {
 
 export function toOwnedImageUrls(urls: string[]): string[] {
   return urls.map((u) => toOwnedImageUrl(u));
+}
+
+/** Public Vercel Blob HTTPS hosts that are valid listing covers (HEAD 200, no proxy). */
+export function isVercelBlobImageUrl(raw: string): boolean {
+  try {
+    const url = new URL(raw.trim());
+    if (url.protocol !== "https:") return false;
+    const host = hostnameOf(url);
+    return (
+      host === "blob.vercel-storage.com" ||
+      host.endsWith(".blob.vercel-storage.com") ||
+      host === "public.blob.vercel-storage.com" ||
+      host.endsWith(".public.blob.vercel-storage.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isFacebookHtmlCoverHost(host: string): boolean {
+  if (host === "fb.com" || host === "fb.me") return true;
+  if (host === "graph.facebook.com" || host.endsWith(".graph.facebook.com")) return false;
+  return host === "facebook.com" || host.endsWith(".facebook.com");
+}
+
+/** True when `raw` can be used as an `<img src>` cover (blob, proxy, https, data URI). */
+export function isDisplayableCoverUrl(raw: unknown): raw is string {
+  if (typeof raw !== "string") return false;
+  const trimmed = raw.trim();
+  if (!trimmed) return false;
+  if (trimmed.startsWith("data:image/")) return true;
+  if (isVercelBlobImageUrl(trimmed)) return true;
+  try {
+    const url = trimmed.startsWith("/")
+      ? new URL(trimmed, "https://owned.invalid")
+      : new URL(trimmed);
+    if (proxyPathname(url.pathname) || url.pathname.startsWith(`${IMAGE_PROXY_PATH}/`)) {
+      return true;
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+    const host = hostnameOf(url);
+    if (isFacebookHtmlCoverHost(host) && !url.pathname.includes("/picture")) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export type CoverSource = {
+  coverUrl?: string | null;
+  cover?: string | null;
+  image?: string | null;
+  images?: unknown;
+};
+
+/**
+ * First usable listing hero. Accepts coverUrl/cover/image/images[], including
+ * public `*.public.blob.vercel-storage.com` HTTPS URLs. Does not require an
+ * owned `/api/img` host.
+ */
+export function pickCoverImage(source: CoverSource): string | undefined {
+  const candidates: unknown[] = [source.coverUrl, source.cover, source.image, ...parseImages(source.images)];
+  for (const candidate of candidates) {
+    if (typeof candidate !== "string") continue;
+    const trimmed = candidate.trim();
+    if (!trimmed) continue;
+    if (isVercelBlobImageUrl(trimmed) || isDisplayableCoverUrl(trimmed)) return trimmed;
+  }
+  return undefined;
+}
+
+/** Cover URL for `<img src>`: Blob HTTPS stays as-is; Facebook CDN goes through `/api/img`. */
+export function listingCoverSrc(source: CoverSource, origin = ""): string | undefined {
+  const picked = pickCoverImage(source);
+  if (!picked) return undefined;
+  return toOwnedImageUrl(picked, origin);
 }

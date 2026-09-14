@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Globe, MapPin, Star } from "lucide-react";
 import { categoryName, districtById, districtName, kindLabel, taskName } from "@/lib/constants";
 import { loc, useT, type I18nKey } from "@/lib/i18n";
-import { toOwnedImageUrl } from "@/lib/owned-image";
+import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
 import { useEnsureEnglishOverlay } from "@/lib/use-english-overlay";
 import type { FeedCard } from "@/lib/types";
 import { cn, formatThb, haversineKm, initials } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function ListingCard({ card, compact }: { card: FeedCard; compact?: boole
   const overlay = useEnsureEnglishOverlay(card);
   const origin = useAreaStore((s) => s.district);
   const href = `/service/${card.id}`;
-  const img = card.images[0] ? toOwnedImageUrl(card.images[0]) : undefined;
+  const img = listingCoverSrc(card);
   const price = priceLabel(card, lang, t);
   const chips = card.tasks.slice(0, compact ? 1 : 2);
   const translated = card.sourceLanguage !== lang;

@@ -9,17 +9,72 @@ export function uid(): string {
   return crypto.randomUUID();
 }
 
-export function parseImages(raw: unknown): string[] {
-  if (Array.isArray(raw)) return raw.filter((x): x is string => typeof x === "string");
-  if (typeof raw === "string") {
-    try {
-      const v = JSON.parse(raw) as unknown;
-      return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
-    } catch {
-      return raw ? [raw] : [];
+const IMAGE_OBJECT_KEYS = ["url", "src", "href", "cover", "coverUrl", "image"] as const;
+
+function asStoredUrl(value: unknown): string | null {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const rec = value as Record<string, unknown>;
+    for (const key of IMAGE_OBJECT_KEYS) {
+      const inner = rec[key];
+      if (typeof inner === "string" && inner.trim()) return inner.trim();
     }
   }
-  return [];
+  return null;
+}
+
+function extractHttpUrls(text: string): string[] {
+  const matches = text.match(/https?:\/\/[^\s"'<>\\]+/gi) ?? [];
+  return matches.map((u) => u.replace(/[),.;}\]]+$/g, ""));
+}
+
+/**
+ * Normalize listing `images` from Neon (JSON text, jsonb, object rows, or a lone URL).
+ * Task ID arrays also flow through here — non-URL strings are kept as-is.
+ */
+export function parseImages(raw: unknown): string[] {
+  if (raw == null || raw === "") return [];
+  if (Array.isArray(raw)) {
+    const out: string[] = [];
+    for (const item of raw) {
+      if (Array.isArray(item)) {
+        out.push(...parseImages(item));
+        continue;
+      }
+      const url = asStoredUrl(item);
+      if (url) out.push(url);
+    }
+    if (out.length) return out;
+    return [];
+  }
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (parsed !== trimmed) {
+        const nested = parseImages(parsed);
+        if (nested.length) return nested;
+      }
+    } catch {
+      // not JSON — a lone URL, postgres array, or opaque token
+    }
+    if (
+      /^https?:\/\//i.test(trimmed) ||
+      trimmed.startsWith("data:image/") ||
+      trimmed.startsWith("/api/img")
+    ) {
+      return [trimmed];
+    }
+    const found = extractHttpUrls(trimmed);
+    if (found.length) return found;
+    return [trimmed];
+  }
+  const single = asStoredUrl(raw);
+  return single ? [single] : [];
 }
 
 export function detectLang(text: string): "en" | "th" {

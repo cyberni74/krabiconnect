@@ -1,6 +1,6 @@
 import { getSql, type Sql } from "@/lib/db";
 import type { ListingKind } from "@/lib/constants";
-import { toOwnedImageUrl } from "@/lib/owned-image";
+import { pickCoverImage, toOwnedImageUrl } from "@/lib/owned-image";
 import { parseImages } from "@/lib/utils";
 import type { FeedCard } from "@/lib/types";
 
@@ -67,7 +67,13 @@ function asKind(raw: string | null): ListingKind {
   return "service";
 }
 
+/** Feed images as stored — Blob HTTPS URLs are not rewritten or dropped. */
+export function mapFeedImages(raw: unknown): string[] {
+  return parseImages(raw);
+}
+
 export function mapService(row: ServiceJoin): FeedCard {
+  const images = mapFeedImages(row.images);
   return {
     kind: asKind(row.kind),
     id: row.id,
@@ -82,7 +88,8 @@ export function mapService(row: ServiceJoin): FeedCard {
     price: row.rate_thb,
     deposit: null,
     status: row.status,
-    images: parseImages(row.images).map((u) => toOwnedImageUrl(u)),
+    images,
+    cover: pickCoverImage({ images }) ?? null,
     tasks: parseImages(row.tasks),
     district: row.district ?? "",
     lat: row.lat == null ? null : Number(row.lat),

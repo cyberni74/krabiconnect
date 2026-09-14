@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { toOwnedImageUrl } from "@/lib/owned-image";
+import { listingCoverSrc, toOwnedImageUrl } from "@/lib/owned-image";
 import { detectLang, parseFacebookUrl, parseImages, uid } from "@/lib/utils";
 import type { Booking, ChatMessage, Conversation, Profile, Review } from "@/lib/types";
 import { ensureProfile, getDb } from "./helpers";
@@ -242,7 +242,7 @@ export const listConversations = createServerFn({ method: "GET" })
     );
     return rows.map((r): Conversation => {
       const isRequester = r.requester_id === context.userId;
-      const imgs = parseImages(r.item_images ?? r.svc_images).map((u) => toOwnedImageUrl(u));
+      const imgs = parseImages(r.item_images ?? r.svc_images);
       return {
         id: r.id,
         requesterId: r.requester_id,
@@ -252,7 +252,7 @@ export const listConversations = createServerFn({ method: "GET" })
         createdAt: String(r.created_at),
         listingTitleTh: r.item_title_th ?? r.svc_title_th ?? "",
         listingTitleEn: r.item_title_en ?? r.svc_title_en ?? "",
-        listingImage: imgs[0] ?? null,
+        listingImage: listingCoverSrc({ images: imgs }) ?? null,
         listingKind: r.service_id ? "service" : null,
         otherName: (isRequester ? r.provider_name : r.requester_name) ?? "Neighbour",
         otherAvatar: isRequester ? r.provider_avatar : r.requester_avatar,
@@ -333,7 +333,7 @@ export const getMessages = createServerFn({ method: "GET" })
             select title_th, title_en, images from services where id = ${c.service_id}
           `
         : [];
-    const imgs = listing[0] ? parseImages(listing[0].images).map((u) => toOwnedImageUrl(u)) : [];
+    const imgs = listing[0] ? parseImages(listing[0].images) : [];
     const summary: Conversation = {
       id: c.id,
       requesterId: c.requester_id,
@@ -343,7 +343,7 @@ export const getMessages = createServerFn({ method: "GET" })
       createdAt: "",
       listingTitleTh: listing[0]?.title_th ?? "",
       listingTitleEn: listing[0]?.title_en ?? "",
-      listingImage: imgs[0] ?? null,
+      listingImage: listingCoverSrc({ images: imgs }) ?? null,
       listingKind: c.service_id ? "service" : null,
       otherName: other[0]?.name ?? "Neighbour",
       otherAvatar: other[0]?.avatar_url ?? null,

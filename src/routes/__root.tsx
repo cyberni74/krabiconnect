@@ -27,6 +27,11 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       { name: "theme-color", content: "#0088A3" },
       {
+        httpEquiv: "Content-Security-Policy",
+        content:
+          "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://*.blob.vercel-storage.com https:",
+      },
+      {
         name: "description",
         content: "KrabiMarketplace — local services, jobs and classifieds in Krabi. Thai and English, auto-translated.",
       },

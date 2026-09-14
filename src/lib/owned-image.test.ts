@@ -3,9 +3,13 @@ import assert from "node:assert/strict";
 import {
   IMAGE_PROXY_PATH,
   isAllowedImageHost,
+  isDisplayableCoverUrl,
   isHotlinkCdnHost,
   isOwnedProxyUrl,
+  isVercelBlobImageUrl,
+  listingCoverSrc,
   needsOwnedProxy,
+  pickCoverImage,
   toOwnedImageUrl,
   unwrapOwnedImageUrl,
 } from "./owned-image.ts";
@@ -65,5 +69,33 @@ describe("toOwnedImageUrl", () => {
     assert.equal(toOwnedImageUrl(CDN), CDN);
     assert.equal(toOwnedImageUrl("data:image/jpeg;base64,aa"), "data:image/jpeg;base64,aa");
     assert.equal(needsOwnedProxy(BLOB), false);
+    assert.equal(isVercelBlobImageUrl(BLOB), true);
+    assert.equal(isVercelBlobImageUrl("https://store.blob.vercel-storage.com/x.webp"), true);
+    assert.equal(isDisplayableCoverUrl(BLOB), true);
+  });
+});
+
+describe("pickCoverImage", () => {
+  it("accepts public Vercel Blob HTTPS URLs without requiring coverUrl or an owned host", () => {
+    assert.equal(pickCoverImage({ images: [BLOB] }), BLOB);
+    assert.equal(pickCoverImage({ coverUrl: BLOB }), BLOB);
+    assert.equal(pickCoverImage({ cover: BLOB }), BLOB);
+    assert.equal(listingCoverSrc({ images: [BLOB] }), BLOB);
+  });
+
+  it("pulls Blob URLs out of object rows and JSON text", () => {
+    assert.equal(pickCoverImage({ images: [{ url: BLOB }] }), BLOB);
+    assert.equal(pickCoverImage({ images: JSON.stringify([BLOB]) }), BLOB);
+    assert.equal(pickCoverImage({ images: JSON.stringify({ src: BLOB }) }), BLOB);
+  });
+
+  it("skips Facebook HTML pages and uses the Blob URL in the list", () => {
+    const html = "https://www.facebook.com/photo.php?fbid=1";
+    assert.equal(pickCoverImage({ images: [html, BLOB] }), BLOB);
+  });
+
+  it("does not strip Blob URLs that are not on an owned /api/img host", () => {
+    assert.equal(listingCoverSrc({ images: [BLOB, CDN] }), BLOB);
+    assert.notEqual(listingCoverSrc({ images: [BLOB] })?.startsWith(IMAGE_PROXY_PATH), true);
   });
 });
