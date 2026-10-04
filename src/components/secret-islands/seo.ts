@@ -83,7 +83,7 @@ export function businessNode(lang: Lang): Json {
     url: `${SITE_URL}${LANDING_PATH}`,
     // TODO(owner): move the logo to /public/brand/krabi-secret-islands-logo.png (own domain) and update LOGO_URL.
     logo: LOGO_URL,
-    // TODO(owner): add `image` with a real photo of the boat once it is hosted under /public/images/.
+    image: `${SITE_URL}/images/krabi-secret-islands-privates-speedboat.jpg`,
     email: BRAND.email,
     // TODO(owner): `telephone` omitted on purpose – BRAND.whatsapp is still a placeholder number.
     // TODO(owner): add streetAddress / postalCode (and `geo`) of the pier or office once confirmed.
@@ -111,7 +111,7 @@ function toursNode(lang: Lang, url: string): Json {
         "@type": "TouristTrip",
         name: translate(tour.title, lang),
         description: translate(tour.description, lang),
-        image: tour.image,
+        image: tour.image.startsWith("/") ? `${SITE_URL}${tour.image}` : tour.image,
         tripOrigin: { "@type": "Place", name: "Ao Nang, Krabi" },
         itinerary: {
           "@type": "ItemList",

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { IMG, LANGS, SEO_META } from "@/components/secret-islands/content";
+import { LANGS, SEO_META } from "@/components/secret-islands/content";
 import { validateLangSearch } from "@/components/secret-islands/lang-context";
 import { SecretIslandsPage } from "@/components/secret-islands/page";
 import { BRAND_HEAD_LINKS, LANDING_PATH, landingJsonLd, langLinks, pageUrl, socialMeta } from "@/components/secret-islands/seo";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/secret-islands")({
         { title },
         { name: "description", content: description },
         { name: "theme-color", content: "#0a192f" },
-        ...socialMeta({ title, description, url, image: IMG.hero, type: "website", lang }),
+        ...socialMeta({ title, description, url, image: "https://krabi-secret-islands.com/images/krabi-secret-islands-privates-speedboat.jpg", type: "website", lang }),
         { "script:ld+json": landingJsonLd(lang) },
       ],
       links: [...langLinks(LANDING_PATH, lang, LANDING_LANGS), ...BRAND_HEAD_LINKS],

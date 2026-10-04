@@ -49,8 +49,8 @@ const u = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;
 
 export const IMG = {
-  // Our own speedboat (Higgsfield). The old Unsplash hero showed longtail boats – we don't run longtails.
-  hero: ROMANCE_IMGS[0].src,
+  // Our real speedboat (owner photo, /public/images). Never use stock photos showing longtail boats.
+  hero: "/images/krabi-secret-islands-privates-speedboat.webp",
   sandbar: u("1559128010-7c1ad6e1b6a5"),
   lagoon: u("1537956965359-7573183d1f57"),
   beach: u("1507525428034-b723cf961d3e"),
@@ -59,7 +59,7 @@ export const IMG = {
   sunset: u("1530053969600-caed2596d242"),
   snorkel: u("1544551763-46a013bb70d5"),
   snorkel2: u("1544551763-77ef2d0cfc6c"),
-  boat: ROMANCE_IMGS[1].src,
+  boat: "/images/krabi-secret-islands-privates-speedboat.webp",
   cliffs: u("1589394815804-964ed0be2eb5"),
   bay: u("1519046904884-53103b34b206"),
 };

@@ -10,7 +10,12 @@ const SRCSET_WIDTHS = [480, 768, 1080, 1440, 1920];
  * Responsive `srcSet` for Unsplash URLs (`…&w=1200…`): the CDN resizes + serves WebP/AVIF (auto=format),
  * so phones no longer download the 1200–1800 px desktop file. Other hosts: no srcSet.
  */
+/** Local images under /public/images with a pre-rendered 900 px variant (`name-900.webp`). */
+const LOCAL_VARIANTS: Record<string, number> = { "/images/krabi-secret-islands-privates-speedboat.webp": 1672 };
+
 export function unsplashSrcSet(src: string): string | undefined {
+  const local = LOCAL_VARIANTS[src];
+  if (local) return `${src.replace(/\.webp$/, "-900.webp")} 900w, ${src} ${local}w`;
   if (!src.startsWith("https://images.unsplash.com/")) return undefined;
   const m = /[?&]w=(\d+)/.exec(src);
   if (!m) return undefined;
