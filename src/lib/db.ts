@@ -19,6 +19,15 @@ const databaseUrl =
 export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
 
 /**
+ * Whether to warm the DB eagerly at module load. Skipped on a serverless deploy
+ * (Vercel) without DATABASE_URL: the bundled PGLite can't load its data file
+ * there, and a failed eager start would take every route down — DB-free pages
+ * (e.g. /secret-islands) must keep working on such preview deployments.
+ */
+export const eagerDbWarmup =
+  dbSource === "neon" || !(typeof process !== "undefined" && process.env.VERCEL);
+
+/**
  * Minimal shared SQL surface, satisfied by both Neon and PGLite. Both the
  * tagged-template and `.query()` forms resolve to an array of row objects:
  *
@@ -230,10 +239,12 @@ export function ensureDbReady(): Promise<void> {
 const globalBoot = globalThis as typeof globalThis & {
   __pgBootstrapPromise__?: Promise<void>;
 };
-if (typeof window === "undefined" && dbSource === "pglite") {
+if (typeof window === "undefined" && dbSource === "pglite" && eagerDbWarmup) {
+  // Log instead of rethrowing: a rejected eager bootstrap would be an unhandled rejection that kills
+  // the whole server (e.g. a Vercel preview without DATABASE_URL). DB-backed requests still fail
+  // loudly because getSql() retries the bootstrap per call; DB-free pages keep working.
   globalBoot.__pgBootstrapPromise__ ??= ensureDbReady().catch((err) => {
     globalBoot.__pgBootstrapPromise__ = undefined;
     console.error("[db] PGLite bootstrap failed:", err);
-    throw err;
   });
 }
