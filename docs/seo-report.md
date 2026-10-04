@@ -13,7 +13,7 @@ Verification: `tsc --noEmit` passes. ESLint on all changed files: 0 errors (reac
 | 1 | Internal links are `<a href>` | ✅ | Guide: real `<Link>`s that keep `?lang`. Landing: added 8 deep links to guide articles (`sections-bottom.tsx:38`). Tour, landing-article and lightbox cards still open modals (button-only), which is acceptable because the modal content has no URL of its own. |
 | 2 | robots.txt | ✅ | `src/routes/robots[.]txt.ts`: allows everything; disallows only `/api/auth/`, `/api/agent`, `/admin`, `/account`, `/chats`; references the sitemap. Marketplace routes are untouched. |
 | 2 | sitemap.xml with lastmod + hreflang | ✅ | `src/routes/sitemap[.]xml.ts`: 51 URLs (landing ×5 languages, hub ×2, 22 articles ×2) with absolute `https://krabi-secret-islands.com` URLs and `xhtml:link` alternates. |
-| 3 | Unique titles/descriptions, one H1, H2/H3 | ✅ | All 51 URLs are unique once zh/ko/ja translate the 2 new SEO strings (see "Open" below). |
+| 3 | Unique titles/descriptions, one H1, H2/H3 | ✅ | All 51 URLs have unique titles and descriptions (zh/ko/ja are translated; CJK descriptions are 89–109 characters, which is fine because CJK characters are about twice as wide). |
 | 4 | TravelAgency (LocalBusiness) | ⚠️ | `seo.ts` `businessNode()`: name, url, logo, email, address (Ao Nang, Krabi, TH), areaServed, priceRange from TOURS. Left out because unconfirmed: telephone (WhatsApp number is a placeholder), streetAddress/geo, sameAs, real photo. All are marked TODO(owner). |
 | 4 | TouristTrip + THB offers | ✅ | 14 trips with itinerary (visible stops), provider, `Offer{price, THB, "per boat"}`. |
 | 4 | Exactly one FAQPage | ✅ | Landing: LongtailFaq microdata removed; one JSON-LD FAQPage combines Longtail + regular FAQ (`longtailAnswerText`). Articles: FAQPage from the visible `<details>` FAQ. Note: Google stopped showing FAQ rich results on 7 May 2026, so the markup is valid but brings no SERP feature. |
@@ -28,7 +28,7 @@ Verification: `tsc --noEmit` passes. ESLint on all changed files: 0 errors (reac
 | 6 | Alt texts | ✅ | Tours, guide images and cards are descriptive. Hero and landing-article teasers use `alt=""` (decorative, text next to them). |
 | 6 | Formats | ⚠️ | Unsplash `auto=format` serves WebP/AVIF. The logo is a PNG on cloudfront, and brand images are not yet in `/public/images` (see `docs/brand-assets.md`). |
 | 7 | Language URLs + hreflang + x-default | ✅ | `?lang=` per page, SSR-rendered in that language without touching the zustand singleton (`lang-context.ts`, `lang.tsx`, `useLang()` at `store.ts:105`). Details: `docs/seo-plan.md`. |
-| 7 | Localised titles | ⚠️ | DE/EN done. zh/ko/ja fall back to English until the translation agents add 3 keys (below). |
+| 7 | Localised titles | ✅ | Localised in all 5 languages (`SEO_META`; the translation agents added the zh/ko/ja keys, `extract.ts --missing` = 0). Guide: DE/EN. |
 | 7 | `<html lang>` in SSR | ❌ | `__root.tsx:64` always outputs `lang="en"` (outside the SEO scope). Patch proposed in seo-plan §3. |
 | 7 | Auto-detection on the default URL | ❌ (decision) | Googlebot (en-US) probably renders the German URL in English. Recommendation in seo-plan §2. |
 | 8 | Spam policies | ✅ | No hidden text (collapsed accordions are fine), no doorway pages; the `?lang` variants are real translations. Guide content is unique and long-form. |
@@ -41,7 +41,7 @@ Verification: `tsc --noEmit` passes. ESLint on all changed files: 0 errors (reac
 - `sections-bottom.tsx`: microdata removed, FAQ answers always rendered, guide deep links. `ui.tsx` / `guide-ui.tsx`: `priority`, srcSet/sizes. `fx.tsx`: `si-scene` class. `styles.css`: mobile blur rules.
 
 ## Open
-1. Translation agents: add zh/ko/ja for these 3 German keys (`extract.ts --missing`): the SEO_META title, the SEO_META description, and "Beliebte Artikel im Insider Guide".
+1. Invalid or redundant `?lang=` values (`xx`, `de`, empty) are redirected by the router with a 307 to the clean URL; utm parameters are kept. A 301 would be cleaner but is not critical.
 2. Owner: real TAT licence number, WhatsApp number, street address, sameAs profiles, real reviews/stats, logo and photos under the own domain.
 3. Lead: decisions in `docs/seo-plan.md` §2 (auto-detection), §3 (`__root` html lang), §5 (domain root shows the marketplace).
 4. Platform: the PWA injector replaces all og:/twitter: tags on HTML responses (seo-plan §6).
