@@ -202,7 +202,7 @@ export function BottomBar() {
       className="fixed inset-x-0 bottom-0 z-40 px-3 md:hidden"
       style={{ paddingBottom: "calc(0.6rem + env(safe-area-inset-bottom))" }}
     >
-      <div className="si-glass-strong grid grid-cols-[1fr_1.25fr] gap-2 rounded-[1.4rem] p-1.5">
+      <div className="si-glass-strong grid grid-cols-2 gap-2 rounded-[1.4rem] p-1.5">
         <a
           href={waLink(waText)}
           target="_blank"
@@ -253,7 +253,7 @@ export function Hero() {
   const bgScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.3]);
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -120]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
-  const statsY = useTransform(scrollYProgress, [0, 1], [0, -220]);
+  const statsY = useTransform(scrollYProgress, [0, 1], [0, -90]);
 
   const showDrone = () =>
     openLightbox(
@@ -294,8 +294,8 @@ export function Hero() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-si-navy via-si-navy/60 to-si-navy/20" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(80%_60%_at_15%_85%,rgb(6_182_212/0.25),transparent_70%)]" />
 
-        <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-14 pt-28 sm:pb-24 lg:grid-cols-[1fr_auto] lg:items-end">
-          <motion.div style={{ y: contentY, opacity: contentOpacity }}>
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)] gap-8 px-4 pb-14 pt-28 sm:pb-24 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <motion.div style={{ y: contentY, opacity: contentOpacity }} className="min-w-0">
             <motion.div
               initial={{ opacity: 0, y: 12, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -309,10 +309,17 @@ export function Hero() {
               <span className="truncate">{t(UI.heroBadge)}</span>
             </motion.div>
 
-            <h1 className="max-w-4xl text-[2.6rem] font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="max-w-4xl text-[2.4rem] font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-7xl">
               <SplitReveal text={t(UI.heroTitleA)} delay={0.25} />
               <br />
-              <SplitReveal text={t(UI.heroTitleB)} delay={0.45} className="si-text-gradient" />
+              <motion.span
+                initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0.4 }}
+                animate={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
+                transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="si-text-gradient inline-block pb-[0.08em]"
+              >
+                {t(UI.heroTitleB)}
+              </motion.span>
             </h1>
 
             <motion.p
@@ -374,7 +381,7 @@ export function Hero() {
 
           {/* Floating glass stat cards */}
           <motion.div
-            style={{ y: statsY }}
+            style={{ y: statsY, opacity: contentOpacity }}
             className="grid grid-cols-3 gap-2 sm:gap-3 lg:w-56 lg:grid-cols-1 lg:gap-4"
           >
             {stats.map((s, i) => (

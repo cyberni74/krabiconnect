@@ -69,7 +69,22 @@ export type AddOn = {
   tag?: L;
 };
 
+/** One-click catering package offered on every booking (per person). */
+export const CATERING_PACKAGE: AddOn = {
+  id: "catering",
+  emoji: "🍽️",
+  label: { de: "Verpflegung an Bord", en: "Catering on board" },
+  desc: {
+    de: "Frisch gekochtes Thai-Essen, tropisches Obst, Snacks & Softdrinks für den ganzen Tag",
+    en: "Freshly cooked Thai food, tropical fruit, snacks & soft drinks for the whole day",
+  },
+  price: 500,
+  per: "person",
+  tag: { de: "1 Klick", en: "1 click" },
+};
+
 export const FOOD: AddOn[] = [
+  CATERING_PACKAGE,
   { id: "fruit", emoji: "🍍", label: { de: "Tropische Obst- & Snackplatte", en: "Tropical fruit & snack platter" }, desc: { de: "Mango, Ananas, Drachenfrucht, Nüsse & Chips", en: "Mango, pineapple, dragon fruit, nuts & chips" }, price: 350, per: "person" },
   { id: "lunchbox", emoji: "🍱", label: { de: "Thai-Lunchbox", en: "Thai lunch box" }, desc: { de: "Pad Thai oder grünes Curry, frisch vom Restaurant", en: "Pad thai or green curry, fresh from the restaurant" }, price: 450, per: "person" },
   { id: "veggie", emoji: "🥗", label: { de: "Vegane Buddha-Bowl", en: "Vegan Buddha bowl" }, desc: { de: "Tofu, Mango-Salsa, Reis, Erdnuss-Dressing", en: "Tofu, mango salsa, rice, peanut dressing" }, price: 650, per: "person" },

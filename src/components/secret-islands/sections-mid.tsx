@@ -289,15 +289,21 @@ function BuilderTeaser() {
           </div>
           <Assemble className="grid gap-3 sm:grid-cols-3" stagger={0.12}>
             {steps.map((s, i) => (
-              <AssembleItem key={s.title.de} variant="flip" className="rounded-2xl bg-white/[0.05] p-4 ring-1 ring-white/10">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="grid size-9 place-items-center rounded-xl bg-si-cyan/15 text-cyan-300 ring-1 ring-si-cyan/30">
-                    <s.icon className="size-4.5" />
+              <AssembleItem
+                key={s.title.de}
+                variant="flip"
+                className="flex items-center gap-3 rounded-2xl bg-white/[0.05] p-3 ring-1 ring-white/10 sm:block sm:p-4"
+              >
+                <div className="flex shrink-0 items-center gap-2 sm:mb-2">
+                  <span className="grid size-10 place-items-center rounded-xl bg-si-cyan/15 text-cyan-300 ring-1 ring-si-cyan/30">
+                    <s.icon className="size-[18px]" />
                   </span>
-                  <span className="text-xs font-black text-slate-500">0{i + 1}</span>
+                  <span className="hidden text-xs font-black text-slate-500 sm:inline">0{i + 1}</span>
                 </div>
-                <p className="font-bold text-white">{t(s.title)}</p>
-                <p className="text-xs text-slate-400">{t(s.sub)}</p>
+                <div className="min-w-0">
+                  <p className="font-bold text-white">{t(s.title)}</p>
+                  <p className="text-xs text-slate-400">{t(s.sub)}</p>
+                </div>
               </AssembleItem>
             ))}
           </Assemble>
@@ -497,7 +503,7 @@ export function DroneFeature() {
                   ))}
                 </Assemble>
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <button type="button" onClick={() => openLightbox(samples, 0)} className={cn(btn.gold, "h-14")}>
+                  <button type="button" onClick={() => openLightbox(samples, 0)} className={cn(btn.gold, "h-14 px-4 text-[15px]")}>
                     <Plane className="size-5" /> {t(UI.droneButton)}
                   </button>
                   <button type="button" onClick={() => openBooking()} className={cn(btn.glass, "h-14")}>
@@ -561,7 +567,7 @@ export function DroneFeature() {
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
-                  className="si-glass-strong absolute -bottom-4 right-2 flex items-center gap-2.5 rounded-2xl px-4 py-3"
+                  className="si-glass-strong absolute -left-1 top-2 flex items-center gap-2.5 rounded-2xl px-4 py-3"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-si-gold/20 text-si-gold">
                     <Camera className="size-5" />
@@ -616,7 +622,7 @@ export function Gallery() {
 
         <motion.div
           layout
-          className="grid auto-rows-[150px] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[190px] md:grid-cols-4 md:gap-4"
+          className="grid auto-rows-[130px] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[190px] md:grid-cols-4 md:gap-4"
         >
           <AnimatePresence mode="popLayout">
             {list.map((g, i) => (
@@ -643,8 +649,8 @@ export function Gallery() {
                   className="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-110"
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-si-navy/80 via-transparent to-transparent" />
-                <span className="si-glass absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-2xl px-3 py-2 text-left transition group-hover:bg-white/15">
-                  <span className="min-w-0 flex-1 text-xs font-semibold leading-snug text-white sm:text-sm">{t(g.title)}</span>
+                <span className="si-glass absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-2xl px-2.5 py-1.5 sm:px-3 sm:py-2 text-left transition group-hover:bg-white/15">
+                  <span className="line-clamp-2 min-w-0 flex-1 text-[11px] font-semibold leading-snug text-white sm:text-sm">{t(g.title)}</span>
                   <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/20 text-white">
                     {g.video ? <Play className="ml-0.5 size-3 fill-current" /> : <Expand className="size-3" />}
                   </span>

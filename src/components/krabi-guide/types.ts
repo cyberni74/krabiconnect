@@ -30,7 +30,14 @@ export type GuideArticleInput = {
   related: string[];
   tourIds: string[];
   image: string;
+  /**
+   * Optional photo gallery. `src` is the final licensed file (e.g. /images/guide/<seo-name>.webp);
+   * `fallback` (an IMG.* url) is shown until that file exists.
+   */
+  images?: GuideImage[];
 };
+
+export type GuideImage = { src: string; fallback: string; alt: Bi };
 
 export type GuideArticle = GuideArticleInput & {
   sections: (GuideSection & { id: string })[];
