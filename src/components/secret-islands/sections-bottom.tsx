@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BadgeCheck,
   CalendarClock,
+  Check,
   Clock,
   Mail,
   MapPin,
@@ -22,6 +23,7 @@ import {
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ARTICLES, BRAND, FAQ, REVIEWS, TOURS, UI, type Article } from "./content";
+import { LONGTAIL_FAQ, LONGTAIL_INTRO, type LongtailFaqItem, type LongtailStep } from "./longtail-faq";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
 import { scrollToId, translate, useSI, useTx, waLink } from "./store";
 import { BrandMark, SmartImage, WhatsAppIcon } from "./ui";
@@ -326,6 +328,241 @@ function ReviewCard({ review: r, index, hidden }: { review: (typeof REVIEWS)[num
         </span>
       </figcaption>
     </figure>
+  );
+}
+
+/* ───────────────────────── Longtail vs. speedboat (storytelling FAQ) ───────────────────────── */
+
+export function LongtailFaq() {
+  const { t, tOp } = useTx();
+  const openBooking = useSI((s) => s.openBooking);
+  const [open, setOpen] = useState<string | null>(LONGTAIL_FAQ[0]?.id ?? null);
+  const intro = LONGTAIL_INTRO;
+
+  return (
+    <section
+      id="longtail-vs-speedboat"
+      className="relative scroll-mt-16 py-20 sm:py-28"
+      itemScope
+      itemType="https://schema.org/FAQPage"
+    >
+      <div className="mx-auto max-w-6xl px-4">
+        <SectionTitle eyebrow={t(intro.eyebrow)} title={t(intro.title)} sub={t(intro.sub)} />
+
+        {/* Intro story: two timelines */}
+        <ScrollScene from="tilt" intensity={0.7}>
+          <div className="mb-6 max-w-2xl">
+            <h3 className="text-xl font-extrabold text-white sm:text-2xl">{t(intro.storyTitle)}</h3>
+            <p className="mt-2 leading-relaxed text-slate-300">{t(intro.story)}</p>
+          </div>
+        </ScrollScene>
+
+        <div className="relative grid gap-5 md:grid-cols-2 md:gap-8">
+          <span
+            aria-hidden
+            className="si-glass absolute left-1/2 top-1/2 z-10 hidden size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-sm font-black text-white md:grid"
+          >
+            VS
+          </span>
+          <ScrollScene from="left" intensity={0.8}>
+            <StoryTimeline label={t(intro.them.label)} steps={intro.them.steps} variant="them" />
+          </ScrollScene>
+          <ScrollScene from="right" intensity={0.8}>
+            <StoryTimeline label={t(intro.us.label)} steps={intro.us.steps} variant="us" />
+          </ScrollScene>
+        </div>
+
+        {/* Accordion */}
+        <Assemble className="mt-14 space-y-3" stagger={0.05}>
+          {LONGTAIL_FAQ.map((item, i) => (
+            <AssembleItem key={item.id} variant="up">
+              <LongtailItem item={item} index={i} open={open === item.id} onToggle={() => setOpen(open === item.id ? null : item.id)} />
+            </AssembleItem>
+          ))}
+        </Assemble>
+
+        {/* CTA */}
+        <ScrollScene intensity={0.6} className="mt-12">
+          <GlassCard glow className="flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <div>
+              <p className="text-xl font-extrabold text-white sm:text-2xl">
+                {t({ de: "Bereit für den Tag, der nur Ihnen gehört?", en: "Ready for a day that belongs only to you?" })}
+              </p>
+              <p className="mt-1.5 text-sm text-slate-300">
+                {t({
+                  de: "Privates Speedboat, max. 5 Gäste, Ihre Route. Unverbindlich anfragen – Antwort meist in 30 Minuten.",
+                  en: "Private speedboat, max. 5 guests, your route. No-obligation request – usually answered in 30 minutes.",
+                })}
+              </p>
+            </div>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <button type="button" onClick={() => openBooking()} className={cn(btn.primary, "h-14 px-7")}>
+                {t({ de: "Speedboat-Tag anfragen", en: "Request a speedboat day" })} <ArrowRight className="size-5" />
+              </button>
+              <a
+                href={waLink(tOp({ de: "Hallo! Ich habe eine Frage zum Speedboat vs. Longtail.", en: "Hi! I have a question about speedboat vs. longtail." }))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(btn.whatsapp, "h-14")}
+              >
+                <WhatsAppIcon className="size-5" /> WhatsApp
+              </a>
+            </div>
+          </GlassCard>
+        </ScrollScene>
+      </div>
+    </section>
+  );
+}
+
+function StoryTimeline({ label, steps, variant }: { label: string; steps: LongtailStep[]; variant: "them" | "us" }) {
+  const { t } = useTx();
+  const us = variant === "us";
+  return (
+    <div
+      className={cn(
+        "relative h-full overflow-hidden rounded-3xl p-5 sm:p-7",
+        us
+          ? "si-glass si-glow-border shadow-[0_0_60px_-15px_rgb(6_182_212/0.55)]"
+          : "border border-white/10 bg-slate-900/40 grayscale backdrop-blur-sm",
+      )}
+    >
+      {us ? <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-si-cyan/25 blur-3xl" /> : null}
+      <p
+        className={cn(
+          "relative mb-5 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em]",
+          us ? "text-cyan-200" : "text-slate-500",
+        )}
+      >
+        <span className={cn("grid size-6 place-items-center rounded-full", us ? "bg-si-cyan text-si-navy" : "bg-white/10 text-slate-400")}>
+          {us ? <Check className="size-3.5" strokeWidth={3} /> : <X className="size-3.5" strokeWidth={3} />}
+        </span>
+        {label}
+      </p>
+      <Assemble as="ol" className="relative space-y-4" stagger={0.12}>
+        <span
+          aria-hidden
+          className={cn(
+            "absolute bottom-3 left-[27px] top-3 w-px",
+            us ? "bg-gradient-to-b from-si-cyan via-cyan-300/50 to-si-gold" : "bg-white/10",
+          )}
+        />
+        {steps.map((s) => (
+          <AssembleItem key={s.time + s.text.de} as="li" variant={us ? "right" : "left"} className="relative flex gap-3">
+            <span
+              className={cn(
+                "relative z-[1] grid h-7 w-14 shrink-0 place-items-center rounded-full text-[11px] font-black tabular-nums",
+                us ? "bg-si-navy text-cyan-200 ring-1 ring-si-cyan/60" : "bg-slate-800 text-slate-500 ring-1 ring-white/10",
+              )}
+            >
+              {s.time}
+            </span>
+            <span className={cn("pt-0.5 text-[15px] leading-relaxed", us ? "text-slate-100" : "text-slate-400")}>{t(s.text)}</span>
+          </AssembleItem>
+        ))}
+      </Assemble>
+    </div>
+  );
+}
+
+function LongtailItem({
+  item,
+  index,
+  open,
+  onToggle,
+}: {
+  item: LongtailFaqItem;
+  index: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const { t } = useTx();
+  const panelId = `lt-panel-${item.id}`;
+  return (
+    <div
+      itemScope
+      itemProp="mainEntity"
+      itemType="https://schema.org/Question"
+      className={cn(
+        "si-glass overflow-hidden rounded-2xl transition duration-300",
+        open && "bg-si-cyan/10 shadow-[0_0_0_1px_rgb(6_182_212/0.55),0_0_40px_-8px_rgb(6_182_212/0.5)]",
+      )}
+    >
+      <h3>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={onToggle}
+          className="flex min-h-16 w-full items-center gap-3 px-4 py-4 text-left sm:gap-4 sm:px-5"
+        >
+          <span className="hidden w-7 shrink-0 text-sm font-black tabular-nums text-cyan-200/60 sm:block">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/5 text-xl ring-1 ring-white/10">
+            {item.emoji}
+          </span>
+          <span itemProp="name" className={cn("flex-1 font-bold transition", open ? "text-white" : "text-slate-200")}>
+            {t(item.q)}
+          </span>
+          <motion.span
+            animate={{ rotate: open ? 45 : 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={cn(
+              "grid size-9 shrink-0 place-items-center rounded-full transition-colors",
+              open ? "bg-si-cyan text-si-navy" : "bg-white/10 text-white",
+            )}
+          >
+            <Plus className="size-4" strokeWidth={2.6} />
+          </motion.span>
+        </button>
+      </h3>
+      {/* Content always rendered (SSR / indexable) – collapsed via grid-rows animation. */}
+      <div
+        id={panelId}
+        role="region"
+        className={cn(
+          "grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        )}
+      >
+        <div className="min-h-0 overflow-hidden" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+          <div itemProp="text" className="space-y-5 px-4 pb-6 sm:px-5 sm:pl-[4.25rem]">
+            <p className="text-[15px] leading-relaxed text-slate-200">{t(item.story)}</p>
+
+            <div className="overflow-hidden rounded-2xl ring-1 ring-white/10">
+              <div className="grid grid-cols-2 text-[10.5px] font-bold uppercase tracking-[0.14em] sm:text-[11px]">
+                <span className="bg-white/5 px-3 py-2.5 text-slate-400 sm:px-4">{t({ de: "Longtail / Gruppe", en: "Longtail / group" })}</span>
+                <span className="bg-si-cyan/15 px-3 py-2.5 text-cyan-200 sm:px-4">Krabi Secret Islands</span>
+              </div>
+              <ul>
+                {item.rows.map((r) => (
+                  <li key={r.us.de} className="grid grid-cols-2 border-t border-white/10 text-[13px] leading-snug sm:text-sm">
+                    <span className="flex gap-2 bg-white/[0.02] px-3 py-3 text-slate-400 sm:px-4">
+                      <X className="mt-0.5 size-4 shrink-0 text-rose-400/80" strokeWidth={2.6} aria-label="✗" />
+                      <span>{t(r.them)}</span>
+                    </span>
+                    <span className="flex gap-2 bg-si-cyan/[0.06] px-3 py-3 font-semibold text-white sm:px-4">
+                      <Check className="mt-0.5 size-4 shrink-0 text-cyan-300" strokeWidth={3} aria-label="✓" />
+                      <span>{t(r.us)}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {item.insider ? (
+              <figure className="relative rounded-2xl border-l-2 border-si-gold bg-si-gold/[0.07] py-3 pl-4 pr-4">
+                <figcaption className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-si-gold">
+                  <Sparkles className="size-3.5" /> {t({ de: "Insider-Moment", en: "Insider moment" })}
+                </figcaption>
+                <blockquote className="text-[15px] italic leading-relaxed text-amber-50/90">{t(item.insider)}</blockquote>
+              </figure>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

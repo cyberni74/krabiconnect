@@ -312,14 +312,7 @@ export function Hero() {
             <h1 className="max-w-4xl text-[2.4rem] font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-7xl">
               <SplitReveal text={t(UI.heroTitleA)} delay={0.25} />
               <br />
-              <motion.span
-                initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0.4 }}
-                animate={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
-                transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="si-text-gradient inline-block pb-[0.08em]"
-              >
-                {t(UI.heroTitleB)}
-              </motion.span>
+<SplitReveal text={t(UI.heroTitleB)} delay={0.45} wordClassName="si-text-gradient pb-[0.08em]" />
             </h1>
 
             <motion.p

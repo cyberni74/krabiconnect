@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { BookingModal } from "./booking";
 import { AuroraBackground, ScrollProgress } from "./fx";
 import { ArticleModal, Lightbox, TourModal } from "./modals";
-import { Faq, FinalCta, Footer, Guide, Reviews } from "./sections-bottom";
+import { Faq, FinalCta, Footer, Guide, LongtailFaq, Reviews } from "./sections-bottom";
 import { DroneFeature, FishingSection, Gallery, Tours } from "./sections-mid";
 import { BottomBar, Comparison, Header, Hero } from "./sections-top";
 import { LANGS } from "./content";
@@ -34,6 +34,7 @@ export function SecretIslandsPage() {
         <Gallery />
         <Guide />
         <Reviews />
+        <LongtailFaq />
         <Faq />
         <FinalCta />
       </main>

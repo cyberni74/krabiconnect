@@ -65,8 +65,8 @@ export const UI = {
   heroTitleA: { de: "Krabi Secret Islands –", en: "Krabi Secret Islands –" },
   heroTitleB: { de: "Ihr privates Speedboat-Abenteuer", en: "your private speedboat adventure" },
   heroSub: {
-    de: "Kein Massentourismus. Keine lauten Longtail-Boote. Nur Sie, kristallklares Wasser und unberührte Inselparadiese.",
-    en: "No mass tourism. No noisy longtail boats. Just you, crystal-clear water and untouched island paradises.",
+    de: "Kein Massentourismus. Keine lauten Longtail-Boote. Nur Sie, kristallklares Wasser und unberührte Inselparadiese – zum Schnorcheln, Schwimmen und Entspannen.",
+    en: "No mass tourism. No noisy longtail boats. Just you, crystal-clear water and untouched island paradises – to snorkel, swim and unwind.",
   },
   heroPrimary: { de: "Jetzt Verfügbarkeit prüfen", en: "Check availability" },
   heroSecondary: { de: "Drohnen-Videos ansehen", en: "Watch drone videos" },
@@ -75,6 +75,7 @@ export const UI = {
     { de: "4K Drohnen-Paket", en: "4K drone package" },
     { de: "Flexible Abfahrtszeiten", en: "Flexible departures" },
     { de: "Inkl. Drinks & Snacks", en: "Drinks & snacks incl." },
+    { de: "Schnorcheln, Schwimmen & Relaxen", en: "Snorkel, swim & relax" },
   ],
   stats: [
     { v: "4.9", l: { de: "Ø Bewertung", en: "Avg. rating" } },
@@ -172,6 +173,7 @@ export const COMPARISON: {
       { de: "Schattige Liegeflächen & Bimini-Top", en: "Shaded sun pads & bimini top" },
       { de: "Optionale 4K Drohnenfotos", en: "Optional 4K drone photos" },
       { de: "Flexible Routen & geheime Spots", en: "Flexible routes & secret spots" },
+      { de: "Viel Zeit zum Schnorcheln, Schwimmen & Entspannen", en: "Plenty of time to snorkel, swim & relax" },
     ],
   },
   {
@@ -185,6 +187,7 @@ export const COMPARISON: {
       { de: "Starrer Zeitplan, keine Pausen nach Wunsch", en: "Rigid schedule, no stops on request" },
       { de: "Überfüllte Buchten zur Hauptzeit", en: "Crowded bays at peak time" },
       { de: "Enge Sitzbänke, kaum Schatten", en: "Cramped benches, little shade" },
+      { de: "Kaum Zeit zum Schnorcheln & Baden", en: "Hardly any time to snorkel & swim" },
     ],
   },
   {
@@ -244,6 +247,8 @@ const INC_DRINKS: L = { de: "Wasser, Softdrinks & Obst", en: "Water, soft drinks
 const INC_TRANSFER: L = { de: "Hotel-Transfer Ao Nang/Krabi", en: "Hotel transfer Ao Nang/Krabi" };
 const INC_SNORKEL: L = { de: "Schnorchel-Equipment", en: "Snorkel gear" };
 const INC_PARK: L = { de: "Nationalpark-Gebühren", en: "National park fees" };
+const INC_RELAX: L = { de: "Zeit zum Schnorcheln, Schwimmen & Entspannen", en: "Time to snorkel, swim & relax" };
+const INC_SWIM_FISH: L = { de: "Badestopp zum Schwimmen & Abkühlen", en: "Swim stop to cool off" };
 const INC_RODS: L = { de: "Angelruten, Köder & Guide", en: "Rods, bait & fishing guide" };
 const INC_COOK: L = { de: "Fang wird für Sie zubereitet", en: "Your catch cooked for you" };
 
@@ -268,7 +273,7 @@ export const TOURS: Tour[] = [
       de: "Wir starten, wenn die Gruppenboote zurückfahren. Sie laufen bei Ebbe über die Tup-Sandbank, schnorcheln an Chicken Island und genießen den Sonnenuntergang vor den Kalksteinfelsen von Phra Nang – mit gekühltem Prosecco an Bord.",
       en: "We depart as the group boats head home. Walk the Tup sandbar at low tide, snorkel at Chicken Island and watch the sunset in front of Phra Nang's limestone cliffs – with chilled prosecco on board.",
     },
-    includes: [INC_BOAT, INC_DRINKS, { de: "Sunset-Prosecco", en: "Sunset prosecco" }, INC_SNORKEL, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_DRINKS, { de: "Sunset-Prosecco", en: "Sunset prosecco" }, INC_SNORKEL, INC_TRANSFER],
   },
   {
     id: "plankton-night",
@@ -292,6 +297,7 @@ export const TOURS: Tour[] = [
     },
     includes: [
       INC_BOAT,
+      INC_RELAX,
       { de: "Schwimm- & Schnorchelstopp im leuchtenden Plankton", en: "Swim & snorkel stop in the glowing plankton" },
       { de: "Rettungswesten mit Licht & Badeleiter", en: "Life vests with lights & boarding ladder" },
       { de: "Handtücher, Snacks & Getränke", en: "Towels, snacks & drinks" },
@@ -318,7 +324,7 @@ export const TOURS: Tour[] = [
       de: "Das Beste aus Tag und Nacht: Baden an Koh Poda am späten Nachmittag, Sonnenuntergang mit Prosecco vor den Felsen von Phra Nang und nach Einbruch der Dunkelheit der Höhepunkt – Schwimmen im leuchtenden Plankton, nur Sie und Ihre Gruppe.",
       en: "The best of day and night: a late-afternoon swim at Koh Poda, sunset with prosecco off the Phra Nang cliffs and after dark the highlight – swimming in glowing plankton, just you and your group.",
     },
-    includes: [INC_BOAT, { de: "Sunset-Prosecco", en: "Sunset prosecco" }, { de: "Schwimm- & Schnorchelstopp im leuchtenden Plankton", en: "Swim & snorkel stop in the glowing plankton" }, INC_DRINKS, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, { de: "Sunset-Prosecco", en: "Sunset prosecco" }, { de: "Schwimm- & Schnorchelstopp im leuchtenden Plankton", en: "Swim & snorkel stop in the glowing plankton" }, INC_DRINKS, INC_TRANSFER],
   },
   {
     id: "hong-lagoons",
@@ -339,7 +345,7 @@ export const TOURS: Tour[] = [
       de: "Früh am Morgen gehört die Hong-Lagune Ihnen. Danach geht's zur winzigen Bucht von Koh Lao Lading und zu den Doppelstränden von Koh Pakbia – ideal für ein langes Schwimm- und Schnorchelpicknick.",
       en: "Early in the morning, Hong Lagoon belongs to you. Then on to the tiny cove of Koh Lao Lading and the twin beaches of Koh Pakbia – perfect for a long swim and snorkel picnic.",
     },
-    includes: [INC_BOAT, INC_DRINKS, INC_PARK, { de: "Schnorchel-Equipment & SUP", en: "Snorkel gear & SUP" }, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_DRINKS, INC_PARK, { de: "Schnorchel-Equipment & SUP", en: "Snorkel gear & SUP" }, INC_TRANSFER],
   },
   {
     id: "phang-nga-uncharted",
@@ -361,7 +367,7 @@ export const TOURS: Tour[] = [
       de: "Unsere Expedition in die nördliche Phang-Nga-Bucht: Schwimmen Sie bei Flut durch den Felstunnel in die versteckte Lagune von Koh Roi, entdecken Sie das Kudu-Hong und picknicken Sie allein am Strand von Koh Nok.",
       en: "Our expedition into northern Phang Nga Bay: swim through the rock tunnel into Koh Roi's hidden lagoon at high tide, explore the Kudu hong and picnic alone on Koh Nok's beach.",
     },
-    includes: [INC_BOAT, { de: "Kajak für die Lagunen", en: "Kayak for the lagoons" }, INC_PARK, INC_DRINKS, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, { de: "Kajak für die Lagunen", en: "Kayak for the lagoons" }, INC_PARK, INC_DRINKS, INC_TRANSFER],
   },
   {
     id: "phi-phi-early-bird",
@@ -383,7 +389,7 @@ export const TOURS: Tour[] = [
       de: "Abfahrt um 07:00 – wir erreichen Maya Bay, bevor die Fähren ankommen. Schwimmen in der türkisen Pileh-Lagune, vorbei an der Viking Cave und Mittagspause am weißen Strand von Bamboo Island.",
       en: "Departing at 7 am, we reach Maya Bay before the ferries arrive. Swim in turquoise Pileh Lagoon, pass Viking Cave and take a lunch break on Bamboo Island's white beach.",
     },
-    includes: [INC_BOAT, INC_PARK, INC_SNORKEL, INC_DRINKS, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_PARK, INC_SNORKEL, INC_DRINKS, INC_TRANSFER],
   },
   {
     id: "koh-rok-safari",
@@ -404,7 +410,7 @@ export const TOURS: Tour[] = [
       de: "Die lange Fahrt lohnt sich: Schildkröten, Clownfische und Korallengärten an den Zwillingsinseln Koh Rok, dazu die Kalksteintürme von Koh Haa mit ihrer Unterwasser-Lagune.",
       en: "The long ride pays off: turtles, clownfish and coral gardens at the twin Koh Rok islands, plus the limestone towers of Koh Haa with their underwater lagoon.",
     },
-    includes: [INC_BOAT, INC_PARK, INC_SNORKEL, { de: "Thai-Lunch an Bord", en: "Thai lunch on board" }, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_PARK, INC_SNORKEL, { de: "Thai-Lunch an Bord", en: "Thai lunch on board" }, INC_TRANSFER],
   },
   {
     id: "james-bond-bay",
@@ -425,7 +431,7 @@ export const TOURS: Tour[] = [
       de: "Wir fahren entgegen der Gruppenroute: zuerst Kajak durch die Mangroven, dann das schwimmende Dorf Koh Panyee und James Bond Island am Nachmittag, wenn es ruhig wird.",
       en: "We run the route in reverse: first kayaking through the mangroves, then the floating village of Koh Panyee and James Bond Island in the afternoon when it gets quiet.",
     },
-    includes: [INC_BOAT, INC_PARK, { de: "Kajak & Guide", en: "Kayak & guide" }, INC_DRINKS, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_PARK, { de: "Kajak & Guide", en: "Kayak & guide" }, INC_DRINKS, INC_TRANSFER],
   },
   {
     id: "railay-escape",
@@ -446,7 +452,7 @@ export const TOURS: Tour[] = [
       de: "Vier Stunden voller Highlights: die Kletterfelsen von Railay, die Höhle von Phra Nang und ein Badestopp an Koh Poda – ideal mit Kindern oder als Einstieg.",
       en: "Four hours packed with highlights: Railay's climbing cliffs, Phra Nang cave and a swim stop at Koh Poda – ideal with kids or as a first taste.",
     },
-    includes: [INC_BOAT, INC_DRINKS, INC_SNORKEL, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_DRINKS, INC_SNORKEL, INC_TRANSFER],
   },
   {
     id: "sunset-dinner",
@@ -468,7 +474,7 @@ export const TOURS: Tour[] = [
       de: "Die romantischste Art, Krabi zu erleben: Ankern vor Phra Nang, Champagner zum Sonnenuntergang und ein 3-Gänge-Dinner unter Sternen. Perfekt für Anträge und Jahrestage.",
       en: "The most romantic way to experience Krabi: anchor off Phra Nang, champagne at sunset and a 3-course dinner under the stars. Perfect for proposals and anniversaries.",
     },
-    includes: [INC_BOAT, { de: "Flasche Champagner", en: "Bottle of champagne" }, { de: "3-Gänge-Dinner", en: "3-course dinner" }, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, { de: "Flasche Champagner", en: "Bottle of champagne" }, { de: "3-Gänge-Dinner", en: "3-course dinner" }, INC_TRANSFER],
   },
   {
     id: "family-sandbars",
@@ -489,7 +495,7 @@ export const TOURS: Tour[] = [
       de: "Kinderwesten in allen Größen, Sandspielzeug und Schnorchelmasken für Kids. Wir wählen Buchten mit flachem Einstieg und planen Pausen nach Ihrem Rhythmus.",
       en: "Kids' life vests in all sizes, sand toys and kids' snorkel masks. We choose bays with shallow entry and plan breaks to your rhythm.",
     },
-    includes: [INC_BOAT, INC_DRINKS, { de: "Kinder-Equipment", en: "Kids' gear" }, INC_SNORKEL, INC_TRANSFER],
+    includes: [INC_BOAT, INC_RELAX, INC_DRINKS, { de: "Kinder-Equipment", en: "Kids' gear" }, INC_SNORKEL, INC_TRANSFER],
   },
   {
     id: "fishing-reef-half",
@@ -510,7 +516,7 @@ export const TOURS: Tour[] = [
       de: "Ideal für Einsteiger und Familien: Bottom-Fishing und leichtes Jiggen an fischreichen Riffen, keine 30 Minuten vom Hafen. Unser Guide zeigt Ihnen jeden Handgriff.",
       en: "Ideal for beginners and families: bottom fishing and light jigging on rich reefs, less than 30 minutes from the pier. Our guide shows you every move.",
     },
-    includes: [INC_BOAT, INC_RODS, INC_DRINKS, INC_TRANSFER],
+    includes: [INC_BOAT, INC_SWIM_FISH, INC_RODS, INC_DRINKS, INC_TRANSFER],
   },
   {
     id: "fishing-deep-sea",
@@ -532,7 +538,7 @@ export const TOURS: Tour[] = [
       de: "Mit Trolling-Ausrüstung und Popping-Ruten fahren wir zu den Außenriffen von Phi Phi. Catch & Release oder Sie nehmen Ihren Fang mit – Ihr Hotelkoch freut sich.",
       en: "With trolling gear and popping rods we head to the outer reefs of Phi Phi. Catch & release, or take your catch home – your hotel chef will be delighted.",
     },
-    includes: [INC_BOAT, { de: "Profi-Trolling-Ausrüstung", en: "Pro trolling gear" }, INC_RODS, { de: "Thai-Lunch an Bord", en: "Thai lunch on board" }, INC_TRANSFER],
+    includes: [INC_BOAT, INC_SWIM_FISH, { de: "Profi-Trolling-Ausrüstung", en: "Pro trolling gear" }, INC_RODS, { de: "Thai-Lunch an Bord", en: "Thai lunch on board" }, INC_TRANSFER],
   },
   {
     id: "fishing-night-squid",
@@ -575,7 +581,7 @@ export const TOURS: Tour[] = [
       de: "Sie angeln, wir kochen: Am Abend grillt unsere Crew Ihren Fang mit Thai-Kräutern am Strand, dazu Reis, Salate und Dips – während die Sonne hinter den Inseln versinkt.",
       en: "You fish, we cook: in the evening our crew grills your catch with Thai herbs on the beach, with rice, salads and dips – as the sun sinks behind the islands.",
     },
-    includes: [INC_BOAT, INC_RODS, INC_COOK, { de: "Strand-BBQ mit Beilagen", en: "Beach BBQ with sides" }, INC_TRANSFER],
+    includes: [INC_BOAT, INC_SWIM_FISH, INC_RODS, INC_COOK, { de: "Strand-BBQ mit Beilagen", en: "Beach BBQ with sides" }, INC_TRANSFER],
   },
 ];
 
@@ -784,6 +790,13 @@ export const REVIEWS: { name: string; origin: L; type: L; text: L; tour: L }[] =
 ];
 
 export const FAQ: { q: L; a: L }[] = [
+  {
+    q: { de: "Wie viel Zeit bleibt zum Schnorcheln, Schwimmen und Entspannen?", en: "How much time is there to snorkel, swim and relax?" },
+    a: {
+      de: "So viel Sie möchten – das ist der große Vorteil einer privaten Tour. Kein Gruppenzeitplan treibt Sie weiter: Sie schnorcheln an den Riffen, solange es Spaß macht, schwimmen in türkisen Buchten und entspannen auf den gepolsterten Liegeflächen im Schatten oder am einsamen Strand. Schnorchel-Equipment für Erwachsene und Kinder ist bei allen Inseltouren inklusive.",
+      en: "As much as you like – that's the big advantage of a private tour. No group schedule rushes you on: snorkel the reefs as long as you enjoy it, swim in turquoise bays and relax on the cushioned shaded sun pads or on a lonely beach. Snorkel gear for adults and kids is included on all island tours.",
+    },
+  },
   {
     q: { de: "Warum maximal 5 Gäste?", en: "Why a maximum of 5 guests?" },
     a: {

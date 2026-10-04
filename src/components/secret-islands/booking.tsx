@@ -165,7 +165,7 @@ function Wizard({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={reduce ? { opacity: 0 } : { opacity: 0, y: 30, scale: 0.98 }}
         transition={{ duration: 0.45, ease: EASE }}
-        className="si-glass-strong relative flex h-[100dvh] w-full flex-col overflow-hidden text-white outline-none sm:h-[min(880px,94dvh)] sm:max-w-[1100px] sm:rounded-[2rem]"
+        className="si-glass-strong relative flex h-[100dvh] w-full flex-col overflow-clip text-white outline-none sm:h-[min(880px,94dvh)] sm:max-w-[1100px] sm:rounded-[2rem]"
       >
         <div aria-hidden className="pointer-events-none absolute -left-32 -top-32 size-80 rounded-full bg-si-cyan/20 blur-[100px]" />
         <div aria-hidden className="pointer-events-none absolute -bottom-40 right-0 size-80 rounded-full bg-si-gold/10 blur-[110px]" />
@@ -196,7 +196,7 @@ function Wizard({
         </header>
 
         {/* Body */}
-        <div className="relative z-10 flex min-h-0 flex-1">
+        <div className="relative z-10 flex min-h-0 flex-1 overflow-clip">
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6 lg:py-6">
             {sent ? (
               <Success onClose={onClose} waHref={waHref} mailtoHref={mailtoHref} />

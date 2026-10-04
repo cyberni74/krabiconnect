@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Camera,
   Check,
+  ChevronDown,
   Clock,
   Expand,
   Fish,
@@ -92,9 +93,13 @@ export function Tours() {
   const list = filter === "all" ? TOURS : TOURS.filter((tr) => tr.categories.includes(filter));
   const scroller = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const openTour = useSI((s) => s.openTour);
+  const LIMIT = 6;
 
   useEffect(() => {
     setActive(0);
+    setExpanded(false);
     scroller.current?.scrollTo({ left: 0 });
   }, [filter]);
 
@@ -116,15 +121,26 @@ export function Tours() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <SectionTitle eyebrow={t(UI.toursEyebrow)} title={t(UI.toursTitle)} sub={t(UI.toursSub)} className="mb-6 min-w-0 flex-1 sm:mb-10" />
+          <div className="mb-6 flex shrink-0 flex-wrap items-center gap-2 sm:mb-12 sm:justify-end">
+          <button
+            type="button"
+            onClick={() => openTour("plankton-night")}
+            className="si-glow-border si-glass group inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-1.5 text-left text-sm font-bold text-white transition hover:bg-white/15"
+          >
+            <span aria-hidden>🌌</span>
+            <span>{t({ de: "Night Glow – leuchtendes Plankton", en: "Night Glow – bioluminescent plankton" })}</span>
+            <ArrowRight className="size-4 text-cyan-300 transition group-hover:translate-x-0.5" />
+          </button>
           <motion.p
             key={filter}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="si-glass mb-6 inline-flex shrink-0 items-baseline gap-1.5 self-start rounded-full px-4 py-2 text-sm text-slate-300 sm:mb-12 sm:self-auto"
+            className="si-glass inline-flex shrink-0 items-baseline gap-1.5 rounded-full px-4 py-2 text-sm text-slate-300"
           >
             <span className="text-xl font-extrabold tabular-nums text-white">{list.length}</span>
             {t({ de: "Touren verfügbar", en: "tours available" })}
           </motion.p>
+          </div>
         </div>
 
         <Chips items={TOUR_FILTERS} value={filter} onChange={setFilter} pillId="tour-filter-pill" />
@@ -145,13 +161,32 @@ export function Tours() {
                 exit={{ opacity: 0, scale: 0.9, filter: "blur(6px)" }}
                 transition={{ duration: 0.7, delay: (i % 3) * 0.1, ease: EASE }}
                 style={{ transformPerspective: 1000 }}
-                className="w-[84%] shrink-0 snap-center sm:w-[58%] md:w-auto"
+                className={cn("w-[84%] shrink-0 snap-center sm:w-[58%] md:w-auto", !expanded && i >= LIMIT && "md:hidden")}
               >
                 <TourCard tour={tour} />
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
+
+        {list.length > LIMIT ? (
+          <div className="mt-4 hidden justify-center md:flex">
+            <button
+              type="button"
+              onClick={() => {
+                if (expanded) document.getElementById("touren")?.scrollIntoView({ behavior: "smooth" });
+                setExpanded((e) => !e);
+              }}
+              aria-expanded={expanded}
+              className={cn(btn.glass, "rounded-full")}
+            >
+              {expanded
+                ? t({ de: "Weniger anzeigen", en: "Show less" })
+                : `${t({ de: "Alle Touren anzeigen", en: "Show all tours" })} (${list.length})`}
+              <ChevronDown className={cn("size-4 transition", expanded && "rotate-180")} />
+            </button>
+          </div>
+        ) : null}
 
         {/* Mobile progress dots */}
         <div className="flex items-center justify-center gap-1.5 md:hidden" aria-hidden>
@@ -640,6 +675,7 @@ export function Gallery() {
                   "si-fallback group relative block overflow-hidden rounded-3xl ring-1 ring-white/10",
                   g.tall && "row-span-2",
                   i === 0 && tab === "all" && "md:col-span-2 md:row-span-2",
+                  i === list.length - 1 && tab === "all" && "col-span-2",
                 )}
                 aria-label={t(g.title)}
               >
