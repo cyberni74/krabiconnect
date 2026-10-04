@@ -1,115 +1,241 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Clock, Mail, MapPin, Minus, Plus, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useMotionValue, useSpring } from "framer-motion";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock, MapPin, Sparkles, Sun, Users, X } from "lucide-react";
+import { useCallback, useEffect, useState, type UIEvent } from "react";
 import { cn } from "@/lib/utils";
-import { ARTICLES, TOURS, UI } from "./content";
-import { formatTHB, useSI, useTx, waLink } from "./store";
-import { Sheet, SmartImage, WhatsAppIcon, useLockBody } from "./ui";
+import { ARTICLES, SLOTS, TOURS, UI, type Article, type Tour } from "./content";
+import { btn } from "./fx";
+import { formatTHB, useSI, useTx } from "./store";
+import { Sheet, SmartImage, useLockBody } from "./ui";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/* ───────────────────────── Tour details ───────────────────────── */
 
 export function TourModal() {
   const { t } = useTx();
   const tourId = useSI((s) => s.tourId);
   const close = useSI((s) => s.closeTour);
-  const openInquiry = useSI((s) => s.openInquiry);
   const tour = TOURS.find((x) => x.id === tourId);
 
   return (
-    <Sheet open={!!tour} onClose={close} label={tour ? t(tour.title) : ""} closeLabel={t(UI.close)}>
-      {tour ? (
-        <>
-          <div className="overflow-y-auto">
-            <div className="relative aspect-[16/10] shrink-0">
-              <SmartImage src={tour.image} alt={t(tour.title)} className="absolute inset-0 size-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/20 to-transparent" />
-              <div className="absolute bottom-4 left-5 right-5 text-white">
-                {tour.badge ? (
-                  <span className="mb-2 inline-block rounded-full bg-si-gold px-2.5 py-0.5 text-xs font-bold text-si-navy">
-                    {t(tour.badge)}
-                  </span>
-                ) : null}
-                <h3 className="text-2xl font-extrabold leading-tight">{t(tour.title)}</h3>
-              </div>
-            </div>
-            <div className="space-y-6 p-5">
-              <div className="flex flex-wrap gap-3 text-sm font-semibold text-si-slate">
-                <span className="flex items-center gap-1.5 rounded-xl bg-si-white px-3 py-2">
-                  <Clock className="size-4 text-si-cyan-dark" /> {t(tour.duration)}
-                </span>
-                <span className="flex items-center gap-1.5 rounded-xl bg-si-white px-3 py-2">
-                  {t(UI.from)} <b className="text-si-navy">{formatTHB(tour.price)}</b> {t(UI.perBoat)}
-                </span>
-              </div>
-              <p className="leading-relaxed text-si-slate">{t(tour.description)}</p>
-              <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{t(UI.stops)}</p>
-                <ol className="relative space-y-3 border-l-2 border-dashed border-si-cyan/40 pl-5">
-                  {tour.stops.map((s) => (
-                    <li key={s} className="relative font-bold text-si-navy">
-                      <span className="absolute -left-[27px] top-0.5 grid size-4 place-items-center rounded-full bg-si-cyan ring-4 ring-white" />
-                      <MapPin className="mr-1 inline size-4 text-si-cyan-dark" />
-                      {s}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-              <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{t(UI.included)}</p>
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {tour.includes.map((inc) => (
-                    <li key={inc.de} className="flex items-center gap-2 text-sm text-si-slate">
-                      <Check className="size-4 shrink-0 text-si-cyan-dark" strokeWidth={3} /> {t(inc)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-slate-100 p-4" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
-            <button
-              type="button"
-              onClick={() => openInquiry(tour.id)}
-              className="h-14 w-full rounded-2xl bg-si-cyan font-bold text-si-navy shadow-lg shadow-si-cyan/25 active:scale-[0.98]"
-            >
-              {t(UI.ctaInquire)}
-            </button>
-          </div>
-        </>
-      ) : null}
+    <Sheet open={!!tour} onClose={close} label={tour ? t(tour.title) : ""} closeLabel={t(UI.close)} className="sm:max-w-2xl">
+      {tour ? <TourDetails tour={tour} /> : null}
     </Sheet>
   );
 }
 
+function TourDetails({ tour }: { tour: Tour }) {
+  const { t } = useTx();
+  const openBooking = useSI((s) => s.openBooking);
+  const slots = SLOTS.filter((s) => tour.slots.includes(s.id));
+  const fishing = tour.kind === "fishing";
+
+  return (
+    <>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="relative aspect-[16/11] shrink-0 overflow-hidden sm:aspect-[16/9]">
+          <motion.div
+            initial={{ scale: 1.15 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 1.2, ease: EASE }}
+            className="absolute inset-0"
+          >
+            <SmartImage src={tour.image} alt={t(tour.title)} eager className="size-full object-cover" />
+          </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f3a] via-[#0d1f3a]/40 to-transparent" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+            className="absolute bottom-4 left-5 right-5"
+          >
+            <div className="mb-2 flex flex-wrap gap-2">
+              {tour.badge ? (
+                <span className="rounded-full bg-si-gold px-2.5 py-1 text-xs font-extrabold text-si-navy">{t(tour.badge)}</span>
+              ) : null}
+              <span className="si-glass rounded-full px-2.5 py-1 text-xs font-bold text-white">
+                {fishing ? `🎣 ${t({ de: "Angeltour", en: "Fishing trip" })}` : `🏝️ ${t({ de: "Inseltour", en: "Island tour" })}`}
+              </span>
+            </div>
+            <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">{t(tour.title)}</h3>
+          </motion.div>
+        </div>
+
+        <div className="space-y-7 p-5 sm:p-7">
+          <div className="flex flex-wrap gap-2 text-sm font-semibold">
+            <span className="si-glass flex items-center gap-1.5 rounded-xl px-3 py-2 text-slate-200">
+              <Clock className="size-4 text-cyan-300" /> {t(tour.duration)}
+            </span>
+            <span className="si-glass flex items-center gap-1.5 rounded-xl px-3 py-2 text-slate-200">
+              {t(UI.from)} <b className="text-white">{formatTHB(tour.price)}</b> {t(UI.perBoat)}
+            </span>
+            <span className="si-glass flex items-center gap-1.5 rounded-xl px-3 py-2 text-slate-200">
+              <Users className="size-4 text-cyan-300" /> {t({ de: "bis 5 Gäste", en: "up to 5 guests" })}
+            </span>
+          </div>
+
+          <p className="text-[15px] leading-relaxed text-slate-300">{t(tour.description)}</p>
+
+          <div>
+            <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">{t(UI.stops)}</p>
+            <ol className="relative space-y-4 pl-8">
+              <motion.span
+                aria-hidden
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ duration: 0.3 + tour.stops.length * 0.12, delay: 0.2, ease: EASE }}
+                className="absolute bottom-2 left-[9px] top-2 w-0.5 origin-top rounded-full bg-gradient-to-b from-si-cyan via-cyan-300/60 to-si-gold"
+              />
+              {tour.stops.map((s, i) => (
+                <motion.li
+                  key={s}
+                  initial={{ opacity: 0, x: -14 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.45, delay: 0.25 + i * 0.12, ease: EASE }}
+                  className="relative flex items-center gap-2 font-bold text-white"
+                >
+                  <span
+                    className={cn(
+                      "absolute -left-8 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded-full ring-4 ring-[#10223f]",
+                      i === tour.stops.length - 1 ? "bg-si-gold" : "bg-si-cyan",
+                    )}
+                  >
+                    <span className="size-1.5 rounded-full bg-si-navy" />
+                  </span>
+                  <MapPin className="size-4 shrink-0 text-cyan-300" />
+                  {s}
+                </motion.li>
+              ))}
+            </ol>
+          </div>
+
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">{t(UI.included)}</p>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {tour.includes.map((inc, i) => (
+                <motion.li
+                  key={inc.de}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.35, delay: 0.3 + i * 0.05 }}
+                  className="si-glass flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-slate-200"
+                >
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-si-cyan/20 text-cyan-300">
+                    <Check className="size-3.5" strokeWidth={3} />
+                  </span>
+                  {t(inc)}
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+
+          {slots.length ? (
+            <div>
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
+                {t({ de: "Abfahrtszeiten", en: "Departure times" })}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {slots.map((s) => (
+                  <span key={s.id} className="si-glass flex items-center gap-2 rounded-xl px-3 py-2 text-sm">
+                    {s.id === "sunset" ? <Sun className="size-4 text-si-gold" /> : <Clock className="size-4 text-cyan-300" />}
+                    <b className="tabular-nums text-white">{s.time}</b>
+                    <span className="text-slate-400">{t(s.label)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div
+        className="flex shrink-0 items-center gap-4 border-t border-white/10 bg-si-navy/60 px-5 pt-4 backdrop-blur-xl"
+        style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="min-w-0">
+          <p className="text-xs text-slate-400">
+            {t(UI.from)} · {t(UI.perBoat)}
+          </p>
+          <p className="text-xl font-black text-white">{formatTHB(tour.price)}</p>
+        </div>
+        <button type="button" onClick={() => openBooking({ tourId: tour.id })} className={cn(btn.primary, "h-14 flex-1")}>
+          {t({ de: "Jetzt buchen", en: "Book now" })} <ArrowRight className="size-5" />
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ───────────────────────── Article reader ───────────────────────── */
+
 export function ArticleModal() {
-  const { t, tl } = useTx();
+  const { t } = useTx();
   const id = useSI((s) => s.articleId);
   const close = useSI((s) => s.closeArticle);
-  const openInquiry = useSI((s) => s.openInquiry);
   const article = ARTICLES.find((a) => a.id === id);
 
   return (
     <Sheet open={!!article} onClose={close} label={article ? t(article.title) : ""} closeLabel={t(UI.close)} className="sm:max-w-2xl">
-      {article ? (
-        <div className="overflow-y-auto">
-          <div className="relative aspect-[16/9]">
-            <SmartImage src={article.image} alt="" className="absolute inset-0 size-full object-cover" />
+      {article ? <ArticleReader article={article} /> : null}
+    </Sheet>
+  );
+}
+
+function ArticleReader({ article }: { article: Article }) {
+  const { t, tl } = useTx();
+  const openBooking = useSI((s) => s.openBooking);
+  const progress = useMotionValue(0);
+  const scaleX = useSpring(progress, { stiffness: 160, damping: 30, mass: 0.3 });
+
+  const onScroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const max = el.scrollHeight - el.clientHeight;
+    progress.set(max > 0 ? el.scrollTop / max : 0);
+  };
+
+  return (
+    <>
+      <motion.div
+        aria-hidden
+        style={{ scaleX }}
+        className="absolute inset-x-0 top-0 z-20 h-1 origin-left bg-gradient-to-r from-si-cyan via-cyan-200 to-si-gold"
+      />
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" onScroll={onScroll}>
+        <div className="relative aspect-[16/9] overflow-hidden">
+          <motion.div initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 1.2, ease: EASE }} className="absolute inset-0">
+            <SmartImage src={article.image} alt="" eager className="size-full object-cover" />
+          </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f3a] via-[#0d1f3a]/30 to-transparent" />
+        </div>
+        <article className="relative -mt-12 px-5 sm:px-10" style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom))" }}>
+          <p className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300">
+            <span className="rounded-full bg-si-cyan/20 px-2.5 py-1 font-bold text-cyan-200 ring-1 ring-si-cyan/40 backdrop-blur">
+              {t(article.category)}
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="size-3.5" /> {article.minutes} {t(UI.minRead)}
+            </span>
+          </p>
+          <h3 className="text-[1.7rem] font-extrabold leading-tight tracking-tight text-white sm:text-4xl">{t(article.title)}</h3>
+          <p className="mt-4 border-l-2 border-si-cyan pl-4 text-lg font-medium leading-relaxed text-cyan-50/90">{t(article.excerpt)}</p>
+          <div className="mt-7 space-y-5 text-[16.5px] leading-[1.8] text-slate-200">
+            {tl(article.body).map((p, i) => (
+              <p
+                key={p.slice(0, 24)}
+                className={cn(i === 0 && "first-letter:float-left first-letter:mr-2 first-letter:text-5xl first-letter:font-black first-letter:leading-[0.9] first-letter:text-cyan-300")}
+              >
+                {p}
+              </p>
+            ))}
           </div>
-          <article className="p-5 sm:p-8" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-            <p className="mb-2 flex items-center gap-2 text-xs font-bold text-si-cyan-dark">
-              {t(article.category)} <span className="text-slate-300">•</span>
-              <span className="flex items-center gap-1 text-slate-500">
-                <Clock className="size-3" /> {article.minutes} {t(UI.minRead)}
-              </span>
-            </p>
-            <h3 className="text-2xl font-extrabold leading-tight text-si-navy sm:text-3xl">{t(article.title)}</h3>
-            <p className="mt-3 text-lg font-medium leading-relaxed text-si-slate">{t(article.excerpt)}</p>
-            <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-si-slate">
-              {tl(article.body).map((p) => (
-                <p key={p.slice(0, 24)}>{p}</p>
-              ))}
-            </div>
-            <div className="mt-8 rounded-3xl bg-si-navy p-5 text-white">
-              <p className="font-bold">{t({ de: "Lust auf genau diesen Tag?", en: "Fancy exactly this day?" })}</p>
-              <p className="mt-1 text-sm text-slate-300">
+
+          <div className="si-glow-border mt-10 rounded-3xl">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-si-cyan/15 via-white/5 to-si-gold/10 p-6">
+              <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-si-cyan/30 blur-3xl" />
+              <p className="relative flex items-center gap-2 text-lg font-extrabold text-white">
+                <Sparkles className="size-5 text-si-gold" /> {t({ de: "Lust auf genau diesen Tag?", en: "Fancy exactly this day?" })}
+              </p>
+              <p className="relative mt-1.5 text-sm leading-relaxed text-slate-300">
                 {t({
                   de: "Wir planen Ihre private Tour nach diesem Guide – inkl. Gezeiten & Timing.",
                   en: "We'll plan your private tour based on this guide – tides & timing included.",
@@ -117,18 +243,20 @@ export function ArticleModal() {
               </p>
               <button
                 type="button"
-                onClick={() => openInquiry(article.tourId)}
-                className="mt-4 min-h-14 w-full rounded-2xl bg-si-cyan px-4 py-3 font-bold text-si-navy active:scale-[0.98]"
+                onClick={() => openBooking({ tourId: article.tourId })}
+                className={cn(btn.primary, "relative mt-5 min-h-14 w-full py-3 text-center leading-snug")}
               >
-                {t(UI.articleCta)}
+                {t(UI.articleCta)} <ArrowRight className="size-5 shrink-0" />
               </button>
             </div>
-          </article>
-        </div>
-      ) : null}
-    </Sheet>
+          </div>
+        </article>
+      </div>
+    </>
   );
 }
+
+/* ───────────────────────── Lightbox ───────────────────────── */
 
 export function Lightbox() {
   const lb = useSI((s) => s.lightbox);
@@ -159,6 +287,7 @@ export function Lightbox() {
   }, [lb, close, go]);
 
   const item = lb?.items[lb.index];
+  const ctrl = "si-glass grid size-12 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/20 active:scale-95";
 
   return (
     <AnimatePresence>
@@ -167,24 +296,20 @@ export function Lightbox() {
           role="dialog"
           aria-modal="true"
           aria-label={item.title}
-          className="fixed inset-0 z-[80] flex flex-col bg-black/95"
+          className="fixed inset-0 z-[80] flex flex-col bg-[#030a16]/95 backdrop-blur-xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="flex items-center justify-between gap-3 p-3" style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}>
-            <p className="truncate pl-2 text-sm font-semibold text-white">
-              {item.title}
-              <span className="ml-2 text-white/50">
+          <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 size-[60vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-si-cyan/15 blur-[100px]" />
+          <div className="relative flex items-center justify-between gap-3 p-3" style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}>
+            <p className="si-glass flex min-w-0 items-center gap-2 rounded-full py-2 pl-4 pr-3 text-sm font-semibold text-white">
+              <span className="truncate">{item.title}</span>
+              <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-xs tabular-nums text-cyan-200">
                 {lb.index + 1}/{lb.items.length}
               </span>
             </p>
-            <button
-              type="button"
-              onClick={close}
-              aria-label={t(UI.close)}
-              className="grid size-12 shrink-0 place-items-center rounded-full bg-white/10 text-white"
-            >
+            <button type="button" onClick={close} aria-label={t(UI.close)} className={ctrl}>
               <X className="size-6" />
             </button>
           </div>
@@ -193,10 +318,10 @@ export function Lightbox() {
               <motion.div
                 key={lb.index}
                 custom={dir}
-                initial={{ opacity: 0, x: dir * 80 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: dir * -80 }}
-                transition={{ duration: 0.25 }}
+                initial={{ opacity: 0, x: dir * 80, scale: 0.96 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: dir * -80, scale: 0.96 }}
+                transition={{ duration: 0.3, ease: EASE }}
                 drag={lb.items.length > 1 ? "x" : false}
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.6}
@@ -213,7 +338,7 @@ export function Lightbox() {
                     src={item.src.replace(/w=\d+/, "w=2000")}
                     alt={item.title}
                     eager
-                    className="max-h-full max-w-full rounded-xl object-contain [&.si-fallback]:aspect-[4/3] [&.si-fallback]:w-full"
+                    className="max-h-full max-w-full rounded-2xl object-contain shadow-2xl shadow-black/60 [&.si-fallback]:aspect-[4/3] [&.si-fallback]:w-full [&.si-fallback]:max-w-3xl"
                   />
                 )}
               </motion.div>
@@ -223,16 +348,16 @@ export function Lightbox() {
                 <button
                   type="button"
                   onClick={() => go(-1)}
-                  aria-label="Previous"
-                  className="absolute left-2 top-1/2 hidden size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:grid"
+                  aria-label={t({ de: "Vorheriges", en: "Previous" })}
+                  className={cn(ctrl, "absolute left-3 top-1/2 hidden -translate-y-1/2 sm:grid")}
                 >
                   <ChevronLeft className="size-6" />
                 </button>
                 <button
                   type="button"
                   onClick={() => go(1)}
-                  aria-label="Next"
-                  className="absolute right-2 top-1/2 hidden size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:grid"
+                  aria-label={t({ de: "Nächstes", en: "Next" })}
+                  className={cn(ctrl, "absolute right-3 top-1/2 hidden -translate-y-1/2 sm:grid")}
                 >
                   <ChevronRight className="size-6" />
                 </button>
@@ -240,27 +365,27 @@ export function Lightbox() {
             ) : null}
           </div>
           {lb.items.length > 1 ? (
-            <div
-              className="hide-scroll flex justify-center gap-2 overflow-x-auto p-3"
-              style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
-            >
-              {lb.items.map((it, i) => (
-                <button
-                  key={`${it.src}-${i}`}
-                  type="button"
-                  onClick={() => {
-                    setDir(i > lb.index ? 1 : -1);
-                    setIndex(i);
-                  }}
-                  aria-label={it.title}
-                  className={cn(
-                    "relative size-14 shrink-0 overflow-hidden rounded-xl ring-2 transition",
-                    i === lb.index ? "ring-si-cyan" : "opacity-50 ring-transparent",
-                  )}
-                >
-                  <SmartImage src={it.src.replace(/w=\d+/, "w=200")} alt="" className="size-full object-cover" />
-                </button>
-              ))}
+            <div className="relative flex justify-center p-3" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+              <div className="si-glass hide-scroll flex max-w-full gap-2 overflow-x-auto rounded-2xl p-2">
+                {lb.items.map((it, i) => (
+                  <button
+                    key={`${it.src}-${i}`}
+                    type="button"
+                    onClick={() => {
+                      setDir(i > lb.index ? 1 : -1);
+                      setIndex(i);
+                    }}
+                    aria-label={it.title}
+                    aria-current={i === lb.index || undefined}
+                    className={cn(
+                      "relative size-14 shrink-0 overflow-hidden rounded-xl ring-2 transition",
+                      i === lb.index ? "scale-105 ring-si-cyan shadow-[0_0_20px_-2px_rgb(6_182_212/0.8)]" : "opacity-50 ring-transparent hover:opacity-90",
+                    )}
+                  >
+                    <SmartImage src={it.src.replace(/w=\d+/, "w=200")} alt="" className="size-full object-cover" />
+                  </button>
+                ))}
+              </div>
             </div>
           ) : null}
         </motion.div>
@@ -270,12 +395,15 @@ export function Lightbox() {
 }
 
 function LightboxVideo({ src, poster }: { src: string; poster: string }) {
+  const { t } = useTx();
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
       <div className="relative flex max-h-full w-full max-w-3xl items-center justify-center">
-        <SmartImage src={poster} alt="" className="max-h-[75vh] w-full rounded-xl object-contain" />
-        <span className="absolute bottom-3 rounded-full bg-black/60 px-3 py-1 text-xs text-white">Video preview</span>
+        <SmartImage src={poster} alt="" className="aspect-video max-h-[75vh] w-full rounded-2xl object-contain" />
+        <span className="si-glass absolute bottom-3 rounded-full px-3 py-1 text-xs text-white">
+          {t({ de: "Video-Vorschau", en: "Video preview" })}
+        </span>
       </div>
     );
   }
@@ -290,7 +418,7 @@ function LightboxVideo({ src, poster }: { src: string; poster: string }) {
       muted
       loop
       onError={() => setFailed(true)}
-      className="max-h-full max-w-full rounded-xl"
+      className="max-h-full max-w-full rounded-2xl shadow-2xl shadow-black/60"
     />
   );
 }

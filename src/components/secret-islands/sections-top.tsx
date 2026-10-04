@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform, type PanInfo } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform, type PanInfo } from "framer-motion";
 import {
   Check,
   ChevronDown,
@@ -312,7 +312,7 @@ export function Hero() {
             <h1 className="max-w-4xl text-[2.6rem] font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
               <SplitReveal text={t(UI.heroTitleA)} delay={0.25} />
               <br />
-              <SplitReveal text={t(UI.heroTitleB)} delay={0.45} className="si-text-gradient [&_span]:si-text-gradient" />
+              <SplitReveal text={t(UI.heroTitleB)} delay={0.45} className="si-text-gradient" />
             </h1>
 
             <motion.p
@@ -595,12 +595,4 @@ function CompareCard({ item }: { item: (typeof COMPARISON)[number] }) {
       </Assemble>
     </GlassCard>
   );
-}
-
-/** Small helper so sections can react to scroll direction without re-rendering every frame. */
-export function useScrolledPast(px: number) {
-  const { scrollY } = useScroll();
-  const [past, setPast] = useState(false);
-  useMotionValueEvent(scrollY, "change", (v) => setPast(v > px));
-  return past;
 }
