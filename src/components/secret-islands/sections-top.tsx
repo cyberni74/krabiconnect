@@ -247,7 +247,6 @@ export function Hero() {
   const { t } = useTx();
   const openBooking = useSI((s) => s.openBooking);
   const openLightbox = useSI((s) => s.openLightbox);
-  const [videoOk, setVideoOk] = useState(true);
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
@@ -277,20 +276,6 @@ export function Hero() {
       <section ref={ref} id="top" className="relative isolate flex min-h-[100svh] items-end overflow-hidden">
         <motion.div style={{ y: bgY, scale: bgScale }} className="si-fallback absolute inset-0 -z-20 will-change-transform">
           <SmartImage src={IMG.hero} alt="" priority className="absolute inset-0 size-full object-cover" />
-          {videoOk ? (
-            <video
-              className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-1000"
-              src={VIDEO.heroLoop}
-              poster={IMG.hero}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              onCanPlay={(e) => (e.currentTarget.style.opacity = "1")}
-              onError={() => setVideoOk(false)}
-            />
-          ) : null}
         </motion.div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-si-navy via-si-navy/60 to-si-navy/20" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(80%_60%_at_15%_85%,rgb(6_182_212/0.25),transparent_70%)]" />

@@ -49,7 +49,8 @@ const u = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;
 
 export const IMG = {
-  hero: u("1552465011-b4e21bf6e79a", 1800),
+  // Our own speedboat (Higgsfield). The old Unsplash hero showed longtail boats – we don't run longtails.
+  hero: ROMANCE_IMGS[0].src,
   sandbar: u("1559128010-7c1ad6e1b6a5"),
   lagoon: u("1537956965359-7573183d1f57"),
   beach: u("1507525428034-b723cf961d3e"),
@@ -58,13 +59,12 @@ export const IMG = {
   sunset: u("1530053969600-caed2596d242"),
   snorkel: u("1544551763-46a013bb70d5"),
   snorkel2: u("1544551763-77ef2d0cfc6c"),
-  boat: u("1567899378494-47b22a2ae96a"),
+  boat: ROMANCE_IMGS[1].src,
   cliffs: u("1589394815804-964ed0be2eb5"),
   bay: u("1519046904884-53103b34b206"),
 };
 
 export const VIDEO = {
-  heroLoop: "https://videos.pexels.com/video-files/1093662/1093662-hd_1920_1080_30fps.mp4",
   reel1: "https://videos.pexels.com/video-files/3571264/3571264-uhd_1440_2560_30fps.mp4",
   reel2: "https://videos.pexels.com/video-files/4763824/4763824-uhd_1440_2560_24fps.mp4",
   cinematic: "https://videos.pexels.com/video-files/1918465/1918465-uhd_2560_1440_24fps.mp4",
