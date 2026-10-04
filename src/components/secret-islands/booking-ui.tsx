@@ -140,11 +140,14 @@ export function AddOnCard({
   on,
   guests,
   onToggle,
+  recommended,
 }: {
   item: AddOn;
   on: boolean;
   guests: number;
   onToggle: () => void;
+  /** Highlight text, e.g. "Empfohlen für Angeltouren". */
+  recommended?: string | null;
 }) {
   const { t } = useTx();
   const amount = item.per === "person" ? item.price * guests : item.price;
@@ -159,9 +162,18 @@ export function AddOnCard({
         "group relative flex w-full items-start gap-3 overflow-hidden rounded-2xl border p-3.5 text-left transition sm:p-4",
         on
           ? "border-si-cyan/60 bg-gradient-to-br from-si-cyan/20 to-si-cyan/5 shadow-[0_10px_40px_-18px_rgb(6_182_212/0.9)]"
-          : "border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.07]",
+          : recommended
+            ? "border-si-gold/50 bg-gradient-to-br from-si-gold/15 to-transparent hover:border-si-gold/70"
+            : "border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.07]",
+        recommended && "pt-9 sm:pt-9",
       )}
     >
+      {recommended ? (
+        <span className="absolute inset-x-0 top-0 flex items-center gap-1.5 bg-gradient-to-r from-si-gold/30 to-transparent px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-200">
+          <span aria-hidden>★</span>
+          {recommended}
+        </span>
+      ) : null}
       <span
         aria-hidden
         className={cn(

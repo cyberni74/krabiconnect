@@ -5,6 +5,7 @@
 import { BRAND, LANGS, SLOTS, type L, type Lang, type SlotId, type Tour } from "./content";
 import {
   BOOKING_EXTRAS,
+  CATERING_PACKAGE,
   DRINKS,
   DURATIONS,
   FOOD,
@@ -42,13 +43,42 @@ export type Draft = {
 
 export const MAX_GUESTS = 5;
 
-export const OCCASIONS: { id: string; emoji: string; label: L }[] = [
+export const OCCASIONS: { id: string; emoji: string; label: L; romance?: boolean }[] = [
+  { id: "couple", emoji: "💑", label: { de: "Paar", en: "Couple" }, romance: true },
+  { id: "honeymoon", emoji: "🌅", label: { de: "Hochzeitsreise", en: "Honeymoon" }, romance: true },
+  { id: "anniversary", emoji: "💞", label: { de: "Jahrestag", en: "Anniversary" }, romance: true },
+  { id: "proposal", emoji: "💍", label: { de: "Antrag", en: "Proposal" }, romance: true },
+  { id: "family", emoji: "👨‍👩‍👧", label: { de: "Familie", en: "Family" } },
+  { id: "friends", emoji: "🙌", label: { de: "Freunde", en: "Friends" } },
   { id: "birthday", emoji: "🎂", label: { de: "Geburtstag", en: "Birthday" } },
-  { id: "anniversary", emoji: "💞", label: { de: "Jahrestag", en: "Anniversary" } },
-  { id: "proposal", emoji: "💍", label: { de: "Antrag", en: "Proposal" } },
-  { id: "family", emoji: "👨‍👩‍👧", label: { de: "Familienurlaub", en: "Family holiday" } },
-  { id: "honeymoon", emoji: "🌅", label: { de: "Flitterwochen", en: "Honeymoon" } },
 ];
+
+/** Fishing trip chosen (preset fishing tour, or the fishing-stop extra on a custom tour). */
+export function isFishingContext(d: Draft) {
+  const tour = currentTour(d);
+  return tour ? tour.kind === "fishing" : d.mode === "custom" && d.extras.includes("fishing");
+}
+
+/** Couple-ish occasion or a sunset tour. */
+export function isRomanceContext(d: Draft) {
+  const occ = OCCASIONS.find((o) => o.id === d.occasion);
+  return !!occ?.romance || !!currentTour(d)?.categories.includes("sunset");
+}
+
+/** Recommendation reason for an add-on in the current draft (null = none). Never auto-selects. */
+export function recommendation(item: AddOn, d: Draft): L | null {
+  if (item.recommendFor?.includes("fishing") && isFishingContext(d))
+    return { de: "Empfohlen für Angeltouren", en: "Recommended for fishing trips" };
+  if (item.recommendFor?.includes("romance") && isRomanceContext(d))
+    return { de: "Empfohlen für Paare & Hochzeitsreisen", en: "Recommended for couples & honeymoons" };
+  return null;
+}
+
+/** Recommended items first (stable), others unchanged. */
+export function sortByRecommendation(items: AddOn[], d: Draft) {
+  const rec = items.filter((i) => recommendation(i, d));
+  return [...rec, ...items.filter((i) => !rec.includes(i))];
+}
 
 export const STEP_LABELS: L[] = [
   { de: "Tour", en: "Tour" },
@@ -240,3 +270,23 @@ export function mailHref(d: Draft, lang: Lang, tOp: (l: L) => string) {
   }${d.date ? ` · ${d.date}` : ""}`;
   return `mailto:${BRAND.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
+
+export type Quick = { item: AddOn; list: "food" | "drinks"; primary?: boolean };
+
+/** One-click add-ons: catering always; beer for fishing, sparkling wine for couples / sunset. */
+export function quickAdds(d: Draft): Quick[] {
+  const out: Quick[] = [{ item: CATERING_PACKAGE, list: "food", primary: true }];
+  const beer = DRINKS.find((x) => x.id === "beer");
+  const sekt = DRINKS.find((x) => x.id === "prosecco");
+  if (beer && isFishingContext(d)) out.push({ item: beer, list: "drinks" });
+  if (sekt && isRomanceContext(d)) out.push({ item: sekt, list: "drinks" });
+  return out;
+}
+
+export function toggleQuick(patch: (p: (d: Draft) => Partial<Draft>) => void, q: Quick) {
+  patch((d) => {
+    const cur = d[q.list];
+    return { [q.list]: cur.includes(q.item.id) ? cur.filter((x) => x !== q.item.id) : [...cur, q.item.id] } as Partial<Draft>;
+  });
+}
+

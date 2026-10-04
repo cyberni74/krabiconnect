@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { BRAND, TOUR_FILTERS, TOURS, type TourCategory } from "./content";
 import {
   BOOKING_EXTRAS,
+  CATERING_PACKAGE,
   DRINKS,
   DURATIONS,
   FOOD,
@@ -57,7 +58,9 @@ import {
   htmlLang,
   itemAmount,
   priceBreakdown,
+  recommendation,
   routeNames,
+  sortByRecommendation,
   slotInfo,
   type Draft,
 } from "./booking-model";
@@ -640,19 +643,30 @@ function Legend({ dot, label }: { dot: string; label: string }) {
 function AddOnGrid({
   items,
   selected,
-  guests,
+  draft,
   onToggle,
 }: {
   items: AddOn[];
   selected: string[];
-  guests: number;
+  draft: Draft;
   onToggle: (id: string) => void;
 }) {
+  const { t } = useTx();
   return (
     <div className="grid gap-2.5 md:grid-cols-2">
-      {items.map((item) => (
-        <AddOnCard key={item.id} item={item} guests={guests} on={selected.includes(item.id)} onToggle={() => onToggle(item.id)} />
-      ))}
+      {sortByRecommendation(items, draft).map((item) => {
+        const rec = recommendation(item, draft);
+        return (
+          <AddOnCard
+            key={item.id}
+            item={item}
+            guests={draft.guests}
+            on={selected.includes(item.id)}
+            onToggle={() => onToggle(item.id)}
+            recommended={rec ? t(rec) : null}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -714,18 +728,39 @@ export function GuestsStep({ draft, patch }: StepProps) {
         </div>
       </section>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3.5 text-sm text-emerald-100">
-        <span aria-hidden className="text-xl">💧</span>
-        <p>{t({ de: "Immer inklusive: Wasser, Softdrinks & frisches Obst.", en: "Always included: water, soft drinks & fresh fruit." })}</p>
-      </div>
+      <section>
+        <p className="mb-2 text-sm font-semibold text-slate-200">{t({ de: "Anlass? (optional)", en: "Occasion? (optional)" })}</p>
+        <div className="hide-scroll -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+          {OCCASIONS.map((o) => (
+            <Chip key={o.id} active={draft.occasion === o.id} onClick={() => patch((d) => ({ occasion: d.occasion === o.id ? null : o.id }))}>
+              <span aria-hidden>{o.emoji}</span>
+              {t(o.label)}
+            </Chip>
+          ))}
+        </div>
+      </section>
 
       <section>
         <SectionHead
           title={t({ de: "Verpflegung", en: "Food" })}
-          sub={t({ de: "Mehrfachauswahl möglich", en: "Choose as many as you like" })}
+          sub={t({ de: "Mit einem Klick dazubuchen", en: "Add with one click" })}
           right={<Subtotal value={addOnTotal(FOOD, draft.food, draft.guests)} />}
         />
-        <AddOnGrid items={FOOD} selected={draft.food} guests={draft.guests} onToggle={(id) => patch((d) => ({ food: toggleIn(d.food, id) }))} />
+        <CateringHero draft={draft} patch={patch} />
+        <div className="mt-3 flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
+          <span aria-hidden className="text-lg">💧</span>
+          <p>{t({ de: "Immer inklusive: Wasser, Softdrinks & frisches Obst.", en: "Always included: water, soft drinks & fresh fruit." })}</p>
+        </div>
+        <p className="mb-2.5 mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-300">
+          <Sparkles className="size-3.5" />
+          {t({ de: "Premium-Upgrades", en: "Premium upgrades" })}
+        </p>
+        <AddOnGrid
+          items={FOOD.filter((f) => f.id !== CATERING_PACKAGE.id)}
+          selected={draft.food}
+          draft={draft}
+          onToggle={(id) => patch((d) => ({ food: toggleIn(d.food, id) }))}
+        />
       </section>
 
       <section>
@@ -734,9 +769,60 @@ export function GuestsStep({ draft, patch }: StepProps) {
           sub={t({ de: "Mehrfachauswahl möglich", en: "Choose as many as you like" })}
           right={<Subtotal value={addOnTotal(DRINKS, draft.drinks, draft.guests)} />}
         />
-        <AddOnGrid items={DRINKS} selected={draft.drinks} guests={draft.guests} onToggle={(id) => patch((d) => ({ drinks: toggleIn(d.drinks, id) }))} />
+        <AddOnGrid items={DRINKS} selected={draft.drinks} draft={draft} onToggle={(id) => patch((d) => ({ drinks: toggleIn(d.drinks, id) }))} />
       </section>
     </div>
+  );
+}
+
+function CateringHero({ draft, patch }: Pick<StepProps, "draft" | "patch">) {
+  const { t } = useTx();
+  const c = CATERING_PACKAGE;
+  const on = draft.food.includes(c.id);
+  return (
+    <motion.button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => patch((d) => ({ food: toggleIn(d.food, c.id) }))}
+      whileTap={{ scale: 0.985 }}
+      className={cn(
+        "si-glow-border relative flex w-full flex-col gap-3 overflow-hidden rounded-3xl p-4 text-left transition sm:flex-row sm:items-center sm:p-5",
+        on ? "bg-gradient-to-br from-si-cyan/30 to-si-cyan/5" : "bg-gradient-to-br from-white/[0.09] to-white/[0.02] hover:from-white/[0.12]",
+      )}
+    >
+      <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-si-cyan/25 blur-3xl" />
+      <span className="flex items-center gap-3 sm:flex-1">
+        <span aria-hidden className={cn("grid size-14 shrink-0 place-items-center rounded-2xl text-3xl", on ? "bg-si-cyan/30" : "bg-white/10")}>
+          {c.emoji}
+        </span>
+        <span className="min-w-0">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="text-lg font-extrabold text-white">{t(c.label)}</span>
+            {c.tag ? (
+              <span className="rounded-full bg-si-cyan/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cyan-200">{t(c.tag)}</span>
+            ) : null}
+          </span>
+          <span className="mt-0.5 block text-sm leading-snug text-slate-300">{t(c.desc)}</span>
+        </span>
+      </span>
+      <span className="flex items-center justify-between gap-4 border-t border-white/10 pt-3 sm:border-0 sm:pt-0">
+        <span className="text-right leading-tight">
+          <span className="block font-extrabold text-cyan-300">
+            +{formatTHB(c.price)} {t({ de: "p. P.", en: "p.p." })}
+          </span>
+          <span className="block text-xs text-slate-400">
+            {draft.guests} × {formatTHB(c.price)} = {formatTHB(itemAmount(c, draft.guests))}
+          </span>
+        </span>
+        <span
+          aria-hidden
+          className={cn("relative inline-flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition-colors", on ? "bg-si-cyan" : "bg-white/15")}
+        >
+          <motion.span layout transition={{ type: "spring", stiffness: 500, damping: 32 }} className={cn("size-6 rounded-full bg-white shadow", on && "ml-auto")} />
+        </span>
+      </span>
+    </motion.button>
   );
 }
 
@@ -751,7 +837,7 @@ export function ExtrasStep({ draft, patch }: StepProps) {
         sub={t({ de: "Alle Extras sind optional und pro Boot berechnet.", en: "All extras are optional and priced per boat." })}
         right={<Subtotal value={addOnTotal(BOOKING_EXTRAS, draft.extras, draft.guests)} />}
       />
-      <AddOnGrid items={BOOKING_EXTRAS} selected={draft.extras} guests={draft.guests} onToggle={(id) => patch((d) => ({ extras: toggleIn(d.extras, id) }))} />
+      <AddOnGrid items={BOOKING_EXTRAS} selected={draft.extras} draft={draft} onToggle={(id) => patch((d) => ({ extras: toggleIn(d.extras, id) }))} />
       <div className="mt-5 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
         <Sparkles className="mt-0.5 size-5 shrink-0 text-amber-300" />
         <p>{t({ de: "Etwas anderes im Sinn? Schreiben Sie es im nächsten Schritt in Ihre Wünsche – wir machen fast alles möglich.", en: "Something else in mind? Add it to your wishes in the next step – we make almost anything happen." })}</p>

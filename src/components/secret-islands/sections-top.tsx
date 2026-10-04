@@ -199,15 +199,15 @@ export function BottomBar() {
   });
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-40 px-3 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 px-2.5 md:hidden"
       style={{ paddingBottom: "calc(0.6rem + env(safe-area-inset-bottom))" }}
     >
-      <div className="si-glass-strong grid grid-cols-2 gap-2 rounded-[1.4rem] p-1.5">
+      <div className="si-glass-strong grid grid-cols-2 gap-1.5 rounded-[1.4rem] p-1.5">
         <a
           href={waLink(waText)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-si-wa/90 px-2 text-[15px] font-bold text-white active:scale-[0.98]"
+          className="flex h-12 min-w-0 items-center justify-center gap-1 rounded-2xl bg-si-wa/90 px-2 text-[14px] font-bold text-white active:scale-[0.98]"
         >
           <WhatsAppIcon className="size-5 shrink-0" />
           <span className="truncate">{t(UI.ctaWhatsapp)}</span>
@@ -215,7 +215,7 @@ export function BottomBar() {
         <button
           type="button"
           onClick={() => openBooking()}
-          className="flex h-12 min-w-0 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-[15px] font-bold text-si-navy shadow-[0_8px_24px_-8px_rgb(6_182_212/0.9)] active:scale-[0.98]"
+          className="flex h-12 min-w-0 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-[14px] font-bold text-si-navy shadow-[0_8px_24px_-8px_rgb(6_182_212/0.9)] active:scale-[0.98]"
         >
           <Sparkles className="size-4 shrink-0" />
           <span className="truncate">{t(BOOK)}</span>

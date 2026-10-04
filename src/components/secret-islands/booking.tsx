@@ -20,6 +20,7 @@ import {
 } from "./booking-model";
 import { ContactStep, DateStep, ExtrasStep, GuestsStep, TourStep } from "./booking-steps";
 import { AnimatedPrice } from "./booking-ui";
+import { QuickAddChips, QuickAddPanel } from "./booking-quick";
 import { btn } from "./fx";
 import { SmartImage, WhatsAppIcon, useLockBody } from "./ui";
 import { useSI, useTx, waLink } from "./store";
@@ -224,6 +225,8 @@ function Wizard({
           {!sent ? (
             <aside className="hidden w-[330px] shrink-0 flex-col border-l border-white/10 bg-black/15 lg:flex">
               <div className="min-h-0 flex-1 overflow-y-auto p-5">
+                <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-amber-300">{t({ de: "Mit 1 Klick dazu", en: "Add with 1 click" })}</p>
+                <QuickAddPanel draft={draft} patch={patch} className="mb-5" />
                 <SummaryPanel draft={draft} />
               </div>
               <div className="border-t border-white/10 p-5">
@@ -248,6 +251,7 @@ function Wizard({
         {/* Mobile / tablet bottom bar */}
         {!sent ? (
           <div className="relative z-10 shrink-0 border-t border-white/10 bg-si-navy/80 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+            <QuickAddChips draft={draft} patch={patch} />
             <BlockerNote blocker={blocker && (step < 4 || showErrors) ? t(blocker) : null} compact />
             <div className="flex items-center gap-2">
               {step > 0 ? (
