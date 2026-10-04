@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ARTICLES, BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, TOURS, UI, type Article } from "./content";
+import { ARTICLES, BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, ROMANCE_IMGS, TOURS, UI, type Article } from "./content";
 import { LONGTAIL_FAQ, LONGTAIL_INTRO, type LongtailFaqItem, type LongtailStep } from "./longtail-faq";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
 import { scrollToId, translate, useSI, useTx, waLink } from "./store";
@@ -378,7 +378,11 @@ export function LongtailFaq() {
               label={t(intro.us.label)}
               steps={intro.us.steps}
               variant="us"
-              image={{ src: IMG.hero, alt: t({ de: "Privates Speedboat vor einer leeren Insel in Krabi", en: "Private speedboat at an empty island in Krabi" }) }}
+              image={
+                ROMANCE_IMGS[0]
+                  ? { src: ROMANCE_IMGS[0].src, alt: t(ROMANCE_IMGS[0].alt) }
+                  : { src: IMG.hero, alt: t({ de: "Privates Speedboat vor einer leeren Insel in Krabi", en: "Private speedboat at an empty island in Krabi" }) }
+              }
             />
           </ScrollScene>
         </div>
