@@ -5,9 +5,12 @@ import { DICTS } from "./i18n";
 type State = {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  inquiry: { open: boolean; tourId: string | null };
+  /** Booking wizard. `custom` starts in the build-your-own-tour builder. */
+  booking: { open: boolean; tourId: string | null; custom: boolean };
+  openBooking: (opts?: { tourId?: string | null; custom?: boolean }) => void;
+  closeBooking: () => void;
+  /** Alias kept for older call sites: opens the booking wizard (optionally with a tour). */
   openInquiry: (tourId?: string | null) => void;
-  closeInquiry: () => void;
   lightbox: { items: { src: string; title: string; video?: string }[]; index: number } | null;
   openLightbox: (items: { src: string; title: string; video?: string }[], index: number) => void;
   setLightboxIndex: (index: number) => void;
@@ -32,9 +35,17 @@ export const useSI = create<State>((set) => ({
     }
     set({ lang });
   },
-  inquiry: { open: false, tourId: null },
-  openInquiry: (tourId = null) => set({ inquiry: { open: true, tourId }, tourId: null, articleId: null }),
-  closeInquiry: () => set((s) => ({ inquiry: { ...s.inquiry, open: false } })),
+  booking: { open: false, tourId: null, custom: false },
+  openBooking: (opts) =>
+    set({
+      booking: { open: true, tourId: opts?.tourId ?? null, custom: !!opts?.custom },
+      tourId: null,
+      articleId: null,
+      lightbox: null,
+    }),
+  closeBooking: () => set((s) => ({ booking: { ...s.booking, open: false } })),
+  openInquiry: (tourId = null) =>
+    set({ booking: { open: true, tourId, custom: false }, tourId: null, articleId: null, lightbox: null }),
   lightbox: null,
   openLightbox: (items, index) => set({ lightbox: { items, index } }),
   setLightboxIndex: (index) => set((s) => (s.lightbox ? { lightbox: { ...s.lightbox, index } } : s)),

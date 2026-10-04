@@ -1,5 +1,7 @@
 import { useEffect } from "react";
-import { ArticleModal, InquiryModal, Lightbox, TourModal } from "./modals";
+import { BookingModal } from "./booking";
+import { AuroraBackground, ScrollProgress } from "./fx";
+import { ArticleModal, Lightbox, TourModal } from "./modals";
 import { Faq, FinalCta, Footer, Guide, Reviews } from "./sections-bottom";
 import { DroneFeature, Gallery, Tours } from "./sections-mid";
 import { BottomBar, Comparison, Header, Hero } from "./sections-top";
@@ -19,7 +21,9 @@ export function SecretIslandsPage() {
   }, [lang]);
 
   return (
-    <div className="min-h-dvh bg-si-white font-jakarta text-si-navy antialiased [scroll-behavior:smooth]">
+    <div className="relative isolate min-h-dvh overflow-x-clip font-jakarta text-white antialiased [scroll-behavior:smooth]">
+      <AuroraBackground />
+      <ScrollProgress />
       <Header />
       <main>
         <Hero />
@@ -34,7 +38,7 @@ export function SecretIslandsPage() {
       </main>
       <Footer />
       <BottomBar />
-      <InquiryModal />
+      <BookingModal />
       <TourModal />
       <ArticleModal />
       <Lightbox />

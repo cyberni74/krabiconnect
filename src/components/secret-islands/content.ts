@@ -202,31 +202,55 @@ export const COMPARISON: {
   },
 ];
 
-export type TourCategory = "classic" | "secret" | "sunset";
+export type TourCategory = "classic" | "secret" | "sunset" | "fishing" | "family";
 export const TOUR_FILTERS: { id: "all" | TourCategory; label: L }[] = [
   { id: "all", label: { de: "Alle", en: "All" } },
   { id: "classic", label: { de: "Klassiker Neu Entdeckt", en: "Classics rediscovered" } },
   { id: "secret", label: { de: "Geheimtipps", en: "Hidden gems" } },
   { id: "sunset", label: { de: "Sunset & Romantik", en: "Sunset & romance" } },
+  { id: "fishing", label: { de: "Angeltouren", en: "Fishing trips" } },
+  { id: "family", label: { de: "Familie", en: "Family" } },
+];
+
+/** Departure slots used by tours and the booking calendar. */
+export type SlotId = "morning" | "midday" | "sunset" | "night";
+export const SLOTS: { id: SlotId; time: string; label: L }[] = [
+  { id: "morning", time: "08:00", label: { de: "Früh", en: "Early" } },
+  { id: "midday", time: "12:30", label: { de: "Mittag", en: "Midday" } },
+  { id: "sunset", time: "14:30", label: { de: "Sunset", en: "Sunset" } },
+  { id: "night", time: "18:00", label: { de: "Abend", en: "Evening" } },
 ];
 
 export type Tour = {
   id: string;
+  kind: "island" | "fishing";
   title: L;
   short: L;
   categories: TourCategory[];
   image: string;
+  /** Price per boat (THB) for up to 5 guests. */
   price: number;
+  hours: number;
   duration: L;
+  slots: SlotId[];
   badge?: L;
   stops: string[];
   description: L;
   includes: L[];
 };
 
+const INC_BOAT: L = { de: "Privates Speedboat & Kapitän", en: "Private speedboat & captain" };
+const INC_DRINKS: L = { de: "Wasser, Softdrinks & Obst", en: "Water, soft drinks & fruit" };
+const INC_TRANSFER: L = { de: "Hotel-Transfer Ao Nang/Krabi", en: "Hotel transfer Ao Nang/Krabi" };
+const INC_SNORKEL: L = { de: "Schnorchel-Equipment", en: "Snorkel gear" };
+const INC_PARK: L = { de: "Nationalpark-Gebühren", en: "National park fees" };
+const INC_RODS: L = { de: "Angelruten, Köder & Guide", en: "Rods, bait & fishing guide" };
+const INC_COOK: L = { de: "Fang wird für Sie zubereitet", en: "Your catch cooked for you" };
+
 export const TOURS: Tour[] = [
   {
     id: "4islands-sunset",
+    kind: "island",
     title: { de: "4-Islands VIP & Sunset Special", en: "4-Islands VIP & Sunset Special" },
     short: {
       de: "Die berühmten Inseln – aber dann, wenn die Massen weg sind.",
@@ -235,23 +259,20 @@ export const TOURS: Tour[] = [
     categories: ["classic", "sunset"],
     image: IMG.sunset,
     price: 18500,
-    duration: { de: "13:00 – 19:00 (6 Std.)", en: "1 pm – 7 pm (6 hrs)" },
+    hours: 6,
+    duration: { de: "6 Std. · ab 13:00", en: "6 hrs · from 1 pm" },
+    slots: ["midday", "sunset"],
     badge: { de: "Bestseller", en: "Bestseller" },
     stops: ["Koh Poda", "Chicken Island", "Tup Sandbank", "Phra Nang Cave"],
     description: {
       de: "Wir starten, wenn die Gruppenboote zurückfahren. Sie laufen bei Ebbe über die Tup-Sandbank, schnorcheln an Chicken Island und genießen den Sonnenuntergang vor den Kalksteinfelsen von Phra Nang – mit gekühltem Prosecco an Bord.",
       en: "We depart as the group boats head home. Walk the Tup sandbar at low tide, snorkel at Chicken Island and watch the sunset in front of Phra Nang's limestone cliffs – with chilled prosecco on board.",
     },
-    includes: [
-      { de: "Privates Speedboat & Kapitän", en: "Private speedboat & captain" },
-      { de: "Softdrinks, Obst & Snacks", en: "Soft drinks, fruit & snacks" },
-      { de: "Sunset-Prosecco", en: "Sunset prosecco" },
-      { de: "Schnorchel-Equipment", en: "Snorkel gear" },
-      { de: "Hotel-Transfer Ao Nang", en: "Hotel transfer Ao Nang" },
-    ],
+    includes: [INC_BOAT, INC_DRINKS, { de: "Sunset-Prosecco", en: "Sunset prosecco" }, INC_SNORKEL, INC_TRANSFER],
   },
   {
     id: "hong-lagoons",
+    kind: "island",
     title: { de: "Hong Island Secret Lagoons & Hidden Bays", en: "Hong Island Secret Lagoons & Hidden Bays" },
     short: {
       de: "Smaragdgrüne Lagunen und Buchten, die kein Gruppenboot anfährt.",
@@ -260,22 +281,19 @@ export const TOURS: Tour[] = [
     categories: ["secret", "classic"],
     image: IMG.lagoon,
     price: 21500,
-    duration: { de: "08:00 – 15:00 (7 Std.)", en: "8 am – 3 pm (7 hrs)" },
+    hours: 7,
+    duration: { de: "7 Std. · ab 08:00", en: "7 hrs · from 8 am" },
+    slots: ["morning"],
     stops: ["Koh Hong", "Koh Lao Lading", "Koh Pakbia"],
     description: {
       de: "Früh am Morgen gehört die Hong-Lagune Ihnen. Danach geht's zur winzigen Bucht von Koh Lao Lading und zu den Doppelstränden von Koh Pakbia – ideal für ein langes Schwimm- und Schnorchelpicknick.",
       en: "Early in the morning, Hong Lagoon belongs to you. Then on to the tiny cove of Koh Lao Lading and the twin beaches of Koh Pakbia – perfect for a long swim and snorkel picnic.",
     },
-    includes: [
-      { de: "Privates Speedboat & Kapitän", en: "Private speedboat & captain" },
-      { de: "Thai-Lunchbox oder Picknick", en: "Thai lunch box or picnic" },
-      { de: "Nationalpark-Gebühren", en: "National park fees" },
-      { de: "Schnorchel-Equipment & SUP", en: "Snorkel gear & SUP" },
-      { de: "Hotel-Transfer Ao Nang", en: "Hotel transfer Ao Nang" },
-    ],
+    includes: [INC_BOAT, INC_DRINKS, INC_PARK, { de: "Schnorchel-Equipment & SUP", en: "Snorkel gear & SUP" }, INC_TRANSFER],
   },
   {
     id: "phang-nga-uncharted",
+    kind: "island",
     title: { de: "Uncharted Phang Nga & Secret Islands", en: "Uncharted Phang Nga & Secret Islands" },
     short: {
       de: "Koh Roi, Koh Kudu, Koh Nok – 100 % abseits der Massen.",
@@ -284,47 +302,253 @@ export const TOURS: Tour[] = [
     categories: ["secret"],
     image: IMG.cliffs,
     price: 26000,
-    duration: { de: "08:00 – 16:30 (8,5 Std.)", en: "8 am – 4:30 pm (8.5 hrs)" },
+    hours: 8.5,
+    duration: { de: "8,5 Std. · ab 08:00", en: "8.5 hrs · from 8 am" },
+    slots: ["morning"],
     badge: { de: "100 % Geheimtipp", en: "100% hidden gem" },
     stops: ["Koh Roi", "Koh Kudu", "Koh Nok"],
     description: {
       de: "Unsere Expedition in die nördliche Phang-Nga-Bucht: Schwimmen Sie bei Flut durch den Felstunnel in die versteckte Lagune von Koh Roi, entdecken Sie das Kudu-Hong und picknicken Sie allein am Strand von Koh Nok.",
       en: "Our expedition into northern Phang Nga Bay: swim through the rock tunnel into Koh Roi's hidden lagoon at high tide, explore the Kudu hong and picnic alone on Koh Nok's beach.",
     },
-    includes: [
-      { de: "Privates Speedboat & Kapitän", en: "Private speedboat & captain" },
-      { de: "Gourmet-Picknick am Strand", en: "Gourmet beach picnic" },
-      { de: "Kajak für die Lagunen", en: "Kayak for the lagoons" },
-      { de: "Nationalpark-Gebühren", en: "National park fees" },
-      { de: "Hotel-Transfer Krabi/Ao Nang", en: "Hotel transfer Krabi/Ao Nang" },
-    ],
+    includes: [INC_BOAT, { de: "Kajak für die Lagunen", en: "Kayak for the lagoons" }, INC_PARK, INC_DRINKS, INC_TRANSFER],
+  },
+  {
+    id: "phi-phi-early-bird",
+    kind: "island",
+    title: { de: "Phi Phi Early Bird – vor allen anderen", en: "Phi Phi Early Bird – before everyone else" },
+    short: {
+      de: "Maya Bay, Pileh-Lagune und Bamboo Island im ersten Morgenlicht.",
+      en: "Maya Bay, Pileh Lagoon and Bamboo Island in the first morning light.",
+    },
+    categories: ["classic"],
+    image: IMG.bay,
+    price: 28500,
+    hours: 8,
+    duration: { de: "8 Std. · ab 07:00", en: "8 hrs · from 7 am" },
+    slots: ["morning"],
+    badge: { de: "Neu", en: "New" },
+    stops: ["Maya Bay", "Pileh Lagoon", "Viking Cave", "Bamboo Island"],
+    description: {
+      de: "Abfahrt um 07:00 – wir erreichen Maya Bay, bevor die Fähren ankommen. Schwimmen in der türkisen Pileh-Lagune, vorbei an der Viking Cave und Mittagspause am weißen Strand von Bamboo Island.",
+      en: "Departing at 7 am, we reach Maya Bay before the ferries arrive. Swim in turquoise Pileh Lagoon, pass Viking Cave and take a lunch break on Bamboo Island's white beach.",
+    },
+    includes: [INC_BOAT, INC_PARK, INC_SNORKEL, INC_DRINKS, INC_TRANSFER],
+  },
+  {
+    id: "koh-rok-safari",
+    kind: "island",
+    title: { de: "Koh Rok & Koh Haa Schnorchel-Safari", en: "Koh Rok & Koh Haa Snorkel Safari" },
+    short: {
+      de: "Die klarsten Riffe der Andamanensee – Sichtweiten bis 25 m.",
+      en: "The clearest reefs of the Andaman Sea – visibility up to 25 m.",
+    },
+    categories: ["secret", "family"],
+    image: IMG.snorkel,
+    price: 32000,
+    hours: 9,
+    duration: { de: "9 Std. · ab 07:30", en: "9 hrs · from 7:30 am" },
+    slots: ["morning"],
+    stops: ["Koh Haa", "Koh Rok Nai", "Koh Rok Nok"],
+    description: {
+      de: "Die lange Fahrt lohnt sich: Schildkröten, Clownfische und Korallengärten an den Zwillingsinseln Koh Rok, dazu die Kalksteintürme von Koh Haa mit ihrer Unterwasser-Lagune.",
+      en: "The long ride pays off: turtles, clownfish and coral gardens at the twin Koh Rok islands, plus the limestone towers of Koh Haa with their underwater lagoon.",
+    },
+    includes: [INC_BOAT, INC_PARK, INC_SNORKEL, { de: "Thai-Lunch an Bord", en: "Thai lunch on board" }, INC_TRANSFER],
+  },
+  {
+    id: "james-bond-bay",
+    kind: "island",
+    title: { de: "James Bond Island & Phang Nga Bay Privat", en: "James Bond Island & Phang Nga Bay Private" },
+    short: {
+      de: "Die Ikone der Bucht – mit Mangroven-Kajak statt Touristenschlange.",
+      en: "The bay's icon – with mangrove kayaking instead of tourist queues.",
+    },
+    categories: ["classic", "family"],
+    image: IMG.island,
+    price: 24000,
+    hours: 8,
+    duration: { de: "8 Std. · ab 08:00", en: "8 hrs · from 8 am" },
+    slots: ["morning"],
+    stops: ["Khao Phing Kan", "Koh Panyee", "Mangroven"],
+    description: {
+      de: "Wir fahren entgegen der Gruppenroute: zuerst Kajak durch die Mangroven, dann das schwimmende Dorf Koh Panyee und James Bond Island am Nachmittag, wenn es ruhig wird.",
+      en: "We run the route in reverse: first kayaking through the mangroves, then the floating village of Koh Panyee and James Bond Island in the afternoon when it gets quiet.",
+    },
+    includes: [INC_BOAT, INC_PARK, { de: "Kajak & Guide", en: "Kayak & guide" }, INC_DRINKS, INC_TRANSFER],
+  },
+  {
+    id: "railay-escape",
+    kind: "island",
+    title: { de: "Railay & Phra Nang Half-Day Escape", en: "Railay & Phra Nang Half-Day Escape" },
+    short: {
+      de: "Kurz, intensiv, perfekt für den Anreisetag.",
+      en: "Short, intense, perfect for your arrival day.",
+    },
+    categories: ["classic", "family"],
+    image: IMG.beach,
+    price: 11500,
+    hours: 4,
+    duration: { de: "4 Std. · flexibel", en: "4 hrs · flexible" },
+    slots: ["morning", "midday", "sunset"],
+    stops: ["Railay West", "Phra Nang Cave", "Koh Poda"],
+    description: {
+      de: "Vier Stunden voller Highlights: die Kletterfelsen von Railay, die Höhle von Phra Nang und ein Badestopp an Koh Poda – ideal mit Kindern oder als Einstieg.",
+      en: "Four hours packed with highlights: Railay's climbing cliffs, Phra Nang cave and a swim stop at Koh Poda – ideal with kids or as a first taste.",
+    },
+    includes: [INC_BOAT, INC_DRINKS, INC_SNORKEL, INC_TRANSFER],
+  },
+  {
+    id: "sunset-dinner",
+    kind: "island",
+    title: { de: "Sunset Romance & Dinner an Bord", en: "Sunset Romance & Dinner on Board" },
+    short: {
+      de: "Champagner, Sonnenuntergang und ein Candle-Light-Dinner auf dem Meer.",
+      en: "Champagne, sunset and a candle-light dinner at sea.",
+    },
+    categories: ["sunset"],
+    image: IMG.sunset,
+    price: 16500,
+    hours: 4,
+    duration: { de: "4 Std. · ab 15:30", en: "4 hrs · from 3:30 pm" },
+    slots: ["sunset"],
+    badge: { de: "Für Paare", en: "For couples" },
+    stops: ["Koh Poda", "Phra Nang Bay"],
+    description: {
+      de: "Die romantischste Art, Krabi zu erleben: Ankern vor Phra Nang, Champagner zum Sonnenuntergang und ein 3-Gänge-Dinner unter Sternen. Perfekt für Anträge und Jahrestage.",
+      en: "The most romantic way to experience Krabi: anchor off Phra Nang, champagne at sunset and a 3-course dinner under the stars. Perfect for proposals and anniversaries.",
+    },
+    includes: [INC_BOAT, { de: "Flasche Champagner", en: "Bottle of champagne" }, { de: "3-Gänge-Dinner", en: "3-course dinner" }, INC_TRANSFER],
+  },
+  {
+    id: "plankton-night",
+    kind: "island",
+    title: { de: "Leuchtendes Plankton – Night Glow Tour", en: "Bioluminescent Plankton – Night Glow Tour" },
+    short: {
+      de: "Schwimmen Sie im Sternenmeer – jedes Paddel leuchtet.",
+      en: "Swim in a sea of stars – every stroke glows.",
+    },
+    categories: ["sunset", "secret"],
+    image: IMG.aerial,
+    price: 14500,
+    hours: 4,
+    duration: { de: "4 Std. · ab 17:00", en: "4 hrs · from 5 pm" },
+    slots: ["night"],
+    stops: ["Koh Poda", "Koh Hong (Krabi)"],
+    description: {
+      de: "Nach dem Sonnenuntergang fahren wir in eine dunkle Bucht ohne Lichtverschmutzung. Beim Schwimmen leuchtet biolumineszentes Plankton um Sie herum – magisch, besonders bei Neumond.",
+      en: "After sunset we head to a dark bay free of light pollution. While swimming, bioluminescent plankton glows around you – magical, especially around new moon.",
+    },
+    includes: [INC_BOAT, INC_DRINKS, INC_SNORKEL, { de: "Sunset-Snacks", en: "Sunset snacks" }, INC_TRANSFER],
+  },
+  {
+    id: "family-sandbars",
+    kind: "island",
+    title: { de: "Family Fun Day – Sandbänke & Schildkröten", en: "Family Fun Day – Sandbars & Turtles" },
+    short: {
+      de: "Kurze Fahrten, flache Buchten, viel Schatten – für kleine Entdecker.",
+      en: "Short rides, shallow bays, lots of shade – for little explorers.",
+    },
+    categories: ["family"],
+    image: IMG.sandbar,
+    price: 15500,
+    hours: 6,
+    duration: { de: "6 Std. · ab 09:00", en: "6 hrs · from 9 am" },
+    slots: ["morning", "midday"],
+    stops: ["Tup Sandbank", "Chicken Island", "Koh Poda"],
+    description: {
+      de: "Kinderwesten in allen Größen, Sandspielzeug und Schnorchelmasken für Kids. Wir wählen Buchten mit flachem Einstieg und planen Pausen nach Ihrem Rhythmus.",
+      en: "Kids' life vests in all sizes, sand toys and kids' snorkel masks. We choose bays with shallow entry and plan breaks to your rhythm.",
+    },
+    includes: [INC_BOAT, INC_DRINKS, { de: "Kinder-Equipment", en: "Kids' gear" }, INC_SNORKEL, INC_TRANSFER],
+  },
+  {
+    id: "fishing-reef-half",
+    kind: "fishing",
+    title: { de: "Riff-Angeln Halbtags", en: "Half-Day Reef Fishing" },
+    short: {
+      de: "Zackenbarsch, Snapper & Makrele an den Riffen vor Krabi.",
+      en: "Grouper, snapper & mackerel on the reefs off Krabi.",
+    },
+    categories: ["fishing", "family"],
+    image: IMG.boat,
+    price: 13500,
+    hours: 4,
+    duration: { de: "4 Std. · flexibel", en: "4 hrs · flexible" },
+    slots: ["morning", "midday"],
+    stops: ["Koh Yawasam", "Koh Dam Riff"],
+    description: {
+      de: "Ideal für Einsteiger und Familien: Bottom-Fishing und leichtes Jiggen an fischreichen Riffen, keine 30 Minuten vom Hafen. Unser Guide zeigt Ihnen jeden Handgriff.",
+      en: "Ideal for beginners and families: bottom fishing and light jigging on rich reefs, less than 30 minutes from the pier. Our guide shows you every move.",
+    },
+    includes: [INC_BOAT, INC_RODS, INC_DRINKS, INC_TRANSFER],
+  },
+  {
+    id: "fishing-deep-sea",
+    kind: "fishing",
+    title: { de: "Deep Sea & Trolling Ganztags", en: "Full-Day Deep Sea & Trolling" },
+    short: {
+      de: "Königsmakrele, Barrakuda & Thun – Big-Game in der Andamanensee.",
+      en: "King mackerel, barracuda & tuna – big game in the Andaman Sea.",
+    },
+    categories: ["fishing"],
+    image: IMG.island,
+    price: 29500,
+    hours: 9,
+    duration: { de: "9 Std. · ab 07:00", en: "9 hrs · from 7 am" },
+    slots: ["morning"],
+    badge: { de: "Big Game", en: "Big game" },
+    stops: ["Koh Phi Phi Außenriffe", "Hin Klang", "Trolling-Route"],
+    description: {
+      de: "Mit Trolling-Ausrüstung und Popping-Ruten fahren wir zu den Außenriffen von Phi Phi. Catch & Release oder Sie nehmen Ihren Fang mit – Ihr Hotelkoch freut sich.",
+      en: "With trolling gear and popping rods we head to the outer reefs of Phi Phi. Catch & release, or take your catch home – your hotel chef will be delighted.",
+    },
+    includes: [INC_BOAT, { de: "Profi-Trolling-Ausrüstung", en: "Pro trolling gear" }, INC_RODS, { de: "Thai-Lunch an Bord", en: "Thai lunch on board" }, INC_TRANSFER],
+  },
+  {
+    id: "fishing-night-squid",
+    kind: "fishing",
+    title: { de: "Nacht-Tintenfischangeln", en: "Night Squid Fishing" },
+    short: {
+      de: "Unter Lampen auf dem Meer – Thai-Tradition zum Mitmachen.",
+      en: "Under lamps at sea – a Thai tradition to join in.",
+    },
+    categories: ["fishing", "family"],
+    image: IMG.aerial,
+    price: 12500,
+    hours: 4,
+    duration: { de: "4 Std. · ab 18:00", en: "4 hrs · from 6 pm" },
+    slots: ["night"],
+    stops: ["Ao Nang Bay"],
+    description: {
+      de: "Wenn es dunkel wird, locken grüne Lampen die Tintenfische an. Mit einfachen Handleinen fangen Sie Ihr Abendessen – das wir direkt an Bord für Sie grillen.",
+      en: "When it gets dark, green lamps attract the squid. With simple hand lines you catch your dinner – which we grill for you right on board.",
+    },
+    includes: [INC_BOAT, INC_RODS, INC_COOK, INC_DRINKS, INC_TRANSFER],
+  },
+  {
+    id: "fishing-catch-cook",
+    kind: "fishing",
+    title: { de: "Catch & Cook Sunset BBQ", en: "Catch & Cook Sunset BBQ" },
+    short: {
+      de: "Angeln am Nachmittag, BBQ am einsamen Strand zum Sonnenuntergang.",
+      en: "Fishing in the afternoon, BBQ on a lonely beach at sunset.",
+    },
+    categories: ["fishing", "sunset"],
+    image: IMG.sunset,
+    price: 19500,
+    hours: 6,
+    duration: { de: "6 Std. · ab 13:00", en: "6 hrs · from 1 pm" },
+    slots: ["midday", "sunset"],
+    badge: { de: "Erlebnis", en: "Experience" },
+    stops: ["Koh Dam Riff", "Privater Strand"],
+    description: {
+      de: "Sie angeln, wir kochen: Am Abend grillt unsere Crew Ihren Fang mit Thai-Kräutern am Strand, dazu Reis, Salate und Dips – während die Sonne hinter den Inseln versinkt.",
+      en: "You fish, we cook: in the evening our crew grills your catch with Thai herbs on the beach, with rice, salads and dips – as the sun sinks behind the islands.",
+    },
+    includes: [INC_BOAT, INC_RODS, INC_COOK, { de: "Strand-BBQ mit Beilagen", en: "Beach BBQ with sides" }, INC_TRANSFER],
   },
 ];
-
-export const EXTRAS = [
-  {
-    id: "drone",
-    label: { de: "4K Drohnen-Paket", en: "4K drone package" },
-    desc: { de: "Pilot, Reel + 40 Luftbilder", en: "Pilot, reel + 40 aerial photos" },
-    price: 4500,
-    perPerson: false,
-  },
-  {
-    id: "picnic",
-    label: { de: "Gourmet-Picknick", en: "Gourmet picnic" },
-    desc: { de: "Thai-Fusion am privaten Strand", en: "Thai fusion on a private beach" },
-    price: 1200,
-    perPerson: true,
-  },
-  {
-    id: "champagne",
-    label: { de: "Champagner & Deko", en: "Champagne & decor" },
-    desc: { de: "Für Antrag, Jahrestag & Co.", en: "For proposals, anniversaries & more" },
-    price: 3500,
-    perPerson: false,
-  },
-] as const;
-export type ExtraId = (typeof EXTRAS)[number]["id"];
 
 export type GalleryCat = "drone" | "secret" | "reels" | "underwater";
 export const GALLERY_TABS: { id: "all" | GalleryCat; label: L }[] = [

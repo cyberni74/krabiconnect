@@ -185,7 +185,7 @@ export function Sheet({
             type="button"
             aria-label={closeLabel}
             onClick={onClose}
-            className="absolute inset-0 bg-si-navy/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
           />
           <motion.div
             role="dialog"
@@ -196,7 +196,7 @@ export function Sheet({
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className={cn(
-              "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-w-xl sm:rounded-3xl",
+              "si-glass-strong relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[2rem] text-white sm:max-w-xl sm:rounded-[2rem]",
               className,
             )}
           >
@@ -204,7 +204,7 @@ export function Sheet({
               type="button"
               onClick={onClose}
               aria-label={closeLabel}
-              className="absolute right-3 top-3 z-10 grid size-11 place-items-center rounded-full bg-white/90 text-si-navy shadow-md backdrop-blur"
+              className="si-glass absolute right-3 top-3 z-10 grid size-11 place-items-center rounded-full text-white"
             >
               <X className="size-5" />
             </button>
