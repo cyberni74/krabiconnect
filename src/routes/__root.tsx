@@ -18,8 +18,15 @@ const fetchSessionUser = createServerFn({ method: "GET" }).handler(async () => {
   return u ? { id: u.id, email: u.email } : null;
 });
 
+function isStandalonePath(pathname: string) {
+  return pathname.startsWith("/secret-islands") || pathname.startsWith("/krabi-guide");
+}
+
 export const Route = createRootRoute({
-  beforeLoad: async () => ({ sessionUser: await fetchSessionUser() }),
+  // Standalone marketing pages need no session/DB; skipping keeps them up even where no DATABASE_URL is set.
+  beforeLoad: async ({ location }) => ({
+    sessionUser: isStandalonePath(location.pathname) ? null : await fetchSessionUser(),
+  }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
