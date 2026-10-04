@@ -21,9 +21,11 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ARTICLES, BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, ROMANCE_IMGS, TOURS, UI, type Article } from "./content";
+import { ARTICLES as GUIDE_ARTICLES } from "../krabi-guide/articles";
 import { LONGTAIL_FAQ, LONGTAIL_INTRO, type LongtailFaqItem, type LongtailStep } from "./longtail-faq";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
 import { scrollToId, translate, useSI, useTx, waLink } from "./store";
@@ -129,6 +131,30 @@ export function Guide() {
             </Assemble>
           )}
         </div>
+
+        <ScrollScene intensity={0.6} className="mt-10">
+          <Link
+            to="/krabi-guide"
+            className="si-glass si-glow-border group flex flex-col items-start gap-4 rounded-3xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+          >
+            <span>
+              <span className="block text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">
+                {t({ de: "Krabi Insider Guide", en: "Krabi Insider Guide" })}
+              </span>
+              <span className="mt-1 block text-xl font-extrabold text-white sm:text-2xl">
+                {t({
+                  de: "Alle Insider-Artikel: Inseln, Schnorchelspots, Gezeiten & Geheimtipps",
+                  en: "All insider articles: islands, snorkel spots, tides & secret tips",
+                })}{" "}
+                <span className="text-si-cyan">({GUIDE_ARTICLES.length})</span>
+              </span>
+            </span>
+            <span className={btn.primary}>
+              {t({ de: "Zum Insider Guide", en: "Open the Insider Guide" })}
+              <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+            </span>
+          </Link>
+        </ScrollScene>
       </div>
     </section>
   );

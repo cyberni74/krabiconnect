@@ -146,10 +146,10 @@ export const PILLAR_ARTICLES: GuideArticleInput[] = [
         h2: { de: "Unser Insider-Fazit", en: "Our insider verdict" },
         body: {
           de: [
-            "Die Krabi Inseln sind nicht überbewertet – sie werden nur oft zur falschen Zeit besucht. Wer Gezeiten, Abfahrtszeiten der großen Boote und die Saison im Blick hat, erlebt selbst die berühmten Spots in Ruhe. In den einzelnen Insel-Guides finden Sie zu jedem Ziel die besten Zeitfenster, Fotospots und praktische Tipps.",
+            "Die Krabi Inseln sind nicht überbewertet – sie werden nur oft zur falschen Zeit besucht. Wer Gezeiten, Abfahrtszeiten der großen Boote und die Saison im Blick hat, erlebt selbst die berühmten Spots in Ruhe.",
           ],
           en: [
-            "The Krabi islands are not overrated – they are just often visited at the wrong time. Keep an eye on the tides, the departure times of the big boats and the season, and even the famous spots can be enjoyed in peace. In the individual island guides you will find the best time windows, photo spots and practical tips for every destination.",
+            "The Krabi islands are not overrated – they are just often visited at the wrong time. Keep an eye on the tides, the departure times of the big boats and the season, and even the famous spots can be enjoyed in peace.",
           ],
         },
       },

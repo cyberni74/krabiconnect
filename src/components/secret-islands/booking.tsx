@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock, Gift, Send, Ship, UserRound, Users, UtensilsCrossed, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { toISODate } from "./booking-data";
+import { ISLANDS, toISODate } from "./booking-data";
 import {
   STEP_LABELS,
   buildMessage,
@@ -136,7 +136,7 @@ function Wizard({
   };
 
   const stepProps = { draft, patch, todayISO };
-  const nextLabel = step === 4 ? t({ de: "Per WhatsApp senden", en: "Send via WhatsApp" }) : t({ de: "Weiter", en: "Next" });
+  const nextLabel = step === 4 ? t({ de: "Anfrage senden", en: "Send request" }) : t({ de: "Weiter", en: "Next" });
   const nextDisabled = step < 4 && !!blocker;
 
   return (
@@ -197,7 +197,7 @@ function Wizard({
 
         {/* Body */}
         <div className="relative z-10 flex min-h-0 flex-1 overflow-clip">
-          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6 lg:py-6">
+          <div ref={scrollRef} className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-5 sm:px-6 lg:py-6">
             {sent ? (
               <Success onClose={onClose} waHref={waHref} mailtoHref={mailtoHref} />
             ) : (
@@ -244,7 +244,7 @@ function Wizard({
                       <ArrowLeft className="size-5" />
                     </button>
                   ) : null}
-                  <NextButton label={nextLabel} disabled={nextDisabled} onClick={next} last={step === 4} className="flex-1" />
+                  <NextButton label={nextLabel} disabled={nextDisabled} onClick={next} last={step === 4} className="min-w-0 flex-1" />
                 </div>
                 <BlockerNote blocker={blocker && (step < 4 || showErrors) ? t(blocker) : null} />
               </div>
@@ -301,8 +301,8 @@ function NextButton({
       whileTap={disabled ? undefined : { scale: 0.97 }}
       className={cn(last ? btn.whatsapp : btn.primary, "shrink-0 px-5 disabled:cursor-not-allowed disabled:opacity-40", className)}
     >
-      {last ? <WhatsAppIcon className="size-5" /> : null}
-      <span className="whitespace-nowrap">{label}</span>
+      {last ? <WhatsAppIcon className="size-5 shrink-0" /> : null}
+      <span className={cn("whitespace-nowrap", last && "text-[15px]")}>{label}</span>
       {!last ? <ArrowRight className="size-5" /> : null}
     </motion.button>
   );
@@ -423,10 +423,9 @@ function SummaryPanel({ draft }: { draft: Draft }) {
           exit={{ opacity: 0, y: -8 }}
           className="mt-3 overflow-hidden rounded-2xl border border-white/10"
         >
-          <div className="relative h-20">
-            <SmartImage src={tour?.image ?? "https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=70"} alt="" className="absolute inset-0 size-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-si-navy to-transparent" />
-            <p className="absolute inset-x-3 bottom-2 line-clamp-2 font-bold leading-snug text-white">
+          <div className="flex items-center gap-3 p-2">
+            <SmartImage src={tour?.image ?? ISLANDS[0].image} alt="" className="size-12 shrink-0 rounded-xl object-cover" />
+            <p className="line-clamp-2 text-sm font-bold leading-snug text-white">
               {tour ? t(tour.title) : draft.mode === "custom" ? `${t({ de: "Eigene Tour", en: "Custom tour" })} · ${t(dur.label)}` : t({ de: "Noch keine Tour gewählt", en: "No tour chosen yet" })}
             </p>
           </div>
@@ -439,7 +438,7 @@ function SummaryPanel({ draft }: { draft: Draft }) {
       </AnimatePresence>
 
       {tour?.kind !== "fishing" && (tour || draft.mode === "custom") ? <IncludedStrip className="mt-3" /> : null}
-      <ul className="mt-4 space-y-2 text-sm">
+      <ul className="mt-3 space-y-1.5 text-sm">
         <Info icon={CalendarDays} text={dateStr ?? t({ de: "Datum offen", en: "Date open" })} muted={!dateStr} />
         <Info icon={Clock} text={slot ? `${slot.time} · ${t(slot.label)}` : t({ de: "Uhrzeit offen", en: "Time open" })} muted={!slot} />
         <Info
@@ -466,7 +465,7 @@ function SummaryPanel({ draft }: { draft: Draft }) {
 function Info({ icon: Icon, text, muted }: { icon: typeof Clock; text: string; muted?: boolean }) {
   return (
     <li className={cn("flex items-center gap-2.5", muted ? "text-slate-500" : "text-white")}>
-      <span className="grid size-8 place-items-center rounded-lg bg-white/5">
+      <span className="grid size-7 place-items-center rounded-lg bg-white/5">
         <Icon className="size-4" />
       </span>
       {text}

@@ -252,7 +252,7 @@ export function Field({
 }
 
 export const inputCls =
-  "w-full min-h-12 rounded-2xl border border-white/12 bg-white/[0.06] px-4 text-base text-white placeholder:text-slate-500 outline-none transition focus:border-si-cyan/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-si-cyan/15";
+  "w-full min-w-0 min-h-12 rounded-2xl border border-white/12 bg-white/[0.06] px-4 text-base text-white placeholder:text-slate-500 outline-none transition focus:border-si-cyan/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-si-cyan/15";
 
 /** "Inklusive" strip for island tours: snorkel, swim, relax. */
 export function IncludedStrip({ className }: { className?: string }) {

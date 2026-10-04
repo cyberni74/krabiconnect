@@ -305,7 +305,7 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
     },
     metaDescription: {
       de: "Leuchtendes Plankton in Krabi erleben: privat per Speedboat (max. 5 Gäste) in eine dunkle Bucht, Schwimmen im Glitzerwasser – beste Zeit um Neumond, Tipps.",
-      en: "See bioluminescent plankton in Krabi by private speedboat (max. 5 guests): a dark bay, swimming in glowing water, best around new moon – tips and what to expect.",
+      en: "See bioluminescent plankton in Krabi by private speedboat (max. 5 guests): a dark bay, swimming in glowing water, best around new moon – tips & what to expect.",
     },
     h1: {
       de: "Leuchtendes Plankton in Krabi – nachts mit dem privaten Speedboat",
@@ -471,8 +471,8 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
       en: "Krabi Fishing Trip Guide: Species, Season, Cook",
     },
     metaDescription: {
-      de: "Angeln in Krabi: Riff-, Trolling- und Tintenfischangeln, typische Fischarten, beste Saison, Regeln in Nationalparks und Catch & Cook – der Guide für Ihre Angeltour.",
-      en: "Krabi fishing trip guide: reef, trolling and squid fishing, typical species, the best season, national park rules and catch & cook – everything for your day out.",
+      de: "Angeln in Krabi: Riff-, Trolling- und Tintenfischangeln, typische Fischarten, beste Saison, Regeln in Nationalparks und Catch & Cook – alles für Ihre Angeltour.",
+      en: "Krabi fishing trip guide: reef, trolling and squid fishing, typical species, the best season, national park rules and catch & cook – all for your day out.",
     },
     h1: {
       de: "Angeln in Krabi – Fischarten, Saison und Catch & Cook",

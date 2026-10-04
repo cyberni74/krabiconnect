@@ -427,7 +427,7 @@ export const ISLAND_ARTICLES_A: GuideArticleInput[] = [
     },
     metaDescription: {
       de: "Hong Island Krabi: die versteckte Lagune bei Flut, der Viewpoint, Schnorchelspots und das beste Timing ohne Gruppen – unser Insider-Guide zu Koh Hong.",
-      en: "Hong Island Krabi: the hidden lagoon at high tide, the viewpoint, snorkel spots and the best timing to avoid the groups – our insider guide to Koh Hong in Krabi.",
+      en: "Hong Island Krabi: the hidden lagoon at high tide, the viewpoint, snorkel spots and the best timing to avoid the groups – our insider guide to Koh Hong.",
     },
     h1: {
       de: "Hong Island Krabi – die versteckte Lagune und ihre Geheimnisse",

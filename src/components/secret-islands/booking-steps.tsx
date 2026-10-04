@@ -868,13 +868,13 @@ export function ContactStep({
   const valid = Object.keys(errs).length === 0;
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       <section className="space-y-4">
         <SectionHead title={t({ de: "Ihre Kontaktdaten", en: "Your contact details" })} sub={t({ de: "Wir antworten persönlich – kein Callcenter.", en: "We reply personally – no call centre." })} />
         <Field label={`${t({ de: "Name", en: "Name" })} *`} error={e("name")}>
           <input className={inputCls} value={draft.name} onChange={(ev) => patch({ name: ev.target.value })} autoComplete="name" placeholder={t({ de: "Vor- und Nachname", en: "First and last name" })} />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
           <Field label={t({ de: "E-Mail", en: "E-mail" })} error={e("email")}>
             <input className={inputCls} type="email" inputMode="email" value={draft.email} onChange={(ev) => patch({ email: ev.target.value })} autoComplete="email" placeholder="name@mail.com" />
           </Field>
@@ -915,7 +915,7 @@ export function ContactStep({
 
       <section>
         <Receipt draft={draft} />
-        <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <div className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
           <a
             href={valid ? waHref : undefined}
             target="_blank"
