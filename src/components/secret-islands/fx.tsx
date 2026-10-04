@@ -167,7 +167,18 @@ export function useParallax(range = 80): { ref: React.RefObject<HTMLDivElement |
 
 /* ───────── Headings ───────── */
 /** Word-by-word masked reveal for headlines. */
-export function SplitReveal({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
+export function SplitReveal({
+  text,
+  className,
+  wordClassName,
+  delay = 0,
+}: {
+  text: string;
+  className?: string;
+  /** Applied to each animated word, e.g. "si-text-gradient" (gradient can't live on the outer span). */
+  wordClassName?: string;
+  delay?: number;
+}) {
   const words = text.split(" ");
   return (
     <motion.span
@@ -181,7 +192,7 @@ export function SplitReveal({ text, className, delay = 0 }: { text: string; clas
       {words.map((w, i) => (
         <span key={`${w}-${i}`} aria-hidden className="inline-block overflow-hidden pb-[0.08em] align-bottom">
           <motion.span
-            className="inline-block"
+            className={cn("inline-block", wordClassName)}
             variants={{ hidden: { y: "110%", rotate: 4 }, show: { y: "0%", rotate: 0 } }}
             transition={{ duration: 0.8, ease: EASE }}
           >
