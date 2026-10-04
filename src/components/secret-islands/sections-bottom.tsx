@@ -499,7 +499,7 @@ export function Footer() {
   return (
     <footer className="relative mt-8 overflow-hidden border-t border-white/10 bg-gradient-to-b from-si-navy/40 to-si-navy/90 pb-28 pt-16 text-slate-300 backdrop-blur-xl md:pb-10">
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-si-cyan/70 to-transparent" />
-      <Assemble className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]" stagger={0.08}>
+      <Assemble className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.15fr_0.75fr]" stagger={0.08}>
         <AssembleItem>
           <p className="flex items-center gap-2.5 text-lg font-extrabold text-white">
             <BrandMark className="size-11" />
@@ -526,7 +526,7 @@ export function Footer() {
                 <button
                   type="button"
                   onClick={() => openTour(tour.id)}
-                  className="flex min-h-11 items-center gap-1.5 text-left transition hover:text-white"
+                  className="flex min-h-11 items-center gap-1.5 py-1.5 text-left leading-snug transition hover:text-white"
                 >
                   {tour.kind === "fishing" ? "🎣 " : ""}
                   {t(tour.title)}
@@ -559,7 +559,7 @@ export function Footer() {
               </a>
             </li>
             <li>
-              <a href={`mailto:${BRAND.email}`} className="flex min-h-11 items-center gap-2 break-all hover:text-white">
+              <a href={`mailto:${BRAND.email}`} className="flex min-h-11 items-center gap-2 [overflow-wrap:anywhere] hover:text-white">
                 <Mail className="size-4 shrink-0 text-si-cyan" /> {BRAND.email}
               </a>
             </li>
@@ -619,7 +619,7 @@ export function Footer() {
 
       <p
         aria-hidden
-        className="pointer-events-none mx-auto mt-10 select-none whitespace-nowrap px-2 text-center text-[8.4vw] font-black uppercase leading-none tracking-tighter text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/0.09)] lg:text-[96px]"
+        className="pointer-events-none mx-auto mt-10 select-none whitespace-nowrap px-2 text-center text-[7.6vw] font-black uppercase leading-none tracking-tighter text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/0.09)] lg:text-[96px]"
         style={{ backgroundImage: "linear-gradient(180deg, rgb(255 255 255 / 0.10), transparent)", WebkitBackgroundClip: "text", backgroundClip: "text" }}
       >
         Krabi Secret Islands
