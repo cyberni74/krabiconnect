@@ -23,3 +23,8 @@ export function validateLangSearch(search: Record<string, unknown>): { lang?: La
   const lang = parseLang(search.lang);
   return lang && lang !== "de" ? { lang } : {};
 }
+
+/** `<Link search={keepLang}>` – carries the current `?lang=` over to internal links (crawlable language versions). */
+export function keepLang(prev: Record<string, unknown>): { lang?: Lang } {
+  return validateLangSearch(prev);
+}

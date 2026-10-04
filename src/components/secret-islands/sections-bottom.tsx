@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { keepLang } from "./lang-context";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -134,7 +135,7 @@ export function Guide() {
 
         <ScrollScene intensity={0.6} className="mt-10">
           <Link
-            to="/krabi-guide"
+            to="/krabi-guide" search={keepLang}
             className="si-glass si-glow-border group flex flex-col items-start gap-4 rounded-3xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
           >
             <span>
@@ -370,8 +371,6 @@ export function LongtailFaq() {
     <section
       id="longtail-vs-speedboat"
       className="relative scroll-mt-16 py-20 sm:py-28"
-      itemScope
-      itemType="https://schema.org/FAQPage"
     >
       <div className="mx-auto max-w-6xl px-4">
         <SectionTitle eyebrow={t(intro.eyebrow)} title={t(intro.title)} sub={t(intro.sub)} />
@@ -550,9 +549,6 @@ function LongtailItem({
   const panelId = `lt-panel-${item.id}`;
   return (
     <div
-      itemScope
-      itemProp="mainEntity"
-      itemType="https://schema.org/Question"
       className={cn(
         "si-glass overflow-hidden rounded-2xl transition duration-300",
         open && "bg-si-cyan/10 shadow-[0_0_0_1px_rgb(6_182_212/0.55),0_0_40px_-8px_rgb(6_182_212/0.5)]",
@@ -572,7 +568,7 @@ function LongtailItem({
           <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/5 text-xl ring-1 ring-white/10">
             {item.emoji}
           </span>
-          <span itemProp="name" className={cn("flex-1 font-bold transition", open ? "text-white" : "text-slate-200")}>
+          <span className={cn("flex-1 font-bold transition", open ? "text-white" : "text-slate-200")}>
             {t(item.q)}
           </span>
           <motion.span
@@ -596,8 +592,8 @@ function LongtailItem({
           open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
         )}
       >
-        <div className="min-h-0 overflow-hidden" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-          <div itemProp="text" className="space-y-5 px-4 pb-6 sm:px-5 sm:pl-[4.25rem]">
+        <div className="min-h-0 overflow-hidden">
+          <div className="space-y-5 px-4 pb-6 sm:px-5 sm:pl-[4.25rem]">
             <p className="text-[15px] leading-relaxed text-slate-200">{t(item.story)}</p>
 
             <div className="overflow-hidden rounded-2xl ring-1 ring-white/10">
@@ -660,6 +656,7 @@ export function Faq() {
                     <button
                       type="button"
                       aria-expanded={isOpen}
+                      aria-controls={`faq-panel-${i}`}
                       onClick={() => setOpen(isOpen ? null : i)}
                       className="flex min-h-16 w-full items-center gap-4 px-5 py-4 text-left"
                     >
@@ -680,18 +677,19 @@ export function Faq() {
                         <Plus className="size-4" strokeWidth={2.6} />
                       </motion.span>
                     </button>
-                    <AnimatePresence initial={false}>
-                      {isOpen ? (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                        >
-                          <p className="px-5 pb-5 text-[15px] leading-relaxed text-slate-300 sm:pl-16">{t(f.a)}</p>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
+                    {/* Answer always in the DOM (SSR / FAQPage JSON-LD must match visible content) – collapsed via grid-rows. */}
+                    <div
+                      id={`faq-panel-${i}`}
+                      role="region"
+                      className={cn(
+                        "grid transition-[grid-template-rows,opacity] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+                        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+                      )}
+                    >
+                      <div className="min-h-0 overflow-hidden">
+                        <p className="px-5 pb-5 text-[15px] leading-relaxed text-slate-300 sm:pl-16">{t(f.a)}</p>
+                      </div>
+                    </div>
                   </div>
                 </AssembleItem>
               );

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { keepLang } from "../secret-islands/lang-context";
 import { ArrowRight, Clock, Compass, MapPin, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -67,7 +68,7 @@ function HubHero() {
           </div>
           <ScrollScene from="tilt" intensity={0.5}>
             <GlassCard glow tilt className="overflow-hidden">
-              <Link to="/krabi-guide/$slug" params={{ slug: featured.slug }} className="group block">
+              <Link to="/krabi-guide/$slug" search={keepLang} params={{ slug: featured.slug }} className="group block">
                 <div className="relative aspect-[16/11] overflow-hidden">
                   <GuideImage src={featured.image} alt={featured.h1[lang]} eager className="size-full object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/30 to-transparent" />
@@ -106,7 +107,7 @@ function IslandNav() {
           {ISLAND_ARTICLES.map((a) => (
             <li key={a.slug} className="shrink-0">
               <Link
-                to="/krabi-guide/$slug"
+                to="/krabi-guide/$slug" search={keepLang}
                 params={{ slug: a.slug }}
                 className="si-glass inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-bold text-white transition hover:bg-white/15"
               >
@@ -227,7 +228,7 @@ function HubCta() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
-              <Link to="/secret-islands" hash="touren" className={btn.primary}>
+              <Link to="/secret-islands" search={keepLang} hash="touren" className={btn.primary}>
                 {t({ de: "Touren ansehen", en: "View tours" })}
                 <ArrowRight className="size-4" />
               </Link>

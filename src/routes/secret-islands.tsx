@@ -1,25 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LOGO_URL } from "@/components/secret-islands/content";
+import { IMG, LANGS, SEO_META } from "@/components/secret-islands/content";
+import { validateLangSearch } from "@/components/secret-islands/lang-context";
 import { SecretIslandsPage } from "@/components/secret-islands/page";
+import { BRAND_HEAD_LINKS, LANDING_PATH, landingJsonLd, langLinks, pageUrl, socialMeta } from "@/components/secret-islands/seo";
+import { translate } from "@/components/secret-islands/store";
+
+/** Every page text is translated (zh/ko/ja via i18n dictionaries), so all five languages get their own URL. */
+const LANDING_LANGS = LANGS.map((l) => l.id);
 
 export const Route = createFileRoute("/secret-islands")({
-  head: () => ({
-    meta: [
-      { title: "Krabi Secret Islands – Private Speedboat-Touren für max. 5 Gäste" },
-      {
-        name: "description",
-        content:
-          "Ultra-private Speedboat-Charter in Krabi für max. 5 Gäste: geheime Inseln, Koh Roi, Koh Kudu, Hong Island, 4-Islands Sunset & 4K Drohnen-Paket. Jetzt Wunschtermin anfragen.",
-      },
-      { name: "theme-color", content: "#0a192f" },
-    ],
-    links: [
-      { rel: "icon", type: "image/png", href: LOGO_URL },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
-      },
-    ],
-  }),
-  component: SecretIslandsPage,
+  // `?lang=en|zh|ko|ja` = language-addressable URL (German default has no parameter). SSR renders that language.
+  validateSearch: validateLangSearch,
+  head: ({ match }) => {
+    const lang = match.search.lang ?? "de";
+    const title = translate(SEO_META.title, lang);
+    const description = translate(SEO_META.description, lang);
+    const url = pageUrl(LANDING_PATH, lang);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { name: "theme-color", content: "#0a192f" },
+        ...socialMeta({ title, description, url, image: IMG.hero, type: "website", lang }),
+        { "script:ld+json": landingJsonLd(lang) },
+      ],
+      links: [...langLinks(LANDING_PATH, lang, LANDING_LANGS), ...BRAND_HEAD_LINKS],
+    };
+  },
+  component: SecretIslandsRoute,
 });
+
+function SecretIslandsRoute() {
+  const { lang } = Route.useSearch();
+  return <SecretIslandsPage urlLang={lang} />;
+}

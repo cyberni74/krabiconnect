@@ -15,8 +15,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SecretIslandsRouteImport } from './routes/secret-islands'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ApiAgentRouteImport } from './routes/api/agent'
 import { Route as ApiImgRouteImport } from './routes/api/img'
 import { Route as ChatsIdRouteImport } from './routes/chats.$id'
@@ -63,6 +65,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -71,6 +78,11 @@ const SearchRoute = SearchRouteImport.update({
 const SecretIslandsRoute = SecretIslandsRouteImport.update({
   id: '/secret-islands',
   path: '/secret-islands',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgentRoute = ApiAgentRouteImport.update({
@@ -159,8 +171,10 @@ export interface FileRoutesByFullPath {
   '/chats': typeof ChatsRouteWithChildren
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
   '/secret-islands': typeof SecretIslandsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
   '/chats/$id': typeof ChatsIdRoute
@@ -184,8 +198,10 @@ export interface FileRoutesByTo {
   '/chats': typeof ChatsRouteWithChildren
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
   '/secret-islands': typeof SecretIslandsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
   '/chats/$id': typeof ChatsIdRoute
@@ -210,8 +226,10 @@ export interface FileRoutesById {
   '/chats': typeof ChatsRouteWithChildren
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
   '/secret-islands': typeof SecretIslandsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
   '/chats/$id': typeof ChatsIdRoute
@@ -237,8 +255,10 @@ export interface FileRouteTypes {
     | '/chats'
     | '/create'
     | '/login'
+    | '/robots.txt'
     | '/search'
     | '/secret-islands'
+    | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
     | '/chats/$id'
@@ -262,8 +282,10 @@ export interface FileRouteTypes {
     | '/chats'
     | '/create'
     | '/login'
+    | '/robots.txt'
     | '/search'
     | '/secret-islands'
+    | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
     | '/chats/$id'
@@ -287,8 +309,10 @@ export interface FileRouteTypes {
     | '/chats'
     | '/create'
     | '/login'
+    | '/robots.txt'
     | '/search'
     | '/secret-islands'
+    | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
     | '/chats/$id'
@@ -313,8 +337,10 @@ export interface RootRouteChildren {
   ChatsRoute: typeof ChatsRouteWithChildren
   CreateRoute: typeof CreateRoute
   LoginRoute: typeof LoginRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SearchRoute: typeof SearchRoute
   SecretIslandsRoute: typeof SecretIslandsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAgentRoute: typeof ApiAgentRouteWithChildren
   ApiImgRoute: typeof ApiImgRouteWithChildren
   ItemIdRoute: typeof ItemIdRoute
@@ -368,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/search': {
       id: '/search'
       path: '/search'
@@ -380,6 +413,13 @@ declare module '@tanstack/react-router' {
       path: '/secret-islands'
       fullPath: '/secret-islands'
       preLoaderRoute: typeof SecretIslandsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agent': {
@@ -558,8 +598,10 @@ const rootRouteChildren: RootRouteChildren = {
   ChatsRoute: ChatsRouteWithChildren,
   CreateRoute: CreateRoute,
   LoginRoute: LoginRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SearchRoute: SearchRoute,
   SecretIslandsRoute: SecretIslandsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAgentRoute: ApiAgentRouteWithChildren,
   ApiImgRoute: ApiImgRouteWithChildren,
   ItemIdRoute: ItemIdRoute,

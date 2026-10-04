@@ -3,6 +3,7 @@
  * image with fallback chain, article + tour cards.
  */
 import { Link } from "@tanstack/react-router";
+import { keepLang } from "../secret-islands/lang-context";
 import { ArrowRight, BookOpen, ChevronRight, Clock, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -89,12 +90,12 @@ function GuideHeader() {
         aria-label={t({ de: "Hauptnavigation", en: "Main navigation" })}
         className="si-glass-strong mx-auto flex h-14 max-w-6xl items-center gap-2 rounded-full pl-2 pr-2 sm:pl-3"
       >
-        <Link to="/secret-islands" className="flex min-w-0 items-center gap-2 rounded-full py-1 pr-2">
+        <Link to="/secret-islands" search={keepLang} className="flex min-w-0 items-center gap-2 rounded-full py-1 pr-2">
           <BrandMark className="size-9" />
           <span className="hidden truncate text-sm font-extrabold tracking-tight sm:inline">{BRAND.name}</span>
         </Link>
         <Link
-          to="/krabi-guide"
+          to="/krabi-guide" search={keepLang}
           className="flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-bold text-cyan-200 hover:bg-white/10"
           activeOptions={{ exact: true }}
         >
@@ -103,7 +104,7 @@ function GuideHeader() {
         </Link>
         <div className="ml-auto flex items-center gap-1.5">
           <Link
-            to="/secret-islands"
+            to="/secret-islands" search={keepLang}
             hash="touren"
             className="hidden min-h-11 items-center rounded-full px-4 text-sm font-bold text-white/90 hover:bg-white/10 md:flex"
           >
@@ -139,7 +140,7 @@ export function Breadcrumb({ article }: { article?: GuideArticle }) {
     <nav aria-label={t({ de: "Brotkrümelnavigation", en: "Breadcrumb" })} className="mb-5">
       <ol className="flex flex-wrap items-center gap-1 text-[13px] font-semibold text-slate-300">
         <li>
-          <Link to="/secret-islands" className="rounded hover:text-white">
+          <Link to="/secret-islands" search={keepLang} className="rounded hover:text-white">
             {t({ de: "Startseite", en: "Home" })}
           </Link>
         </li>
@@ -148,7 +149,7 @@ export function Breadcrumb({ article }: { article?: GuideArticle }) {
         </li>
         <li>
           {article ? (
-            <Link to="/krabi-guide" className="rounded hover:text-white">
+            <Link to="/krabi-guide" search={keepLang} className="rounded hover:text-white">
               Insider Guide
             </Link>
           ) : (
@@ -180,7 +181,7 @@ export function ArticleCard({ article, className }: { article: GuideArticle; cla
   const { t } = useTx();
   return (
     <GlassCard as="article" className={cn("group h-full overflow-hidden", className)}>
-      <Link to="/krabi-guide/$slug" params={{ slug: article.slug }} className="flex h-full flex-col">
+      <Link to="/krabi-guide/$slug" search={keepLang} params={{ slug: article.slug }} className="flex h-full flex-col">
         <div className="relative aspect-[16/10] overflow-hidden">
           <GuideImage
             src={article.image}
@@ -236,7 +237,7 @@ export function TourCard({ tour }: { tour: Tour }) {
             <Sparkles className="size-4" />
             {t({ de: "Diese Tour buchen", en: "Book this tour" })}
           </button>
-          <Link to="/secret-islands" hash="touren" className={cn(btn.glass, "px-4 text-sm")}>
+          <Link to="/secret-islands" search={keepLang} hash="touren" className={cn(btn.glass, "px-4 text-sm")}>
             {t({ de: "Alle Touren", en: "All tours" })}
           </Link>
         </div>
@@ -279,7 +280,7 @@ function GuideFooter() {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <div>
-            <Link to="/secret-islands" className="inline-flex items-center gap-2.5">
+            <Link to="/secret-islands" search={keepLang} className="inline-flex items-center gap-2.5">
               <BrandMark className="size-10" />
               <span className="text-lg font-extrabold">{BRAND.name}</span>
             </Link>
@@ -290,7 +291,7 @@ function GuideFooter() {
               })}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link to="/secret-islands" hash="touren" className={cn(btn.primary, "min-h-11 px-4 text-sm")}>
+              <Link to="/secret-islands" search={keepLang} hash="touren" className={cn(btn.primary, "min-h-11 px-4 text-sm")}>
                 {t({ de: "Touren ansehen", en: "View tours" })}
               </Link>
               <WhatsAppCta />
@@ -303,7 +304,7 @@ function GuideFooter() {
                 {g.items.map((a) => (
                   <li key={a.slug}>
                     <Link
-                      to="/krabi-guide/$slug"
+                      to="/krabi-guide/$slug" search={keepLang}
                       params={{ slug: a.slug }}
                       className="inline-flex min-h-8 items-center text-sm text-slate-300 hover:text-white"
                     >
@@ -320,7 +321,7 @@ function GuideFooter() {
             © 2026 {BRAND.name} · {t(BRAND.location)}
           </p>
           <p>
-            <Link to="/krabi-guide" className="hover:text-white">
+            <Link to="/krabi-guide" search={keepLang} className="hover:text-white">
               Krabi Insider Guide
             </Link>{" "}
             · <a href={`mailto:${BRAND.email}`} className="hover:text-white">{BRAND.email}</a>

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { keepLang } from "../secret-islands/lang-context";
 import { CalendarDays, Check, ChevronDown, Clock, Lightbulb, ListTree, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Assemble, AssembleItem, GlassCard, SectionTitle, btn } from "../secret-islands/fx";
@@ -274,7 +275,7 @@ function ArticleView({ article }: { article: GuideArticle }) {
               ))}
             </Assemble>
             <div className="mt-8">
-              <Link to="/krabi-guide" className={btn.glass}>
+              <Link to="/krabi-guide" search={keepLang} className={btn.glass}>
                 {t({ de: "Alle Artikel im Insider Guide", en: "All Insider Guide articles" })}
               </Link>
             </div>
