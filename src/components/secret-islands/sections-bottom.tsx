@@ -255,7 +255,7 @@ function ArticleCard({ article, onOpen }: { article: Article; onOpen: () => void
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
         <ReadMeta article={article} />
-        <h3 className="line-clamp-3 text-lg font-extrabold leading-snug text-white">{t(article.title)}</h3>
+        <h3 className="text-lg font-extrabold leading-snug text-white [overflow-wrap:anywhere]">{t(article.title)}</h3>
         <p className="line-clamp-2 text-sm leading-relaxed text-slate-400">{t(article.excerpt)}</p>
         <span className="mt-auto flex items-center gap-1 pt-1 text-sm font-bold text-cyan-200">
           {t(UI.readMore)} <ArrowRight className="size-4 transition group-hover:translate-x-1" />
@@ -382,11 +382,11 @@ function ReviewCard({ review: r, index, hidden }: { review: (typeof REVIEWS)[num
           {initials(r.name)}
         </span>
         <span className="min-w-0">
-          <span className="block truncate font-bold text-white">
+          <span className="block [overflow-wrap:anywhere] font-bold text-white">
             {r.name} <span className="font-medium text-slate-400">· {t(r.origin)}</span>
           </span>
-          <span className="block truncate text-xs font-semibold text-cyan-200">{t(r.type)}</span>
-          <span className="block truncate text-xs text-slate-400">{t(r.tour)}</span>
+          <span className="block [overflow-wrap:anywhere] text-xs font-semibold text-cyan-200">{t(r.type)}</span>
+          <span className="block [overflow-wrap:anywhere] text-xs text-slate-400">{t(r.tour)}</span>
         </span>
       </figcaption>
     </figure>
@@ -457,8 +457,8 @@ export function LongtailFaq() {
 
         {/* CTA */}
         <ScrollScene intensity={0.6} className="mt-12">
-          <GlassCard glow className="flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-            <div>
+          <GlassCard glow className="flex flex-col items-start gap-5 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
               <p className="text-xl font-extrabold text-white sm:text-2xl">
                 {t({ de: "Bereit für den Tag, der nur Ihnen gehört?", en: "Ready for a day that belongs only to you?" })}
               </p>
@@ -469,8 +469,8 @@ export function LongtailFaq() {
                 })}
               </p>
             </div>
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              <button type="button" onClick={() => openBooking()} className={cn(btn.primary, "h-14 px-7")}>
+            <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:shrink-0">
+              <button type="button" onClick={() => openBooking()} className={cn(btn.primary, "min-h-14 px-6 py-2 leading-tight sm:whitespace-nowrap sm:px-7")}>
                 {t({ de: "Speedboat-Tag anfragen", en: "Request a speedboat day" })} <ArrowRight className="size-5" />
               </button>
               <a
@@ -631,20 +631,20 @@ function LongtailItem({
             <p className="text-[15px] leading-relaxed text-slate-200">{t(item.story)}</p>
 
             <div className="overflow-hidden rounded-2xl ring-1 ring-white/10">
-              <div className="grid grid-cols-2 text-[10.5px] font-bold uppercase tracking-[0.14em] sm:text-[11px]">
+              <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] text-[10.5px] font-bold uppercase tracking-[0.14em] [overflow-wrap:anywhere] sm:text-[11px]">
                 <span className="bg-white/5 px-3 py-2.5 text-slate-400 sm:px-4">{t({ de: "Longtail / Gruppe", en: "Longtail / group" })}</span>
                 <span className="bg-si-cyan/15 px-3 py-2.5 text-cyan-200 sm:px-4">Krabi Secret Islands</span>
               </div>
               <ul>
                 {item.rows.map((r) => (
-                  <li key={r.us.de} className="grid grid-cols-2 border-t border-white/10 text-[13px] leading-snug sm:text-sm">
+                  <li key={r.us.de} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border-t border-white/10 text-[13px] leading-snug sm:text-sm">
                     <span className="flex gap-2 bg-white/[0.02] px-3 py-3 text-slate-400 sm:px-4">
                       <X className="mt-0.5 size-4 shrink-0 text-rose-400/80" strokeWidth={2.6} aria-label="✗" />
-                      <span>{t(r.them)}</span>
+                      <span className="min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(r.them)}</span>
                     </span>
                     <span className="flex gap-2 bg-si-cyan/[0.06] px-3 py-3 font-semibold text-white sm:px-4">
                       <Check className="mt-0.5 size-4 shrink-0 text-cyan-300" strokeWidth={3} aria-label="✓" />
-                      <span>{t(r.us)}</span>
+                      <span className="min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(r.us)}</span>
                     </span>
                   </li>
                 ))}
@@ -796,14 +796,14 @@ export function FinalCta() {
               {t(UI.finalSub)}
             </p>
 
-            <div className="relative mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+            <div className="relative mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Magnetic className="sm:w-auto">
-                <button type="button" onClick={() => openBooking()} className={cn(btn.primary, "h-14 w-full px-7 text-base")}>
+                <button type="button" onClick={() => openBooking()} className={cn(btn.primary, "min-h-14 w-full px-5 py-2 text-base leading-tight sm:whitespace-nowrap sm:px-7")}>
                   {t(UI.ctaInquire)} <ArrowRight className="size-5" />
                 </button>
               </Magnetic>
               <Magnetic className="sm:w-auto">
-                <button type="button" onClick={() => openBooking({ custom: true })} className={cn(btn.gold, "h-14 w-full px-7")}>
+                <button type="button" onClick={() => openBooking({ custom: true })} className={cn(btn.gold, "min-h-14 w-full px-5 py-2 leading-tight sm:whitespace-nowrap sm:px-7")}>
                   <Wand2 className="size-5" /> {t({ de: "Eigene Tour bauen", en: "Build your own tour" })}
                 </button>
               </Magnetic>
@@ -811,7 +811,7 @@ export function FinalCta() {
                 href={waLink(tOp({ de: "Hallo! Ich möchte eine private Inseltour anfragen.", en: "Hi! I'd like to request a private island tour." }))}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(btn.whatsapp, "h-14")}
+                className={cn(btn.whatsapp, "min-h-14 py-2 leading-tight sm:whitespace-nowrap")}
               >
                 <WhatsAppIcon className="size-5" /> {t(UI.ctaWhatsapp)}
               </a>
@@ -965,7 +965,7 @@ export function Footer() {
 
       <p
         aria-hidden
-        className="pointer-events-none mx-auto mt-10 select-none whitespace-nowrap px-2 text-center text-[7.6vw] font-black uppercase leading-none tracking-tighter text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/0.09)] lg:text-[96px]"
+        className="pointer-events-none mx-auto mt-10 select-none whitespace-nowrap px-2 text-center text-[min(7.6vw,96px)] font-black uppercase leading-none tracking-tighter text-transparent [-webkit-text-stroke:1px_rgb(255_255_255/0.09)]"
         style={{ backgroundImage: "linear-gradient(180deg, rgb(255 255 255 / 0.10), transparent)", WebkitBackgroundClip: "text", backgroundClip: "text" }}
       >
         Krabi Secret Islands

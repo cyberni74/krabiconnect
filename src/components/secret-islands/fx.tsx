@@ -14,7 +14,7 @@ import {
   type MotionValue,
   type Variants,
 } from "framer-motion";
-import { useEffect, useRef, type CSSProperties, type ElementType, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ElementType, type PointerEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -83,7 +83,12 @@ export function ScrollScene({
   intensity?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
+  // Server + first client render always use the animated tree (useReducedMotion is only known in the
+  // browser) – switching before mount caused a hydration mismatch for reduced-motion visitors.
+  const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const reduce = mounted && prefersReduced;
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start 0.6"] });
   const p = useSpring(scrollYProgress, { stiffness: 140, damping: 26, mass: 0.4 });
   const x = useTransform(p, [0, 1], [from === "left" ? -120 * intensity : from === "right" ? 120 * intensity : 0, 0]);
@@ -94,7 +99,12 @@ export function ScrollScene({
   const blur = useTransform(p, [0, 0.8], [10, 0]);
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
 
-  if (reduce) return <div className={className}>{children}</div>;
+  if (reduce)
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
   return (
     <div ref={ref} style={{ perspective: 1200 }} className={className}>
       {/* `si-scene`: styles.css drops the scroll-scrubbed blur on small screens (per-frame filter repaint = jank / INP). */}

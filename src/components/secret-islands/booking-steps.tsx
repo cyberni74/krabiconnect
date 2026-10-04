@@ -184,10 +184,10 @@ function PresetPicker({ draft, patch }: Omit<StepProps, "todayISO">) {
                       {t(tour.badge)}
                     </span>
                   ) : null}
-                  <p className="line-clamp-2 text-[15px] font-bold leading-snug text-white">{t(tour.title)}</p>
+                  <p className="text-[15px] font-bold leading-snug text-white [overflow-wrap:anywhere]">{t(tour.title)}</p>
                   <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
                     <Clock className="size-3.5 shrink-0" />
-                    <span className="truncate">{t(tour.duration)}</span>
+                    <span className="min-w-0 leading-snug">{t(tour.duration)}</span>
                   </p>
                   <p className="mt-1.5 text-sm">
                     <span className="font-extrabold text-cyan-300">{formatTHB(tour.price)}</span>{" "}
@@ -336,7 +336,7 @@ function CustomBuilder({ draft, patch }: Omit<StepProps, "todayISO">) {
                         <span className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/40 to-transparent" />
                         <span className="absolute inset-x-2.5 bottom-2 block">
                           <span className="block text-sm font-bold leading-tight text-white">{isl.name}</span>
-                          <span className="mt-0.5 block truncate text-[11px] text-slate-300">
+                          <span className="mt-0.5 block text-[11px] leading-tight text-slate-300">
                             {t(isl.tag)} · {isl.minutes} {t({ de: "Min.", en: "min" })}
                           </span>
                         </span>
@@ -390,7 +390,7 @@ function CustomBuilder({ draft, patch }: Omit<StepProps, "todayISO">) {
                   className="flex items-center gap-2 rounded-xl bg-white/[0.05] py-1 pl-2 pr-1"
                 >
                   <span className="grid size-7 shrink-0 place-items-center rounded-full bg-si-cyan text-xs font-extrabold text-si-navy">{i + 1}</span>
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white">{names[i]}</span>
+                  <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-white [overflow-wrap:anywhere]">{names[i]}</span>
                   <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={t({ de: "Nach oben", en: "Move up" })} className="grid size-10 place-items-center rounded-lg text-slate-300 hover:bg-white/10 disabled:opacity-25">
                     <ArrowUp className="size-4" />
                   </button>

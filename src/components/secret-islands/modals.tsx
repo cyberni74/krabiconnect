@@ -304,7 +304,7 @@ export function Lightbox() {
           <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 size-[60vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-si-cyan/15 blur-[100px]" />
           <div className="relative flex items-center justify-between gap-3 p-3" style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}>
             <p className="si-glass flex min-w-0 items-center gap-2 rounded-full py-2 pl-4 pr-3 text-sm font-semibold text-white">
-              <span className="truncate">{item.title}</span>
+              <span className="min-w-0 leading-snug [overflow-wrap:anywhere]">{item.title}</span>
               <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-xs tabular-nums text-cyan-200">
                 {lb.index + 1}/{lb.items.length}
               </span>

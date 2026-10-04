@@ -104,7 +104,7 @@ function GuideHeader() {
         </Link>
         <Link
           to="/krabi-guide" search={keepLang}
-          className="flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-bold text-cyan-200 hover:bg-white/10"
+          className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-sm font-bold text-cyan-200 hover:bg-white/10 min-[360px]:px-3"
           activeOptions={{ exact: true }}
         >
           <BookOpen className="size-4" />
@@ -126,7 +126,7 @@ function GuideHeader() {
                 onClick={() => setLang(l)}
                 aria-pressed={shown === l}
                 className={cn(
-                  "grid h-9 min-w-10 place-items-center rounded-full px-2 text-xs font-extrabold uppercase transition",
+                  "grid h-11 min-w-11 place-items-center rounded-full px-2 text-xs font-extrabold uppercase transition",
                   shown === l ? "bg-white text-si-navy" : "text-white/70 hover:text-white",
                 )}
               >

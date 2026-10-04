@@ -69,10 +69,11 @@ function HubHero() {
           <ScrollScene from="tilt" intensity={0.5}>
             <GlassCard glow tilt className="overflow-hidden">
               <Link to="/krabi-guide/$slug" search={keepLang} params={{ slug: featured.slug }} className="group block">
-                <div className="relative aspect-[16/11] overflow-hidden">
-                  <GuideImage src={featured.image} alt={featured.h1[lang]} priority sizes="(min-width: 1024px) 50vw, 100vw" className="size-full object-cover transition duration-700 group-hover:scale-105" />
+                {/* No overflow-hidden here: the aspect-ratio box may grow when the text needs more room (narrow phones). */}
+                <div className="relative flex aspect-[16/11] flex-col justify-end">
+                  <GuideImage src={featured.image} alt={featured.h1[lang]} priority sizes="(min-width: 1024px) 50vw, 100vw" className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/30 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <div className="relative p-5 pt-16 sm:p-6 sm:pt-16">
                     <span className="mb-2 inline-flex rounded-full bg-si-gold px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-si-navy">
                       {t({ de: "Start hier", en: "Start here" })}
                     </span>

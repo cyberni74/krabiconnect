@@ -196,7 +196,7 @@ export function Tours() {
               type="button"
               tabIndex={-1}
               onClick={() => goTo(i)}
-              className="grid h-6 place-items-center px-0.5"
+              className="grid h-11 place-items-center px-0.5"
             >
               <span
                 className={cn(
@@ -231,7 +231,7 @@ function TourCard({ tour }: { tour: Tour }) {
         <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/20 to-transparent" />
         <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-2">
           {tour.badge ? (
-            <span className="truncate rounded-full bg-gradient-to-r from-si-gold to-amber-300 px-3 py-1 text-xs font-bold text-si-navy shadow-[0_6px_20px_-6px_rgb(245_158_11/0.9)]">
+            <span className="min-w-0 rounded-full bg-gradient-to-r from-si-gold to-amber-300 px-3 py-1 text-xs font-bold text-si-navy shadow-[0_6px_20px_-6px_rgb(245_158_11/0.9)]">
               {t(tour.badge)}
             </span>
           ) : (
@@ -276,16 +276,16 @@ function TourCard({ tour }: { tour: Tour }) {
           <button
             type="button"
             onClick={() => openTour(tour.id)}
-            className="h-12 min-w-0 truncate rounded-2xl bg-white/[0.07] px-2 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/15 active:scale-[0.98]"
+            className="min-h-12 min-w-0 rounded-2xl bg-white/[0.07] px-2 py-1 text-sm leading-tight font-bold text-white ring-1 ring-white/15 transition hover:bg-white/15 active:scale-[0.98]"
           >
             {t({ de: "Details", en: "Details" })}
           </button>
           <button
             type="button"
             onClick={() => openBooking({ tourId: tour.id })}
-            className="flex h-12 min-w-0 items-center justify-center gap-1 rounded-2xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-sm font-bold text-si-navy shadow-[0_8px_24px_-10px_rgb(6_182_212/0.9)] transition hover:brightness-110 active:scale-[0.98]"
+            className="flex min-h-12 min-w-0 items-center justify-center gap-1 rounded-2xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-sm font-bold text-si-navy shadow-[0_8px_24px_-10px_rgb(6_182_212/0.9)] transition hover:brightness-110 active:scale-[0.98]"
           >
-            <span className="truncate">{t({ de: "Buchen", en: "Book" })}</span>
+            <span className="min-w-0 leading-tight">{t({ de: "Buchen", en: "Book" })}</span>
             <ArrowRight className="size-4 shrink-0 transition group-hover:translate-x-0.5" />
           </button>
         </div>
@@ -482,14 +482,14 @@ function FishingCard({ tour }: { tour: Tour }) {
           <button
             type="button"
             onClick={() => openTour(tour.id)}
-            className="h-11 min-w-0 truncate rounded-xl bg-white/[0.07] px-2 text-xs font-bold text-white ring-1 ring-white/15 transition hover:bg-white/15 sm:text-sm"
+            className="min-h-12 min-w-0 rounded-xl bg-white/[0.07] px-2 py-1 text-xs leading-tight font-bold text-white ring-1 ring-white/15 transition hover:bg-white/15 sm:text-sm"
           >
             {t({ de: "Details", en: "Details" })}
           </button>
           <button
             type="button"
             onClick={() => openBooking({ tourId: tour.id })}
-            className="h-11 min-w-0 truncate rounded-xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-xs font-bold text-si-navy transition hover:brightness-110 sm:text-sm"
+            className="min-h-12 min-w-0 rounded-xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 py-1 text-xs leading-tight font-bold text-si-navy transition hover:brightness-110 sm:text-sm"
           >
             {t({ de: "Buchen", en: "Book" })}
           </button>
@@ -566,7 +566,7 @@ export function DroneFeature() {
                     <span className="absolute left-3 top-9 flex items-center gap-1 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
                       <span className="size-1.5 animate-pulse rounded-full bg-red-500" /> REEL · 4K
                     </span>
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-left text-xs font-bold text-white">
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 px-3 py-4 text-left text-[11px] font-bold text-white [overflow-wrap:anywhere] min-[360px]:p-4 min-[360px]:text-xs">
                       @krabisecretislands
                     </span>
                     <span className="absolute left-1/2 top-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/25 text-white backdrop-blur-md">
@@ -687,7 +687,7 @@ export function Gallery() {
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-si-navy/80 via-transparent to-transparent" />
                 <span className="si-glass absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-2xl px-2.5 py-1.5 sm:px-3 sm:py-2 text-left transition group-hover:bg-white/15">
-                  <span className="line-clamp-2 min-w-0 flex-1 text-[11px] font-semibold leading-snug text-white sm:text-sm">{t(g.title)}</span>
+                  <span className="min-w-0 flex-1 text-[11px] font-semibold leading-snug text-white [overflow-wrap:anywhere] sm:text-sm">{t(g.title)}</span>
                   <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/20 text-white">
                     {g.video ? <Play className="ml-0.5 size-3 fill-current" /> : <Expand className="size-3" />}
                   </span>

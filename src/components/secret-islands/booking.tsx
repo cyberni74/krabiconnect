@@ -179,7 +179,7 @@ function Wizard({
                   ? t({ de: "Fertig", en: "Done" })
                   : `${step + 1} / 5`}
               </p>
-              <h2 className="truncate text-xl font-extrabold sm:text-2xl">
+              <h2 className="text-balance text-xl font-extrabold leading-tight sm:text-2xl">
                 {sent ? t({ de: "Anfrage vorbereitet", en: "Request prepared" }) : t(STEP_LABELS[step])}
               </h2>
             </div>
@@ -425,7 +425,7 @@ function SummaryPanel({ draft }: { draft: Draft }) {
         >
           <div className="flex items-center gap-3 p-2">
             <SmartImage src={tour?.image ?? ISLANDS[0].image} alt="" className="size-12 shrink-0 rounded-xl object-cover" />
-            <p className="line-clamp-2 text-sm font-bold leading-snug text-white">
+            <p className="text-sm font-bold leading-snug text-white [overflow-wrap:anywhere]">
               {tour ? t(tour.title) : draft.mode === "custom" ? `${t({ de: "Eigene Tour", en: "Custom tour" })} · ${t(dur.label)}` : t({ de: "Noch keine Tour gewählt", en: "No tour chosen yet" })}
             </p>
           </div>

@@ -68,7 +68,7 @@ export function Header() {
       >
         <a href="#top" className="flex min-w-0 items-center gap-2 pl-1 text-white" aria-label={BRAND.name}>
           <BrandMark className={cn("transition-all duration-500", scrolled ? "size-9" : "size-10")} />
-          <span className="truncate text-[14px] font-extrabold leading-none tracking-tight sm:text-base">
+          <span className="min-w-0 text-[13px] font-extrabold leading-[1.1] tracking-tight min-[360px]:text-[14px] sm:text-base">
             Krabi <span className="si-text-gradient">Secret</span> Islands
           </span>
         </a>
@@ -208,18 +208,18 @@ export function BottomBar() {
           href={waLink(waText)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-12 min-w-0 items-center justify-center gap-1 rounded-2xl bg-si-wa/90 px-2 text-[14px] font-bold text-white active:scale-[0.98]"
+          className="flex h-12 min-w-0 items-center justify-center gap-1 rounded-2xl bg-si-wa/90 px-2 text-[13px] font-bold text-white active:scale-[0.98] min-[360px]:text-[14px]"
         >
           <WhatsAppIcon className="size-5 shrink-0" />
-          <span className="truncate">{t(UI.ctaWhatsapp)}</span>
+          <span className="min-w-0 text-center leading-tight">{t(UI.ctaWhatsapp)}</span>
         </a>
         <button
           type="button"
           onClick={() => openBooking()}
-          className="flex h-12 min-w-0 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-[14px] font-bold text-si-navy shadow-[0_8px_24px_-8px_rgb(6_182_212/0.9)] active:scale-[0.98]"
+          className="flex h-12 min-w-0 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-si-cyan to-cyan-300 px-2 text-[13px] font-bold text-si-navy min-[360px]:text-[14px] shadow-[0_8px_24px_-8px_rgb(6_182_212/0.9)] active:scale-[0.98]"
         >
           <Sparkles className="size-4 shrink-0" />
-          <span className="truncate">{t(BOOK)}</span>
+          <span className="min-w-0 text-center leading-tight">{t(BOOK)}</span>
         </button>
       </div>
     </div>
@@ -292,10 +292,10 @@ export function Hero() {
                 <span className="absolute inset-0 animate-ping rounded-full bg-si-gold/70" />
                 <span className="relative size-2 rounded-full bg-si-gold" />
               </span>
-              <span className="truncate">{t(UI.heroBadge)}</span>
+              <span className="min-w-0 leading-snug">{t(UI.heroBadge)}</span>
             </motion.div>
 
-            <h1 className="max-w-4xl text-[2.4rem] font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="max-w-4xl text-[clamp(2rem,10.4vw,2.4rem)] font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-7xl">
               <SplitReveal text={t(UI.heroTitleA)} delay={0.05} />
               <br />
 <SplitReveal text={t(UI.heroTitleB)} delay={0.15} wordClassName="si-text-gradient pb-[0.08em]" />
@@ -545,7 +545,7 @@ function CompareCard({ item }: { item: (typeof COMPARISON)[number] }) {
       )}
     >
       {item.good ? (
-        <span className="absolute -top-3 left-6 rounded-full bg-gradient-to-r from-si-gold to-amber-300 px-3 py-1 text-xs font-bold text-si-navy shadow-[0_6px_20px_-6px_rgb(245_158_11/0.9)]">
+        <span className="mb-4 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-r from-si-gold to-amber-300 px-3 py-1 text-xs font-bold text-si-navy shadow-[0_6px_20px_-6px_rgb(245_158_11/0.9)]">
           ★ {t({ de: "Empfohlen", en: "Recommended" })}
         </span>
       ) : null}
