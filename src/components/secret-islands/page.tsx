@@ -3,7 +3,7 @@ import { BookingModal } from "./booking";
 import { AuroraBackground, ScrollProgress } from "./fx";
 import { ArticleModal, Lightbox, TourModal } from "./modals";
 import { Faq, FinalCta, Footer, Guide, Reviews } from "./sections-bottom";
-import { DroneFeature, Gallery, Tours } from "./sections-mid";
+import { DroneFeature, FishingSection, Gallery, Tours } from "./sections-mid";
 import { BottomBar, Comparison, Header, Hero } from "./sections-top";
 import { LANGS } from "./content";
 import { detectLang, useSI } from "./store";
@@ -29,6 +29,7 @@ export function SecretIslandsPage() {
         <Hero />
         <Comparison />
         <Tours />
+        <FishingSection />
         <DroneFeature />
         <Gallery />
         <Guide />
