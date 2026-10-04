@@ -1,9 +1,11 @@
 // Lists every visitor-facing source string ({ de, en }) of the Secret Islands page.
-// Run: node --experimental-strip-types src/components/secret-islands/i18n/extract.ts [--missing]
+// Run: node --import ./src/components/secret-islands/i18n/ts-resolve.mjs --experimental-strip-types src/components/secret-islands/i18n/extract.ts [--missing]
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as bookingData from "../booking-data.ts";
 import * as content from "../content.ts";
+import * as longtail from "../longtail-faq.ts";
 import ja from "./ja.ts";
 import ko from "./ko.ts";
 import zh from "./zh.ts";
@@ -20,6 +22,8 @@ function walk(v: unknown) {
   Object.values(o).forEach(walk);
 }
 walk(Object.values(content));
+walk(Object.values(bookingData));
+walk(Object.values(longtail));
 
 // Inline t({ de, en }) literals in components (operator-only tOp(...) texts are skipped).
 const dir = join(dirname(fileURLToPath(import.meta.url)), "..");
