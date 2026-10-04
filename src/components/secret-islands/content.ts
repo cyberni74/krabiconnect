@@ -24,6 +24,15 @@ export const BRAND = {
 export const LOGO_URL =
   "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_044905_49752f2a-c380-4b9a-a061-294ac851b827.png";
 
+/** Higgsfield illustration: overcrowded longtail boat (used in the Longtail-vs-Speedboat story). Move to /public/images/ for production. */
+export const LONGTAIL_CROWD_IMG = {
+  src: "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_051122_eda16af9-06c0-4627-ba34-f2df5c945e33_min.webp",
+  alt: {
+    de: "Überfülltes Longtail-Boot in Krabi: genervtes Paar auf harten Holzbänken zwischen fremden Touristen und quengelnden Kindern",
+    en: "Overcrowded longtail boat in Krabi: annoyed couple on hard wooden benches between strangers and whining children",
+  },
+};
+
 const u = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;
 

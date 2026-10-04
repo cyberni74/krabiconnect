@@ -65,8 +65,8 @@ export const LONGTAIL_INTRO: {
       {
         time: "11:15",
         text: {
-          de: "„Noch 20 Minuten!“ Der feste Zeitplan treibt alle zurück ins Boot. Gehetzt weiter.",
-          en: "“20 more minutes!” The fixed schedule herds everyone back on board. Rushed onward.",
+          de: "Kaum geschnorchelt, schon ruft der Guide zurück ins Boot. Der feste Zeitplan treibt alle gehetzt weiter.",
+          en: "Barely in the water with your mask, the guide calls everyone back. The fixed schedule rushes everyone onward.",
         },
       },
     ],
@@ -105,8 +105,8 @@ export const LONGTAIL_INTRO: {
       {
         time: "∞",
         text: {
-          de: "Wie lange Sie bleiben, entscheiden Sie. Nur Ihre Gruppe, max. 5 Gäste, Ihr Tempo.",
-          en: "You decide how long you stay. Only your group, max. 5 guests, your pace.",
+          de: "Schnorcheln, Schwimmen & Entspannen, so lange Sie möchten. Nur Ihre Gruppe, max. 5 Gäste.",
+          en: "Snorkel, swim & relax as long as you like. Only your group, max. 5 guests.",
         },
       },
     ],
@@ -260,6 +260,36 @@ export const LONGTAIL_FAQ: LongtailFaqItem[] = [
         us: { de: "Sie bleiben, solange es Ihnen gefällt", en: "You stay as long as you like" },
       },
     ],
+  },
+  {
+    id: "snorkel-swim-relax",
+    emoji: "🤿",
+    q: {
+      de: "Wie viel Zeit bleibt wirklich zum Schnorcheln, Schwimmen und Entspannen?",
+      en: "How much time is really left for snorkelling, swimming and relaxing?",
+    },
+    story: {
+      de: "Genau dafür fahren Sie raus – und genau das kommt auf Gruppentouren oft zu kurz. Kaum ist die Maske auf, ruft schon jemand zurück ins Boot; es bleiben oft nur kurze Stopps. Bei uns gibt es keinen Pfiff und keine Uhr. Sie schnorcheln über bunten Korallen, solange Sie Lust haben, schwimmen von einer leeren Bucht zur nächsten und dösen danach auf gepolsterten Liegeflächen im Schatten, während das Boot sanft schaukelt.",
+      en: "That's exactly why you go out on the water – and exactly what group tours often cut short. Your mask is barely on before someone calls everyone back to the boat; there are often only short stops. With us there's no whistle and no clock. You snorkel over colourful coral for as long as you like, swim from one empty bay to the next and then doze on cushioned sun pads in the shade while the boat gently rocks.",
+    },
+    rows: [
+      {
+        them: { de: "Oft nur kurze, gehetzte Stopps", en: "Often only short, rushed stops" },
+        us: { de: "Schnorcheln, Schwimmen & Entspannen, so lange Sie möchten", en: "Snorkel, swim & relax as long as you like" },
+      },
+      {
+        them: { de: "Ausrüstung gegen Aufpreis oder in falscher Größe", en: "Gear at extra cost or in the wrong size" },
+        us: { de: "Schnorchel-Ausrüstung für Erwachsene & Kinder inklusive", en: "Snorkel gear for adults & kids included" },
+      },
+      {
+        them: { de: "Volle Strände, kein ruhiger Platz zum Abschalten", en: "Crowded beaches, no quiet place to switch off" },
+        us: { de: "Einsame Strände & schattige Liegeflächen an Bord", en: "Lonely beaches & shaded sun pads on board" },
+      },
+    ],
+    insider: {
+      de: "Unser Lieblingsmoment: der zweite Schnorchelgang in derselben Bucht – wenn die anderen Boote längst weg sind und die Fische zurückkommen.",
+      en: "Our favourite moment: the second snorkel in the same bay – when the other boats are long gone and the fish come back.",
+    },
   },
   {
     id: "timing",

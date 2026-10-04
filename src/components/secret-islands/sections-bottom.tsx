@@ -17,6 +17,7 @@ import {
   Sparkles,
   Star,
   Wand2,
+  Waves,
   X,
   Zap,
 } from "lucide-react";
@@ -668,6 +669,7 @@ export function FinalCta() {
     { icon: BadgeCheck, label: t({ de: "TAT-Lizenz", en: "TAT licence" }), tone: "text-si-gold" },
     { icon: ShieldCheck, label: t({ de: "Marine Department geprüft", en: "Marine Department certified" }), tone: "text-cyan-200" },
     { icon: RefreshCcw, label: t({ de: "Kostenlose Umbuchung", en: "Free rebooking" }), tone: "text-emerald-300" },
+    { icon: Waves, label: t({ de: "Schnorchel-Ausrüstung inklusive", en: "Snorkel gear included" }), tone: "text-sky-300" },
     { icon: Zap, label: t({ de: "Antwort < 30 Min.", en: "Reply < 30 min" }), tone: "text-amber-200" },
   ];
   return (
@@ -685,7 +687,13 @@ export function FinalCta() {
             <h2 className="si-text-gradient relative mx-auto mt-5 max-w-3xl text-[2.2rem] font-black leading-[1.05] tracking-tight sm:text-6xl">
               <SplitReveal text={t(UI.finalTitle)} />
             </h2>
-            <p className="relative mx-auto mt-5 max-w-xl text-base text-slate-300 sm:text-lg">{t(UI.finalSub)}</p>
+            <p className="relative mx-auto mt-5 max-w-xl text-base text-slate-300 sm:text-lg">
+              {t({
+                de: "Schnorcheln, Schwimmen & Entspannen an einsamen Stränden – so lange Sie möchten, nur mit Ihrer Gruppe.",
+                en: "Snorkel, swim & relax on lonely beaches – as long as you like, just with your group.",
+              })}{" "}
+              {t(UI.finalSub)}
+            </p>
 
             <div className="relative mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <Magnetic className="sm:w-auto">
@@ -708,9 +716,9 @@ export function FinalCta() {
               </a>
             </div>
 
-            <Assemble className="relative mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-2.5 sm:grid-cols-4" stagger={0.1}>
+            <Assemble className="relative mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5" stagger={0.1}>
               {trust.map(({ icon: Icon, label, tone }) => (
-                <AssembleItem key={label} variant="scale">
+                <AssembleItem key={label} variant="scale" className="last:col-span-2 sm:last:col-span-1">
                   <div className="si-glass flex h-full items-center gap-2 rounded-2xl px-3 py-3 text-left text-xs font-bold text-slate-200 sm:flex-col sm:text-center">
                     <Icon className={cn("size-5 shrink-0", tone)} />
                     {label}
