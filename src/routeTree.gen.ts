@@ -16,6 +16,7 @@ import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as SecretIslandsRouteImport } from './routes/secret-islands'
 import { Route as ApiAgentRouteImport } from './routes/api/agent'
 import { Route as ApiImgRouteImport } from './routes/api/img'
 import { Route as ChatsIdRouteImport } from './routes/chats.$id'
@@ -26,9 +27,9 @@ import { Route as ApiAgentRehostRouteImport } from './routes/api/agent.rehost'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiImgSplatRouteImport } from './routes/api/img.$'
 import { Route as ApiAgentListingsIdRouteImport } from './routes/api/agent.listings.$id'
-import { Route as ApiAgentListingsIdTranslateSeedRouteImport } from './routes/api/agent.listings.$id.translate-seed'
 import { Route as ApiAgentListingsRehostBackfillRouteImport } from './routes/api/agent.listings.rehost-backfill'
 import { Route as ApiAgentListingsRehostImageRouteImport } from './routes/api/agent.listings.rehost-image'
+import { Route as ApiAgentListingsIdTranslateSeedRouteImport } from './routes/api/agent.listings.$id.translate-seed'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +64,11 @@ const LoginRoute = LoginRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecretIslandsRoute = SecretIslandsRouteImport.update({
+  id: '/secret-islands',
+  path: '/secret-islands',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgentRoute = ApiAgentRouteImport.update({
@@ -115,12 +121,6 @@ const ApiAgentListingsIdRoute = ApiAgentListingsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAgentListingsRoute,
 } as any)
-const ApiAgentListingsIdTranslateSeedRoute =
-  ApiAgentListingsIdTranslateSeedRouteImport.update({
-    id: '/translate-seed',
-    path: '/translate-seed',
-    getParentRoute: () => ApiAgentListingsIdRoute,
-  } as any)
 const ApiAgentListingsRehostBackfillRoute =
   ApiAgentListingsRehostBackfillRouteImport.update({
     id: '/rehost-backfill',
@@ -133,6 +133,12 @@ const ApiAgentListingsRehostImageRoute =
     path: '/rehost-image',
     getParentRoute: () => ApiAgentListingsRoute,
   } as any)
+const ApiAgentListingsIdTranslateSeedRoute =
+  ApiAgentListingsIdTranslateSeedRouteImport.update({
+    id: '/translate-seed',
+    path: '/translate-seed',
+    getParentRoute: () => ApiAgentListingsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
+  '/secret-islands': typeof SecretIslandsRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
   '/chats/$id': typeof ChatsIdRoute
@@ -152,9 +159,9 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$': typeof ApiImgSplatRoute
   '/api/agent/listings/$id': typeof ApiAgentListingsIdRouteWithChildren
-  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
   '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
   '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
+  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
+  '/secret-islands': typeof SecretIslandsRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
   '/chats/$id': typeof ChatsIdRoute
@@ -174,9 +182,9 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$': typeof ApiImgSplatRoute
   '/api/agent/listings/$id': typeof ApiAgentListingsIdRouteWithChildren
-  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
   '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
   '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
+  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
+  '/secret-islands': typeof SecretIslandsRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
   '/chats/$id': typeof ChatsIdRoute
@@ -197,9 +206,9 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$': typeof ApiImgSplatRoute
   '/api/agent/listings/$id': typeof ApiAgentListingsIdRouteWithChildren
-  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
   '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
   '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
+  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/search'
+    | '/secret-islands'
     | '/api/agent'
     | '/api/img'
     | '/chats/$id'
@@ -221,9 +231,9 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/img/$'
     | '/api/agent/listings/$id'
-    | '/api/agent/listings/$id/translate-seed'
     | '/api/agent/listings/rehost-backfill'
     | '/api/agent/listings/rehost-image'
+    | '/api/agent/listings/$id/translate-seed'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/search'
+    | '/secret-islands'
     | '/api/agent'
     | '/api/img'
     | '/chats/$id'
@@ -243,9 +254,9 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/img/$'
     | '/api/agent/listings/$id'
-    | '/api/agent/listings/$id/translate-seed'
     | '/api/agent/listings/rehost-backfill'
     | '/api/agent/listings/rehost-image'
+    | '/api/agent/listings/$id/translate-seed'
   id:
     | '__root__'
     | '/'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/search'
+    | '/secret-islands'
     | '/api/agent'
     | '/api/img'
     | '/chats/$id'
@@ -265,9 +277,9 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/img/$'
     | '/api/agent/listings/$id'
-    | '/api/agent/listings/$id/translate-seed'
     | '/api/agent/listings/rehost-backfill'
     | '/api/agent/listings/rehost-image'
+    | '/api/agent/listings/$id/translate-seed'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -278,6 +290,7 @@ export interface RootRouteChildren {
   CreateRoute: typeof CreateRoute
   LoginRoute: typeof LoginRoute
   SearchRoute: typeof SearchRoute
+  SecretIslandsRoute: typeof SecretIslandsRoute
   ApiAgentRoute: typeof ApiAgentRouteWithChildren
   ApiImgRoute: typeof ApiImgRouteWithChildren
   ItemIdRoute: typeof ItemIdRoute
@@ -334,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secret-islands': {
+      id: '/secret-islands'
+      path: '/secret-islands'
+      fullPath: '/secret-islands'
+      preLoaderRoute: typeof SecretIslandsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agent': {
@@ -406,13 +426,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentListingsIdRouteImport
       parentRoute: typeof ApiAgentListingsRoute
     }
-    '/api/agent/listings/$id/translate-seed': {
-      id: '/api/agent/listings/$id/translate-seed'
-      path: '/translate-seed'
-      fullPath: '/api/agent/listings/$id/translate-seed'
-      preLoaderRoute: typeof ApiAgentListingsIdTranslateSeedRouteImport
-      parentRoute: typeof ApiAgentListingsIdRoute
-    }
     '/api/agent/listings/rehost-backfill': {
       id: '/api/agent/listings/rehost-backfill'
       path: '/rehost-backfill'
@@ -426,6 +439,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/agent/listings/rehost-image'
       preLoaderRoute: typeof ApiAgentListingsRehostImageRouteImport
       parentRoute: typeof ApiAgentListingsRoute
+    }
+    '/api/agent/listings/$id/translate-seed': {
+      id: '/api/agent/listings/$id/translate-seed'
+      path: '/translate-seed'
+      fullPath: '/api/agent/listings/$id/translate-seed'
+      preLoaderRoute: typeof ApiAgentListingsIdTranslateSeedRouteImport
+      parentRoute: typeof ApiAgentListingsIdRoute
     }
   }
 }
@@ -499,6 +519,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreateRoute: CreateRoute,
   LoginRoute: LoginRoute,
   SearchRoute: SearchRoute,
+  SecretIslandsRoute: SecretIslandsRoute,
   ApiAgentRoute: ApiAgentRouteWithChildren,
   ApiImgRoute: ApiImgRouteWithChildren,
   ItemIdRoute: ItemIdRoute,
