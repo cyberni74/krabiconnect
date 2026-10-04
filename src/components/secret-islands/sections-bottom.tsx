@@ -34,6 +34,18 @@ import { BrandMark, SmartImage, WhatsAppIcon } from "./ui";
 
 /* ───────────────────────── Guide (blog / SEO) ───────────────────────── */
 
+/** Guide articles linked directly from the landing page (pillar pages + core USP islands). */
+const GUIDE_TOP_LINKS = [
+  "krabi-islands-insider-guide",
+  "best-time-to-visit-krabi",
+  "krabi-island-hopping-planner",
+  "koh-roi-hidden-lagoon",
+  "hong-island-krabi",
+  "best-snorkeling-spots-krabi",
+  "krabi-bioluminescent-plankton-night-boat-tour",
+  "krabi-fishing-guide",
+];
+
 export function Guide() {
   const { t, tl, lang } = useTx();
   const openArticle = useSI((s) => s.openArticle);
@@ -155,6 +167,28 @@ export function Guide() {
               <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </span>
           </Link>
+          {/* Crawlable deep links into the guide (internal linking from the landing page). */}
+          <nav aria-label={t({ de: "Beliebte Artikel im Insider Guide", en: "Popular Insider Guide articles" })} className="mt-4">
+            <ul className="flex flex-wrap gap-2">
+              {GUIDE_TOP_LINKS.map((slug) => {
+                const a = GUIDE_ARTICLES.find((x) => x.slug === slug);
+                if (!a) return null;
+                return (
+                  <li key={slug}>
+                    <Link
+                      to="/krabi-guide/$slug"
+                      params={{ slug }}
+                      search={keepLang}
+                      className="si-glass inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-semibold text-slate-200 transition hover:text-white"
+                    >
+                      {a.short[lang === "de" ? "de" : "en"]}
+                      <ArrowUpRight className="size-3.5 text-cyan-300" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
         </ScrollScene>
       </div>
     </section>

@@ -69,7 +69,8 @@ function ArticleView({ article }: { article: GuideArticle }) {
             <GuideImage
               src={article.image}
               alt={article.h1[lang]}
-              eager
+              priority
+              sizes="(min-width: 1152px) 1152px, 100vw"
               className="aspect-[4/3] w-full object-cover sm:aspect-[21/9]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/40 to-transparent" />

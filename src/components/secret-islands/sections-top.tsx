@@ -267,8 +267,8 @@ export function Hero() {
     );
 
   const stats = [
-    { node: <CountUp to={4.9} decimals={1} />, icon: <Star className="size-4 fill-si-gold text-si-gold" />, label: UI.stats[0].l },
-    { node: <CountUp to={1200} suffix="+" />, icon: <Sailboat className="size-4 text-cyan-300" />, label: UI.stats[1].l },
+    { node: <CountUp to={100} suffix=" %" />, icon: <Star className="size-4 fill-si-gold text-si-gold" />, label: UI.stats[0].l },
+    { node: <><CountUp to={2} />{" × 300"}</>, icon: <Sailboat className="size-4 text-cyan-300" />, label: UI.stats[1].l },
     { node: <CountUp to={5} />, icon: <Users className="size-4 text-cyan-300" />, label: UI.stats[2].l },
   ];
 
@@ -276,7 +276,7 @@ export function Hero() {
     <>
       <section ref={ref} id="top" className="relative isolate flex min-h-[100svh] items-end overflow-hidden">
         <motion.div style={{ y: bgY, scale: bgScale }} className="si-fallback absolute inset-0 -z-20 will-change-transform">
-          <SmartImage src={IMG.hero} alt="" eager className="absolute inset-0 size-full object-cover" />
+          <SmartImage src={IMG.hero} alt="" priority className="absolute inset-0 size-full object-cover" />
           {videoOk ? (
             <video
               className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-1000"
@@ -300,7 +300,7 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, y: 12, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.05 }}
               className="si-glass mb-5 inline-flex max-w-full items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold text-amber-200 sm:text-sm"
             >
               <span className="relative flex size-2 shrink-0">
@@ -311,15 +311,15 @@ export function Hero() {
             </motion.div>
 
             <h1 className="max-w-4xl text-[2.4rem] font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-7xl">
-              <SplitReveal text={t(UI.heroTitleA)} delay={0.25} />
+              <SplitReveal text={t(UI.heroTitleA)} delay={0.05} />
               <br />
-<SplitReveal text={t(UI.heroTitleB)} delay={0.45} wordClassName="si-text-gradient pb-[0.08em]" />
+<SplitReveal text={t(UI.heroTitleB)} delay={0.15} wordClassName="si-text-gradient pb-[0.08em]" />
             </h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.7 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
               className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg"
             >
               {t(UI.heroSub)}
@@ -328,7 +328,7 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.85 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
               className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
             >
               <Magnetic className="w-full sm:w-auto">
@@ -357,7 +357,7 @@ export function Hero() {
             <motion.ul
               initial="hidden"
               animate="show"
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 1 } } }}
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 0.5 } } }}
               className="mt-7 flex flex-wrap gap-2"
             >
               {UI.pills.map((p) => (
@@ -383,7 +383,7 @@ export function Hero() {
                 key={s.label.de}
                 initial={{ opacity: 0, y: 30, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.8, delay: 1.1 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.8, delay: 0.5 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
                 className={cn(i === 1 && "lg:-translate-x-10")}
               >
                 <motion.div

@@ -70,7 +70,7 @@ function HubHero() {
             <GlassCard glow tilt className="overflow-hidden">
               <Link to="/krabi-guide/$slug" search={keepLang} params={{ slug: featured.slug }} className="group block">
                 <div className="relative aspect-[16/11] overflow-hidden">
-                  <GuideImage src={featured.image} alt={featured.h1[lang]} eager className="size-full object-cover transition duration-700 group-hover:scale-105" />
+                  <GuideImage src={featured.image} alt={featured.h1[lang]} priority sizes="(min-width: 1024px) 50vw, 100vw" className="size-full object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/30 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                     <span className="mb-2 inline-flex rounded-full bg-si-gold px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-si-navy">

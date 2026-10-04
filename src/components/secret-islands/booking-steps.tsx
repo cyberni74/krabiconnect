@@ -577,7 +577,7 @@ export function DateStep({ draft, patch, todayISO }: StepProps) {
         {draft.date ? (
           <div className="grid gap-2.5">
             {slots.map((sid, i) => {
-              const s = slotInfo(sid);
+              const s = slotInfo(sid, draft);
               const st = slotStatus(draft.date!, sid, todayISO);
               const on = draft.slot === sid;
               const disabled = st === "booked";
@@ -667,6 +667,7 @@ function AddOnGrid({
             key={item.id}
             item={item}
             guests={draft.guests}
+            kids={draft.kids}
             on={selected.includes(item.id)}
             onToggle={() => onToggle(item.id)}
             recommended={rec ? t(rec) : null}
@@ -750,7 +751,7 @@ export function GuestsStep({ draft, patch }: StepProps) {
         <SectionHead
           title={t({ de: "Verpflegung", en: "Food" })}
           sub={t({ de: "Mit einem Klick dazubuchen", en: "Add with one click" })}
-          right={<Subtotal value={addOnTotal(FOOD, draft.food, draft.guests)} />}
+          right={<Subtotal value={addOnTotal(FOOD, draft.food, draft.guests, draft.kids)} />}
         />
         <CateringHero draft={draft} patch={patch} />
         <div className="mt-3 flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
@@ -773,7 +774,7 @@ export function GuestsStep({ draft, patch }: StepProps) {
         <SectionHead
           title={t({ de: "Getränke", en: "Drinks" })}
           sub={t({ de: "Mehrfachauswahl möglich", en: "Choose as many as you like" })}
-          right={<Subtotal value={addOnTotal(DRINKS, draft.drinks, draft.guests)} />}
+          right={<Subtotal value={addOnTotal(DRINKS, draft.drinks, draft.guests, draft.kids)} />}
         />
         <AddOnGrid items={DRINKS} selected={draft.drinks} draft={draft} onToggle={(id) => patch((d) => ({ drinks: toggleIn(d.drinks, id) }))} />
       </section>
@@ -818,7 +819,7 @@ function CateringHero({ draft, patch }: Pick<StepProps, "draft" | "patch">) {
             +{formatTHB(c.price)} {t({ de: "p. P.", en: "p.p." })}
           </span>
           <span className="block text-xs text-slate-400">
-            {draft.guests} × {formatTHB(c.price)} = {formatTHB(itemAmount(c, draft.guests))}
+            {draft.guests} × {formatTHB(c.price)} = {formatTHB(itemAmount(c, draft.guests, draft.kids))}
           </span>
         </span>
         <span
@@ -841,7 +842,7 @@ export function ExtrasStep({ draft, patch }: StepProps) {
       <SectionHead
         title={t({ de: "Machen Sie den Tag unvergesslich", en: "Make the day unforgettable" })}
         sub={t({ de: "Alle Extras sind optional und pro Boot berechnet.", en: "All extras are optional and priced per boat." })}
-        right={<Subtotal value={addOnTotal(BOOKING_EXTRAS, draft.extras, draft.guests)} />}
+        right={<Subtotal value={addOnTotal(BOOKING_EXTRAS, draft.extras, draft.guests, draft.kids)} />}
       />
       <AddOnGrid items={BOOKING_EXTRAS} selected={draft.extras} draft={draft} onToggle={(id) => patch((d) => ({ extras: toggleIn(d.extras, id) }))} />
       <div className="mt-5 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
@@ -892,17 +893,6 @@ export function ContactStep({
         <Field label={t({ de: "Hotel (optional)", en: "Hotel (optional)" })} hint={t({ de: "Für die kostenlose Abholung", en: "For the free pick-up" })}>
           <input className={inputCls} value={draft.hotel} onChange={(ev) => patch({ hotel: ev.target.value })} placeholder={t({ de: "z. B. Centara Ao Nang", en: "e.g. Centara Ao Nang" })} />
         </Field>
-        <div>
-          <p className="mb-2 text-sm font-semibold text-slate-200">{t({ de: "Besonderer Anlass? (optional)", en: "Special occasion? (optional)" })}</p>
-          <div className="flex flex-wrap gap-2">
-            {OCCASIONS.map((o) => (
-              <Chip key={o.id} active={draft.occasion === o.id} onClick={() => patch((d) => ({ occasion: d.occasion === o.id ? null : o.id }))}>
-                <span aria-hidden>{o.emoji}</span>
-                {t(o.label)}
-              </Chip>
-            ))}
-          </div>
-        </div>
         <Field label={t({ de: "Wünsche & Fragen", en: "Wishes & questions" })}>
           <textarea
             className={cn(inputCls, "min-h-28 resize-y py-3")}
@@ -955,7 +945,7 @@ export function Receipt({ draft }: { draft: Draft }) {
   const price = priceBreakdown(draft);
   const dur = durationOf(draft.duration);
   const locale = htmlLang(lang);
-  const slot = draft.slot ? slotInfo(draft.slot) : null;
+  const slot = draft.slot ? slotInfo(draft.slot, draft) : null;
   const dateStr = draft.date
     ? new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "long", year: "numeric" }).format(new Date(`${draft.date}T12:00:00`))
     : null;
@@ -968,13 +958,13 @@ export function Receipt({ draft }: { draft: Draft }) {
           <span className="min-w-0 text-slate-300">
             <span aria-hidden>{i.emoji} </span>
             {t(i.label)}
-            {i.per === "person" ? (
+            {i.per !== "boat" ? (
               <span className="block text-xs text-slate-500">
-                {draft.guests} × {formatTHB(i.price)}
+                {i.per === "child" ? draft.kids : draft.guests} × {formatTHB(i.price)}
               </span>
             ) : null}
           </span>
-          <span className="shrink-0 font-semibold tabular-nums text-white">{formatTHB(itemAmount(i, draft.guests))}</span>
+          <span className="shrink-0 font-semibold tabular-nums text-white">{formatTHB(itemAmount(i, draft.guests, draft.kids))}</span>
         </li>
       ));
 

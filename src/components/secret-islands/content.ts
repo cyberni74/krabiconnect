@@ -99,8 +99,8 @@ export const UI = {
     { de: "Schnorcheln, Schwimmen & Relaxen", en: "Snorkel, swim & relax" },
   ],
   stats: [
-    { v: "4.9", l: { de: "Ø Bewertung", en: "Avg. rating" } },
-    { v: "1.200+", l: { de: "Private Touren", en: "Private tours" } },
+    { v: "100 %", l: { de: "Privat – nur Ihre Gruppe", en: "Private – just your group" } },
+    { v: "2 × 300", l: { de: "PS Doppelmotor", en: "HP twin engines" } },
     { v: "5", l: { de: "Gäste max.", en: "Guests max." } },
   ],
   compareEyebrow: { de: "Der Unterschied", en: "The difference" },
@@ -158,12 +158,13 @@ export const UI = {
     en: "Usually answered within 30 minutes. Free, no-obligation request.",
   },
   footerTagline: {
-    de: "Private Speedboat-Charter für max. 5 Gäste. Abseits der Massen, seit 2016.",
-    en: "Private speedboat charter for max. 5 guests. Away from the crowds, since 2016.",
+    de: "Private Speedboat-Charter für max. 5 Gäste. Abseits der Massen.",
+    en: "Private speedboat charter for max. 5 guests. Away from the crowds.",
   },
   imprint: { de: "Impressum", en: "Imprint" },
   privacy: { de: "Datenschutz", en: "Privacy policy" },
-  tat: { de: "TAT Lizenz Nr. 34/01234", en: "TAT License No. 34/01234" },
+  // TODO(owner): add the real TAT licence number, e.g. "TAT-Lizenz Nr. …".
+  tat: { de: "TAT-lizenzierter Veranstalter", en: "TAT-licensed operator" },
   marine: { de: "Marine Department geprüft", en: "Marine Department certified" },
   contact: { de: "Kontakt", en: "Contact" },
   legalNote: {
@@ -257,6 +258,12 @@ export type Tour = {
   hours: number;
   duration: L;
   slots: SlotId[];
+  /** Tour-specific departure time per slot (overrides the generic SLOTS time). */
+  departures?: Partial<Record<SlotId, string>>;
+  /** Tour already includes a meal → no catering upsell. */
+  includesMeal?: boolean;
+  /** Tour already includes sparkling wine/champagne → no Sekt upsell. */
+  includesBubbly?: boolean;
   badge?: L;
   stops: string[];
   description: L;
@@ -287,7 +294,9 @@ export const TOURS: Tour[] = [
     price: 18500,
     hours: 6,
     duration: { de: "6 Std. · ab 13:00", en: "6 hrs · from 1 pm" },
-    slots: ["midday", "sunset"],
+    slots: ["midday"],
+    departures: { midday: "13:00" },
+    includesBubbly: true,
     badge: { de: "Bestseller", en: "Bestseller" },
     stops: ["Koh Poda", "Chicken Island", "Tup Sandbank", "Phra Nang Cave"],
     description: {
@@ -310,6 +319,7 @@ export const TOURS: Tour[] = [
     hours: 4,
     duration: { de: "4 Std. · ab 18:00", en: "4 hrs · from 6 pm" },
     slots: ["night"],
+    departures: { night: "18:00" },
     badge: { de: "Magisch", en: "Magical" },
     stops: ["Ao Nang Bay", "Dunkle Bucht bei Koh Poda", "Koh Hong (Krabi)"],
     description: {
@@ -339,6 +349,8 @@ export const TOURS: Tour[] = [
     hours: 6,
     duration: { de: "6 Std. · ab 15:30", en: "6 hrs · from 3:30 pm" },
     slots: ["sunset"],
+    departures: { sunset: "15:30" },
+    includesBubbly: true,
     badge: { de: "Neu", en: "New" },
     stops: ["Koh Poda", "Phra Nang Bay", "Dunkle Bucht · Plankton"],
     description: {
@@ -404,6 +416,7 @@ export const TOURS: Tour[] = [
     hours: 8,
     duration: { de: "8 Std. · ab 07:00", en: "8 hrs · from 7 am" },
     slots: ["morning"],
+    departures: { morning: "07:00" },
     badge: { de: "Neu", en: "New" },
     stops: ["Maya Bay", "Pileh Lagoon", "Viking Cave", "Bamboo Island"],
     description: {
@@ -426,6 +439,8 @@ export const TOURS: Tour[] = [
     hours: 9,
     duration: { de: "9 Std. · ab 07:30", en: "9 hrs · from 7:30 am" },
     slots: ["morning"],
+    departures: { morning: "07:30" },
+    includesMeal: true,
     stops: ["Koh Haa", "Koh Rok Nai", "Koh Rok Nok"],
     description: {
       de: "Die lange Fahrt lohnt sich: Schildkröten, Clownfische und Korallengärten an den Zwillingsinseln Koh Rok, dazu die Kalksteintürme von Koh Haa mit ihrer Unterwasser-Lagune.",
@@ -489,6 +504,9 @@ export const TOURS: Tour[] = [
     hours: 4,
     duration: { de: "4 Std. · ab 15:30", en: "4 hrs · from 3:30 pm" },
     slots: ["sunset"],
+    departures: { sunset: "15:30" },
+    includesMeal: true,
+    includesBubbly: true,
     badge: { de: "Für Paare", en: "For couples" },
     stops: ["Koh Poda", "Phra Nang Bay"],
     description: {
@@ -511,6 +529,7 @@ export const TOURS: Tour[] = [
     hours: 6,
     duration: { de: "6 Std. · ab 09:00", en: "6 hrs · from 9 am" },
     slots: ["morning", "midday"],
+    departures: { morning: "09:00" },
     stops: ["Tup Sandbank", "Chicken Island", "Koh Poda"],
     description: {
       de: "Kinderwesten in allen Größen, Sandspielzeug und Schnorchelmasken für Kids. Wir wählen Buchten mit flachem Einstieg und planen Pausen nach Ihrem Rhythmus.",
@@ -553,6 +572,8 @@ export const TOURS: Tour[] = [
     hours: 9,
     duration: { de: "9 Std. · ab 07:00", en: "9 hrs · from 7 am" },
     slots: ["morning"],
+    departures: { morning: "07:00" },
+    includesMeal: true,
     badge: { de: "Big Game", en: "Big game" },
     stops: ["Koh Phi Phi Außenriffe", "Hin Klang", "Trolling-Route"],
     description: {
@@ -575,6 +596,7 @@ export const TOURS: Tour[] = [
     hours: 4,
     duration: { de: "4 Std. · ab 18:00", en: "4 hrs · from 6 pm" },
     slots: ["night"],
+    includesMeal: true,
     stops: ["Ao Nang Bay"],
     description: {
       de: "Wenn es dunkel wird, locken grüne Lampen die Tintenfische an. Mit einfachen Handleinen fangen Sie Ihr Abendessen – das wir direkt an Bord für Sie grillen.",
@@ -595,7 +617,9 @@ export const TOURS: Tour[] = [
     price: 19500,
     hours: 6,
     duration: { de: "6 Std. · ab 13:00", en: "6 hrs · from 1 pm" },
-    slots: ["midday", "sunset"],
+    slots: ["midday"],
+    departures: { midday: "13:00" },
+    includesMeal: true,
     badge: { de: "Erlebnis", en: "Experience" },
     stops: ["Koh Dam Riff", "Privater Strand"],
     description: {
@@ -767,6 +791,12 @@ export const ARTICLES: Article[] = [
   },
 ];
 
+/**
+ * Only real, verifiable guest reviews may be shown (fake reviews are unlawful, e.g. UWG in Germany).
+ * The entries below are layout placeholders: set REVIEWS_VERIFIED = true only after replacing them with real reviews.
+ */
+export const REVIEWS_VERIFIED = false;
+
 export const REVIEWS: { name: string; origin: L; type: L; text: L; tour: L }[] = [
   {
     name: "Julia & Markus",
@@ -835,8 +865,8 @@ export const FAQ: { q: L; a: L }[] = [
   {
     q: { de: "Wie sicher sind die Touren?", en: "How safe are the tours?" },
     a: {
-      de: "Unsere Boote sind vom Marine Department zugelassen, mit zwei Motoren, Rettungswesten (auch für Kinder), Erste-Hilfe-Set, GPS und Marinefunk ausgestattet. Unsere Kapitäne haben über 10 Jahre Erfahrung in der Andamanensee.",
-      en: "Our boats are Marine Department licensed, with twin engines, life jackets (incl. kids' sizes), first-aid kit, GPS and marine radio. Our captains have 10+ years of Andaman Sea experience.",
+      de: "Unsere Boote sind vom Marine Department zugelassen, mit zwei Motoren, Rettungswesten (auch für Kinder), Erste-Hilfe-Set, GPS und Marinefunk ausgestattet. Unsere Kapitäne kennen die Andamanensee und ihre Gezeiten genau.",
+      en: "Our boats are Marine Department licensed, with twin engines, life jackets (incl. kids' sizes), first-aid kit, GPS and marine radio. Our captains know the Andaman Sea and its tides inside out.",
     },
   },
   {

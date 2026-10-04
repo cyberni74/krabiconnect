@@ -21,7 +21,9 @@ export function parseLang(v: unknown): Lang | undefined {
 /** Search schema shared by /secret-islands and the Insider Guide routes. German (default) has no parameter. */
 export function validateLangSearch(search: Record<string, unknown>): { lang?: Lang } {
   const lang = parseLang(search.lang);
-  return lang && lang !== "de" ? { lang } : {};
+  // Explicit `undefined`: the router merges the raw (root) search under the validated one, so omitting the key
+  // would let an invalid raw value like `?lang=xx` leak into `match.search`.
+  return { lang: lang && lang !== "de" ? lang : undefined };
 }
 
 /** `<Link search={keepLang}>` – carries the current `?lang=` over to internal links (crawlable language versions). */

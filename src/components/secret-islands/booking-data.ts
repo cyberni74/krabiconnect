@@ -63,8 +63,8 @@ export type AddOn = {
   label: L;
   desc: L;
   price: number;
-  /** "person": × guests, "boat": flat per booking. */
-  per: "person" | "boat";
+  /** "person": × guests, "child": × children, "boat": flat per booking. */
+  per: "person" | "child" | "boat";
   emoji: string;
   tag?: L;
   /** Highlight ("Empfohlen") for fishing trips or for couples / honeymoons / sunset tours. */
@@ -93,7 +93,7 @@ export const FOOD: AddOn[] = [
   { id: "picnic", emoji: "🧺", label: { de: "Gourmet-Strandpicknick", en: "Gourmet beach picnic" }, desc: { de: "Thai-Fusion, Garnelen-Salat, Dessert – am privaten Strand angerichtet", en: "Thai fusion, prawn salad, dessert – set up on a private beach" }, price: 1200, per: "person", tag: { de: "Beliebt", en: "Popular" } },
   { id: "bbq", emoji: "🦐", label: { de: "Seafood-BBQ am Strand", en: "Seafood BBQ on the beach" }, desc: { de: "Tiger-Garnelen, Fisch, Tintenfisch vom Grill, Beilagen & Dips", en: "Tiger prawns, fish, squid off the grill, sides & dips" }, price: 1900, per: "person", tag: { de: "Highlight", en: "Highlight" } },
   { id: "finedining", emoji: "🕯️", label: { de: "Sunset Fine-Dining an Bord", en: "Sunset fine dining on board" }, desc: { de: "3 Gänge vom Privatkoch, Tischdeko & Kerzen", en: "3 courses by a private chef, table decor & candles" }, price: 2800, per: "person", tag: { de: "Luxus", en: "Luxury" } },
-  { id: "kids", emoji: "🧒", label: { de: "Kindermenü", en: "Kids' menu" }, desc: { de: "Chicken-Nuggets, Pommes, Obst & Saft", en: "Chicken nuggets, fries, fruit & juice" }, price: 300, per: "person" },
+  { id: "kids", emoji: "🧒", label: { de: "Kindermenü", en: "Kids' menu" }, desc: { de: "Chicken-Nuggets, Pommes, Obst & Saft", en: "Chicken nuggets, fries, fruit & juice" }, price: 300, per: "child" },
 ];
 
 export const DRINKS: AddOn[] = [
@@ -112,35 +112,28 @@ export const BOOKING_EXTRAS: AddOn[] = [
   { id: "sup", emoji: "🏄", label: { de: "SUP & Kajak", en: "SUP & kayak" }, desc: { de: "2 Stand-up-Paddles + 1 Doppelkajak", en: "2 stand-up paddles + 1 double kayak" }, price: 1200, per: "boat" },
 ];
 
-export function addOnTotal(items: AddOn[], selected: string[], guests: number) {
-  return items
-    .filter((i) => selected.includes(i.id))
-    .reduce((sum, i) => sum + (i.per === "person" ? i.price * guests : i.price), 0);
+export function addOnAmount(item: AddOn, guests: number, kids = 0) {
+  if (item.per === "person") return item.price * guests;
+  if (item.per === "child") return item.price * kids;
+  return item.price;
+}
+
+export function addOnTotal(items: AddOn[], selected: string[], guests: number, kids = 0) {
+  return items.filter((i) => selected.includes(i.id)).reduce((sum, i) => sum + addOnAmount(i, guests, kids), 0);
 }
 
 /* ───────────── Availability (demo) ───────────── */
 
 export type SlotStatus = "free" | "limited" | "booked";
 
-function hash(str: string) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0) / 4294967295;
-}
-
 /**
- * Demo availability, deterministic per date + slot (no backend yet).
- * Past dates and today are always booked out.
+ * Availability (no backend yet): past dates and today are closed, everything else is requestable.
  */
 export function slotStatus(dateISO: string, slot: SlotId, todayISO: string): SlotStatus {
-  if (dateISO <= todayISO) return "booked";
-  const r = hash(`${dateISO}:${slot}`);
-  if (r < 0.18) return "booked";
-  if (r < 0.4) return "limited";
-  return "free";
+  // Honest default until a real availability backend exists: every future slot is requestable,
+  // the operator confirms. (Random "limited"/"booked" days would be fake scarcity.)
+  void slot;
+  return dateISO <= todayISO ? "booked" : "free";
 }
 
 export function dayStatus(dateISO: string, slots: SlotId[], todayISO: string): SlotStatus {

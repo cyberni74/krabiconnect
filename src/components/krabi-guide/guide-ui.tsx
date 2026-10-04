@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { BookingModal } from "../secret-islands/booking";
 import { BRAND, type Tour } from "../secret-islands/content";
 import { AuroraBackground, GlassCard, ScrollProgress, btn } from "../secret-islands/fx";
-import { BrandMark, WhatsAppIcon } from "../secret-islands/ui";
+import { BrandMark, WhatsAppIcon, unsplashSrcSet } from "../secret-islands/ui";
 import { LangBoundary, useHtmlLang, useSwitchLang, useUrlLang } from "../secret-islands/lang";
 import { formatTHB, useLang, useSI, useTx, waLink } from "../secret-islands/store";
 import { useGuideLang, type GuideLang } from "./guide-helpers";
@@ -24,12 +24,17 @@ export function GuideImage({
   alt,
   className,
   eager,
+  priority,
+  sizes = "100vw",
 }: {
   src: string;
   fallback?: string;
   alt: string;
   className?: string;
   eager?: boolean;
+  /** LCP image: eager + fetchpriority="high". */
+  priority?: boolean;
+  sizes?: string;
 }) {
   const [stage, setStage] = useState(0);
   const ref = useRef<HTMLImageElement>(null);
@@ -46,9 +51,12 @@ export function GuideImage({
       ref={ref}
       key={current}
       src={current}
+      srcSet={unsplashSrcSet(current)}
+      sizes={unsplashSrcSet(current) ? sizes : undefined}
       alt={alt}
-      loading={eager ? "eager" : "lazy"}
-      decoding="async"
+      loading={eager || priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
+      decoding={priority ? "sync" : "async"}
       onError={fail}
       className={className}
     />
@@ -186,6 +194,7 @@ export function ArticleCard({ article, className }: { article: GuideArticle; cla
           <GuideImage
             src={article.image}
             alt={article.h1[lang]}
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="size-full object-cover transition duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-si-navy/80 via-transparent to-transparent" />
@@ -218,7 +227,7 @@ export function TourCard({ tour }: { tour: Tour }) {
   return (
     <GlassCard glow className="flex h-full flex-col overflow-hidden">
       <div className="relative aspect-[16/9] overflow-hidden">
-        <GuideImage src={tour.image} alt={t(tour.title)} className="size-full object-cover" />
+        <GuideImage src={tour.image} alt={t(tour.title)} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="size-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-si-navy/85 via-si-navy/10 to-transparent" />
         <span className="absolute bottom-3 left-3 rounded-full bg-si-navy/70 px-2.5 py-1 text-[11px] font-bold text-cyan-100 backdrop-blur">
           {t(tour.duration)}

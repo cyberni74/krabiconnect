@@ -4,17 +4,38 @@ import { LOGO_URL } from "./content";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+const SRCSET_WIDTHS = [480, 768, 1080, 1440, 1920];
+
+/**
+ * Responsive `srcSet` for Unsplash URLs (`…&w=1200…`): the CDN resizes + serves WebP/AVIF (auto=format),
+ * so phones no longer download the 1200–1800 px desktop file. Other hosts: no srcSet.
+ */
+export function unsplashSrcSet(src: string): string | undefined {
+  if (!src.startsWith("https://images.unsplash.com/")) return undefined;
+  const m = /[?&]w=(\d+)/.exec(src);
+  if (!m) return undefined;
+  const max = Number(m[1]);
+  const widths = SRCSET_WIDTHS.filter((w) => w < max);
+  return [...widths, max].map((w) => `${src.replace(/([?&])w=\d+/, `$1w=${w}`)} ${w}w`).join(", ");
+}
+
 /** Remote image with a soft ocean-gradient fallback if the photo fails to load. */
 export function SmartImage({
   src,
   alt,
   className,
   eager,
+  priority,
+  sizes = "100vw",
 }: {
   src: string;
   alt: string;
   className?: string;
   eager?: boolean;
+  /** LCP image: eager + fetchpriority="high". */
+  priority?: boolean;
+  /** `sizes` for the responsive srcSet (rendered width of the image). */
+  sizes?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
@@ -36,9 +57,12 @@ export function SmartImage({
     <img
       ref={ref}
       src={src}
+      srcSet={unsplashSrcSet(src)}
+      sizes={unsplashSrcSet(src) ? sizes : undefined}
       alt={alt}
-      loading={eager ? "eager" : "lazy"}
-      decoding="async"
+      loading={eager || priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
+      decoding={priority ? "sync" : "async"}
       onError={() => setFailed(true)}
       className={className}
     />

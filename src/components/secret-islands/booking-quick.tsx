@@ -63,7 +63,7 @@ export function QuickAddPanel({ draft, patch, className }: Pick<StepProps, "draf
               <span className="block text-sm font-bold leading-snug text-white">{t(q.item.label)}</span>
               <span className="block text-xs text-slate-400">
                 {tag(q.item)}
-                {on && q.item.per === "person" ? ` · = ${formatTHB(itemAmount(q.item, draft.guests))}` : ""}
+                {on && q.item.per === "person" ? ` · = ${formatTHB(itemAmount(q.item, draft.guests, draft.kids))}` : ""}
               </span>
             </span>
             <Switch on={on} />
@@ -97,7 +97,7 @@ export function QuickAddChips({ draft, patch }: Pick<StepProps, "draft" | "patch
             <span aria-hidden>{q.item.emoji}</span>
             <span className="whitespace-nowrap">{t(q.item.label)}</span>
             <span className={cn("whitespace-nowrap text-xs", on ? "text-cyan-200" : "text-slate-400")}>
-              {on && q.item.per === "person" ? formatTHB(itemAmount(q.item, draft.guests)) : tag(q.item)}
+              {on && q.item.per === "person" ? formatTHB(itemAmount(q.item, draft.guests, draft.kids)) : tag(q.item)}
             </span>
             <Switch on={on} />
           </button>

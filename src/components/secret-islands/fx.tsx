@@ -97,7 +97,10 @@ export function ScrollScene({
   if (reduce) return <div className={className}>{children}</div>;
   return (
     <div ref={ref} style={{ perspective: 1200 }} className={className}>
-      <motion.div style={{ x, y, rotateX, scale, opacity, filter, transformOrigin: "50% 100%" }}>{children}</motion.div>
+      {/* `si-scene`: styles.css drops the scroll-scrubbed blur on small screens (per-frame filter repaint = jank / INP). */}
+      <motion.div className="si-scene" style={{ x, y, rotateX, scale, opacity, filter, transformOrigin: "50% 100%" }}>
+        {children}
+      </motion.div>
     </div>
   );
 }

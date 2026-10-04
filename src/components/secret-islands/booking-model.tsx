@@ -10,6 +10,7 @@ import {
   DURATIONS,
   FOOD,
   ISLANDS,
+  addOnAmount,
   addOnTotal,
   customTourPrice,
   slotStatus,
@@ -131,14 +132,14 @@ export function basePrice(d: Draft) {
 
 export function priceBreakdown(d: Draft) {
   const base = basePrice(d);
-  const food = addOnTotal(FOOD, d.food, d.guests);
-  const drinks = addOnTotal(DRINKS, d.drinks, d.guests);
-  const extras = addOnTotal(BOOKING_EXTRAS, d.extras, d.guests);
+  const food = addOnTotal(FOOD, d.food, d.guests, d.kids);
+  const drinks = addOnTotal(DRINKS, d.drinks, d.guests, d.kids);
+  const extras = addOnTotal(BOOKING_EXTRAS, d.extras, d.guests, d.kids);
   return { base, food, drinks, extras, total: base + food + drinks + extras };
 }
 
-export function itemAmount(item: AddOn, guests: number) {
-  return item.per === "person" ? item.price * guests : item.price;
+export function itemAmount(item: AddOn, guests: number, kids = 0) {
+  return addOnAmount(item, guests, kids);
 }
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -185,8 +186,11 @@ export function htmlLang(lang: Lang) {
   return LANGS.find((l) => l.id === lang)?.html ?? lang;
 }
 
-export function slotInfo(id: SlotId) {
-  return SLOTS.find((s) => s.id === id) ?? SLOTS[0];
+export function slotInfo(id: SlotId, d?: Draft) {
+  const s = SLOTS.find((x) => x.id === id) ?? SLOTS[0];
+  // Preset tours can depart at their own time (e.g. 07:00 for Phi Phi); the slot only names the window.
+  const own = d && d.mode === "preset" ? currentTour(d)?.departures?.[id] : undefined;
+  return own ? { ...s, time: own } : s;
 }
 
 export function routeNames(d: Draft) {
@@ -220,7 +224,7 @@ export function buildMessage(d: Draft, lang: Lang, tOp: (l: L) => string) {
       month: "2-digit",
       year: "numeric",
     });
-    const s = d.slot ? slotInfo(d.slot) : null;
+    const s = d.slot ? slotInfo(d.slot, d) : null;
     lines.push(`*${tOp({ de: "Datum", en: "Date" })}:* ${date}${s ? ` · ${s.time} (${tOp(s.label)})` : ""}`);
   }
   lines.push(
@@ -235,7 +239,7 @@ export function buildMessage(d: Draft, lang: Lang, tOp: (l: L) => string) {
     lines.push("");
     lines.push(`*${tOp(title)}:*`);
     for (const i of chosen) {
-      const amount = itemAmount(i, d.guests);
+      const amount = itemAmount(i, d.guests, d.kids);
       const calc = i.per === "person" ? `${d.guests} × ${formatTHB(i.price)} = ${formatTHB(amount)}` : formatTHB(amount);
       lines.push(`• ${tOp(i.label)} – ${calc}`);
     }
@@ -275,11 +279,13 @@ export type Quick = { item: AddOn; list: "food" | "drinks"; primary?: boolean };
 
 /** One-click add-ons: catering always; beer for fishing, sparkling wine for couples / sunset. */
 export function quickAdds(d: Draft): Quick[] {
-  const out: Quick[] = [{ item: CATERING_PACKAGE, list: "food", primary: true }];
+  // Don't upsell what the tour already includes (e.g. dinner on the Sunset Romance tour).
+  const tour = d.mode === "preset" ? currentTour(d) : undefined;
+  const out: Quick[] = tour?.includesMeal ? [] : [{ item: CATERING_PACKAGE, list: "food", primary: true }];
   const beer = DRINKS.find((x) => x.id === "beer");
   const sekt = DRINKS.find((x) => x.id === "prosecco");
   if (beer && isFishingContext(d)) out.push({ item: beer, list: "drinks" });
-  if (sekt && isRomanceContext(d)) out.push({ item: sekt, list: "drinks" });
+  if (sekt && isRomanceContext(d) && !tour?.includesBubbly) out.push({ item: sekt, list: "drinks" });
   return out;
 }
 

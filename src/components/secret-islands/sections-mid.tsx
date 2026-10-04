@@ -225,6 +225,7 @@ function TourCard({ tour }: { tour: Tour }) {
         <SmartImage
           src={tour.image}
           alt={t(tour.title)}
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 85vw"
           className="si-fallback size-full object-cover transition duration-700 ease-out group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/20 to-transparent" />

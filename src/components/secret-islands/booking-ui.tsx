@@ -2,7 +2,7 @@ import { animate, motion, useReducedMotion } from "framer-motion";
 import { Check, Minus, Plus } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import type { AddOn } from "./booking-data";
+import { addOnAmount, type AddOn } from "./booking-data";
 import { formatTHB, useTx } from "./store";
 
 /** Tweened THB amount (writes the DOM directly, no re-render per frame). */
@@ -139,18 +139,20 @@ export function AddOnCard({
   item,
   on,
   guests,
+  kids = 0,
   onToggle,
   recommended,
 }: {
   item: AddOn;
   on: boolean;
   guests: number;
+  kids?: number;
   onToggle: () => void;
   /** Highlight text, e.g. "Empfohlen für Angeltouren". */
   recommended?: string | null;
 }) {
   const { t } = useTx();
-  const amount = item.per === "person" ? item.price * guests : item.price;
+  const amount = addOnAmount(item, guests, kids);
   return (
     <motion.button
       type="button"
@@ -196,9 +198,13 @@ export function AddOnCard({
         <span className="mt-2 flex flex-wrap items-baseline gap-x-2 text-sm">
           <span className="font-bold text-cyan-300">{formatTHB(item.price)}</span>
           <span className="text-xs text-slate-400">
-            {item.per === "person" ? t({ de: "pro Person", en: "per person" }) : t({ de: "pro Boot", en: "per boat" })}
+            {item.per === "person"
+              ? t({ de: "pro Person", en: "per person" })
+              : item.per === "child"
+                ? t({ de: "pro Kind", en: "per child" })
+                : t({ de: "pro Boot", en: "per boat" })}
           </span>
-          {on && item.per === "person" ? (
+          {on && item.per !== "boat" ? (
             <span className="text-xs font-semibold text-white/80">= {formatTHB(amount)}</span>
           ) : null}
         </span>

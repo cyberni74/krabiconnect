@@ -400,7 +400,7 @@ function SummaryPanel({ draft }: { draft: Draft }) {
   const price = priceBreakdown(draft);
   const dur = durationOf(draft.duration);
   const route = routeNames(draft);
-  const slot = draft.slot ? slotInfo(draft.slot) : null;
+  const slot = draft.slot ? slotInfo(draft.slot, draft) : null;
   const dateStr = draft.date
     ? new Intl.DateTimeFormat(htmlLang(lang), { weekday: "short", day: "numeric", month: "short" }).format(new Date(`${draft.date}T12:00:00`))
     : null;

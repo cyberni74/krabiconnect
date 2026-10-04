@@ -5,7 +5,7 @@ import { ArticleModal, Lightbox, TourModal } from "./modals";
 import { Faq, FinalCta, Footer, Guide, LongtailFaq, Reviews } from "./sections-bottom";
 import { DroneFeature, FishingSection, Gallery, Tours } from "./sections-mid";
 import { BottomBar, Comparison, Header, Hero } from "./sections-top";
-import type { Lang } from "./content";
+import { REVIEWS_VERIFIED, type Lang } from "./content";
 import { LangBoundary, useHtmlLang } from "./lang";
 
 /** `urlLang` = validated `?lang=` search param (undefined = German default URL). */
@@ -33,7 +33,7 @@ function PageBody(): ReactNode {
         <DroneFeature />
         <Gallery />
         <Guide />
-        <Reviews />
+        {REVIEWS_VERIFIED ? <Reviews /> : null}
         <LongtailFaq />
         <Faq />
         <FinalCta />
