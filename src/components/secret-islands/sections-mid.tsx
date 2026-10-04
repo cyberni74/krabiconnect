@@ -115,7 +115,7 @@ export function Tours() {
     <section id="touren" className="relative scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <SectionTitle eyebrow={t(UI.toursEyebrow)} title={t(UI.toursTitle)} sub={t(UI.toursSub)} className="mb-6 sm:mb-10" />
+          <SectionTitle eyebrow={t(UI.toursEyebrow)} title={t(UI.toursTitle)} sub={t(UI.toursSub)} className="mb-6 min-w-0 flex-1 sm:mb-10" />
           <motion.p
             key={filter}
             initial={{ opacity: 0, y: 8 }}
@@ -272,7 +272,7 @@ function BuilderTeaser() {
       <GlassCard glow className="overflow-hidden p-6 sm:p-10">
         <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-si-gold/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-10 size-72 rounded-full bg-si-cyan/20 blur-3xl" />
-        <div className="relative grid gap-8 lg:grid-cols-[1.1fr_1.4fr_auto] lg:items-center">
+        <div className="relative grid gap-8 lg:grid-cols-[1fr_1.25fr] lg:items-center">
           <div>
             <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-si-gold/15 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-200 ring-1 ring-si-gold/30">
               <Wand2 className="size-3.5" /> {t({ de: "Tour-Baukasten", en: "Tour builder" })}
@@ -286,6 +286,15 @@ function BuilderTeaser() {
                 en: "Not into standard? Put your tour together in three steps – with a live price.",
               })}
             </p>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+              <button type="button" onClick={() => openBooking({ custom: true })} className={cn(btn.gold, "h-14 w-full sm:w-auto")}>
+                <Sparkles className="size-5" />
+                {t({ de: "Eigene Tour bauen", en: "Build your own tour" })}
+              </button>
+              <p className="text-center text-xs text-slate-400 sm:text-left">
+                {t(UI.from)} <span className="font-bold text-white">{formatTHB(minBase)}</span> {t(UI.perBoat)}
+              </p>
+            </div>
           </div>
           <Assemble className="grid gap-3 sm:grid-cols-3" stagger={0.12}>
             {steps.map((s, i) => (
@@ -307,15 +316,6 @@ function BuilderTeaser() {
               </AssembleItem>
             ))}
           </Assemble>
-          <div className="flex flex-col gap-2 lg:items-end">
-            <button type="button" onClick={() => openBooking({ custom: true })} className={cn(btn.gold, "h-14 w-full lg:w-auto")}>
-              <Sparkles className="size-5" />
-              {t({ de: "Eigene Tour bauen", en: "Build your own tour" })}
-            </button>
-            <p className="text-center text-xs text-slate-400 lg:text-right">
-              {t(UI.from)} <span className="font-bold text-white">{formatTHB(minBase)}</span> {t(UI.perBoat)}
-            </p>
-          </div>
         </div>
       </GlassCard>
     </ScrollScene>
@@ -567,7 +567,7 @@ export function DroneFeature() {
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
-                  className="si-glass-strong absolute -left-1 top-2 flex items-center gap-2.5 rounded-2xl px-4 py-3"
+                  className="si-glass-strong absolute -right-2 bottom-24 flex items-center gap-2.5 rounded-2xl px-4 py-3"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-si-gold/20 text-si-gold">
                     <Camera className="size-5" />

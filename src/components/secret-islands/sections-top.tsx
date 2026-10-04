@@ -61,7 +61,7 @@ export function Header() {
         className={cn(
           "pointer-events-auto mx-auto flex items-center gap-2 rounded-full pl-2 pr-2 transition-all duration-500 sm:gap-3",
           scrolled
-            ? "si-glass-strong h-14 max-w-5xl shadow-[0_20px_60px_-20px_rgb(0_0_0/0.8)]"
+            ? "si-glass-strong h-14 max-w-6xl shadow-[0_20px_60px_-20px_rgb(0_0_0/0.8)]"
             : "si-glass h-16 max-w-6xl",
         )}
       >

@@ -67,6 +67,8 @@ export type AddOn = {
   per: "person" | "boat";
   emoji: string;
   tag?: L;
+  /** Highlight ("Empfohlen") for fishing trips or for couples / honeymoons / sunset tours. */
+  recommendFor?: ("fishing" | "romance")[];
 };
 
 /** One-click catering package offered on every booking (per person). */
@@ -96,10 +98,10 @@ export const FOOD: AddOn[] = [
 
 export const DRINKS: AddOn[] = [
   { id: "coconut", emoji: "🥥", label: { de: "Frische Kokosnüsse & Smoothies", en: "Fresh coconuts & smoothies" }, desc: { de: "Eisgekühlt, unbegrenzt", en: "Ice-cold, unlimited" }, price: 250, per: "person" },
-  { id: "beer", emoji: "🍺", label: { de: "Thai-Bier-Kühlbox", en: "Thai beer cooler" }, desc: { de: "Chang, Singha & Leo – eiskalt", en: "Chang, Singha & Leo – ice-cold" }, price: 400, per: "person" },
+  { id: "beer", emoji: "🍺", label: { de: "Eiskaltes Bier", en: "Ice-cold beer" }, desc: { de: "Chang, Singha & Leo in der Kühlbox – perfekt für Angeltouren", en: "Chang, Singha & Leo in the cooler – perfect for fishing trips" }, price: 400, per: "person", tag: { de: "Für Angler", en: "For anglers" }, recommendFor: ["fishing"] },
   { id: "cocktails", emoji: "🍹", label: { de: "Cocktail-Bar an Bord", en: "Cocktail bar on board" }, desc: { de: "Mojito, Piña Colada, Mai Tai – frisch gemixt", en: "Mojito, piña colada, mai tai – freshly mixed" }, price: 900, per: "person", tag: { de: "Beliebt", en: "Popular" } },
-  { id: "prosecco", emoji: "🥂", label: { de: "Sunset-Prosecco", en: "Sunset prosecco" }, desc: { de: "2 Flaschen, gekühlt, mit Gläsern", en: "2 bottles, chilled, with glasses" }, price: 2200, per: "boat" },
-  { id: "champagne", emoji: "🍾", label: { de: "Premium-Champagner", en: "Premium champagne" }, desc: { de: "Moët & Chandon Impérial, 0,75 l", en: "Moët & Chandon Impérial, 0.75 l" }, price: 6500, per: "boat", tag: { de: "Luxus", en: "Luxury" } },
+  { id: "prosecco", emoji: "🥂", label: { de: "Sekt für Verliebte", en: "Sparkling wine for lovers" }, desc: { de: "2 Flaschen gekühlter Sekt mit Gläsern – für Paare & Hochzeitsreisen", en: "2 bottles of chilled sparkling wine with glasses – for couples & honeymoons" }, price: 2200, per: "boat", tag: { de: "Für Paare", en: "For couples" }, recommendFor: ["romance"] },
+  { id: "champagne", emoji: "🍾", label: { de: "Premium-Champagner", en: "Premium champagne" }, desc: { de: "Moët & Chandon Impérial, 0,75 l", en: "Moët & Chandon Impérial, 0.75 l" }, price: 6500, per: "boat", tag: { de: "Luxus", en: "Luxury" }, recommendFor: ["romance"] },
 ];
 
 export const BOOKING_EXTRAS: AddOn[] = [
