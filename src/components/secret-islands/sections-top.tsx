@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { BRAND, COMPARISON, IMG, LANGS, UI, VIDEO, type ComparisonId } from "./content";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, Marquee, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
+import { useSwitchLang } from "./lang";
 import { scrollToId, useSI, useTx, waLink } from "./store";
 import { BrandMark, SmartImage, WhatsAppIcon } from "./ui";
 
@@ -115,7 +116,7 @@ export function Header() {
 
 function LangMenu() {
   const { lang } = useTx();
-  const setLang = useSI((s) => s.setLang);
+  const setLang = useSwitchLang();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const current = LANGS.find((l) => l.id === lang) ?? LANGS[0];

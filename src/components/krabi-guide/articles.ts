@@ -16,7 +16,7 @@ import type { Bi, GuideArticle, GuideArticleInput, GuideCategory, GuideSection }
 export type { Bi, GuideArticle, GuideCategory, GuideImage, GuideSection } from "./types";
 
 export const GUIDE_UPDATED = "2026-10-04";
-export const SITE_URL = "https://krabi-secret-islands.com";
+export { SITE_URL } from "../secret-islands/seo";
 
 /* ───────────────────────── Keyword map ─────────────────────────
  * Research basis: SERP review (DE + EN) of Krabi island / tour queries, Oct 2026.

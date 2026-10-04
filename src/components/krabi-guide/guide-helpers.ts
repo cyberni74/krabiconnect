@@ -1,12 +1,12 @@
 import { TOURS, type Tour } from "../secret-islands/content";
-import { useSI } from "../secret-islands/store";
+import { useLang } from "../secret-islands/store";
 
 /* ───────── Language helpers ───────── */
 export type GuideLang = "de" | "en";
 
 /** Long article texts exist in DE + EN only: German for German visitors, English for everyone else. */
 export function useGuideLang(): GuideLang {
-  const lang = useSI((s) => s.lang);
+  const lang = useLang();
   return lang === "de" ? "de" : "en";
 }
 

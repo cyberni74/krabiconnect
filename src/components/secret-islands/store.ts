@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { create } from "zustand";
+import { LangOverrideContext } from "./lang-context";
 import { BRAND, LANGS, type L, type Lang } from "./content";
 import { DICTS } from "./i18n";
 
@@ -96,8 +98,18 @@ export function translateList(list: { de: string[]; en: string[] }, lang: Lang):
   return list.de.map((de, i) => translate({ de, en: list.en[i] ?? de }, lang));
 }
 
+/**
+ * Active UI language. During SSR / hydration the route's URL language (context) wins, afterwards the store.
+ * Never read `useSI((s) => s.lang)` directly in render code – it ignores the per-request SSR language.
+ */
+export function useLang(): Lang {
+  const override = useContext(LangOverrideContext);
+  const stored = useSI((s) => s.lang);
+  return override ?? stored;
+}
+
 export function useTx() {
-  const lang = useSI((s) => s.lang);
+  const lang = useLang();
   return {
     lang,
     t: (l: L) => translate(l, lang),

@@ -7,10 +7,11 @@ import { ArrowRight, BookOpen, ChevronRight, Clock, Sparkles } from "lucide-reac
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { BookingModal } from "../secret-islands/booking";
-import { BRAND, LANGS, type Tour } from "../secret-islands/content";
+import { BRAND, type Tour } from "../secret-islands/content";
 import { AuroraBackground, GlassCard, ScrollProgress, btn } from "../secret-islands/fx";
 import { BrandMark, WhatsAppIcon } from "../secret-islands/ui";
-import { detectLang, formatTHB, useSI, useTx, waLink } from "../secret-islands/store";
+import { LangBoundary, useHtmlLang, useSwitchLang, useUrlLang } from "../secret-islands/lang";
+import { formatTHB, useLang, useSI, useTx, waLink } from "../secret-islands/store";
 import { useGuideLang, type GuideLang } from "./guide-helpers";
 import { ARTICLES, CATEGORY_LABEL, type Bi, type GuideArticle } from "./articles";
 
@@ -55,15 +56,16 @@ export function GuideImage({
 
 /* ───────── Shell ───────── */
 export function GuideShell({ children }: { children: ReactNode }) {
-  const lang = useSI((s) => s.lang);
-  useEffect(() => {
-    const detected = detectLang();
-    if (detected !== useSI.getState().lang) useSI.setState({ lang: detected });
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = LANGS.find((l) => l.id === lang)?.html ?? lang;
-  }, [lang]);
+  const urlLang = useUrlLang();
+  return (
+    <LangBoundary urlLang={urlLang}>
+      <GuideShellBody>{children}</GuideShellBody>
+    </LangBoundary>
+  );
+}
 
+function GuideShellBody({ children }: { children: ReactNode }) {
+  useHtmlLang();
   return (
     <div className="relative isolate min-h-dvh overflow-x-clip font-jakarta text-white antialiased">
       <AuroraBackground />
@@ -78,8 +80,8 @@ export function GuideShell({ children }: { children: ReactNode }) {
 
 function GuideHeader() {
   const { t } = useTx();
-  const lang = useSI((s) => s.lang);
-  const setLang = useSI((s) => s.setLang);
+  const lang = useLang();
+  const setLang = useSwitchLang();
   const shown: GuideLang = lang === "de" ? "de" : "en";
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">

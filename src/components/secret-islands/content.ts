@@ -861,3 +861,18 @@ export const FAQ: { q: L; a: L }[] = [
     },
   },
 ];
+
+/**
+ * <title> + meta description of /secret-islands (Google shows ~50–60 / ~150–160 characters).
+ * zh/ko/ja are looked up in the i18n dictionaries by the German text like every other string.
+ */
+export const SEO_META = {
+  title: {
+    de: "Krabi Secret Islands – Private Speedboat-Touren für max. 5 Gäste",
+    en: "Krabi Secret Islands – Private Speedboat Tours, Max. 5 Guests",
+  },
+  description: {
+    de: "Private Speedboat-Touren ab Ao Nang, Krabi, für max. 5 Gäste: Koh Roi, Koh Kudu, Hong Island, 4-Islands Sunset & Angeltouren. Wunschtermin anfragen.",
+    en: "Private speedboat tours from Ao Nang, Krabi, for max. 5 guests: Koh Roi, Koh Kudu, Hong Island, 4-Islands sunset & fishing trips. Request your date.",
+  },
+};
