@@ -75,8 +75,8 @@ export const CATERING_PACKAGE: AddOn = {
   emoji: "🍽️",
   label: { de: "Verpflegung an Bord", en: "Catering on board" },
   desc: {
-    de: "Frisch gekochtes Thai-Essen, tropisches Obst, Snacks & Softdrinks für den ganzen Tag",
-    en: "Freshly cooked Thai food, tropical fruit, snacks & soft drinks for the whole day",
+    de: "2 frisch zubereitete Mahlzeiten + Getränke (Wasser, Cola, Cola Zero)",
+    en: "2 freshly prepared meals + drinks (water, Coke, Coke Zero)",
   },
   price: 500,
   per: "person",
