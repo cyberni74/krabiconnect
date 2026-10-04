@@ -1,5 +1,14 @@
-export type Lang = "de" | "en";
+export type Lang = "de" | "en" | "zh" | "ko" | "ja";
+/** Source strings: German + English. zh/ko/ja are looked up by the German text in ./i18n. */
 export type L = { de: string; en: string };
+
+export const LANGS: { id: Lang; label: string; flag: string; html: string }[] = [
+  { id: "de", label: "Deutsch", flag: "🇩🇪", html: "de" },
+  { id: "en", label: "English", flag: "🇬🇧", html: "en" },
+  { id: "zh", label: "中文", flag: "🇨🇳", html: "zh-Hans" },
+  { id: "ko", label: "한국어", flag: "🇰🇷", html: "ko" },
+  { id: "ja", label: "日本語", flag: "🇯🇵", html: "ja" },
+];
 
 export const BRAND = {
   name: "Krabi Secret Islands",
@@ -10,6 +19,10 @@ export const BRAND = {
   whatsappDisplay: "+66 81 234 5678",
   location: { de: "Ao Nang / Krabi, Thailand", en: "Ao Nang / Krabi, Thailand" },
 };
+
+/** Logo mark generated with Higgsfield (GPT Image 2.5). Move into /public/brand/ for production. */
+export const LOGO_URL =
+  "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_044905_49752f2a-c380-4b9a-a061-294ac851b827.png";
 
 const u = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;
@@ -142,6 +155,7 @@ export type ComparisonId = "ksi" | "group" | "longtail";
 export const COMPARISON: {
   id: ComparisonId;
   name: L;
+  short: L;
   tag: L;
   good: boolean;
   points: L[];
@@ -149,6 +163,7 @@ export const COMPARISON: {
   {
     id: "ksi",
     name: { de: "Krabi Secret Islands", en: "Krabi Secret Islands" },
+    short: { de: "Secret Islands", en: "Secret Islands" },
     tag: { de: "Privat-Charter", en: "Private charter" },
     good: true,
     points: [
@@ -162,6 +177,7 @@ export const COMPARISON: {
   {
     id: "group",
     name: { de: "Gruppen-Speedboote", en: "Group speedboats" },
+    short: { de: "Gruppen-Speedboote", en: "Group speedboats" },
     tag: { de: "Massentour", en: "Mass tour" },
     good: false,
     points: [
@@ -174,6 +190,7 @@ export const COMPARISON: {
   {
     id: "longtail",
     name: { de: "Klassische Longtail-Boote", en: "Classic longtail boats" },
+    short: { de: "Longtail-Boote", en: "Longtail boats" },
     tag: { de: "Traditionell", en: "Traditional" },
     good: false,
     points: [

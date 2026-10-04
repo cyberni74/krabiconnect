@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Anchor, Check, Play, Sailboat, ShieldCheck, Star, Users, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, ChevronDown, Globe, Play, Sailboat, ShieldCheck, Star, Users, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { BRAND, COMPARISON, IMG, UI, VIDEO, type ComparisonId } from "./content";
+import { BRAND, COMPARISON, IMG, LANGS, UI, VIDEO, type ComparisonId } from "./content";
 import { scrollToId, useSI, useTx, waLink } from "./store";
-import { SectionHeading, SmartImage, WhatsAppIcon } from "./ui";
+import { BrandMark, SectionHeading, SmartImage, WhatsAppIcon } from "./ui";
 
 const NAV = [
   { id: "touren", label: UI.navTours },
@@ -15,8 +15,7 @@ const NAV = [
 ];
 
 export function Header() {
-  const { t, lang } = useTx();
-  const setLang = useSI((s) => s.setLang);
+  const { t, tOp } = useTx();
   const openInquiry = useSI((s) => s.openInquiry);
   const [scrolled, setScrolled] = useState(false);
 
@@ -27,10 +26,10 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const waText =
-    lang === "de"
-      ? "Hallo Krabi Secret Islands! Ich interessiere mich für eine private Speedboat-Tour."
-      : "Hi Krabi Secret Islands! I'm interested in a private speedboat tour.";
+  const waText = tOp({
+    de: "Hallo Krabi Secret Islands! Ich interessiere mich für eine private Speedboat-Tour.",
+    en: "Hi Krabi Secret Islands! I'm interested in a private speedboat tour.",
+  });
 
   return (
     <header
@@ -42,9 +41,7 @@ export function Header() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
         <a href="#top" className="flex min-w-0 items-center gap-2 text-white" aria-label={BRAND.name}>
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-si-cyan to-si-cyan-dark shadow-lg shadow-si-cyan/30">
-            <Anchor className="size-5" strokeWidth={2.2} />
-          </span>
+          <BrandMark className="size-10" />
           <span className="truncate text-[15px] font-extrabold leading-none tracking-tight sm:text-base">
             Krabi <span className="text-si-cyan">Secret</span> Islands
           </span>
@@ -64,26 +61,7 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <div
-            role="group"
-            aria-label="Language"
-            className="flex h-10 items-center rounded-full bg-white/10 p-1 text-xs font-bold ring-1 ring-white/15"
-          >
-            {(["de", "en"] as const).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setLang(l)}
-                aria-pressed={lang === l}
-                className={cn(
-                  "h-8 min-w-9 rounded-full px-2 uppercase transition",
-                  lang === l ? "bg-white text-si-navy" : "text-white/80",
-                )}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
+          <LangMenu />
           <a
             href={waLink(waText)}
             target="_blank"
@@ -106,13 +84,88 @@ export function Header() {
   );
 }
 
+function LangMenu() {
+  const { lang } = useTx();
+  const setLang = useSI((s) => s.setLang);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = LANGS.find((l) => l.id === lang) ?? LANGS[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex h-10 items-center gap-1.5 rounded-full bg-white/10 pl-3 pr-2.5 text-xs font-bold uppercase text-white ring-1 ring-white/15 transition hover:bg-white/20"
+      >
+        <Globe className="size-4" />
+        {current.id}
+        <ChevronDown className={cn("size-3.5 transition", open && "rotate-180")} />
+      </button>
+      <AnimatePresence>
+        {open ? (
+          <motion.ul
+            role="listbox"
+            aria-label="Language"
+            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-12 w-44 overflow-hidden rounded-2xl bg-white p-1.5 shadow-2xl ring-1 ring-slate-200"
+          >
+            {LANGS.map((l) => (
+              <li key={l.id}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={l.id === lang}
+                  lang={l.html}
+                  onClick={() => {
+                    setLang(l.id);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition",
+                    l.id === lang ? "bg-cyan-50 text-si-cyan-dark" : "text-si-navy hover:bg-slate-50",
+                  )}
+                >
+                  <span className="text-lg leading-none">{l.flag}</span>
+                  <span className="flex-1">{l.label}</span>
+                  {l.id === lang ? <Check className="size-4" strokeWidth={3} /> : null}
+                </button>
+              </li>
+            ))}
+          </motion.ul>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function BottomBar() {
-  const { t, lang } = useTx();
+  const { t, tOp } = useTx();
   const openInquiry = useSI((s) => s.openInquiry);
-  const waText =
-    lang === "de"
-      ? "Hallo! Ich möchte eine private Speedboat-Tour anfragen. Wunschdatum: … / Personen: …"
-      : "Hi! I'd like to request a private speedboat tour. Preferred date: … / Guests: …";
+  const waText = tOp({
+    de: "Hallo! Ich möchte eine private Speedboat-Tour anfragen. Wunschdatum: … / Personen: …",
+    en: "Hi! I'd like to request a private speedboat tour. Preferred date: … / Guests: …",
+  });
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-si-navy/95 px-3 pt-3 backdrop-blur-md md:hidden"
@@ -298,7 +351,7 @@ export function Comparison() {
                     : "text-si-slate",
                 )}
               >
-                {c.id === "ksi" ? "Secret Islands" : t(c.name).replace("Klassische ", "").replace("Classic ", "")}
+                {t(c.short)}
               </button>
             ))}
           </div>

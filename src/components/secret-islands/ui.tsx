@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Anchor, X } from "lucide-react";
+import { LOGO_URL } from "./content";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,39 @@ export function SmartImage({
       decoding="async"
       onError={() => setFailed(true)}
       className={className}
+    />
+  );
+}
+
+/** Brand logo mark; falls back to an anchor tile if the image can't load. */
+export function BrandMark({ className }: { className?: string }) {
+  const [failed, setFailed] = useState(false);
+  const ref = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    const img = ref.current;
+    if (img && img.complete && img.naturalWidth === 0) setFailed(true);
+  }, []);
+  if (failed) {
+    return (
+      <span
+        className={cn(
+          "grid shrink-0 place-items-center rounded-xl bg-gradient-to-br from-si-cyan to-si-cyan-dark text-white shadow-lg shadow-si-cyan/30",
+          className,
+        )}
+      >
+        <Anchor className="size-[55%]" strokeWidth={2.2} />
+      </span>
+    );
+  }
+  return (
+    <img
+      ref={ref}
+      src={LOGO_URL}
+      alt=""
+      width={40}
+      height={40}
+      onError={() => setFailed(true)}
+      className={cn("shrink-0 object-contain", className)}
     />
   );
 }

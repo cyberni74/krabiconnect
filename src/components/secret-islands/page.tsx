@@ -3,19 +3,19 @@ import { ArticleModal, InquiryModal, Lightbox, TourModal } from "./modals";
 import { Faq, FinalCta, Footer, Guide, Reviews } from "./sections-bottom";
 import { DroneFeature, Gallery, Tours } from "./sections-mid";
 import { BottomBar, Comparison, Header, Hero } from "./sections-top";
-import { loadStoredLang, useSI } from "./store";
+import { LANGS } from "./content";
+import { detectLang, useSI } from "./store";
 
 export function SecretIslandsPage() {
   const lang = useSI((s) => s.lang);
-  const setLang = useSI((s) => s.setLang);
 
   useEffect(() => {
-    const stored = loadStoredLang();
-    if (stored !== useSI.getState().lang) setLang(stored);
-  }, [setLang]);
+    const detected = detectLang();
+    if (detected !== useSI.getState().lang) useSI.setState({ lang: detected });
+  }, []);
 
   useEffect(() => {
-    document.documentElement.lang = lang;
+    document.documentElement.lang = LANGS.find((l) => l.id === lang)?.html ?? lang;
   }, [lang]);
 
   return (

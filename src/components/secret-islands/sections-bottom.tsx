@@ -1,27 +1,27 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Anchor, ArrowRight, BadgeCheck, Clock, Mail, MapPin, Minus, Plus, Quote, Search, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, Clock, Mail, MapPin, Minus, Plus, Quote, Search, ShieldCheck, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ARTICLES, BRAND, FAQ, REVIEWS, UI } from "./content";
-import { useSI, useTx, waLink } from "./store";
-import { Reveal, SectionHeading, SmartImage, WhatsAppIcon } from "./ui";
+import { translate, useSI, useTx, waLink } from "./store";
+import { BrandMark, Reveal, SectionHeading, SmartImage, WhatsAppIcon } from "./ui";
 
 export function Guide() {
-  const { t, lang } = useTx();
+  const { t, tl, lang } = useTx();
   const openArticle = useSI((s) => s.openArticle);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
 
   const cats = useMemo(() => {
     const seen = new Map<string, string>();
-    ARTICLES.forEach((a) => seen.set(a.category.de, a.category[lang]));
+    ARTICLES.forEach((a) => seen.set(a.category.de, translate(a.category, lang)));
     return [...seen.entries()];
   }, [lang]);
 
   const list = ARTICLES.filter((a) => {
     if (cat !== "all" && a.category.de !== cat) return false;
     if (!q.trim()) return true;
-    const hay = `${a.title[lang]} ${a.excerpt[lang]} ${a.body[lang].join(" ")}`.toLowerCase();
+    const hay = `${t(a.title)} ${t(a.excerpt)} ${tl(a.body).join(" ")}`.toLowerCase();
     return hay.includes(q.trim().toLowerCase());
   });
 
@@ -213,7 +213,7 @@ export function Faq() {
 }
 
 export function FinalCta() {
-  const { t, lang } = useTx();
+  const { t, tOp } = useTx();
   const openInquiry = useSI((s) => s.openInquiry);
   return (
     <section className="bg-white px-4 pb-16 sm:pb-24">
@@ -230,7 +230,7 @@ export function FinalCta() {
             {t(UI.ctaInquire)}
           </button>
           <a
-            href={waLink(lang === "de" ? "Hallo! Ich habe eine Frage zu Ihren Touren." : "Hi! I have a question about your tours.")}
+            href={waLink(tOp({ de: "Hallo! Ich habe eine Frage zu Ihren Touren.", en: "Hi! I have a question about your tours." }))}
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-si-wa px-7 font-bold text-white"
@@ -244,16 +244,14 @@ export function FinalCta() {
 }
 
 export function Footer() {
-  const { t, lang } = useTx();
+  const { t, tOp } = useTx();
   const [legal, setLegal] = useState<"imprint" | "privacy" | null>(null);
   return (
     <footer className="bg-si-navy pb-28 pt-14 text-slate-300 md:pb-10">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <p className="flex items-center gap-2 text-lg font-extrabold text-white">
-            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-si-cyan to-si-cyan-dark">
-              <Anchor className="size-5" />
-            </span>
+            <BrandMark className="size-11" />
             Krabi <span className="-ml-1 text-si-cyan">Secret</span> Islands
           </p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed">{t(UI.footerTagline)}</p>
@@ -271,7 +269,7 @@ export function Footer() {
           <ul className="space-y-1 text-sm">
             <li>
               <a
-                href={waLink(lang === "de" ? "Hallo Krabi Secret Islands!" : "Hi Krabi Secret Islands!")}
+                href={waLink(tOp({ de: "Hallo Krabi Secret Islands!", en: "Hi Krabi Secret Islands!" }))}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex min-h-11 items-center gap-2 hover:text-white"

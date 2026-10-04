@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, Clock, Mail, MapPin, Minus, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ARTICLES, BRAND, EXTRAS, TOURS, UI, type ExtraId } from "./content";
+import { ARTICLES, BRAND, EXTRAS, LANGS, TOURS, UI, type ExtraId } from "./content";
 import { formatTHB, useSI, useTx, waLink } from "./store";
 import { Sheet, SmartImage, WhatsAppIcon, useLockBody } from "./ui";
 
@@ -80,7 +80,7 @@ export function TourModal() {
 }
 
 export function ArticleModal() {
-  const { t, lang } = useTx();
+  const { t, tl } = useTx();
   const id = useSI((s) => s.articleId);
   const close = useSI((s) => s.closeArticle);
   const openInquiry = useSI((s) => s.openInquiry);
@@ -103,7 +103,7 @@ export function ArticleModal() {
             <h3 className="text-2xl font-extrabold leading-tight text-si-navy sm:text-3xl">{t(article.title)}</h3>
             <p className="mt-3 text-lg font-medium leading-relaxed text-si-slate">{t(article.excerpt)}</p>
             <div className="mt-6 space-y-4 text-[16px] leading-relaxed text-si-slate">
-              {article.body[lang].map((p) => (
+              {tl(article.body).map((p) => (
                 <p key={p.slice(0, 24)}>{p}</p>
               ))}
             </div>
@@ -303,7 +303,7 @@ const STEPS = [
 ];
 
 export function InquiryModal() {
-  const { t, lang } = useTx();
+  const { t, tOp, lang } = useTx();
   const { open, tourId: presetTour } = useSI((s) => s.inquiry);
   const close = useSI((s) => s.closeInquiry);
 
@@ -350,25 +350,26 @@ export function InquiryModal() {
   } as const;
 
   const message = [
-    lang === "de" ? "🌴 *Anfrage – Krabi Secret Islands*" : "🌴 *Inquiry – Krabi Secret Islands*",
+    tOp({ de: "🌴 *Anfrage – Krabi Secret Islands*", en: "🌴 *Inquiry – Krabi Secret Islands*" }),
     "",
-    `${lang === "de" ? "Tour" : "Tour"}: ${t(tour.title)}`,
-    `${lang === "de" ? "Datum" : "Date"}: ${date || "–"} (${t(timeLabel[time])})`,
-    `${lang === "de" ? "Personen" : "Guests"}: ${guests}`,
-    `Extras: ${extras.length ? EXTRAS.filter((e) => extras.includes(e.id)).map((e) => t(e.label)).join(", ") : "–"}`,
-    `${lang === "de" ? "Richtpreis" : "Estimated price"}: ${formatTHB(total)}`,
+    `Tour: ${tOp(tour.title)}`,
+    `${tOp({ de: "Datum", en: "Date" })}: ${date || "–"} (${tOp(timeLabel[time])})`,
+    `${tOp({ de: "Personen", en: "Guests" })}: ${guests}`,
+    `Extras: ${extras.length ? EXTRAS.filter((e) => extras.includes(e.id)).map((e) => tOp(e.label)).join(", ") : "–"}`,
+    `${tOp({ de: "Richtpreis", en: "Estimated price" })}: ${formatTHB(total)}`,
+    lang !== "de" && lang !== "en" ? `${tOp({ de: "Sprache", en: "Language" })}: ${LANGS.find((l) => l.id === lang)?.label}` : "",
     "",
     `Name: ${name}`,
     email ? `E-Mail: ${email}` : "",
-    phone ? `${lang === "de" ? "Telefon" : "Phone"}: ${phone}` : "",
+    phone ? `${tOp({ de: "Telefon", en: "Phone" })}: ${phone}` : "",
     hotel ? `Hotel: ${hotel}` : "",
-    note ? `${lang === "de" ? "Nachricht" : "Message"}: ${note}` : "",
+    note ? `${tOp({ de: "Nachricht", en: "Message" })}: ${note}` : "",
   ]
     .filter((l, i, arr) => l !== "" || (i > 0 && arr[i - 1] !== ""))
     .join("\n");
 
   const mailHref = `mailto:${BRAND.email}?subject=${encodeURIComponent(
-    `${lang === "de" ? "Tour-Anfrage" : "Tour inquiry"}: ${t(tour.title)} – ${date}`,
+    `${tOp({ de: "Tour-Anfrage", en: "Tour inquiry" })}: ${tOp(tour.title)} – ${date}`,
   )}&body=${encodeURIComponent(message.replace(/\*/g, ""))}`;
 
   const next = () => {
