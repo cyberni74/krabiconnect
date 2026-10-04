@@ -77,6 +77,9 @@ export function detectLang(): Lang {
     /* storage unavailable */
   }
   try {
+    // Crawlers get the server-rendered default (German) so the canonical URL is indexed in German;
+    // the other languages have their own ?lang= URLs with hreflang.
+    if (/bot|crawl|spider|slurp|lighthouse|inspectiontool/i.test(navigator.userAgent)) return "de";
     const list = navigator.languages?.length ? navigator.languages : [navigator.language];
     for (const tag of list) {
       const m = tag ? matchLang(tag) : null;
