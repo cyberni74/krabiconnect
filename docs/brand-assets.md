@@ -12,3 +12,6 @@ All files are on the Higgsfield CDN (`d8j0ntlcm91z4.cloudfront.net`). For produc
 | Night Glow plankton with our boat | (pending – needs boat reference upload to Higgsfield) | `public/images/krabi-leuchtendes-plankton-nacht-speedboat-1..4.webp` | Night Glow tour, plankton guide article |
 
 Note: the boat in `ROMANCE_IMGS` is generated from a text description of the owner's boat (white hardtop cabin cruiser, twin outboards), not from the photo — check that it looks close enough before using it as "our boat".
+
+## Notes for the google-seo agent
+- `/secret-islands` has TWO FAQ blocks: `LongtailFaq` (schema.org microdata FAQPage, data in `longtail-faq.ts`, helper `longtailAnswerText`) and the regular `Faq` (data `FAQ` in `content.ts`). Google expects at most one FAQPage per page: emit a single FAQPage (JSON-LD *or* microdata, not both) combining the questions you want, and remove the other markup.
