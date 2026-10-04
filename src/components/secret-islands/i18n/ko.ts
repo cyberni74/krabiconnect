@@ -117,7 +117,7 @@ const dict: Record<string, string> = {
   "Galerie": "갤러리",
   "Jetzt Wunschtermin anfragen": "원하는 날짜 문의하기",
   "Tour anfragen": "투어 문의",
-  "WhatsApp Direkt": "WhatsApp 바로 문의",
+  "WhatsApp Direkt": "WhatsApp 문의",
   "Max. 5 Personen • Absolute Privatsphäre • Geheime Spots": "최대 5명 • 완벽한 프라이버시 • 비밀 스폿",
   "Krabi Secret Islands –": "Krabi Secret Islands –",
   "Ihr privates Speedboat-Abenteuer": "당신만의 프라이빗 스피드보트 어드벤처",

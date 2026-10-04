@@ -176,15 +176,15 @@ export function BottomBar() {
           href={waLink(waText)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-si-wa text-[15px] font-bold text-white active:scale-[0.98]"
+          className="flex h-12 min-w-0 items-center justify-center gap-2 rounded-2xl bg-si-wa px-2 text-[15px] font-bold text-white active:scale-[0.98]"
         >
-          <WhatsAppIcon className="size-5" />
-          {t(UI.ctaWhatsapp)}
+          <WhatsAppIcon className="size-5 shrink-0" />
+          <span className="truncate">{t(UI.ctaWhatsapp)}</span>
         </a>
         <button
           type="button"
           onClick={() => openInquiry()}
-          className="h-12 rounded-2xl bg-si-cyan text-[15px] font-bold text-si-navy active:scale-[0.98]"
+          className="h-12 min-w-0 truncate rounded-2xl bg-si-cyan px-2 text-[15px] font-bold text-si-navy active:scale-[0.98]"
         >
           {t(UI.ctaTour)}
         </button>

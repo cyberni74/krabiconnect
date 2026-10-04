@@ -124,3 +124,12 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
     radial-gradient(90% 70% at 90% 90%, rgb(245 158 11 / 0.35), transparent 60%),
     linear-gradient(160deg, #0e7490, #0a192f);
 }
+
+/* Korean/Japanese/Chinese: break at word/phrase boundaries, not mid-word. */
+:lang(ko) {
+  word-break: keep-all;
+}
+:lang(ja),
+:lang(zh-Hans) {
+  line-break: strict;
+}
