@@ -13,6 +13,9 @@ Check which marketing/SEO skills are installed and load matching ones with the S
 - Landing page `/secret-islands` (`src/components/secret-islands/*`), booking wizard (`booking*.tsx`, `booking-data.ts`), tours & prices (`content.ts`), Insider Guide `/krabi-guide` (`src/components/krabi-guide/*`).
 - Run the dev server page in Playwright (chromium at /opt/pw-browsers/chromium; `node_modules/playwright/index.mjs`) at 390×844 and 1366×860, click through the booking flow like a real couple, a family and an angler would.
 
+## Assets
+Read `docs/brand-assets.md` (Higgsfield images: logo, overcrowded longtail pain image, our boat + couple with champagne) and recommend exactly where and how to use each one (page placement, ads, social, honeymoon/romance package, before/after comparisons), plus which new images/videos to generate next.
+
 ## Output
 Write a report to `docs/marketing-review.md` (create `docs/` if needed) and return a summary:
 1. **Top 10 quick wins** (≤ 1 day each) with expected impact, exact location (file / section) and suggested copy.

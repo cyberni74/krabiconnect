@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ARTICLES, BRAND, FAQ, REVIEWS, TOURS, UI, type Article } from "./content";
+import { ARTICLES, BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, TOURS, UI, type Article } from "./content";
 import { LONGTAIL_FAQ, LONGTAIL_INTRO, type LongtailFaqItem, type LongtailStep } from "./longtail-faq";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
 import { scrollToId, translate, useSI, useTx, waLink } from "./store";
@@ -366,10 +366,20 @@ export function LongtailFaq() {
             VS
           </span>
           <ScrollScene from="left" intensity={0.8}>
-            <StoryTimeline label={t(intro.them.label)} steps={intro.them.steps} variant="them" />
+            <StoryTimeline
+              label={t(intro.them.label)}
+              steps={intro.them.steps}
+              variant="them"
+              image={{ src: LONGTAIL_CROWD_IMG.src, alt: t(LONGTAIL_CROWD_IMG.alt) }}
+            />
           </ScrollScene>
           <ScrollScene from="right" intensity={0.8}>
-            <StoryTimeline label={t(intro.us.label)} steps={intro.us.steps} variant="us" />
+            <StoryTimeline
+              label={t(intro.us.label)}
+              steps={intro.us.steps}
+              variant="us"
+              image={{ src: IMG.hero, alt: t({ de: "Privates Speedboat vor einer leeren Insel in Krabi", en: "Private speedboat at an empty island in Krabi" }) }}
+            />
           </ScrollScene>
         </div>
 
@@ -416,7 +426,17 @@ export function LongtailFaq() {
   );
 }
 
-function StoryTimeline({ label, steps, variant }: { label: string; steps: LongtailStep[]; variant: "them" | "us" }) {
+function StoryTimeline({
+  label,
+  steps,
+  variant,
+  image,
+}: {
+  label: string;
+  steps: LongtailStep[];
+  variant: "them" | "us";
+  image: { src: string; alt: string };
+}) {
   const { t } = useTx();
   const us = variant === "us";
   return (
@@ -424,10 +444,29 @@ function StoryTimeline({ label, steps, variant }: { label: string; steps: Longta
       className={cn(
         "relative h-full overflow-hidden rounded-3xl p-5 sm:p-7",
         us
-          ? "si-glass si-glow-border shadow-[0_0_60px_-15px_rgb(6_182_212/0.55)]"
-          : "border border-white/10 bg-slate-900/40 grayscale backdrop-blur-sm",
+          ? "group si-glass si-glow-border shadow-[0_0_60px_-15px_rgb(6_182_212/0.55)]"
+          : "group border border-white/10 bg-slate-900/40 backdrop-blur-sm",
       )}
     >
+      <div className="relative -mx-5 -mt-5 mb-5 aspect-[2688/1520] overflow-hidden sm:-mx-7 sm:-mt-7">
+        <SmartImage
+          src={image.src}
+          alt={image.alt}
+          className={cn(
+            "absolute inset-0 size-full object-cover transition duration-700",
+            us ? "group-hover:scale-105" : "grayscale-[65%] group-hover:scale-105 group-hover:grayscale-0",
+          )}
+        />
+        <div
+          aria-hidden
+          className={cn(
+            "absolute inset-0 transition duration-700",
+            us
+              ? "bg-gradient-to-t from-si-navy/80 via-transparent to-transparent"
+              : "bg-gradient-to-t from-slate-950/85 via-slate-900/35 to-slate-900/30 group-hover:via-transparent group-hover:to-transparent",
+          )}
+        />
+      </div>
       {us ? <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-si-cyan/25 blur-3xl" /> : null}
       <p
         className={cn(

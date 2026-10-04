@@ -33,6 +33,18 @@ export const LONGTAIL_CROWD_IMG = {
   },
 };
 
+/** Higgsfield: our speedboat alone in a turquoise lagoon, couple relaxing with champagne. Move to /public/images/ for production. */
+export const ROMANCE_IMGS = [
+  "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_051237_8e5ea54a-568d-4ca4-8bf4-78a0ddb50b78_min.webp",
+  "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_051237_1d623517-1da5-4281-a981-3fcbf222bdb2_min.webp",
+].map((src) => ({
+  src,
+  alt: {
+    de: "Privates Speedboat in türkiser Lagune bei Krabi: Paar entspannt mit Champagner auf der Liegefläche",
+    en: "Private speedboat in a turquoise lagoon near Krabi: couple relaxing with champagne on the sun pad",
+  },
+}));
+
 const u = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;
 
