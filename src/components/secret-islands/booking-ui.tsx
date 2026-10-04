@@ -253,3 +253,24 @@ export function Field({
 
 export const inputCls =
   "w-full min-h-12 rounded-2xl border border-white/12 bg-white/[0.06] px-4 text-base text-white placeholder:text-slate-500 outline-none transition focus:border-si-cyan/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-si-cyan/15";
+
+/** "Inklusive" strip for island tours: snorkel, swim, relax. */
+export function IncludedStrip({ className }: { className?: string }) {
+  const { t } = useTx();
+  const items = [
+    { e: "🤿", l: t({ de: "Schnorchel-Equipment", en: "Snorkel gear" }) },
+    { e: "🏊", l: t({ de: "Zeit zum Schwimmen", en: "Time to swim" }) },
+    { e: "🌴", l: t({ de: "Entspannen im Schatten", en: "Relax in the shade" }) },
+  ];
+  return (
+    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.08] px-3 py-2 text-xs text-emerald-100", className)}>
+      <span className="font-bold uppercase tracking-wider text-emerald-300">{t({ de: "Inklusive", en: "Included" })}</span>
+      {items.map((i) => (
+        <span key={i.e} className="inline-flex items-center gap-1 whitespace-nowrap">
+          <span aria-hidden>{i.e}</span>
+          {i.l}
+        </span>
+      ))}
+    </div>
+  );
+}

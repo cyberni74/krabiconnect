@@ -19,7 +19,7 @@ import {
   type Draft,
 } from "./booking-model";
 import { ContactStep, DateStep, ExtrasStep, GuestsStep, TourStep } from "./booking-steps";
-import { AnimatedPrice } from "./booking-ui";
+import { AnimatedPrice, IncludedStrip } from "./booking-ui";
 import { QuickAddChips, QuickAddPanel } from "./booking-quick";
 import { btn } from "./fx";
 import { SmartImage, WhatsAppIcon, useLockBody } from "./ui";
@@ -232,7 +232,11 @@ function Wizard({
               <div className="border-t border-white/10 p-5">
                 <div className="flex items-end justify-between">
                   <span className="text-sm text-slate-400">{t({ de: "Richtpreis", en: "Estimate" })}</span>
-                  <AnimatedPrice value={price.total} className="si-text-gradient text-3xl font-extrabold" />
+                  {price.base ? (
+                    <AnimatedPrice value={price.total} className="si-text-gradient text-3xl font-extrabold" />
+                  ) : (
+                    <span className="text-sm font-semibold text-slate-400">{t({ de: "Tour wählen", en: "Choose a tour" })}</span>
+                  )}
                 </div>
                 <div className="mt-4 flex gap-2">
                   {step > 0 ? (
@@ -261,7 +265,11 @@ function Wizard({
               ) : null}
               <div className="min-w-0 flex-1 leading-tight">
                 <span className="block text-[11px] text-slate-400">{t({ de: "Richtpreis", en: "Estimate" })}</span>
-                <AnimatedPrice value={price.total} className="si-text-gradient text-xl font-extrabold" />
+                {price.base ? (
+                  <AnimatedPrice value={price.total} className="si-text-gradient text-xl font-extrabold" />
+                ) : (
+                  <span className="block text-sm font-semibold text-slate-400">{t({ de: "Tour wählen", en: "Choose a tour" })}</span>
+                )}
               </div>
               <NextButton label={nextLabel} disabled={nextDisabled} onClick={next} last={step === 4} />
             </div>
@@ -415,7 +423,7 @@ function SummaryPanel({ draft }: { draft: Draft }) {
           exit={{ opacity: 0, y: -8 }}
           className="mt-3 overflow-hidden rounded-2xl border border-white/10"
         >
-          <div className="relative h-28">
+          <div className="relative h-20">
             <SmartImage src={tour?.image ?? "https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=70"} alt="" className="absolute inset-0 size-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-si-navy to-transparent" />
             <p className="absolute inset-x-3 bottom-2 line-clamp-2 font-bold leading-snug text-white">
@@ -430,6 +438,7 @@ function SummaryPanel({ draft }: { draft: Draft }) {
         </motion.div>
       </AnimatePresence>
 
+      {tour?.kind !== "fishing" && (tour || draft.mode === "custom") ? <IncludedStrip className="mt-3" /> : null}
       <ul className="mt-4 space-y-2 text-sm">
         <Info icon={CalendarDays} text={dateStr ?? t({ de: "Datum offen", en: "Date open" })} muted={!dateStr} />
         <Info icon={Clock} text={slot ? `${slot.time} · ${t(slot.label)}` : t({ de: "Uhrzeit offen", en: "Time open" })} muted={!slot} />

@@ -43,6 +43,7 @@ import {
   AnimatedPrice,
   CheckDot,
   Chip,
+  IncludedStrip,
   Field,
   SectionHead,
   Stepper,
@@ -147,6 +148,7 @@ function PresetPicker({ draft, patch }: Omit<StepProps, "todayISO">) {
           </Chip>
         ))}
       </div>
+      {filter !== "fishing" && currentTour(draft)?.kind !== "fishing" ? <IncludedStrip className="mb-4" /> : null}
       <motion.div layout className="grid gap-3 md:grid-cols-2">
         <AnimatePresence initial={false}>
           {list.map((tour) => {
@@ -368,6 +370,10 @@ function CustomBuilder({ draft, patch }: Omit<StepProps, "todayISO">) {
 
       <section className="rounded-2xl border border-white/10 bg-black/20 p-4">
         <SectionHead title={t({ de: "Ihre Route", en: "Your route" })} />
+        <p className="-mt-1 mb-3 text-xs text-emerald-200">
+          <span aria-hidden>🤿🏊🌴 </span>
+          {t({ de: "An jedem Stopp: Schnorcheln, Schwimmen & Entspannen so lange Sie möchten", en: "At every stop: snorkel, swim & relax as long as you like" })}
+        </p>
         {names.length === 0 ? (
           <p className="text-sm text-slate-400">{t({ de: "Noch keine Insel gewählt – tippen Sie oben auf eine Insel.", en: "No island yet – tap an island above." })}</p>
         ) : (
