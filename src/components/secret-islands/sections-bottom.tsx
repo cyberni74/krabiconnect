@@ -1,19 +1,16 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { keepLang } from "./lang-context";
 import {
   ArrowRight,
   ArrowUpRight,
   BadgeCheck,
   CalendarClock,
   Check,
-  Clock,
   Mail,
   MapPin,
   MessageCircleQuestion,
   Plus,
   Quote,
   RefreshCcw,
-  Search,
   ShieldCheck,
   Sparkles,
   Star,
@@ -23,13 +20,15 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ARTICLES, BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, ROMANCE_IMGS, TOURS, UI, type Article } from "./content";
-import { ARTICLES as GUIDE_ARTICLES } from "../krabi-guide/articles";
+import { BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, ROMANCE_IMGS, TOURS, UI } from "./content";
+import { ARTICLES as GUIDE_ARTICLES, GUIDE_CATEGORIES, type GuideArticle, type GuideCategory } from "../krabi-guide/articles";
+import { ArticleCard as GuideArticleCard } from "../krabi-guide/guide-ui";
+import { keepLang } from "./lang-context";
 import { LONGTAIL_FAQ, LONGTAIL_INTRO, type LongtailFaqItem, type LongtailStep } from "./longtail-faq";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
-import { scrollToId, translate, useSI, useTx, waLink } from "./store";
+import { scrollToId, useSI, useTx, waLink } from "./store";
 import { BrandMark, SmartImage, WhatsAppIcon } from "./ui";
 
 /* ───────────────────────── Guide (blog / SEO) ───────────────────────── */
@@ -47,107 +46,56 @@ const GUIDE_TOP_LINKS = [
 ];
 
 export function Guide() {
-  const { t, tl, lang } = useTx();
-  const openArticle = useSI((s) => s.openArticle);
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("all");
-
-  const cats = useMemo(() => {
-    const seen = new Map<string, string>();
-    ARTICLES.forEach((a) => seen.set(a.category.de, translate(a.category, lang)));
-    return [...seen.entries()];
-  }, [lang]);
-
-  const list = ARTICLES.filter((a) => {
-    if (cat !== "all" && a.category.de !== cat) return false;
-    if (!q.trim()) return true;
-    const hay = `${t(a.title)} ${t(a.excerpt)} ${tl(a.body).join(" ")}`.toLowerCase();
-    return hay.includes(q.trim().toLowerCase());
-  });
-  const [featured, ...rest] = list;
+  const { t } = useTx();
+  const [cat, setCat] = useState<"all" | GuideCategory>("all");
+  const list = (
+    cat === "all"
+      ? GUIDE_TOP_LINKS.map((slug) => GUIDE_ARTICLES.find((a) => a.slug === slug)).filter((a): a is GuideArticle => !!a)
+      : GUIDE_ARTICLES.filter((a) => a.category === cat)
+  ).slice(0, 6);
 
   return (
-    <section id="guide" className="relative scroll-mt-16 py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4">
-        <ScrollScene from="tilt" intensity={0.6}>
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <SectionTitle eyebrow={t(UI.guideEyebrow)} title={t(UI.guideTitle)} sub={t(UI.guideSub)} className="mb-0" />
-            <label className="si-glass group relative flex h-14 w-full items-center rounded-2xl transition focus-within:ring-2 focus-within:ring-si-cyan/70 lg:w-96">
-              <Search className="pointer-events-none absolute left-4 size-5 text-cyan-200 transition group-focus-within:scale-110" />
-              <input
-                type="search"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={t(UI.searchPlaceholder)}
-                aria-label={t(UI.searchPlaceholder)}
-                className="size-full rounded-2xl bg-transparent pl-12 pr-12 text-base text-white outline-none placeholder:text-slate-400 [&::-webkit-search-cancel-button]:hidden"
-              />
-              {q ? (
-                <button
-                  type="button"
-                  onClick={() => setQ("")}
-                  aria-label={t({ de: "Suche löschen", en: "Clear search" })}
-                  className="absolute right-1.5 grid size-11 place-items-center rounded-xl text-slate-300 hover:text-white"
-                >
-                  <X className="size-4" />
-                </button>
-              ) : null}
-            </label>
-          </div>
+    <section id="guide" className="relative scroll-mt-24 px-4 py-24 sm:py-32">
+      <div className="mx-auto max-w-6xl">
+        <SectionTitle eyebrow={t(UI.guideEyebrow)} title={t(UI.guideTitle)} sub={t(UI.guideSub)} />
 
-          <div className="hide-scroll -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
-            {[["all", t({ de: "Alle", en: "All" })] as const, ...cats].map(([id, label]) => {
-              const active = cat === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setCat(id)}
-                  aria-pressed={active}
-                  className={cn(
-                    "relative h-11 shrink-0 rounded-full px-5 text-sm font-bold transition",
-                    active ? "text-si-navy" : "si-glass text-slate-200 hover:text-white",
-                  )}
-                >
-                  {active ? (
-                    <motion.span
-                      layoutId="si-guide-pill"
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-si-cyan to-cyan-300 shadow-[0_0_24px_-4px_rgb(6_182_212/0.8)]"
-                      transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                    />
-                  ) : null}
-                  <span className="relative">{label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </ScrollScene>
-
-        <div className="mt-8">
-          {list.length === 0 ? (
-            <GlassCard className="p-10 text-center text-slate-300">
-              <Search className="mx-auto mb-3 size-8 text-cyan-200/70" />
-              {t(UI.noResults)}
-            </GlassCard>
-          ) : (
-            <Assemble key={`${cat}-${q.trim()}`} className="grid gap-5 md:grid-cols-2 lg:grid-cols-3" stagger={0.09}>
-              {featured ? (
-                <AssembleItem variant="scale" className="md:col-span-2 lg:col-span-3">
-                  <FeaturedArticle article={featured} onOpen={() => openArticle(featured.id)} />
-                </AssembleItem>
+        <div role="tablist" className="hide-scroll -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+          {GUIDE_CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={cat === c.id}
+              onClick={() => setCat(c.id)}
+              className={cn(
+                "relative min-h-11 shrink-0 rounded-full px-4 text-sm font-bold transition",
+                cat === c.id ? "text-si-navy" : "si-glass text-slate-200 hover:text-white",
+              )}
+            >
+              {cat === c.id ? (
+                <motion.span
+                  layoutId="guide-cat-pill"
+                  className="absolute inset-0 rounded-full bg-gradient-to-r from-si-cyan to-cyan-300 shadow-[0_0_24px_-4px_rgb(6_182_212/0.8)]"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                />
               ) : null}
-              {rest.map((a, i) => (
-                <AssembleItem key={a.id} variant={i % 3 === 1 ? "flip" : "up"} className="h-full">
-                  <ArticleCard article={a} onOpen={() => openArticle(a.id)} />
-                </AssembleItem>
-              ))}
-            </Assemble>
-          )}
+              <span className="relative">{t(c.label)}</span>
+            </button>
+          ))}
         </div>
+
+        <Assemble key={cat} className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" stagger={0.08}>
+          {list.map((a, i) => (
+            <AssembleItem key={a.slug} variant={i % 3 === 1 ? "flip" : "up"} className="h-full">
+              <GuideArticleCard article={a} />
+            </AssembleItem>
+          ))}
+        </Assemble>
 
         <ScrollScene intensity={0.6} className="mt-10">
           <Link
-            to="/krabi-guide" search={keepLang}
+            to="/krabi-guide"
+            search={keepLang}
             className="si-glass si-glow-border group flex flex-col items-start gap-4 rounded-3xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
           >
             <span>
@@ -167,105 +115,11 @@ export function Guide() {
               <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </span>
           </Link>
-          {/* Crawlable deep links into the guide (internal linking from the landing page). */}
-          <nav aria-label={t({ de: "Beliebte Artikel im Insider Guide", en: "Popular Insider Guide articles" })} className="mt-4">
-            <ul className="flex flex-wrap gap-2">
-              {GUIDE_TOP_LINKS.map((slug) => {
-                const a = GUIDE_ARTICLES.find((x) => x.slug === slug);
-                if (!a) return null;
-                return (
-                  <li key={slug}>
-                    <Link
-                      to="/krabi-guide/$slug"
-                      params={{ slug }}
-                      search={keepLang}
-                      className="si-glass inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-semibold text-slate-200 transition hover:text-white"
-                    >
-                      {a.short[lang === "de" ? "de" : "en"]}
-                      <ArrowUpRight className="size-3.5 text-cyan-300" />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
         </ScrollScene>
       </div>
     </section>
   );
 }
-
-function ReadMeta({ article }: { article: Article }) {
-  const { t } = useTx();
-  return (
-    <span className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300">
-      <span className="rounded-full bg-si-cyan/15 px-2.5 py-1 font-bold text-cyan-200 ring-1 ring-si-cyan/30">
-        {t(article.category)}
-      </span>
-      <span className="flex items-center gap-1">
-        <Clock className="size-3.5" /> {article.minutes} {t(UI.minRead)}
-      </span>
-    </span>
-  );
-}
-
-function FeaturedArticle({ article, onOpen }: { article: Article; onOpen: () => void }) {
-  const { t } = useTx();
-  return (
-    <GlassCard as="button" glow onClick={onOpen} className="group block w-full overflow-hidden text-left">
-      <div className="grid md:grid-cols-[1.25fr_1fr]">
-        <div className="relative aspect-[16/10] overflow-hidden md:aspect-auto md:min-h-[340px]">
-          <SmartImage
-            src={article.image}
-            alt=""
-            className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-si-navy/90 via-si-navy/20 to-transparent md:bg-gradient-to-r md:from-transparent md:via-transparent md:to-si-navy/60" />
-          <span className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-si-gold px-3 py-1 text-xs font-extrabold text-si-navy shadow-lg">
-            <Sparkles className="size-3.5" /> {t({ de: "Top-Guide", en: "Featured" })}
-          </span>
-        </div>
-        <div className="flex flex-col gap-4 p-6 sm:p-8">
-          <ReadMeta article={article} />
-          <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">{t(article.title)}</h3>
-          <p className="leading-relaxed text-slate-300">{t(article.excerpt)}</p>
-          <span className="mt-auto inline-flex items-center gap-2 pt-2 font-bold text-cyan-200">
-            {t(UI.readMore)}
-            <span className="grid size-9 place-items-center rounded-full bg-si-cyan/20 ring-1 ring-si-cyan/40 transition group-hover:translate-x-1 group-hover:bg-si-cyan group-hover:text-si-navy">
-              <ArrowRight className="size-4" />
-            </span>
-          </span>
-        </div>
-      </div>
-    </GlassCard>
-  );
-}
-
-function ArticleCard({ article, onOpen }: { article: Article; onOpen: () => void }) {
-  const { t } = useTx();
-  return (
-    <GlassCard as="button" tilt onClick={onOpen} className="group flex h-full w-full flex-col overflow-hidden text-left">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-t-3xl">
-        <SmartImage
-          src={article.image}
-          alt=""
-          className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-si-navy/70 to-transparent" />
-      </div>
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <ReadMeta article={article} />
-        <h3 className="text-lg font-extrabold leading-snug text-white [overflow-wrap:anywhere]">{t(article.title)}</h3>
-        <p className="line-clamp-2 text-sm leading-relaxed text-slate-400">{t(article.excerpt)}</p>
-        <span className="mt-auto flex items-center gap-1 pt-1 text-sm font-bold text-cyan-200">
-          {t(UI.readMore)} <ArrowRight className="size-4 transition group-hover:translate-x-1" />
-        </span>
-      </div>
-    </GlassCard>
-  );
-}
-
-/* ───────────────────────── Reviews ───────────────────────── */
 
 const AVATAR_GRADIENTS = [
   "from-si-cyan to-blue-600",

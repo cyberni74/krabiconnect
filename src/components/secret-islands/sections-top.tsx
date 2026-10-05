@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, useScroll, useTransform, type PanInfo } from "framer-motion";
 import {
+  BookOpen,
   Check,
   ChevronDown,
   Globe,
@@ -12,11 +13,13 @@ import {
   Wand2,
   X,
 } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { BRAND, COMPARISON, IMG, LANGS, UI, VIDEO, type ComparisonId } from "./content";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, Marquee, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
 import { useSwitchLang } from "./lang";
+import { keepLang } from "./lang-context";
 import { scrollToId, useSI, useTx, waLink } from "./store";
 import { BrandMark, SmartImage, WhatsAppIcon } from "./ui";
 
@@ -25,7 +28,7 @@ const NAV = [
   { id: "angeln", label: { de: "Angeln", en: "Fishing" } },
   { id: "drohne", label: UI.navDrone },
   { id: "galerie", label: UI.navGallery },
-  { id: "guide", label: UI.navGuide },
+  { id: "guide", label: { de: "Insider Guide", en: "Insider Guide" } },
   { id: "faq", label: UI.navFaq },
 ];
 
@@ -37,6 +40,8 @@ export function Header() {
   const { t, tOp } = useTx();
   const openBooking = useSI((s) => s.openBooking);
   const [scrolled, setScrolled] = useState(false);
+  // Shared by the landing page and the Insider Guide: off the landing page, section links navigate back to it.
+  const onLanding = useRouterState({ select: (s) => s.location.pathname.startsWith("/secret-islands") });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -66,28 +71,55 @@ export function Header() {
             : "si-glass h-16 max-w-6xl",
         )}
       >
-        <a href="#top" className="flex min-w-0 items-center gap-2 pl-1 text-white" aria-label={BRAND.name}>
+        <Link
+          to="/secret-islands"
+          search={keepLang}
+          hash={onLanding ? "top" : undefined}
+          className="flex min-w-0 items-center gap-2 pl-1 text-white"
+          aria-label={BRAND.name}
+        >
           <BrandMark className={cn("transition-all duration-500", scrolled ? "size-9" : "size-10")} />
-          <span className="min-w-0 text-[13px] font-extrabold leading-[1.1] tracking-tight min-[360px]:text-[14px] sm:text-base">
+          <span className="hidden min-w-0 text-[13px] font-extrabold leading-[1.1] tracking-tight min-[360px]:block min-[360px]:text-[14px] sm:text-base">
             Krabi <span className="si-text-gradient">Secret</span> Islands
           </span>
-        </a>
+        </Link>
 
         <nav className="ml-4 hidden items-center gap-0.5 lg:flex">
-          {NAV.map((n) => (
-            <button
-              key={n.id}
-              type="button"
-              onClick={() => scrollToId(n.id)}
-              className="group relative rounded-full px-3 py-2 text-sm font-semibold text-slate-300 transition hover:text-white"
-            >
-              <span className="absolute inset-0 scale-75 rounded-full bg-white/10 opacity-0 transition group-hover:scale-100 group-hover:opacity-100" />
-              <span className="relative">{t(n.label)}</span>
-            </button>
-          ))}
+          {NAV.map((n) => {
+            const cls = "group relative rounded-full px-3 py-2 text-sm font-semibold text-slate-300 transition hover:text-white";
+            const inner = (
+              <>
+                <span className="absolute inset-0 scale-75 rounded-full bg-white/10 opacity-0 transition group-hover:scale-100 group-hover:opacity-100" />
+                <span className="relative">{t(n.label)}</span>
+              </>
+            );
+            if (n.id === "guide")
+              return (
+                <Link key={n.id} to="/krabi-guide" search={keepLang} className={cls} activeProps={{ className: "text-white" }}>
+                  {inner}
+                </Link>
+              );
+            return onLanding ? (
+              <button key={n.id} type="button" onClick={() => scrollToId(n.id)} className={cls}>
+                {inner}
+              </button>
+            ) : (
+              <Link key={n.id} to="/secret-islands" search={keepLang} hash={n.id} className={cls}>
+                {inner}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <Link
+            to="/krabi-guide"
+            search={keepLang}
+            aria-label="Insider Guide"
+            className="si-glass grid size-11 place-items-center rounded-full text-cyan-200 transition hover:text-white lg:hidden"
+          >
+            <BookOpen className="size-5" />
+          </Link>
           <LangMenu />
           <a
             href={waLink(waText)}

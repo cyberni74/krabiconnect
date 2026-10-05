@@ -4,16 +4,17 @@
  */
 import { Link } from "@tanstack/react-router";
 import { keepLang } from "../secret-islands/lang-context";
-import { ArrowRight, BookOpen, ChevronRight, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronRight, Clock, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { BookingModal } from "../secret-islands/booking";
+import { BottomBar, Header } from "../secret-islands/sections-top";
 import { BRAND, type Tour } from "../secret-islands/content";
 import { AuroraBackground, GlassCard, ScrollProgress, btn } from "../secret-islands/fx";
 import { BrandMark, WhatsAppIcon, unsplashSrcSet } from "../secret-islands/ui";
-import { LangBoundary, useHtmlLang, useSwitchLang, useUrlLang } from "../secret-islands/lang";
-import { formatTHB, useLang, useSI, useTx, waLink } from "../secret-islands/store";
-import { useGuideLang, type GuideLang } from "./guide-helpers";
+import { LangBoundary, useHtmlLang, useUrlLang } from "../secret-islands/lang";
+import { formatTHB, useSI, useTx, waLink } from "../secret-islands/store";
+import { useGuideLang } from "./guide-helpers";
 import { ARTICLES, CATEGORY_LABEL, type Bi, type GuideArticle } from "./articles";
 
 /* ───────── Image with fallback chain ───────── */
@@ -79,64 +80,13 @@ function GuideShellBody({ children }: { children: ReactNode }) {
     <div className="relative isolate min-h-dvh overflow-x-clip font-jakarta text-white antialiased">
       <AuroraBackground />
       <ScrollProgress />
-      <GuideHeader />
+      {/* Same header + mobile action bar as the landing page – the guide is part of the site. */}
+      <Header />
       <main className="pb-16">{children}</main>
       <GuideFooter />
+      <BottomBar />
       <BookingModal />
     </div>
-  );
-}
-
-function GuideHeader() {
-  const { t } = useTx();
-  const lang = useLang();
-  const setLang = useSwitchLang();
-  const shown: GuideLang = lang === "de" ? "de" : "en";
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
-      <nav
-        aria-label={t({ de: "Hauptnavigation", en: "Main navigation" })}
-        className="si-glass-strong mx-auto flex h-14 max-w-6xl items-center gap-2 rounded-full pl-2 pr-2 sm:pl-3"
-      >
-        <Link to="/secret-islands" search={keepLang} className="flex min-w-0 items-center gap-2 rounded-full py-1 pr-2">
-          <BrandMark className="size-9" />
-          <span className="hidden truncate text-sm font-extrabold tracking-tight sm:inline">{BRAND.name}</span>
-        </Link>
-        <Link
-          to="/krabi-guide" search={keepLang}
-          className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-sm font-bold text-cyan-200 hover:bg-white/10 min-[360px]:px-3"
-          activeOptions={{ exact: true }}
-        >
-          <BookOpen className="size-4" />
-          Insider Guide
-        </Link>
-        <div className="ml-auto flex items-center gap-1.5">
-          <Link
-            to="/secret-islands" search={keepLang}
-            hash="touren"
-            className="hidden min-h-11 items-center rounded-full px-4 text-sm font-bold text-white/90 hover:bg-white/10 md:flex"
-          >
-            {t({ de: "Touren", en: "Tours" })}
-          </Link>
-          <div role="group" aria-label={t({ de: "Sprache", en: "Language" })} className="flex rounded-full bg-white/5 p-1">
-            {(["de", "en"] as const).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setLang(l)}
-                aria-pressed={shown === l}
-                className={cn(
-                  "grid h-11 min-w-11 place-items-center rounded-full px-2 text-xs font-extrabold uppercase transition",
-                  shown === l ? "bg-white text-si-navy" : "text-white/70 hover:text-white",
-                )}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
-    </header>
   );
 }
 
@@ -285,7 +235,7 @@ function GuideFooter() {
     { title: { de: "Insider-Wissen", en: "Insider know-how" }, items: ARTICLES.filter((a) => a.category === "insider") },
   ];
   return (
-    <footer className="relative border-t border-white/10 bg-si-navy/60 px-4 pb-10 pt-14 backdrop-blur sm:px-6">
+    <footer className="relative border-t border-white/10 bg-si-navy/60 px-4 pb-28 pt-14 backdrop-blur sm:px-6 md:pb-10">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <div>

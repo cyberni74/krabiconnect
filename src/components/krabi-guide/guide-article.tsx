@@ -62,7 +62,7 @@ function ArticleView({ article }: { article: GuideArticle }) {
   return (
     <article lang={lang}>
       {/* Hero */}
-      <header className="relative px-4 pt-24 sm:px-6 sm:pt-28">
+      <header className="relative px-4 pt-28 sm:px-6 sm:pt-32">
         <div className="mx-auto max-w-6xl">
           <Breadcrumb article={article} />
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_40px_120px_-40px_rgb(6_182_212/0.45)]">

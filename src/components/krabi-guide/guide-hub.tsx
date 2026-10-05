@@ -29,7 +29,7 @@ function HubHero() {
   const lang = useGuideLang();
   const featured = getArticle(FEATURED_SLUG)!;
   return (
-    <section className="relative px-4 pb-10 pt-24 sm:px-6 sm:pt-32">
+    <section className="relative px-4 pb-10 pt-28 sm:px-6 sm:pt-32">
       <div className="mx-auto max-w-6xl">
         <Breadcrumb />
         <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_1fr]">
