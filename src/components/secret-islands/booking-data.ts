@@ -21,19 +21,24 @@ export const ZONE_LABEL: Record<Zone, L> = {
   far: { de: "Weit · 60+ Min.", en: "Far · 60+ min" },
 };
 
+/**
+ * Picker images: the island's own scene where one exists. Islands without their own picture (Lao Lading, Pakbia,
+ * Nok, Chicken, Yawasam) show a neutral scene whose alt describes the picture, never the island name
+ * (alt comes from IMAGE_ALT by URL). Replace with real photos of those islands when available.
+ */
 export const ISLANDS: Island[] = [
-  { id: "poda", name: "Koh Poda", zone: "near", minutes: 15, image: IMG.beach, tag: { de: "Traumstrand", en: "Dream beach" }, desc: { de: "Weißer Sand, Kalksteinturm, ideales Badewasser.", en: "White sand, limestone tower, perfect swimming." } },
-  { id: "chicken", name: "Chicken Island", zone: "near", minutes: 15, image: IMG.snorkel, tag: { de: "Schnorcheln", en: "Snorkeling" }, desc: { de: "Bunte Riffe direkt am markanten Hühnerkopf-Felsen.", en: "Colourful reefs right by the famous chicken-head rock." } },
-  { id: "tup", name: "Tup Sandbank", zone: "near", minutes: 15, image: IMG.sandbar, tag: { de: "Nur bei Ebbe", en: "Low tide only" }, desc: { de: "Zu Fuß übers Meer zwischen zwei Inseln.", en: "Walk across the sea between two islands." } },
-  { id: "phranang", name: "Phra Nang & Railay", zone: "near", minutes: 10, image: IMG.cliffs, tag: { de: "Ikone", en: "Icon" }, desc: { de: "Höhle, Kletterfelsen und einer der schönsten Strände Asiens.", en: "Cave, climbing cliffs and one of Asia's finest beaches." } },
-  { id: "hong", name: "Koh Hong (Krabi)", zone: "mid", minutes: 35, image: IMG.lagoon, tag: { de: "Lagune", en: "Lagoon" }, desc: { de: "Smaragdgrüne Lagune, umringt von Felswänden.", en: "Emerald lagoon ringed by rock walls." } },
-  { id: "laolading", name: "Koh Lao Lading", zone: "mid", minutes: 35, image: IMG.bay, tag: { de: "Mini-Bucht", en: "Tiny cove" }, desc: { de: "Winzige Bucht mit Schatten unter Klippen.", en: "Tiny cove with shade under the cliffs." } },
-  { id: "pakbia", name: "Koh Pakbia", zone: "mid", minutes: 35, image: IMG.island, tag: { de: "Doppelstrand", en: "Twin beach" }, desc: { de: "Zwei Strände, verbunden durch eine Sandzunge.", en: "Two beaches joined by a sand spit." } },
-  { id: "yawasam", name: "Koh Yawasam", zone: "mid", minutes: 30, image: IMG.aerial, tag: { de: "Angelspot", en: "Fishing spot" }, desc: { de: "Fischreiches Riff – perfekt für einen Angelstopp.", en: "Rich reef – perfect for a fishing stop." } },
-  { id: "roi", name: "Koh Roi", zone: "far", minutes: 60, image: IMG.cliffs, tag: { de: "Geheim", en: "Secret" }, desc: { de: "Versteckte Lagune hinter einem Felstunnel.", en: "Hidden lagoon behind a rock tunnel." } },
-  { id: "kudu", name: "Koh Kudu", zone: "far", minutes: 60, image: IMG.bay, tag: { de: "Geheim", en: "Secret" }, desc: { de: "Zum Himmel offene Höhle – kaum besucht.", en: "Sky-open cave chamber – hardly visited." } },
-  { id: "nok", name: "Koh Nok", zone: "far", minutes: 55, image: IMG.beach, tag: { de: "Einsam", en: "Deserted" }, desc: { de: "Einsamer Strand für Ihr Picknick.", en: "Lonely beach for your picnic." } },
-  { id: "phiphi", name: "Phi Phi & Maya Bay", zone: "far", minutes: 50, image: IMG.lagoon, tag: { de: "Weltberühmt", en: "World famous" }, desc: { de: "Maya Bay und Pileh-Lagune – am besten früh.", en: "Maya Bay and Pileh Lagoon – best early." } },
+  { id: "poda", name: "Koh Poda", zone: "near", minutes: 15, image: IMG.poda, tag: { de: "Traumstrand", en: "Dream beach" }, desc: { de: "Weißer Sand, Kalksteinturm, ideales Badewasser.", en: "White sand, limestone tower, perfect swimming." } },
+  { id: "chicken", name: "Chicken Island", zone: "near", minutes: 15, image: IMG.reef, tag: { de: "Schnorcheln", en: "Snorkeling" }, desc: { de: "Bunte Riffe direkt am markanten Hühnerkopf-Felsen.", en: "Colourful reefs right by the famous chicken-head rock." } },
+  { id: "tup", name: "Tup Sandbank", zone: "near", minutes: 15, image: IMG.tup, tag: { de: "Nur bei Ebbe", en: "Low tide only" }, desc: { de: "Zu Fuß übers Meer zwischen zwei Inseln.", en: "Walk across the sea between two islands." } },
+  { id: "phranang", name: "Phra Nang & Railay", zone: "near", minutes: 10, image: IMG.railay, tag: { de: "Ikone", en: "Icon" }, desc: { de: "Höhle, Kletterfelsen und einer der schönsten Strände Asiens.", en: "Cave, climbing cliffs and one of Asia's finest beaches." } },
+  { id: "hong", name: "Koh Hong (Krabi)", zone: "mid", minutes: 35, image: IMG.hong, tag: { de: "Lagune", en: "Lagoon" }, desc: { de: "Smaragdgrüne Lagune, umringt von Felswänden.", en: "Emerald lagoon ringed by rock walls." } },
+  { id: "laolading", name: "Koh Lao Lading", zone: "mid", minutes: 35, image: IMG.droneAerial, tag: { de: "Mini-Bucht", en: "Tiny cove" }, desc: { de: "Winzige Bucht mit Schatten unter Klippen.", en: "Tiny cove with shade under the cliffs." } },
+  { id: "pakbia", name: "Koh Pakbia", zone: "mid", minutes: 35, image: IMG.snorkelCouple, tag: { de: "Doppelstrand", en: "Twin beach" }, desc: { de: "Zwei Strände, verbunden durch eine Sandzunge.", en: "Two beaches joined by a sand spit." } },
+  { id: "yawasam", name: "Koh Yawasam", zone: "mid", minutes: 30, image: IMG.fishReef, tag: { de: "Angelspot", en: "Fishing spot" }, desc: { de: "Fischreiches Riff – perfekt für einen Angelstopp.", en: "Rich reef – perfect for a fishing stop." } },
+  { id: "roi", name: "Koh Roi", zone: "far", minutes: 60, image: IMG.roi, tag: { de: "Geheim", en: "Secret" }, desc: { de: "Versteckte Lagune hinter einem Felstunnel.", en: "Hidden lagoon behind a rock tunnel." } },
+  { id: "kudu", name: "Koh Kudu", zone: "far", minutes: 60, image: IMG.kudu, tag: { de: "Geheim", en: "Secret" }, desc: { de: "Zum Himmel offene Höhle – kaum besucht.", en: "Sky-open cave chamber – hardly visited." } },
+  { id: "nok", name: "Koh Nok", zone: "far", minutes: 55, image: IMG.droneAerial, tag: { de: "Einsam", en: "Deserted" }, desc: { de: "Einsamer Strand für Ihr Picknick.", en: "Lonely beach for your picnic." } },
+  { id: "phiphi", name: "Phi Phi & Maya Bay", zone: "far", minutes: 50, image: IMG.maya, tag: { de: "Weltberühmt", en: "World famous" }, desc: { de: "Maya Bay und Pileh-Lagune – am besten früh.", en: "Maya Bay and Pileh Lagoon – best early." } },
 ];
 
 export type DurationId = "half" | "sunset" | "full" | "extended";

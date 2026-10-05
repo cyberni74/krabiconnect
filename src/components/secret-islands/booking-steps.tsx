@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { BRAND, TOUR_FILTERS, TOURS, type TourCategory } from "./content";
+import { BRAND, TOUR_FILTERS, TOURS, altFor, type TourCategory } from "./content";
 import {
   BOOKING_EXTRAS,
   CATERING_PACKAGE,
@@ -171,7 +171,7 @@ function PresetPicker({ draft, patch }: Omit<StepProps, "todayISO">) {
                 )}
               >
                 <div className="relative w-24 shrink-0 overflow-hidden rounded-xl sm:w-28">
-                  <SmartImage src={tour.image} alt={t(tour.title)} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-110" />
+                  <SmartImage src={tour.image} alt={t(altFor(tour.image))} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-110" />
                   {tour.kind === "fishing" ? (
                     <span className="absolute left-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-black/50 text-sm backdrop-blur" aria-label={t({ de: "Angeltour", en: "Fishing trip" })}>
                       🎣
@@ -332,7 +332,7 @@ function CustomBuilder({ draft, patch }: Omit<StepProps, "todayISO">) {
                           disabled && "cursor-not-allowed opacity-40 grayscale",
                         )}
                       >
-                        <SmartImage src={isl.image} alt={isl.name} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-110" />
+                        <SmartImage src={isl.image} alt={t(altFor(isl.image))} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-110" />
                         <span className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/40 to-transparent" />
                         <span className="absolute inset-x-2.5 bottom-2 block">
                           <span className="block text-sm font-bold leading-tight text-white">{isl.name}</span>

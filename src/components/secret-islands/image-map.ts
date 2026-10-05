@@ -10,15 +10,15 @@ export const SEO_IMAGES: Record<string, string> = {
   "tup-sandbank-krabi-ebbe-drohnenaufnahme.webp": "hf_20261005_002150_dfdc534c-9c4e-4bec-b0a0-7b576b419b45_min.webp",
   "hong-island-krabi-smaragdgruene-lagune.webp": "hf_20261005_002150_9a0e33b6-f442-46a5-9017-2eda9b1de6a4_min.webp",
   "koh-roi-versteckte-lagune-phang-nga.webp": "hf_20261005_002151_280755de-327f-4601-b6bd-311a5ea5251e_min.webp",
-  "koh-kudu-hong-hoehle-phang-nga.webp": "hf_20261005_002151_c63538fc-208f-4006-9912-f9011184d205_min.webp",
+  "koh-kudu-hoehle-phang-nga-bucht.webp": "hf_20261005_002151_c63538fc-208f-4006-9912-f9011184d205_min.webp",
   "maya-bay-phi-phi-sonnenaufgang.webp": "hf_20261005_002150_68ec7119-d389-408e-8d9d-54589be6ed12_min.webp",
   "schnorcheln-krabi-korallenriff-schildkroete.webp": "hf_20261005_002152_3dee514d-3244-4148-8ed2-cb0bb316fa60_min.webp",
   "paar-schnorcheln-privates-speedboat-krabi.webp": "hf_20261005_002150_98a1e3a6-b5bc-4a7d-9b11-e3555a5db8e8_min.webp",
   "leuchtendes-plankton-krabi-nacht-speedboat.webp": "hf_20261005_002152_f24dca4e-a654-4ac1-8de2-d84cfd0de8f4_min.webp",
   "riff-angeln-krabi-zackenbarsch.webp": "hf_20261005_002151_b7e84fd8-797e-4d99-b423-402e02292489_min.webp",
-  "hochsee-angeln-trolling-andamanensee.webp": "hf_20261005_002151_a3ce8116-0f18-4d0e-81d8-0d77bf41ece2_min.webp",
-  "tintenfisch-angeln-nacht-krabi.webp": "hf_20261005_002149_a748fc59-1529-499e-ab29-09242a05de21_min.webp",
-  "strand-bbq-sonnenuntergang-krabi.webp": "hf_20261005_002200_1514cd4f-b5d3-4b48-8089-4193f0182997_min.webp",
+  "hochseeangeln-krabi-trolling-andamanensee.webp": "hf_20261005_002151_a3ce8116-0f18-4d0e-81d8-0d77bf41ece2_min.webp",
+  "nacht-tintenfischangeln-krabi.webp": "hf_20261005_002149_a748fc59-1529-499e-ab29-09242a05de21_min.webp",
+  "catch-and-cook-bbq-krabi-sonnenuntergang.webp": "hf_20261005_002200_1514cd4f-b5d3-4b48-8089-4193f0182997_min.webp",
   "candlelight-dinner-speedboat-sonnenuntergang-krabi.webp": "hf_20261005_002200_f4dd418a-7451-4032-ae1f-351ed5c93341_min.webp",
   "familie-sandbank-krabi-kinder-schnorcheln.webp": "hf_20261005_002201_56ca4fae-a945-432b-9bae-69a8023e2e41_min.webp",
   "james-bond-island-phang-nga-bucht.webp": "hf_20261005_002200_9872044f-6330-4365-aceb-57ede1e306a3_min.webp",
@@ -28,6 +28,19 @@ export const SEO_IMAGES: Record<string, string> = {
   "privates-speedboat-krabi-paar-champagner-2.webp": "hf_20261004_051237_1d623517-1da5-4281-a981-3fcbf222bdb2_min.webp",
   "longtail-boot-krabi-ueberfuellt.webp": "hf_20261004_051122_eda16af9-06c0-4627-ba34-f2df5c945e33_min.webp",
   "krabi-secret-islands-logo.png": "hf_20261004_044905_49752f2a-c380-4b9a-a061-294ac851b827.png",
+};
+
+/**
+ * Renamed files (2026-10-05, image SEO pass): old name → current name. `/bilder/<old>` answers with a 301 to
+ * `/bilder/<new>` so already-discovered URLs keep their signals. Keep these entries for at least a year.
+ * TODO(images): when the files move to /public/images, redirect BOTH the old and the current /bilder/ names
+ * straight to /images/<current> (one hop, no redirect chains) – see docs/images.md.
+ */
+export const RENAMED_IMAGES: Record<string, string> = {
+  "koh-kudu-hong-hoehle-phang-nga.webp": "koh-kudu-hoehle-phang-nga-bucht.webp",
+  "hochsee-angeln-trolling-andamanensee.webp": "hochseeangeln-krabi-trolling-andamanensee.webp",
+  "tintenfisch-angeln-nacht-krabi.webp": "nacht-tintenfischangeln-krabi.webp",
+  "strand-bbq-sonnenuntergang-krabi.webp": "catch-and-cook-bbq-krabi-sonnenuntergang.webp",
 };
 
 export const seoImage = (name: keyof typeof SEO_IMAGES & string) => `/bilder/${name}`;

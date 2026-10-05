@@ -22,7 +22,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { BRAND, FAQ, IMG, LONGTAIL_CROWD_IMG, REVIEWS, ROMANCE_IMGS, TOURS, UI } from "./content";
+import { BRAND, FAQ, LONGTAIL_CROWD_IMG, REVIEWS, ROMANCE_IMGS, TOURS, UI, altFor } from "./content";
 import { ARTICLES as GUIDE_ARTICLES, GUIDE_CATEGORIES, type GuideArticle, type GuideCategory } from "../krabi-guide/articles";
 import { ArticleCard as GuideArticleCard } from "../krabi-guide/guide-ui";
 import { keepLang } from "./lang-context";
@@ -283,7 +283,7 @@ export function LongtailFaq() {
               label={t(intro.them.label)}
               steps={intro.them.steps}
               variant="them"
-              image={{ src: LONGTAIL_CROWD_IMG.src, alt: t(LONGTAIL_CROWD_IMG.alt) }}
+              image={{ src: LONGTAIL_CROWD_IMG.src, alt: t(altFor(LONGTAIL_CROWD_IMG.src)) }}
             />
           </ScrollScene>
           <ScrollScene from="right" intensity={0.8}>
@@ -291,11 +291,7 @@ export function LongtailFaq() {
               label={t(intro.us.label)}
               steps={intro.us.steps}
               variant="us"
-              image={
-                ROMANCE_IMGS[0]
-                  ? { src: ROMANCE_IMGS[0].src, alt: t(ROMANCE_IMGS[0].alt) }
-                  : { src: IMG.hero, alt: t({ de: "Privates Speedboat vor einer leeren Insel in Krabi", en: "Private speedboat at an empty island in Krabi" }) }
-              }
+              image={{ src: ROMANCE_IMGS[0].src, alt: t(altFor(ROMANCE_IMGS[0].src)) }}
             />
           </ScrollScene>
         </div>

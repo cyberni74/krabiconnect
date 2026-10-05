@@ -4,7 +4,7 @@ import {
   Check,
   ChevronDown,
   Globe,
-  Play,
+  Images,
   Sailboat,
   ShieldCheck,
   Sparkles,
@@ -16,7 +16,7 @@ import {
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { BRAND, COMPARISON, IMG, LANGS, UI, VIDEO, type ComparisonId } from "./content";
+import { AERIAL_SHOTS, BRAND, COMPARISON, IMG, LANGS, UI, altFor, type ComparisonId } from "./content";
 import { Assemble, AssembleItem, CountUp, GlassCard, Magnetic, Marquee, ScrollScene, SectionTitle, SplitReveal, btn } from "./fx";
 import { useSwitchLang } from "./lang";
 import { keepLang } from "./lang-context";
@@ -287,15 +287,7 @@ export function Hero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
   const statsY = useTransform(scrollYProgress, [0, 1], [0, -90]);
 
-  const showDrone = () =>
-    openLightbox(
-      [
-        { src: IMG.aerial, title: "Cinematic Drone – Phang Nga", video: VIDEO.cinematic },
-        { src: IMG.sandbar, title: "Reel – Koh Kudu", video: VIDEO.reel1 },
-        { src: IMG.lagoon, title: "Reel – Hong Lagoon", video: VIDEO.reel2 },
-      ],
-      0,
-    );
+  const showDrone = () => openLightbox(AERIAL_SHOTS.map((s) => ({ src: s.src, title: t(s.title) })), 0);
 
   const stats = [
     { node: <CountUp to={100} suffix=" %" />, icon: <Star className="size-4 fill-si-gold text-si-gold" />, label: UI.stats[0].l },
@@ -307,7 +299,7 @@ export function Hero() {
     <>
       <section ref={ref} id="top" className="relative isolate flex min-h-[100svh] items-end overflow-hidden">
         <motion.div style={{ y: bgY, scale: bgScale }} className="si-fallback absolute inset-0 -z-20 will-change-transform">
-          <SmartImage src={IMG.hero} alt={t({ de: "Luftaufnahme von Koh Hong bei Krabi: türkises Wasser, weißer Sandstrand und Kalksteinfelsen", en: "Aerial view of Koh Hong near Krabi: turquoise water, white sand beach and limestone cliffs" })} priority className="absolute inset-0 size-full object-cover object-[50%_62%]" />
+          <SmartImage src={IMG.hero} alt={t(altFor(IMG.hero))} priority className="absolute inset-0 size-full object-cover object-[50%_62%]" />
         </motion.div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-si-navy via-si-navy/60 to-si-navy/20" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(80%_60%_at_15%_85%,rgb(6_182_212/0.25),transparent_70%)]" />
@@ -365,7 +357,7 @@ export function Hero() {
               >
                 <span className="relative grid size-12 place-items-center rounded-full bg-white text-si-navy">
                   <span className="absolute inset-0 animate-ping rounded-full bg-white/40 [animation-duration:2.2s]" />
-                  <Play className="relative ml-0.5 size-4 fill-current" />
+                  <Images className="relative size-4" />
                 </span>
                 <span className="underline-offset-4 group-hover:underline">{t(UI.heroSecondary)}</span>
               </button>

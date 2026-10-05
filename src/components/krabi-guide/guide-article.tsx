@@ -4,7 +4,8 @@ import { CalendarDays, Check, ChevronDown, Clock, Lightbulb, ListTree, Sparkles 
 import { cn } from "@/lib/utils";
 import { Assemble, AssembleItem, GlassCard, SectionTitle, btn } from "../secret-islands/fx";
 import { useSI, useTx } from "../secret-islands/store";
-import { CATEGORY_LABEL, guideImageSrc, relatedArticles, type GuideArticle } from "./articles";
+import { altFor } from "../secret-islands/content";
+import { CATEGORY_LABEL, readyGuideImages, relatedArticles, type GuideArticle } from "./articles";
 import {
   ArticleCard,
   Breadcrumb,
@@ -58,6 +59,7 @@ function ArticleView({ article }: { article: GuideArticle }) {
   const tours = toursByIds(article.tourIds);
   const related = relatedArticles(article);
   const tocTitle = t({ de: "Inhalt", en: "Contents" });
+  const gallery = readyGuideImages(article);
 
   return (
     <article lang={lang}>
@@ -68,7 +70,7 @@ function ArticleView({ article }: { article: GuideArticle }) {
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_40px_120px_-40px_rgb(6_182_212/0.45)]">
             <GuideImage
               src={article.image}
-              alt={article.h1[lang]}
+              alt={altFor(article.image)[lang]}
               priority
               sizes="(min-width: 1152px) 1152px, 100vw"
               className="aspect-[4/3] w-full object-cover sm:aspect-[21/9]"
@@ -150,15 +152,15 @@ function ArticleView({ article }: { article: GuideArticle }) {
             </section>
           ))}
 
-          {article.images?.length ? (
+          {gallery.length ? (
             <section aria-label={t({ de: "Bilder", en: "Photos" })} className="pt-10">
               <div className="grid grid-cols-2 gap-3">
-                {article.images.map((img, i) => (
-                  <figure key={img.src} className={cn("overflow-hidden rounded-2xl", (i === 0 || (i === article.images!.length - 1 && i % 2 === 1)) && "col-span-2")}>
+                {gallery.map((img, i) => (
+                  <figure key={img.src} className={cn("overflow-hidden rounded-2xl", (i === 0 || (i === gallery.length - 1 && i % 2 === 1)) && "col-span-2")}>
                     <GuideImage
-                      src={guideImageSrc(img)}
+                      src={img.src}
                       alt={img.alt[lang]}
-                      className={cn("w-full object-cover", i === 0 || (i === article.images!.length - 1 && i % 2 === 1) ? "aspect-[16/9]" : "aspect-square")}
+                      className={cn("w-full object-cover", i === 0 || (i === gallery.length - 1 && i % 2 === 1) ? "aspect-[16/9]" : "aspect-square")}
                     />
                     <figcaption className="sr-only">{img.alt[lang]}</figcaption>
                   </figure>

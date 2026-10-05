@@ -9,7 +9,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { BookingModal } from "../secret-islands/booking";
 import { BottomBar, Header } from "../secret-islands/sections-top";
-import { BRAND, type Tour } from "../secret-islands/content";
+import { BRAND, altFor, type Tour } from "../secret-islands/content";
 import { AuroraBackground, GlassCard, ScrollProgress, btn } from "../secret-islands/fx";
 import { BrandMark, WhatsAppIcon, unsplashSrcSet } from "../secret-islands/ui";
 import { LangBoundary, useHtmlLang, useUrlLang } from "../secret-islands/lang";
@@ -143,7 +143,7 @@ export function ArticleCard({ article, className }: { article: GuideArticle; cla
         <div className="relative aspect-[16/10] overflow-hidden">
           <GuideImage
             src={article.image}
-            alt={article.h1[lang]}
+            alt={altFor(article.image)[lang]}
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="size-full object-cover transition duration-700 group-hover:scale-105"
           />
@@ -177,7 +177,7 @@ export function TourCard({ tour }: { tour: Tour }) {
   return (
     <GlassCard glow className="flex h-full flex-col overflow-hidden">
       <div className="relative aspect-[16/9] overflow-hidden">
-        <GuideImage src={tour.image} alt={t(tour.title)} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="size-full object-cover" />
+        <GuideImage src={tour.image} alt={t(altFor(tour.image))} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="size-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-si-navy/85 via-si-navy/10 to-transparent" />
         <span className="absolute bottom-3 left-3 rounded-full bg-si-navy/70 px-2.5 py-1 text-[11px] font-bold text-cyan-100 backdrop-blur">
           {t(tour.duration)}

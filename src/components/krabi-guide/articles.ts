@@ -11,7 +11,7 @@ import { PILLAR_ARTICLES } from "./data-pillar";
 import { SNORKEL_RELAX } from "./data-snorkel-relax";
 import { EXTRA_SECTIONS } from "./data-extra";
 import { EXTRA_SECTIONS_2 } from "./data-extra2";
-import type { Bi, GuideArticle, GuideArticleInput, GuideCategory, GuideSection } from "./types";
+import type { Bi, GuideArticle, GuideArticleInput, GuideCategory, GuideImage, GuideSection } from "./types";
 
 export type { Bi, GuideArticle, GuideCategory, GuideImage, GuideSection } from "./types";
 
@@ -131,16 +131,16 @@ export function relatedArticles(a: GuideArticle): GuideArticle[] {
 
 /**
  * Licensed guide photos that are already uploaded to /public/images/guide/.
- * Add a file name here once the file exists; until then the article's IMG.* fallback is shown
- * (avoids 404 requests for photos that are still missing).
+ * Add a file name here once the file exists; until then that gallery slot is not rendered
+ * (no 404s, and no unrelated stand-in picture under a plankton alt text).
  */
 export const GUIDE_IMAGES_READY = new Set<string>([
-  // "krabi-leuchtendes-plankton-nacht-speedboat-1.webp",
+  // "leuchtendes-plankton-krabi-nacht-wasser.webp",
 ]);
 
-export function guideImageSrc(img: { src: string; fallback: string }) {
-  const file = img.src.split("/").pop() ?? "";
-  return GUIDE_IMAGES_READY.has(file) ? img.src : img.fallback;
+/** Gallery photos of an article whose files exist. */
+export function readyGuideImages(a: { images?: GuideImage[] }): GuideImage[] {
+  return (a.images ?? []).filter((img) => GUIDE_IMAGES_READY.has(img.src.split("/").pop() ?? ""));
 }
 
 export const FEATURED_SLUG = "krabi-islands-insider-guide";

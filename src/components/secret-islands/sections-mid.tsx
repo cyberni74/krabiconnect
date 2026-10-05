@@ -8,8 +8,6 @@ import {
   Expand,
   Fish,
   MapPin,
-  Pause,
-  Play,
   Plane,
   ShieldCheck,
   Sparkles,
@@ -22,11 +20,11 @@ import { DURATIONS } from "./booking-data";
 import {
   GALLERY,
   GALLERY_TABS,
-  IMG,
   TOUR_FILTERS,
   TOURS,
   UI,
-  VIDEO,
+  altFor,
+  AERIAL_SHOTS,
   type GalleryCat,
   type L,
   type Tour,
@@ -224,7 +222,7 @@ function TourCard({ tour }: { tour: Tour }) {
       <div className="relative aspect-[4/3] overflow-hidden rounded-t-3xl">
         <SmartImage
           src={tour.image}
-          alt={t(tour.title)}
+          alt={t(altFor(tour.image))}
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 85vw"
           className="si-fallback size-full object-cover transition duration-700 ease-out group-hover:scale-110"
         />
@@ -457,7 +455,7 @@ function FishingCard({ tour }: { tour: Tour }) {
       <div className="relative w-32 shrink-0 overflow-hidden rounded-l-3xl sm:aspect-[16/10] sm:w-full sm:rounded-l-none sm:rounded-t-3xl">
         <SmartImage
           src={tour.image}
-          alt={t(tour.title)}
+          alt={t(altFor(tour.image))}
           className="si-fallback absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-si-navy/80 to-transparent" />
@@ -506,12 +504,7 @@ export function DroneFeature() {
   const openLightbox = useSI((s) => s.openLightbox);
   const openBooking = useSI((s) => s.openBooking);
   const { ref: pRef, y: pY } = useParallax(50);
-  const samples = [
-    { src: IMG.aerial, title: "Cinematic Drone – Phang Nga", video: VIDEO.cinematic },
-    { src: IMG.sandbar, title: "Tup Sandbank", video: undefined },
-    { src: IMG.island, title: "Private Bay", video: undefined },
-    { src: IMG.lagoon, title: "Reel – Hong Lagoon", video: VIDEO.reel2 },
-  ];
+  const samples = AERIAL_SHOTS.map((s) => ({ src: s.src, title: t(s.title) }));
 
   return (
     <section id="drohne" className="relative scroll-mt-24 py-20 sm:py-28">
@@ -552,25 +545,22 @@ export function DroneFeature() {
                 {/* Phone frame */}
                 <motion.button
                   type="button"
-                  onClick={() => openLightbox(samples, 3)}
+                  onClick={() => openLightbox(samples, 0)}
                   initial={{ opacity: 0, y: 60, rotate: -6 }}
                   whileInView={{ opacity: 1, y: 0, rotate: -3 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.9, ease: EASE }}
                   className="relative mx-auto block w-[62%] rounded-[2.6rem] border border-white/20 bg-black/60 p-2 shadow-[0_40px_100px_-30px_rgb(6_182_212/0.6)]"
-                  aria-label="Play reel"
+                  aria-label={samples[0].title}
                 >
                   <span className="si-fallback relative block aspect-[9/19] overflow-hidden rounded-[2.1rem]">
-                    <VideoPreview src={VIDEO.reel2} poster={IMG.lagoon} />
+                    <SmartImage src={AERIAL_SHOTS[0].src} alt={t(altFor(AERIAL_SHOTS[0].src))} className="absolute inset-0 size-full object-cover" />
                     <span className="absolute left-1/2 top-2 h-5 w-20 -translate-x-1/2 rounded-full bg-black" />
-                    <span className="absolute left-3 top-9 flex items-center gap-1 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
-                      <span className="size-1.5 animate-pulse rounded-full bg-red-500" /> REEL · 4K
-                    </span>
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 px-3 py-4 text-left text-[11px] font-bold text-white [overflow-wrap:anywhere] min-[360px]:p-4 min-[360px]:text-xs">
-                      @krabisecretislands
+                      {samples[0].title}
                     </span>
-                    <span className="absolute left-1/2 top-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/25 text-white backdrop-blur-md">
-                      <Play className="ml-0.5 size-6 fill-current" />
+                    <span className="absolute right-3 top-9 grid size-9 place-items-center rounded-full bg-white/25 text-white backdrop-blur-md">
+                      <Expand className="size-4" />
                     </span>
                   </span>
                 </motion.button>
@@ -583,7 +573,7 @@ export function DroneFeature() {
                     aria-label={samples[1].title}
                     className="si-fallback relative block aspect-[4/5] w-full rotate-6 overflow-hidden rounded-2xl border-2 border-white/20 shadow-2xl"
                   >
-                    <SmartImage src={samples[1].src} alt={samples[1].title} className="absolute inset-0 size-full object-cover" />
+                    <SmartImage src={samples[1].src} alt={t(altFor(samples[1].src))} className="absolute inset-0 size-full object-cover" />
                   </button>
                 </motion.div>
                 <motion.div style={{ y: pY }} className="absolute -left-1 bottom-16 w-[32%] sm:-left-4">
@@ -593,7 +583,7 @@ export function DroneFeature() {
                     aria-label={samples[2].title}
                     className="si-fallback relative block aspect-square w-full -rotate-6 overflow-hidden rounded-2xl border-2 border-white/20 shadow-2xl"
                   >
-                    <SmartImage src={samples[2].src} alt={samples[2].title} className="absolute inset-0 size-full object-cover" />
+                    <SmartImage src={samples[2].src} alt={t(altFor(samples[2].src))} className="absolute inset-0 size-full object-cover" />
                   </button>
                 </motion.div>
 
@@ -622,25 +612,6 @@ export function DroneFeature() {
   );
 }
 
-/** Muted autoplaying preview; falls back to the poster image. */
-function VideoPreview({ src, poster }: { src: string; poster: string }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) return <SmartImage src={poster} alt="" className="absolute inset-0 size-full object-cover" />;
-  return (
-    <video
-      className="absolute inset-0 size-full object-cover"
-      src={src}
-      poster={poster}
-      muted
-      loop
-      playsInline
-      autoPlay
-      preload="metadata"
-      onError={() => setFailed(true)}
-    />
-  );
-}
-
 /* ───────────────────────── Gallery ───────────────────────── */
 
 export function Gallery() {
@@ -648,7 +619,7 @@ export function Gallery() {
   const [tab, setTab] = useState<"all" | GalleryCat>("all");
   const openLightbox = useSI((s) => s.openLightbox);
   const list = tab === "all" ? GALLERY : GALLERY.filter((g) => g.cat === tab);
-  const lbItems = list.map((g) => ({ src: g.src, title: t(g.title), video: g.video }));
+  const lbItems = list.map((g) => ({ src: g.src, title: t(g.title) }));
 
   return (
     <section id="galerie" className="relative scroll-mt-24 py-20 sm:py-28">
@@ -682,106 +653,21 @@ export function Gallery() {
               >
                 <SmartImage
                   src={g.src}
-                  alt={t(g.title)}
+                  alt={t(altFor(g.src))}
                   className="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-110"
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-si-navy/80 via-transparent to-transparent" />
                 <span className="si-glass absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-2xl px-2.5 py-1.5 sm:px-3 sm:py-2 text-left transition group-hover:bg-white/15">
                   <span className="min-w-0 flex-1 text-[11px] font-semibold leading-snug text-white [overflow-wrap:anywhere] sm:text-sm">{t(g.title)}</span>
                   <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/20 text-white">
-                    {g.video ? <Play className="ml-0.5 size-3 fill-current" /> : <Expand className="size-3" />}
+                    <Expand className="size-3" />
                   </span>
                 </span>
               </motion.button>
             ))}
           </AnimatePresence>
         </motion.div>
-
-        <h3 className="mb-5 mt-16 flex items-center gap-3 text-xl font-extrabold text-white sm:text-2xl">
-          <span className="h-px w-8 bg-gradient-to-r from-si-cyan to-si-gold" />
-          {t(UI.reelsTitle)}
-        </h3>
-        <Assemble className="hide-scroll -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-[1fr_1fr_2.2fr] md:px-0" stagger={0.12}>
-          <ReelPlayer src={VIDEO.reel1} poster={IMG.aerial} label="Koh Kudu · Reel" vertical />
-          <ReelPlayer src={VIDEO.reel2} poster={IMG.lagoon} label="Hong Lagoon · Reel" vertical />
-          <ReelPlayer src={VIDEO.cinematic} poster={IMG.island} label="Phang Nga · Cinematic 4K" />
-        </Assemble>
       </div>
     </section>
-  );
-}
-
-function ReelPlayer({
-  src,
-  poster,
-  label,
-  vertical,
-}: {
-  src: string;
-  poster: string;
-  label: string;
-  vertical?: boolean;
-}) {
-  const ref = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  const toggle = () => {
-    const v = ref.current;
-    if (!v || failed) return;
-    if (v.paused) {
-      void v.play().catch(() => setFailed(true));
-    } else {
-      v.pause();
-    }
-  };
-
-  return (
-    <AssembleItem
-      variant="scale"
-      className={cn(
-        "si-fallback relative shrink-0 snap-center overflow-hidden rounded-3xl ring-1 ring-white/15 shadow-[0_30px_60px_-30px_rgb(0_0_0/0.8)]",
-        vertical ? "aspect-[9/16] w-[62%] sm:w-[40%] md:w-auto" : "aspect-video w-[88%] md:aspect-auto md:w-auto",
-      )}
-    >
-      {failed ? (
-        <SmartImage src={poster} alt={label} className="absolute inset-0 size-full object-cover" />
-      ) : (
-        <video
-          ref={ref}
-          className="absolute inset-0 size-full object-cover"
-          src={src}
-          poster={poster}
-          playsInline
-          loop
-          muted
-          preload="none"
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onError={() => setFailed(true)}
-        />
-      )}
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={playing ? "Pause" : "Play"}
-        className="group absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/60 via-transparent to-black/10"
-      >
-        <motion.span
-          animate={{ scale: playing ? 0.8 : 1, opacity: playing ? 0 : 1 }}
-          className="si-glass grid size-16 place-items-center rounded-full text-white transition group-hover:scale-110"
-        >
-          {playing ? <Pause className="size-6 fill-current" /> : <Play className="ml-1 size-6 fill-current" />}
-        </motion.span>
-      </button>
-      <span className="si-glass pointer-events-none absolute bottom-3 left-3 rounded-full px-3 py-1 text-xs font-bold text-white">
-        {label}
-      </span>
-      {failed ? (
-        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-black/40 px-2 py-1 text-[10px] text-white">
-          Preview
-        </span>
-      ) : null}
-    </AssembleItem>
   );
 }

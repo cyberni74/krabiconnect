@@ -1,7 +1,8 @@
 import { IMG } from "../secret-islands/content";
 import type { GuideArticleInput } from "./types";
 
-const PLANKTON_IMG = (n: number) => `/images/guide/krabi-leuchtendes-plankton-nacht-speedboat-${n}.webp`;
+/** Planned photos (not uploaded yet) – rendered only once listed in GUIDE_IMAGES_READY (articles.ts). */
+const GUIDE_IMG = (name: string) => `/images/guide/${name}.webp`;
 
 export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
   /* ───────────────────────── Crowd avoidance ───────────────────────── */
@@ -437,23 +438,19 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
     image: IMG.plankton,
     images: [
       {
-        src: PLANKTON_IMG(1),
-        fallback: IMG.plankton,
+        src: GUIDE_IMG("sonnenuntergang-privates-speedboat-krabi-kalkfelsen"),
         alt: { de: "Sonnenuntergang vom privaten Speedboat vor den Kalkfelsen bei Krabi", en: "Sunset from the private speedboat in front of Krabi’s limestone cliffs" },
       },
       {
-        src: PLANKTON_IMG(2),
-        fallback: IMG.boat,
+        src: GUIDE_IMG("privates-speedboat-ao-nang-bucht-abend"),
         alt: { de: "Privates Speedboat in einer dunklen Bucht bei Ao Nang am Abend", en: "Private speedboat in a dark bay near Ao Nang in the evening" },
       },
       {
-        src: PLANKTON_IMG(3),
-        fallback: IMG.lagoon,
+        src: GUIDE_IMG("leuchtendes-plankton-krabi-nacht-wasser"),
         alt: { de: "Leuchtendes Plankton im Wasser bei Krabi in der Nacht", en: "Bioluminescent plankton glowing in the water near Krabi at night" },
       },
       {
-        src: PLANKTON_IMG(4),
-        fallback: IMG.snorkel,
+        src: GUIDE_IMG("schwimmen-leuchtendes-plankton-speedboat-krabi"),
         alt: { de: "Gäste schwimmen nachts vom Speedboat im leuchtenden Plankton", en: "Guests swimming from the speedboat among glowing plankton at night" },
       },
     ],

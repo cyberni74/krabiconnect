@@ -707,6 +707,6 @@ export const INSIDER_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["koh-roi-hidden-lagoon", "koh-kudu-koh-nok", "hong-island-krabi", "railay-phra-nang-cave"],
     tourIds: ["phang-nga-uncharted", "hong-lagoons"],
-    image: IMG.bbq,
+    image: IMG.roi,
   },
 ];

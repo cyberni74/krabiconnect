@@ -108,3 +108,30 @@ Other content issues found:
 3. Move to `/images/` + 4 renames + 301s + IPTC metadata (one deploy).
 4. Absolute/multi-ratio BlogPosting images, `max-image-preview:large`, image sitemap.
 5. Replace AI scenes of real landmarks with owner photos (same names).
+
+## 4. Applied (google-seo agent, 2026-10-05)
+
+Decisions and deviations from §1–§3 (the Higgsfield CDN is blocked in the build sandbox, so files could not be moved):
+
+| Item | Status | Where / decision |
+|---|---|---|
+| Central alt table | Done | `IMAGE_ALT` + `altFor(src)` in `src/components/secret-islands/content.ts`; used by tour cards, fishing cards, tour modal, booking tour list + island picker, gallery + lightbox, hero, drone section, longtail story, guide hero/cards/hub/tour cards. Unknown URLs get `alt=""` instead of a guessed text. zh/ko/ja added (`extract.ts --missing`: 0/0 for all three). |
+| Boat alt | Changed vs. plan | The real photo shows a white cabin boat with twin outboards, no sun roof → alt describes that; marketing text ("max. 5 Gäste") dropped from alt. |
+| ROMANCE_IMGS[1] alt | Not added | Image is not rendered and could not be checked → no unverified alt. Existing alt of variant 1 kept. |
+| Renames (4) | Done in `/bilder/` | `koh-kudu-hoehle-phang-nga-bucht`, `hochseeangeln-krabi-trolling-andamanensee`, `nacht-tintenfischangeln-krabi`, `catch-and-cook-bbq-krabi-sonnenuntergang` (`.webp`). Old names → **301** to the new `/bilder/` name (`RENAMED_IMAGES` in `image-map.ts`, handled in `src/routes/bilder.$file.ts`). Done now because the URLs went live today (cheapest moment). |
+| Move to `/images/` | TODO | Documented in `docs/images.md` (one-hop redirects from old *and* current `/bilder/` names, keep IPTC). |
+| Owner photos | Kept | Names already good; no rename, no redirect. |
+| Booking island picker | Done | Own scene where it exists (poda, tup, railay→Phra Nang, hong, roi, kudu, maya→Phi Phi). No own picture: Lao Lading + Nok → drone scene, Pakbia → snorkel-couple scene, Yawasam → reef-fishing scene, Chicken → reef scene. Alt always describes the picture (from `IMAGE_ALT`), not the island name. |
+| Gallery titles | Done | g3 "Koh Kudu – zum Himmel offene Höhle", g4 "Riff-Schnorcheln mit Meeresschildkröte", g7 "Schnorcheln direkt vom privaten Boot", g8 "Hong-Lagune", g10 "Koh Poda – Traumstrand". |
+| Stock video reels | Removed | All Pexels clips (`VIDEO`), the "Video-Reels" tab, the reel row (`ReelPlayer`), the autoplay preview in the drone phone frame and "Reel:" captions are gone. Hero button is now "Luftaufnahmen ansehen" (photo lightbox, `AERIAL_SHOTS`). Re-add only with own footage. |
+| Plankton guide gallery | Done | Planned files renamed to the §2 names (#25–28, not live → no redirect). Slots are rendered **only** once the file is in `GUIDE_IMAGES_READY`; no stand-in pictures under plankton alt texts. |
+| `secret-beaches-lagoons-krabi` hero | Done | BBQ image → Koh Roi lagoon. |
+| JSON-LD images | Done | `absUrl()` in `seo.ts`; BlogPosting `image` = absolute hero + uploaded gallery photos; TouristTrip/og:image/twitter:image absolute. Multi-ratio crops (16:9/4:3/1:1) = TODO after the move. |
+| Image sitemap | Done | `xmlns:image` + `<image:image><image:loc>` (absolute, current URLs only, deduplicated) per URL: landing (hero, tours, aerial shots, gallery), hub (article images), article (hero, uploaded gallery, tour cards). |
+| `max-image-preview:large` | Done | `ROBOTS_LARGE_IMAGES` on `/secret-islands`, `/krabi-guide`, `/krabi-guide/$slug` (not on the 404 article, which stays `noindex`). |
+| IPTC AI labelling | Documented | `docs/images.md` (values, exiftool commands, owner TODOs). |
+| ImageObject / licence fields | Skipped | Optional, no Search feature gained for a tour operator; revisit for owner photos. |
+
+Open owner TODOs: confirm whether the boat photo is AI-edited (→ `compositeWithTrainedAlgorithmicMedia`) and the rights to
+the Koh Hong hero photo; the drone section's "Drohnen-Beispiele" are AI/illustrative scenes – replace with real drone
+footage/photos when available; a ≥ 1600 px landscape hero original would qualify for large previews.

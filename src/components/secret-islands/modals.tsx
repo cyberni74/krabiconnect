@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useMotionValue, useSpring } from "framer-motio
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock, MapPin, Sparkles, Sun, Users, X } from "lucide-react";
 import { useCallback, useEffect, useState, type UIEvent } from "react";
 import { cn } from "@/lib/utils";
-import { ARTICLES, SLOTS, TOURS, UI, type Article, type Tour } from "./content";
+import { ARTICLES, SLOTS, TOURS, UI, altFor, type Article, type Tour } from "./content";
 import { btn } from "./fx";
 import { formatTHB, useSI, useTx } from "./store";
 import { Sheet, SmartImage, useLockBody } from "./ui";
@@ -40,7 +40,7 @@ function TourDetails({ tour }: { tour: Tour }) {
             transition={{ duration: 1.2, ease: EASE }}
             className="absolute inset-0"
           >
-            <SmartImage src={tour.image} alt={t(tour.title)} eager className="size-full object-cover" />
+            <SmartImage src={tour.image} alt={t(altFor(tour.image))} eager className="size-full object-cover" />
           </motion.div>
           <div className="absolute inset-0 bg-gradient-to-t from-[#0d1f3a] via-[#0d1f3a]/40 to-transparent" />
           <motion.div
@@ -336,7 +336,7 @@ export function Lightbox() {
                 ) : (
                   <SmartImage
                     src={item.src.replace(/w=\d+/, "w=2000")}
-                    alt={item.title}
+                    alt={t(altFor(item.src)) || item.title}
                     eager
                     className="max-h-full max-w-full rounded-2xl object-contain shadow-2xl shadow-black/60 [&.si-fallback]:aspect-[4/3] [&.si-fallback]:w-full [&.si-fallback]:max-w-3xl"
                   />

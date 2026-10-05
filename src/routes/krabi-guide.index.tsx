@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ARTICLES, getArticle, FEATURED_SLUG } from "@/components/krabi-guide/articles";
 import { GuideHub } from "@/components/krabi-guide/guide-hub";
 import { validateLangSearch } from "@/components/secret-islands/lang-context";
-import { BRAND_HEAD_LINKS, GUIDE_PATH, guideHubJsonLd, langLinks, pageUrl, socialMeta } from "@/components/secret-islands/seo";
+import { BRAND_HEAD_LINKS, GUIDE_PATH, ROBOTS_LARGE_IMAGES, guideHubJsonLd, langLinks, pageUrl, socialMeta } from "@/components/secret-islands/seo";
 
 const HUB_META = {
   title: {
@@ -28,6 +28,7 @@ export const Route = createFileRoute("/krabi-guide/")({
         { title },
         { name: "description", content: description },
         { name: "theme-color", content: "#0a192f" },
+        ROBOTS_LARGE_IMAGES,
         ...socialMeta({ title, description, url, image: getArticle(FEATURED_SLUG)?.image, type: "website", lang }),
         { "script:ld+json": guideHubJsonLd(lang, { title, description }, ARTICLES) },
       ],

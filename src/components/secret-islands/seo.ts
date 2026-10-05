@@ -16,6 +16,17 @@ export const LANDING_PATH = "/secret-islands";
 export const GUIDE_PATH = "/krabi-guide";
 export const BUSINESS_ID = `${SITE_URL}${LANDING_PATH}#business`;
 
+/** Absolute URL for an image/asset path (structured data, sitemaps and og:image need absolute URLs). */
+export function absUrl(src: string) {
+  return src.startsWith("/") ? `${SITE_URL}${src}` : src;
+}
+
+/**
+ * Allow large image previews in Search/Discover (Google robots meta `max-image-preview:large`).
+ * Indexing defaults (index, follow) stay implicit.
+ */
+export const ROBOTS_LARGE_IMAGES = { name: "robots", content: "max-image-preview:large" } as const;
+
 /** Absolute, language-addressable URL. German is the default (no parameter). */
 export function pageUrl(path: string, lang: Lang = "de") {
   return lang === "de" ? `${SITE_URL}${path}` : `${SITE_URL}${path}?lang=${lang}`;
@@ -59,11 +70,11 @@ export function socialMeta(o: { title: string; description: string; url: string;
     { property: "og:description", content: o.description },
     { property: "og:url", content: o.url },
     { property: "og:locale", content: OG_LOCALE[o.lang] },
-    ...(o.image ? [{ property: "og:image", content: o.image }] : []),
+    ...(o.image ? [{ property: "og:image", content: absUrl(o.image) }] : []),
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: o.title },
     { name: "twitter:description", content: o.description },
-    ...(o.image ? [{ name: "twitter:image", content: o.image }] : []),
+    ...(o.image ? [{ name: "twitter:image", content: absUrl(o.image) }] : []),
   ];
 }
 
@@ -109,7 +120,7 @@ function toursNode(lang: Lang, url: string): Json {
         "@type": "TouristTrip",
         name: translate(tour.title, lang),
         description: translate(tour.description, lang),
-        image: tour.image.startsWith("/") ? `${SITE_URL}${tour.image}` : tour.image,
+        image: absUrl(tour.image),
         tripOrigin: { "@type": "Place", name: "Ao Nang, Krabi" },
         itinerary: {
           "@type": "ItemList",
@@ -229,6 +240,8 @@ export function guideArticleJsonLd(
     short: Bi;
     metaDescription: Bi;
     image: string;
+    /** Extra visible photos of the article (absolute URLs are built here). */
+    gallery?: string[];
     updated: string;
     keywords: string[];
     readingMinutes: number;
@@ -247,7 +260,8 @@ export function guideArticleJsonLd(
         headline: a.h1[lang],
         name: a.title[lang],
         description: a.metaDescription[lang],
-        image: [a.image],
+        // TODO(images): add 16:9, 4:3 and 1:1 crops per article (Google Article image guidance) once files are local.
+        image: [a.image, ...(a.gallery ?? [])].map(absUrl),
         // The guide went live with this revision; set datePublished per article once articles get individual dates.
         datePublished: a.updated,
         dateModified: a.updated,

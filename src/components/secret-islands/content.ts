@@ -56,15 +56,15 @@ export const IMG = {
   tup: seoImage("tup-sandbank-krabi-ebbe-drohnenaufnahme.webp"),
   hong: seoImage("hong-island-krabi-smaragdgruene-lagune.webp"),
   roi: seoImage("koh-roi-versteckte-lagune-phang-nga.webp"),
-  kudu: seoImage("koh-kudu-hong-hoehle-phang-nga.webp"),
+  kudu: seoImage("koh-kudu-hoehle-phang-nga-bucht.webp"),
   maya: seoImage("maya-bay-phi-phi-sonnenaufgang.webp"),
   reef: seoImage("schnorcheln-krabi-korallenriff-schildkroete.webp"),
   snorkelCouple: seoImage("paar-schnorcheln-privates-speedboat-krabi.webp"),
   plankton: seoImage("leuchtendes-plankton-krabi-nacht-speedboat.webp"),
   fishReef: seoImage("riff-angeln-krabi-zackenbarsch.webp"),
-  deepSea: seoImage("hochsee-angeln-trolling-andamanensee.webp"),
-  squid: seoImage("tintenfisch-angeln-nacht-krabi.webp"),
-  bbq: seoImage("strand-bbq-sonnenuntergang-krabi.webp"),
+  deepSea: seoImage("hochseeangeln-krabi-trolling-andamanensee.webp"),
+  squid: seoImage("nacht-tintenfischangeln-krabi.webp"),
+  bbq: seoImage("catch-and-cook-bbq-krabi-sonnenuntergang.webp"),
   dinner: seoImage("candlelight-dinner-speedboat-sonnenuntergang-krabi.webp"),
   jamesBond: seoImage("james-bond-island-phang-nga-bucht.webp"),
   railay: seoImage("railay-beach-krabi-goldene-stunde.webp"),
@@ -93,11 +93,111 @@ IMG.snorkel2 = IMG.snorkelCouple;
 IMG.cliffs = IMG.roi;
 IMG.bay = IMG.maya;
 
-export const VIDEO = {
-  reel1: "https://videos.pexels.com/video-files/3571264/3571264-uhd_1440_2560_30fps.mp4",
-  reel2: "https://videos.pexels.com/video-files/4763824/4763824-uhd_1440_2560_24fps.mp4",
-  cinematic: "https://videos.pexels.com/video-files/1918465/1918465-uhd_2560_1440_24fps.mp4",
+/**
+ * Central alt texts, keyed by image URL: describe what the picture shows (place + activity), never the product name.
+ * Used everywhere an image renders (tours, gallery, booking picker, drone section, story, guide). zh/ko/ja come from
+ * ./i18n (keyed by the German text). Alts of the AI scenes follow the generation prompts (CDN blocked in the build
+ * sandbox) – re-check them against the pictures when the files move to /public/images.
+ * Unknown URLs get an empty alt (decorative) instead of a guessed description.
+ */
+export const IMAGE_ALT: Record<string, L> = {
+  [IMG.hero]: {
+    de: "Luftaufnahme von Koh Hong bei Krabi: türkises Wasser, weißer Sandstrand und Kalksteinfelsen",
+    en: "Aerial view of Koh Hong near Krabi: turquoise water, white sand beach and limestone cliffs",
+  },
+  [IMG.boat]: {
+    de: "Privates Speedboat von Krabi Secret Islands mit Kajüte und zwei Außenbordmotoren in Fahrt vor Kalksteinfelsen bei Krabi",
+    en: "Krabi Secret Islands private speedboat with cabin and twin outboard engines cruising past limestone cliffs near Krabi",
+  },
+  [IMG.poda]: {
+    de: "Weißer Sandstrand von Koh Poda bei Krabi mit Kalksteinfelsen und türkisem Wasser",
+    en: "White sand beach on Koh Poda near Krabi with limestone rocks and turquoise water",
+  },
+  [IMG.tup]: {
+    de: "Tup-Sandbank bei Ebbe von oben: weißer Sandweg durch türkises Wasser zwischen den Inseln bei Krabi",
+    en: "Tup sandbar at low tide from above: white sand path through turquoise water between islands near Krabi",
+  },
+  [IMG.hong]: {
+    de: "Smaragdgrüne Lagune von Hong Island bei Krabi, umgeben von steilen Kalksteinwänden",
+    en: "Emerald lagoon of Hong Island near Krabi, surrounded by steep limestone walls",
+  },
+  [IMG.roi]: {
+    de: "Versteckte Lagune von Koh Roi in der Phang-Nga-Bucht, umschlossen von Kalksteinfelsen",
+    en: "Hidden lagoon of Koh Roi in Phang Nga Bay, enclosed by limestone cliffs",
+  },
+  [IMG.kudu]: {
+    de: "Zum Himmel offene Höhle auf Koh Kudu in der Phang-Nga-Bucht mit grünem Wasser",
+    en: "Sky-open cave chamber on Koh Kudu in Phang Nga Bay with green water",
+  },
+  [IMG.maya]: {
+    de: "Maya Bay auf Koh Phi Phi Leh bei Sonnenaufgang, menschenleerer Strand zwischen hohen Kalksteinfelsen",
+    en: "Maya Bay on Koh Phi Phi Leh at sunrise, empty beach between towering limestone cliffs",
+  },
+  [IMG.reef]: {
+    de: "Schnorcheln über einem Korallenriff bei Krabi: Meeresschildkröte zwischen bunten Rifffischen",
+    en: "Snorkeling over a coral reef near Krabi: sea turtle among colourful reef fish",
+  },
+  [IMG.snorkelCouple]: {
+    de: "Paar schnorchelt im klaren Wasser neben dem privaten Speedboat bei Krabi",
+    en: "Couple snorkeling in clear water next to the private speedboat near Krabi",
+  },
+  [IMG.plankton]: {
+    de: "Leuchtendes Plankton bei Nacht: blaue Biolumineszenz im Wasser neben dem privaten Speedboat in Krabi",
+    en: "Bioluminescent plankton at night: blue glow in the water next to the private speedboat in Krabi",
+  },
+  [IMG.fishReef]: {
+    de: "Frisch gefangener Zackenbarsch beim Riffangeln vom privaten Boot bei Krabi",
+    en: "Freshly caught grouper on a reef fishing trip from a private boat near Krabi",
+  },
+  [IMG.deepSea]: {
+    de: "Hochseeangeln vor Krabi: Trolling-Ruten am Heck des Speedboats auf der Andamanensee",
+    en: "Deep sea fishing off Krabi: trolling rods at the stern of the speedboat on the Andaman Sea",
+  },
+  [IMG.squid]: {
+    de: "Nachtangeln auf Tintenfisch mit Lampen am Boot vor Krabi",
+    en: "Night squid fishing with lamps on the boat off Krabi",
+  },
+  [IMG.bbq]: {
+    de: "Catch & Cook: fangfrischer Fisch auf dem Grill beim Strand-BBQ im Sonnenuntergang bei Krabi",
+    en: "Catch & cook: freshly caught fish on the grill at a sunset beach BBQ near Krabi",
+  },
+  [IMG.dinner]: {
+    de: "Candlelight-Dinner an Bord des privaten Speedboats im Sonnenuntergang vor Krabi",
+    en: "Candlelight dinner on board the private speedboat at sunset off Krabi",
+  },
+  [IMG.family]: {
+    de: "Familie mit Kindern beim Schnorcheln an einer Sandbank bei Krabi",
+    en: "Family with children snorkeling at a sandbar near Krabi",
+  },
+  [IMG.jamesBond]: {
+    de: "James Bond Island (Koh Tapu): Kalksteinnadel im Wasser der Phang-Nga-Bucht",
+    en: "James Bond Island (Koh Tapu): limestone pinnacle rising from Phang Nga Bay",
+  },
+  [IMG.railay]: {
+    de: "Railay Beach bei Krabi in der goldenen Stunde, gerahmt von Kalksteinfelsen",
+    en: "Railay Beach near Krabi at golden hour, framed by limestone cliffs",
+  },
+  [IMG.droneAerial]: {
+    de: "Drohnenaufnahme: Speedboat in türkisem Wasser zwischen Kalksteininseln bei Krabi",
+    en: "Drone shot: speedboat in turquoise water between limestone islands near Krabi",
+  },
+  [LONGTAIL_CROWD_IMG.src]: LONGTAIL_CROWD_IMG.alt,
+  [ROMANCE_IMGS[0].src]: ROMANCE_IMGS[0].alt,
 };
+
+/**
+ * Aerial photos for the hero "aerial shots" button and the drone section (photos only – the former Pexels stock
+ * clips were removed because they were presented as our own footage). Add own drone clips here once they exist.
+ */
+export const AERIAL_SHOTS: { src: string; title: L }[] = [
+  { src: IMG.hero, title: { de: "Koh Hong von oben", en: "Koh Hong from above" } },
+  { src: IMG.droneAerial, title: { de: "Private Bucht von oben", en: "Private bay from above" } },
+  { src: IMG.tup, title: { de: "Tup-Sandbank bei Ebbe", en: "Tup sandbar at low tide" } },
+];
+
+const NO_ALT: L = { de: "", en: "" };
+/** Alt text for an image URL (see IMAGE_ALT). */
+export const altFor = (src: string): L => IMAGE_ALT[src] ?? NO_ALT;
 
 export const UI = {
   navTours: { de: "Touren", en: "Tours" },
@@ -119,7 +219,7 @@ export const UI = {
     en: "No mass tourism. No noisy longtail boats. Just you, crystal-clear water and untouched island paradises – to snorkel, swim and unwind.",
   },
   heroPrimary: { de: "Jetzt Verfügbarkeit prüfen", en: "Check availability" },
-  heroSecondary: { de: "Drohnen-Videos ansehen", en: "Watch drone videos" },
+  heroSecondary: { de: "Luftaufnahmen ansehen", en: "View aerial shots" },
   pills: [
     { de: "Max. 5 Gäste", en: "Max. 5 guests" },
     { de: "4K Drohnen-Paket", en: "4K drone package" },
@@ -165,7 +265,6 @@ export const UI = {
   ],
   galleryEyebrow: { de: "Galerie", en: "Gallery" },
   galleryTitle: { de: "Sehen, was andere nie sehen", en: "See what others never see" },
-  reelsTitle: { de: "Video-Reels & Cinematic Drone", en: "Video reels & cinematic drone" },
   guideEyebrow: { de: "Insider Blog & Reiseführer", en: "Insider blog & travel guide" },
   guideTitle: { de: "Krabi Secret Islands Guide", en: "Krabi Secret Islands Guide" },
   guideSub: {
@@ -659,12 +758,11 @@ export const TOURS: Tour[] = [
   },
 ];
 
-export type GalleryCat = "drone" | "secret" | "reels" | "underwater";
+export type GalleryCat = "drone" | "secret" | "underwater";
 export const GALLERY_TABS: { id: "all" | GalleryCat; label: L }[] = [
   { id: "all", label: { de: "Alle", en: "All" } },
   { id: "drone", label: { de: "Drohnen-Aufnahmen", en: "Drone shots" } },
   { id: "secret", label: { de: "Geheime Inseln", en: "Secret islands" } },
-  { id: "reels", label: { de: "Video-Reels", en: "Video reels" } },
   { id: "underwater", label: { de: "Unterwasser/Schnorcheln", en: "Underwater/snorkeling" } },
 ];
 
@@ -672,22 +770,22 @@ export type GalleryItem = {
   id: string;
   cat: GalleryCat;
   src: string;
+  /** Visible caption – must name what the picture shows (alt comes from IMAGE_ALT). */
   title: L;
-  video?: string;
   tall?: boolean;
 };
 
 export const GALLERY: GalleryItem[] = [
   { id: "g1", cat: "drone", src: IMG.sandbar, title: { de: "Tup-Sandbank bei Ebbe", en: "Tup sandbar at low tide" }, tall: true },
   { id: "g2", cat: "secret", src: IMG.cliffs, title: { de: "Koh Roi – versteckte Lagune", en: "Koh Roi – hidden lagoon" } },
-  { id: "g3", cat: "reels", src: IMG.kudu, title: { de: "Reel: Ankunft Koh Kudu", en: "Reel: arriving at Koh Kudu" }, video: VIDEO.reel1, tall: true },
-  { id: "g4", cat: "underwater", src: IMG.snorkel, title: { de: "Schnorcheln an Chicken Island", en: "Snorkeling at Chicken Island" } },
+  { id: "g3", cat: "secret", src: IMG.kudu, title: { de: "Koh Kudu – zum Himmel offene Höhle", en: "Koh Kudu – sky-open cave" }, tall: true },
+  { id: "g4", cat: "underwater", src: IMG.snorkel, title: { de: "Riff-Schnorcheln mit Meeresschildkröte", en: "Reef snorkeling with a sea turtle" } },
   { id: "g5", cat: "drone", src: IMG.droneAerial, title: { de: "Private Bucht von oben", en: "Private bay from above" } },
   { id: "g6", cat: "secret", src: IMG.maya, title: { de: "Maya Bay – vor allen anderen", en: "Maya Bay – before everyone else" }, tall: true },
-  { id: "g7", cat: "underwater", src: IMG.snorkel2, title: { de: "Korallengarten Koh Pakbia", en: "Coral garden Koh Pakbia" } },
-  { id: "g8", cat: "reels", src: IMG.lagoon, title: { de: "Reel: Hong-Lagune", en: "Reel: Hong Lagoon" }, video: VIDEO.reel2 },
+  { id: "g7", cat: "underwater", src: IMG.snorkel2, title: { de: "Schnorcheln direkt vom privaten Boot", en: "Snorkeling straight from the private boat" } },
+  { id: "g8", cat: "secret", src: IMG.hong, title: { de: "Hong-Lagune", en: "Hong Lagoon" } },
   { id: "g9", cat: "drone", src: IMG.boat, title: { de: "Ihr privates Boot-Setup", en: "Your private boat setup" } },
-  { id: "g10", cat: "secret", src: IMG.poda, title: { de: "Koh Nok – nur für Sie", en: "Koh Nok – just for you" } },
+  { id: "g10", cat: "secret", src: IMG.poda, title: { de: "Koh Poda – Traumstrand", en: "Koh Poda – dream beach" } },
 ];
 
 export type Article = {

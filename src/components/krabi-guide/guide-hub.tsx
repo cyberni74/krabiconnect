@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Assemble, AssembleItem, GlassCard, ScrollScene, SectionTitle, btn } from "../secret-islands/fx";
 import { useTx } from "../secret-islands/store";
+import { altFor } from "../secret-islands/content";
 import { ARTICLES, FEATURED_SLUG, GUIDE_CATEGORIES, ISLAND_ARTICLES, getArticle, type GuideCategory } from "./articles";
 import { ArticleCard, Breadcrumb, GuideImage, GuideShell, WhatsAppCta } from "./guide-ui";
 import { useGuideLang } from "./guide-helpers";
@@ -71,7 +72,7 @@ function HubHero() {
               <Link to="/krabi-guide/$slug" search={keepLang} params={{ slug: featured.slug }} className="group block">
                 {/* No overflow-hidden here: the aspect-ratio box may grow when the text needs more room (narrow phones). */}
                 <div className="relative flex aspect-[16/11] flex-col justify-end">
-                  <GuideImage src={featured.image} alt={featured.h1[lang]} priority sizes="(min-width: 1024px) 50vw, 100vw" className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105" />
+                  <GuideImage src={featured.image} alt={altFor(featured.image)[lang]} priority sizes="(min-width: 1024px) 50vw, 100vw" className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-si-navy via-si-navy/30 to-transparent" />
                   <div className="relative p-5 pt-16 sm:p-6 sm:pt-16">
                     <span className="mb-2 inline-flex rounded-full bg-si-gold px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-si-navy">
