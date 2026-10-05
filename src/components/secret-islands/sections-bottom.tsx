@@ -797,8 +797,8 @@ export function Footer() {
                       en: `Krabi Secret Islands Co., Ltd. · Ao Nang, Mueang Krabi, 81180 Thailand · ${BRAND.email}`,
                     })
                   : t({
-                      de: "Anfragedaten werden ausschließlich zur Bearbeitung Ihrer Buchung verwendet und nicht an Dritte weitergegeben. Diese Seite speichert nur Ihre Spracheinstellung lokal.",
-                      en: "Inquiry data is used solely to process your booking and never shared with third parties. This site only stores your language preference locally.",
+                      de: "Wenn Sie eine Buchungsanfrage senden, speichern wir Ihre Angaben (Name, Kontaktdaten, Tourwünsche) in unserer Datenbank und erhalten sie per E-Mail, um Ihre Anfrage zu bearbeiten (Art. 6 Abs. 1 lit. b DSGVO). Zum Schutz vor Spam speichern wir Ihre IP-Adresse nur als nicht rückrechenbaren Hash. Über WhatsApp geht die Nachricht nur, wenn Sie sie selbst absenden. Wir löschen Anfragen, sobald sie nicht mehr benötigt werden; Auskunft oder Löschung jederzeit per E-Mail. Ihre Spracheinstellung bleibt lokal in Ihrem Browser.",
+                      en: "When you send a booking request, we store your details (name, contact details, tour wishes) in our database and receive them by e-mail in order to process your request (Art. 6(1)(b) GDPR). To prevent spam we only keep a non-reversible hash of your IP address. A WhatsApp message is only sent if you send it yourself. We delete requests once they are no longer needed; ask us any time by e-mail for access or deletion. Your language preference stays locally in your browser.",
                     })}
               </motion.p>
             ) : null}

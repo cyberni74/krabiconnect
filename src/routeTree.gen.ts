@@ -26,6 +26,7 @@ import { Route as ChatsIdRouteImport } from './routes/chats.$id'
 import { Route as ItemIdRouteImport } from './routes/item.$id'
 import { Route as KrabiGuideIndexRouteImport } from './routes/krabi-guide.index'
 import { Route as KrabiGuideSlugRouteImport } from './routes/krabi-guide.$slug'
+import { Route as SecretIslandsAnfragenRouteImport } from './routes/secret-islands_.anfragen'
 import { Route as ServiceIdRouteImport } from './routes/service.$id'
 import { Route as ApiAgentListingsRouteImport } from './routes/api/agent.listings'
 import { Route as ApiAgentRehostRouteImport } from './routes/api/agent.rehost'
@@ -121,6 +122,11 @@ const KrabiGuideSlugRoute = KrabiGuideSlugRouteImport.update({
   path: '/krabi-guide/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecretIslandsAnfragenRoute = SecretIslandsAnfragenRouteImport.update({
+  id: '/secret-islands_/anfragen',
+  path: '/secret-islands/anfragen',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiceIdRoute = ServiceIdRouteImport.update({
   id: '/service/$id',
   path: '/service/$id',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
+  '/secret-islands/anfragen': typeof SecretIslandsAnfragenRoute
   '/service/$id': typeof ServiceIdRoute
   '/krabi-guide/': typeof KrabiGuideIndexRoute
   '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
+  '/secret-islands/anfragen': typeof SecretIslandsAnfragenRoute
   '/service/$id': typeof ServiceIdRoute
   '/krabi-guide': typeof KrabiGuideIndexRoute
   '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
+  '/secret-islands_/anfragen': typeof SecretIslandsAnfragenRoute
   '/service/$id': typeof ServiceIdRoute
   '/krabi-guide/': typeof KrabiGuideIndexRoute
   '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
@@ -274,6 +283,7 @@ export interface FileRouteTypes {
     | '/chats/$id'
     | '/item/$id'
     | '/krabi-guide/$slug'
+    | '/secret-islands/anfragen'
     | '/service/$id'
     | '/krabi-guide/'
     | '/api/agent/listings'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/chats/$id'
     | '/item/$id'
     | '/krabi-guide/$slug'
+    | '/secret-islands/anfragen'
     | '/service/$id'
     | '/krabi-guide'
     | '/api/agent/listings'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/chats/$id'
     | '/item/$id'
     | '/krabi-guide/$slug'
+    | '/secret-islands_/anfragen'
     | '/service/$id'
     | '/krabi-guide/'
     | '/api/agent/listings'
@@ -358,6 +370,7 @@ export interface RootRouteChildren {
   BilderFileRoute: typeof BilderFileRoute
   ItemIdRoute: typeof ItemIdRoute
   KrabiGuideSlugRoute: typeof KrabiGuideSlugRoute
+  SecretIslandsAnfragenRoute: typeof SecretIslandsAnfragenRoute
   ServiceIdRoute: typeof ServiceIdRoute
   KrabiGuideIndexRoute: typeof KrabiGuideIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -482,6 +495,13 @@ declare module '@tanstack/react-router' {
       path: '/krabi-guide/$slug'
       fullPath: '/krabi-guide/$slug'
       preLoaderRoute: typeof KrabiGuideSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secret-islands_/anfragen': {
+      id: '/secret-islands_/anfragen'
+      path: '/secret-islands/anfragen'
+      fullPath: '/secret-islands/anfragen'
+      preLoaderRoute: typeof SecretIslandsAnfragenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service/$id': {
@@ -627,6 +647,7 @@ const rootRouteChildren: RootRouteChildren = {
   BilderFileRoute: BilderFileRoute,
   ItemIdRoute: ItemIdRoute,
   KrabiGuideSlugRoute: KrabiGuideSlugRoute,
+  SecretIslandsAnfragenRoute: SecretIslandsAnfragenRoute,
   ServiceIdRoute: ServiceIdRoute,
   KrabiGuideIndexRoute: KrabiGuideIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

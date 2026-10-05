@@ -6,6 +6,7 @@ import { ISLANDS, toISODate } from "./booking-data";
 import {
   STEP_LABELS,
   buildMessage,
+  newBookingRef,
   currentTour,
   durationOf,
   firstBlocked,
@@ -24,6 +25,7 @@ import { QuickAddChips, QuickAddPanel } from "./booking-quick";
 import { btn } from "./fx";
 import { SmartImage, WhatsAppIcon, useLockBody } from "./ui";
 import { useSI, useTx, waLink } from "./store";
+import { submitBookingRequest } from "@/lib/server/booking-requests";
 
 const STEP_ICONS = [Ship, CalendarDays, UtensilsCrossed, Gift, UserRound];
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -34,11 +36,14 @@ type Session = {
   step: number;
   sent: boolean;
   showErrors: boolean;
+  /** Request number shown to the guest, included in the WhatsApp/e-mail text and used as DB key. */
+  ref: string;
+  saved: "idle" | "saving" | "saved" | "failed";
 };
 
 function newSession(tourId: string | null, custom: boolean): Session {
   const draft = initialDraft(tourId, custom);
-  return { key: `${tourId}|${custom}`, draft, step: draft.tourId ? 1 : 0, sent: false, showErrors: false };
+  return { key: `${tourId}|${custom}`, draft, step: draft.tourId ? 1 : 0, sent: false, showErrors: false, ref: newBookingRef(), saved: "idle" };
 }
 
 export function BookingModal() {
@@ -104,9 +109,13 @@ function Wizard({
   const price = priceBreakdown(draft);
   const blocker = stepBlocker(draft, step, todayISO);
   const reachable = firstBlocked(draft, todayISO);
-  const message = useMemo(() => buildMessage(draft, lang, tOp), [draft, lang, tOp]);
+  const ref = session.ref;
+  const message = useMemo(
+    () => `*${tOp({ de: "Anfrage-Nr.", en: "Request no." })} ${ref}*\n${buildMessage(draft, lang, tOp)}`,
+    [draft, lang, tOp, ref],
+  );
   const waHref = waLink(message);
-  const mailtoHref = mailHref(draft, lang, tOp);
+  const mailtoHref = mailHref(draft, lang, tOp, ref);
 
   const goTo = (i: number) => {
     if (i === step || i < 0 || i > 4) return;
@@ -118,12 +127,18 @@ function Wizard({
 
   const markErrors = () => setSession((s) => (s ? { ...s, showErrors: true } : s));
 
-  const onSend = (_via: "wa" | "mail") => {
+  const onSend = (via: "wa" | "mail") => {
     if (stepBlocker(draft, 4, todayISO) || reachable < 4) {
       markErrors();
       return false;
     }
-    setSession((s) => (s ? { ...s, sent: true } : s));
+    setSession((s) => (s ? { ...s, sent: true, saved: s.saved === "saved" ? "saved" : "saving" } : s));
+    // Store the request server-side in parallel (never blocks opening WhatsApp / the mail app – popup blockers).
+    if (session.saved !== "saved") {
+      submitBookingRequest({ data: { ref, lang, channel: via, draft, website: "" } })
+        .then((r) => setSession((s) => (s && s.ref === ref ? { ...s, saved: r.ok ? "saved" : "failed" } : s)))
+        .catch(() => setSession((s) => (s && s.ref === ref ? { ...s, saved: "failed" } : s)));
+    }
     return true;
   };
 
@@ -199,7 +214,7 @@ function Wizard({
         <div className="relative z-10 flex min-h-0 flex-1 overflow-clip">
           <div ref={scrollRef} className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-5 sm:px-6 lg:py-6">
             {sent ? (
-              <Success onClose={onClose} waHref={waHref} mailtoHref={mailtoHref} />
+              <Success onClose={onClose} waHref={waHref} mailtoHref={mailtoHref} bookingRef={ref} saved={session.saved} />
             ) : (
               <AnimatePresence mode="wait" custom={dir} initial={false}>
                 <motion.div
@@ -473,7 +488,19 @@ function Info({ icon: Icon, text, muted }: { icon: typeof Clock; text: string; m
   );
 }
 
-function Success({ onClose, waHref, mailtoHref }: { onClose: () => void; waHref: string; mailtoHref: string }) {
+function Success({
+  onClose,
+  waHref,
+  mailtoHref,
+  bookingRef,
+  saved,
+}: {
+  onClose: () => void;
+  waHref: string;
+  mailtoHref: string;
+  bookingRef: string;
+  saved: Session["saved"];
+}) {
   const { t } = useTx();
   return (
     <div className="grid min-h-full place-items-center py-6 text-center">
@@ -510,6 +537,17 @@ function Success({ onClose, waHref, mailtoHref }: { onClose: () => void; waHref:
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="mt-3 text-slate-300">
           {t({ de: "Bitte senden Sie die Nachricht in WhatsApp bzw. Ihrem Mailprogramm ab – wir antworten meist innerhalb von 30 Minuten.", en: "Please send the message in WhatsApp or your mail app – we usually reply within 30 minutes." })}
         </motion.p>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="si-glass mt-5 rounded-2xl px-4 py-3 text-sm">
+          <p className="text-slate-400">{t({ de: "Ihre Anfrage-Nr.", en: "Your request no." })}</p>
+          <p className="mt-0.5 font-mono text-lg font-bold tracking-wider text-white">{bookingRef}</p>
+          <p className={cn("mt-1 text-xs", saved === "failed" ? "text-amber-300" : "text-slate-400")}>
+            {saved === "saved"
+              ? t({ de: "✓ Anfrage bei uns eingegangen", en: "✓ Request received" })
+              : saved === "failed"
+                ? t({ de: "Bitte senden Sie die Nachricht unbedingt ab – die Online-Übermittlung hat nicht geklappt.", en: "Please make sure to send the message – the online submission didn't go through." })
+                : t({ de: "Wird übermittelt …", en: "Submitting …" })}
+          </p>
+        </motion.div>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mt-8 grid gap-2.5">
           <button type="button" onClick={onClose} className={cn(btn.primary, "w-full")}>
             <Check className="size-5" />

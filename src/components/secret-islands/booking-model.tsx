@@ -266,12 +266,21 @@ export function buildMessage(d: Draft, lang: Lang, tOp: (l: L) => string) {
   return lines.join("\n");
 }
 
-export function mailHref(d: Draft, lang: Lang, tOp: (l: L) => string) {
-  const body = buildMessage(d, lang, tOp).replace(/\*/g, "");
+/** Short, human-friendly request number, e.g. KSI-261005-7QK2 (also the DB key). */
+export function newBookingRef(now = new Date()): string {
+  const ymd = `${String(now.getFullYear()).slice(2)}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  return `KSI-${ymd}-${Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("")}`;
+}
+
+export function mailHref(d: Draft, lang: Lang, tOp: (l: L) => string, ref?: string) {
+  const body = `${ref ? `${tOp({ de: "Anfrage-Nr.", en: "Request no." })} ${ref}\n\n` : ""}${buildMessage(d, lang, tOp).replace(/\*/g, "")}`;
   const tour = currentTour(d);
   const subject = `${tOp({ de: "Buchungsanfrage", en: "Booking request" })}: ${
     tour ? tOp(tour.title) : tOp({ de: "Eigene Tour", en: "Custom tour" })
-  }${d.date ? ` · ${d.date}` : ""}`;
+  }${d.date ? ` · ${d.date}` : ""}${ref ? ` · ${ref}` : ""}`;
   return `mailto:${BRAND.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
