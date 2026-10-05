@@ -11,11 +11,16 @@ const SRCSET_WIDTHS = [480, 768, 1080, 1440, 1920];
  * so phones no longer download the 1200–1800 px desktop file. Other hosts: no srcSet.
  */
 /** Local images under /public/images with a pre-rendered 900 px variant (`name-900.webp`). */
-const LOCAL_VARIANTS: Record<string, number> = { "/images/krabi-secret-islands-privates-speedboat.webp": 1672 };
+const LOCAL_VARIANTS: Record<string, string> = {
+  "/images/krabi-secret-islands-privates-speedboat.webp":
+    "/images/krabi-secret-islands-privates-speedboat-900.webp 900w, /images/krabi-secret-islands-privates-speedboat.webp 1672w",
+  "/images/koh-hong-krabi-luftaufnahme-strand-lagune.webp":
+    "/images/koh-hong-krabi-luftaufnahme-strand-lagune-720.webp 720w, /images/koh-hong-krabi-luftaufnahme-strand-lagune.webp 1080w",
+};
 
 export function unsplashSrcSet(src: string): string | undefined {
   const local = LOCAL_VARIANTS[src];
-  if (local) return `${src.replace(/\.webp$/, "-900.webp")} 900w, ${src} ${local}w`;
+  if (local) return local;
   if (!src.startsWith("https://images.unsplash.com/")) return undefined;
   const m = /[?&]w=(\d+)/.exec(src);
   if (!m) return undefined;

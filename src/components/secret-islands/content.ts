@@ -1,3 +1,4 @@
+import { seoImage } from "./image-map";
 export type Lang = "de" | "en" | "zh" | "ko" | "ja";
 /** Source strings: German + English. zh/ko/ja are looked up by the German text in ./i18n. */
 export type L = { de: string; en: string };
@@ -21,12 +22,11 @@ export const BRAND = {
 };
 
 /** Logo mark generated with Higgsfield (GPT Image 2.5). Move into /public/brand/ for production. */
-export const LOGO_URL =
-  "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_044905_49752f2a-c380-4b9a-a061-294ac851b827.png";
+export const LOGO_URL = seoImage("krabi-secret-islands-logo.png");
 
 /** Higgsfield illustration: overcrowded longtail boat (used in the Longtail-vs-Speedboat story). Move to /public/images/ for production. */
 export const LONGTAIL_CROWD_IMG = {
-  src: "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_051122_eda16af9-06c0-4627-ba34-f2df5c945e33_min.webp",
+  src: seoImage("longtail-boot-krabi-ueberfuellt.webp"),
   alt: {
     de: "Überfülltes Longtail-Boot in Krabi: genervtes Paar auf harten Holzbänken zwischen fremden Touristen und quengelnden Kindern",
     en: "Overcrowded longtail boat in Krabi: annoyed couple on hard wooden benches between strangers and whining children",
@@ -35,8 +35,8 @@ export const LONGTAIL_CROWD_IMG = {
 
 /** Higgsfield: our speedboat alone in a turquoise lagoon, couple relaxing with champagne. Move to /public/images/ for production. */
 export const ROMANCE_IMGS = [
-  "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_051237_8e5ea54a-568d-4ca4-8bf4-78a0ddb50b78_min.webp",
-  "https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/hf_20261004_051237_1d623517-1da5-4281-a981-3fcbf222bdb2_min.webp",
+  seoImage("privates-speedboat-krabi-paar-champagner-1.webp"),
+  seoImage("privates-speedboat-krabi-paar-champagner-2.webp"),
 ].map((src) => ({
   src,
   alt: {
@@ -45,34 +45,31 @@ export const ROMANCE_IMGS = [
   },
 }));
 
-/**
- * Scene photos generated with Higgsfield (GPT Image 2.5, 2K) for each tour, island and guide topic.
- * Served from the Higgsfield CDN (`_min.webp`); move into /public/images/ for production.
- */
-const hf = (id: string) => `https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/${id}_min.webp`;
+/** Scene photos generated with Higgsfield (GPT Image 2.5, 2K), SEO-named via /bilder/ (see image-map.ts). */
 
 export const IMG = {
   // Our real speedboat (owner photo, /public/images). Never use stock photos showing longtail boats.
-  hero: "/images/krabi-secret-islands-privates-speedboat.webp",
+  // Hero: aerial of Koh Hong (owner-supplied photo, /public/images).
+  hero: "/images/koh-hong-krabi-luftaufnahme-strand-lagune.webp",
   boat: "/images/krabi-secret-islands-privates-speedboat.webp",
-  poda: hf("hf_20261005_002150_8d7c6492-5f34-4934-b3b4-75f0b9a82121"),
-  tup: hf("hf_20261005_002150_dfdc534c-9c4e-4bec-b0a0-7b576b419b45"),
-  hong: hf("hf_20261005_002150_9a0e33b6-f442-46a5-9017-2eda9b1de6a4"),
-  roi: hf("hf_20261005_002151_280755de-327f-4601-b6bd-311a5ea5251e"),
-  kudu: hf("hf_20261005_002151_c63538fc-208f-4006-9912-f9011184d205"),
-  maya: hf("hf_20261005_002150_68ec7119-d389-408e-8d9d-54589be6ed12"),
-  reef: hf("hf_20261005_002152_3dee514d-3244-4148-8ed2-cb0bb316fa60"),
-  snorkelCouple: hf("hf_20261005_002150_98a1e3a6-b5bc-4a7d-9b11-e3555a5db8e8"),
-  plankton: hf("hf_20261005_002152_f24dca4e-a654-4ac1-8de2-d84cfd0de8f4"),
-  fishReef: hf("hf_20261005_002151_b7e84fd8-797e-4d99-b423-402e02292489"),
-  deepSea: hf("hf_20261005_002151_a3ce8116-0f18-4d0e-81d8-0d77bf41ece2"),
-  squid: hf("hf_20261005_002149_a748fc59-1529-499e-ab29-09242a05de21"),
-  bbq: hf("hf_20261005_002200_1514cd4f-b5d3-4b48-8089-4193f0182997"),
-  dinner: hf("hf_20261005_002200_f4dd418a-7451-4032-ae1f-351ed5c93341"),
-  jamesBond: hf("hf_20261005_002200_9872044f-6330-4365-aceb-57ede1e306a3"),
-  railay: hf("hf_20261005_002159_b882635e-039b-43c1-b839-eaf0a7162ce7"),
-  droneAerial: hf("hf_20261005_002159_663f2830-4e95-483f-8ce4-ca8a82093d7d"),
-  family: hf("hf_20261005_002201_56ca4fae-a945-432b-9bae-69a8023e2e41"),
+  poda: seoImage("koh-poda-krabi-strand-kalksteinfelsen.webp"),
+  tup: seoImage("tup-sandbank-krabi-ebbe-drohnenaufnahme.webp"),
+  hong: seoImage("hong-island-krabi-smaragdgruene-lagune.webp"),
+  roi: seoImage("koh-roi-versteckte-lagune-phang-nga.webp"),
+  kudu: seoImage("koh-kudu-hong-hoehle-phang-nga.webp"),
+  maya: seoImage("maya-bay-phi-phi-sonnenaufgang.webp"),
+  reef: seoImage("schnorcheln-krabi-korallenriff-schildkroete.webp"),
+  snorkelCouple: seoImage("paar-schnorcheln-privates-speedboat-krabi.webp"),
+  plankton: seoImage("leuchtendes-plankton-krabi-nacht-speedboat.webp"),
+  fishReef: seoImage("riff-angeln-krabi-zackenbarsch.webp"),
+  deepSea: seoImage("hochsee-angeln-trolling-andamanensee.webp"),
+  squid: seoImage("tintenfisch-angeln-nacht-krabi.webp"),
+  bbq: seoImage("strand-bbq-sonnenuntergang-krabi.webp"),
+  dinner: seoImage("candlelight-dinner-speedboat-sonnenuntergang-krabi.webp"),
+  jamesBond: seoImage("james-bond-island-phang-nga-bucht.webp"),
+  railay: seoImage("railay-beach-krabi-goldene-stunde.webp"),
+  droneAerial: seoImage("speedboat-krabi-drohnenaufnahme-inseln.webp"),
+  family: seoImage("familie-sandbank-krabi-kinder-schnorcheln.webp"),
   // Generic aliases used across guide articles and gallery.
   sandbar: "",
   lagoon: "",

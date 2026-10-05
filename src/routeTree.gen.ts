@@ -21,6 +21,7 @@ import { Route as SecretIslandsRouteImport } from './routes/secret-islands'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ApiAgentRouteImport } from './routes/api/agent'
 import { Route as ApiImgRouteImport } from './routes/api/img'
+import { Route as BilderFileRouteImport } from './routes/bilder.$file'
 import { Route as ChatsIdRouteImport } from './routes/chats.$id'
 import { Route as ItemIdRouteImport } from './routes/item.$id'
 import { Route as KrabiGuideIndexRouteImport } from './routes/krabi-guide.index'
@@ -93,6 +94,11 @@ const ApiAgentRoute = ApiAgentRouteImport.update({
 const ApiImgRoute = ApiImgRouteImport.update({
   id: '/api/img',
   path: '/api/img',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BilderFileRoute = BilderFileRouteImport.update({
+  id: '/bilder/$file',
+  path: '/bilder/$file',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatsIdRoute = ChatsIdRouteImport.update({
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
+  '/bilder/$file': typeof BilderFileRoute
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
+  '/bilder/$file': typeof BilderFileRoute
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
+  '/bilder/$file': typeof BilderFileRoute
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
   '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
+    | '/bilder/$file'
     | '/chats/$id'
     | '/item/$id'
     | '/krabi-guide/$slug'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
+    | '/bilder/$file'
     | '/chats/$id'
     | '/item/$id'
     | '/krabi-guide/$slug'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
+    | '/bilder/$file'
     | '/chats/$id'
     | '/item/$id'
     | '/krabi-guide/$slug'
@@ -343,6 +355,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAgentRoute: typeof ApiAgentRouteWithChildren
   ApiImgRoute: typeof ApiImgRouteWithChildren
+  BilderFileRoute: typeof BilderFileRoute
   ItemIdRoute: typeof ItemIdRoute
   KrabiGuideSlugRoute: typeof KrabiGuideSlugRoute
   ServiceIdRoute: typeof ServiceIdRoute
@@ -434,6 +447,13 @@ declare module '@tanstack/react-router' {
       path: '/api/img'
       fullPath: '/api/img'
       preLoaderRoute: typeof ApiImgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bilder/$file': {
+      id: '/bilder/$file'
+      path: '/bilder/$file'
+      fullPath: '/bilder/$file'
+      preLoaderRoute: typeof BilderFileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chats/$id': {
@@ -604,6 +624,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAgentRoute: ApiAgentRouteWithChildren,
   ApiImgRoute: ApiImgRouteWithChildren,
+  BilderFileRoute: BilderFileRoute,
   ItemIdRoute: ItemIdRoute,
   KrabiGuideSlugRoute: KrabiGuideSlugRoute,
   ServiceIdRoute: ServiceIdRoute,

@@ -40,7 +40,6 @@ export function langLinks(path: string, lang: Lang, available: readonly Lang[]) 
 /** Shared <head> links of the Secret Islands / Insider Guide pages. */
 export const BRAND_HEAD_LINKS = [
   { rel: "icon", type: "image/png", href: LOGO_URL },
-  { rel: "preconnect", href: "https://images.unsplash.com" },
   {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
@@ -81,8 +80,7 @@ export function businessNode(lang: Lang): Json {
     "@id": BUSINESS_ID,
     name: BRAND.name,
     url: `${SITE_URL}${LANDING_PATH}`,
-    // TODO(owner): move the logo to /public/brand/krabi-secret-islands-logo.png (own domain) and update LOGO_URL.
-    logo: LOGO_URL,
+    logo: `${SITE_URL}${LOGO_URL}`,
     image: `${SITE_URL}/images/krabi-secret-islands-privates-speedboat.jpg`,
     email: BRAND.email,
     // TODO(owner): `telephone` omitted on purpose – BRAND.whatsapp is still a placeholder number.
