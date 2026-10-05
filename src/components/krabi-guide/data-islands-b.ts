@@ -138,7 +138,7 @@ export const ISLAND_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["koh-kudu-koh-nok", "secret-beaches-lagoons-krabi", "james-bond-island-phang-nga-bay", "krabi-tides-guide"],
     tourIds: ["phang-nga-uncharted"],
-    image: IMG.cliffs,
+    image: IMG.roi,
   },
 
   /* ───────────────────────── Koh Kudu & Koh Nok ───────────────────────── */
@@ -272,7 +272,7 @@ export const ISLAND_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["koh-roi-hidden-lagoon", "james-bond-island-phang-nga-bay", "avoid-crowds-krabi-timing", "secret-beaches-lagoons-krabi"],
     tourIds: ["phang-nga-uncharted"],
-    image: IMG.bay,
+    image: IMG.kudu,
   },
 
   /* ───────────────────────── Phi Phi & Maya Bay ───────────────────────── */
@@ -415,7 +415,7 @@ export const ISLAND_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["avoid-crowds-krabi-timing", "best-time-to-visit-krabi", "koh-rok-koh-haa", "krabi-photo-drone-spots"],
     tourIds: ["phi-phi-early-bird"],
-    image: IMG.aerial,
+    image: IMG.maya,
   },
 
   /* ───────────────────────── Koh Rok & Koh Haa ───────────────────────── */
@@ -547,7 +547,7 @@ export const ISLAND_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["best-time-to-visit-krabi", "boat-day-packing-list-etiquette", "phi-phi-maya-bay-early-morning", "krabi-with-kids"],
     tourIds: ["koh-rok-safari"],
-    image: IMG.snorkel,
+    image: IMG.reef,
   },
 
   /* ───────────────────────── James Bond Island & Phang Nga Bay ───────────────────────── */
@@ -686,6 +686,6 @@ export const ISLAND_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["koh-roi-hidden-lagoon", "koh-kudu-koh-nok", "krabi-with-kids", "best-time-to-visit-krabi"],
     tourIds: ["james-bond-bay", "phang-nga-uncharted"],
-    image: IMG.bay,
+    image: IMG.jamesBond,
   },
 ];

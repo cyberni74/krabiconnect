@@ -160,7 +160,7 @@ export const INSIDER_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["koh-rok-koh-haa", "chicken-island-tup-sandbar", "boat-day-packing-list-etiquette", "krabi-with-kids"],
     tourIds: ["koh-rok-safari", "4islands-sunset", "hong-lagoons"],
-    image: IMG.snorkel,
+    image: IMG.reef,
   },
 
   /* ───────────────────────── Krabi with kids ───────────────────────── */
@@ -301,7 +301,7 @@ export const INSIDER_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["chicken-island-tup-sandbar", "james-bond-island-phang-nga-bay", "krabi-fishing-guide", "best-snorkeling-spots-krabi"],
     tourIds: ["family-sandbars", "james-bond-bay", "fishing-night-squid"],
-    image: IMG.beach,
+    image: IMG.family,
   },
 
   /* ───────────────────────── Packing list & etiquette ───────────────────────── */
@@ -579,7 +579,7 @@ export const INSIDER_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["chicken-island-tup-sandbar", "koh-poda-guide", "hong-island-krabi", "james-bond-island-phang-nga-bay"],
     tourIds: ["phang-nga-uncharted", "4islands-sunset", "sunset-dinner"],
-    image: IMG.aerial,
+    image: IMG.droneAerial,
   },
 
   /* ───────────────────────── Secret beaches & lagoons ───────────────────────── */
@@ -707,6 +707,6 @@ export const INSIDER_ARTICLES_B: GuideArticleInput[] = [
     ],
     related: ["koh-roi-hidden-lagoon", "koh-kudu-koh-nok", "hong-island-krabi", "railay-phra-nang-cave"],
     tourIds: ["phang-nga-uncharted", "hong-lagoons"],
-    image: IMG.lagoon,
+    image: IMG.bbq,
   },
 ];

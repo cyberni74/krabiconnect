@@ -36,17 +36,19 @@ export const btn = {
 export function AuroraBackground() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-si-navy">
+      {/* Soft glows via radial gradients (no CSS blur filter – a 120px blur on a full-screen layer repainted every
+          frame was the main source of scroll jank). Only transforms animate; paused on small screens. */}
       <div
-        className="absolute -left-[20vw] -top-[20vh] size-[70vw] rounded-full bg-si-cyan/25 blur-[120px]"
-        style={{ animation: "si-drift-a 22s ease-in-out infinite" }}
+        className="si-aurora-blob absolute -left-[30vw] -top-[30vh] size-[110vw] rounded-full"
+        style={{ background: "radial-gradient(closest-side, rgb(6 182 212 / 0.28), transparent)", animation: "si-drift-a 22s ease-in-out infinite" }}
       />
       <div
-        className="absolute -right-[25vw] top-[30vh] size-[65vw] rounded-full bg-teal-500/20 blur-[120px]"
-        style={{ animation: "si-drift-b 26s ease-in-out infinite" }}
+        className="si-aurora-blob absolute -right-[35vw] top-[20vh] size-[100vw] rounded-full"
+        style={{ background: "radial-gradient(closest-side, rgb(20 184 166 / 0.22), transparent)", animation: "si-drift-b 26s ease-in-out infinite" }}
       />
       <div
-        className="absolute bottom-[-30vh] left-[20vw] size-[55vw] rounded-full bg-si-gold/10 blur-[140px]"
-        style={{ animation: "si-drift-a 30s ease-in-out infinite reverse" }}
+        className="si-aurora-blob absolute bottom-[-40vh] left-[10vw] size-[90vw] rounded-full"
+        style={{ background: "radial-gradient(closest-side, rgb(245 158 11 / 0.12), transparent)", animation: "si-drift-a 30s ease-in-out infinite reverse" }}
       />
       <div className="si-grid-bg absolute inset-0" />
     </div>
@@ -96,8 +98,6 @@ export function ScrollScene({
   const rotateX = useTransform(p, [0, 1], [from === "tilt" ? 22 * intensity : 8 * intensity, 0]);
   const scale = useTransform(p, [0, 1], [0.88, 1]);
   const opacity = useTransform(p, [0, 0.6], [0, 1]);
-  const blur = useTransform(p, [0, 0.8], [10, 0]);
-  const filter = useTransform(blur, (b) => `blur(${b}px)`);
 
   if (reduce)
     return (
@@ -107,8 +107,8 @@ export function ScrollScene({
     );
   return (
     <div ref={ref} style={{ perspective: 1200 }} className={className}>
-      {/* `si-scene`: styles.css drops the scroll-scrubbed blur on small screens (per-frame filter repaint = jank / INP). */}
-      <motion.div className="si-scene" style={{ x, y, rotateX, scale, opacity, filter, transformOrigin: "50% 100%" }}>
+      {/* Transform + opacity only (compositor-friendly); no per-frame filter blur. */}
+      <motion.div className="si-scene" style={{ x, y, rotateX, scale, opacity, transformOrigin: "50% 100%" }}>
         {children}
       </motion.div>
     </div>
@@ -117,7 +117,7 @@ export function ScrollScene({
 
 /* ───────── Stagger reveal (in-view, once) ───────── */
 const itemVariants: Record<string, Variants> = {
-  up: { hidden: { opacity: 0, y: 40, filter: "blur(8px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)" } },
+  up: { hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0 } },
   left: { hidden: { opacity: 0, x: -60 }, show: { opacity: 1, x: 0 } },
   right: { hidden: { opacity: 0, x: 60 }, show: { opacity: 1, x: 0 } },
   scale: { hidden: { opacity: 0, scale: 0.8 }, show: { opacity: 1, scale: 1 } },

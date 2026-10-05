@@ -354,7 +354,7 @@ export const PILLAR_ARTICLES: GuideArticleInput[] = [
     ],
     related: ["krabi-islands-insider-guide", "krabi-island-hopping-planner", "avoid-crowds-krabi-timing", "krabi-tides-guide"],
     tourIds: ["phang-nga-uncharted", "4islands-sunset", "phi-phi-early-bird"],
-    image: IMG.sunset,
+    image: IMG.droneAerial,
   },
 
   /* ───────────────────────── Pillar 3: island hopping planner ───────────────────────── */
@@ -536,6 +536,6 @@ export const PILLAR_ARTICLES: GuideArticleInput[] = [
     ],
     related: ["krabi-islands-insider-guide", "avoid-crowds-krabi-timing", "krabi-tides-guide", "boat-day-packing-list-etiquette"],
     tourIds: ["4islands-sunset", "hong-lagoons", "phang-nga-uncharted"],
-    image: IMG.boat,
+    image: IMG.snorkelCouple,
   },
 ];

@@ -45,24 +45,56 @@ export const ROMANCE_IMGS = [
   },
 }));
 
-const u = (id: string, w = 1200) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;
+/**
+ * Scene photos generated with Higgsfield (GPT Image 2.5, 2K) for each tour, island and guide topic.
+ * Served from the Higgsfield CDN (`_min.webp`); move into /public/images/ for production.
+ */
+const hf = (id: string) => `https://d8j0ntlcm91z4.cloudfront.net/user_37pB8NNBCXw21nrSwh5C0AozDjm/${id}_min.webp`;
 
 export const IMG = {
   // Our real speedboat (owner photo, /public/images). Never use stock photos showing longtail boats.
   hero: "/images/krabi-secret-islands-privates-speedboat.webp",
-  sandbar: u("1559128010-7c1ad6e1b6a5"),
-  lagoon: u("1537956965359-7573183d1f57"),
-  beach: u("1507525428034-b723cf961d3e"),
-  island: u("1504214208698-ea1916a2195a"),
-  aerial: u("1506953823976-52e1fdc0149a"),
-  sunset: u("1530053969600-caed2596d242"),
-  snorkel: u("1544551763-46a013bb70d5"),
-  snorkel2: u("1544551763-77ef2d0cfc6c"),
   boat: "/images/krabi-secret-islands-privates-speedboat.webp",
-  cliffs: u("1589394815804-964ed0be2eb5"),
-  bay: u("1519046904884-53103b34b206"),
+  poda: hf("hf_20261005_002150_8d7c6492-5f34-4934-b3b4-75f0b9a82121"),
+  tup: hf("hf_20261005_002150_dfdc534c-9c4e-4bec-b0a0-7b576b419b45"),
+  hong: hf("hf_20261005_002150_9a0e33b6-f442-46a5-9017-2eda9b1de6a4"),
+  roi: hf("hf_20261005_002151_280755de-327f-4601-b6bd-311a5ea5251e"),
+  kudu: hf("hf_20261005_002151_c63538fc-208f-4006-9912-f9011184d205"),
+  maya: hf("hf_20261005_002150_68ec7119-d389-408e-8d9d-54589be6ed12"),
+  reef: hf("hf_20261005_002152_3dee514d-3244-4148-8ed2-cb0bb316fa60"),
+  snorkelCouple: hf("hf_20261005_002150_98a1e3a6-b5bc-4a7d-9b11-e3555a5db8e8"),
+  plankton: hf("hf_20261005_002152_f24dca4e-a654-4ac1-8de2-d84cfd0de8f4"),
+  fishReef: hf("hf_20261005_002151_b7e84fd8-797e-4d99-b423-402e02292489"),
+  deepSea: hf("hf_20261005_002151_a3ce8116-0f18-4d0e-81d8-0d77bf41ece2"),
+  squid: hf("hf_20261005_002149_a748fc59-1529-499e-ab29-09242a05de21"),
+  bbq: hf("hf_20261005_002200_1514cd4f-b5d3-4b48-8089-4193f0182997"),
+  dinner: hf("hf_20261005_002200_f4dd418a-7451-4032-ae1f-351ed5c93341"),
+  jamesBond: hf("hf_20261005_002200_9872044f-6330-4365-aceb-57ede1e306a3"),
+  railay: hf("hf_20261005_002159_b882635e-039b-43c1-b839-eaf0a7162ce7"),
+  droneAerial: hf("hf_20261005_002159_663f2830-4e95-483f-8ce4-ca8a82093d7d"),
+  family: hf("hf_20261005_002201_56ca4fae-a945-432b-9bae-69a8023e2e41"),
+  // Generic aliases used across guide articles and gallery.
+  sandbar: "",
+  lagoon: "",
+  beach: "",
+  island: "",
+  aerial: "",
+  sunset: "",
+  snorkel: "",
+  snorkel2: "",
+  cliffs: "",
+  bay: "",
 };
+IMG.sandbar = IMG.tup;
+IMG.lagoon = IMG.hong;
+IMG.beach = IMG.poda;
+IMG.island = IMG.jamesBond;
+IMG.aerial = IMG.droneAerial;
+IMG.sunset = IMG.railay;
+IMG.snorkel = IMG.reef;
+IMG.snorkel2 = IMG.snorkelCouple;
+IMG.cliffs = IMG.roi;
+IMG.bay = IMG.maya;
 
 export const VIDEO = {
   reel1: "https://videos.pexels.com/video-files/3571264/3571264-uhd_1440_2560_30fps.mp4",
@@ -290,7 +322,7 @@ export const TOURS: Tour[] = [
       en: "The famous islands – but when the crowds are gone.",
     },
     categories: ["classic", "sunset"],
-    image: IMG.sunset,
+    image: IMG.tup,
     price: 18500,
     hours: 6,
     duration: { de: "6 Std. · ab 13:00", en: "6 hrs · from 1 pm" },
@@ -314,7 +346,7 @@ export const TOURS: Tour[] = [
       en: "Swim in the glowing sea at night – every movement sparkles blue.",
     },
     categories: ["sunset", "secret", "family"],
-    image: IMG.aerial,
+    image: IMG.plankton,
     price: 14500,
     hours: 4,
     duration: { de: "4 Std. · ab 18:00", en: "4 hrs · from 6 pm" },
@@ -344,7 +376,7 @@ export const TOURS: Tour[] = [
       en: "First sunset at Phra Nang, then a swim in glowing plankton.",
     },
     categories: ["sunset", "secret"],
-    image: IMG.sunset,
+    image: IMG.railay,
     price: 19500,
     hours: 6,
     duration: { de: "6 Std. · ab 15:30", en: "6 hrs · from 3:30 pm" },
@@ -368,7 +400,7 @@ export const TOURS: Tour[] = [
       en: "Emerald lagoons and bays no group boat visits.",
     },
     categories: ["secret", "classic"],
-    image: IMG.lagoon,
+    image: IMG.hong,
     price: 21500,
     hours: 7,
     duration: { de: "7 Std. · ab 08:00", en: "7 hrs · from 8 am" },
@@ -389,7 +421,7 @@ export const TOURS: Tour[] = [
       en: "Koh Roi, Koh Kudu, Koh Nok – 100% off the beaten path.",
     },
     categories: ["secret"],
-    image: IMG.cliffs,
+    image: IMG.roi,
     price: 26000,
     hours: 8.5,
     duration: { de: "8,5 Std. · ab 08:00", en: "8.5 hrs · from 8 am" },
@@ -411,7 +443,7 @@ export const TOURS: Tour[] = [
       en: "Maya Bay, Pileh Lagoon and Bamboo Island in the first morning light.",
     },
     categories: ["classic"],
-    image: IMG.bay,
+    image: IMG.maya,
     price: 28500,
     hours: 8,
     duration: { de: "8 Std. · ab 07:00", en: "8 hrs · from 7 am" },
@@ -434,7 +466,7 @@ export const TOURS: Tour[] = [
       en: "The clearest reefs of the Andaman Sea – visibility up to 25 m.",
     },
     categories: ["secret", "family"],
-    image: IMG.snorkel,
+    image: IMG.reef,
     price: 32000,
     hours: 9,
     duration: { de: "9 Std. · ab 07:30", en: "9 hrs · from 7:30 am" },
@@ -457,7 +489,7 @@ export const TOURS: Tour[] = [
       en: "The bay's icon – with mangrove kayaking instead of tourist queues.",
     },
     categories: ["classic", "family"],
-    image: IMG.island,
+    image: IMG.jamesBond,
     price: 24000,
     hours: 8,
     duration: { de: "8 Std. · ab 08:00", en: "8 hrs · from 8 am" },
@@ -478,7 +510,7 @@ export const TOURS: Tour[] = [
       en: "Short, intense, perfect for your arrival day.",
     },
     categories: ["classic", "family"],
-    image: IMG.beach,
+    image: IMG.railay,
     price: 11500,
     hours: 4,
     duration: { de: "4 Std. · flexibel", en: "4 hrs · flexible" },
@@ -499,7 +531,7 @@ export const TOURS: Tour[] = [
       en: "Champagne, sunset and a candle-light dinner at sea.",
     },
     categories: ["sunset"],
-    image: IMG.sunset,
+    image: IMG.dinner,
     price: 16500,
     hours: 4,
     duration: { de: "4 Std. · ab 15:30", en: "4 hrs · from 3:30 pm" },
@@ -524,7 +556,7 @@ export const TOURS: Tour[] = [
       en: "Short rides, shallow bays, lots of shade – for little explorers.",
     },
     categories: ["family"],
-    image: IMG.sandbar,
+    image: IMG.family,
     price: 15500,
     hours: 6,
     duration: { de: "6 Std. · ab 09:00", en: "6 hrs · from 9 am" },
@@ -546,7 +578,7 @@ export const TOURS: Tour[] = [
       en: "Grouper, snapper & mackerel on the reefs off Krabi.",
     },
     categories: ["fishing", "family"],
-    image: IMG.boat,
+    image: IMG.fishReef,
     price: 13500,
     hours: 4,
     duration: { de: "4 Std. · flexibel", en: "4 hrs · flexible" },
@@ -567,7 +599,7 @@ export const TOURS: Tour[] = [
       en: "King mackerel, barracuda & tuna – big game in the Andaman Sea.",
     },
     categories: ["fishing"],
-    image: IMG.island,
+    image: IMG.deepSea,
     price: 29500,
     hours: 9,
     duration: { de: "9 Std. · ab 07:00", en: "9 hrs · from 7 am" },
@@ -591,7 +623,7 @@ export const TOURS: Tour[] = [
       en: "Under lamps at sea – a Thai tradition to join in.",
     },
     categories: ["fishing", "family"],
-    image: IMG.aerial,
+    image: IMG.squid,
     price: 12500,
     hours: 4,
     duration: { de: "4 Std. · ab 18:00", en: "4 hrs · from 6 pm" },
@@ -613,7 +645,7 @@ export const TOURS: Tour[] = [
       en: "Fishing in the afternoon, BBQ on a lonely beach at sunset.",
     },
     categories: ["fishing", "sunset"],
-    image: IMG.sunset,
+    image: IMG.bbq,
     price: 19500,
     hours: 6,
     duration: { de: "6 Std. · ab 13:00", en: "6 hrs · from 1 pm" },
@@ -651,14 +683,14 @@ export type GalleryItem = {
 export const GALLERY: GalleryItem[] = [
   { id: "g1", cat: "drone", src: IMG.sandbar, title: { de: "Tup-Sandbank bei Ebbe", en: "Tup sandbar at low tide" }, tall: true },
   { id: "g2", cat: "secret", src: IMG.cliffs, title: { de: "Koh Roi – versteckte Lagune", en: "Koh Roi – hidden lagoon" } },
-  { id: "g3", cat: "reels", src: IMG.aerial, title: { de: "Reel: Ankunft Koh Kudu", en: "Reel: arriving at Koh Kudu" }, video: VIDEO.reel1, tall: true },
+  { id: "g3", cat: "reels", src: IMG.kudu, title: { de: "Reel: Ankunft Koh Kudu", en: "Reel: arriving at Koh Kudu" }, video: VIDEO.reel1, tall: true },
   { id: "g4", cat: "underwater", src: IMG.snorkel, title: { de: "Schnorcheln an Chicken Island", en: "Snorkeling at Chicken Island" } },
-  { id: "g5", cat: "drone", src: IMG.island, title: { de: "Private Bucht von oben", en: "Private bay from above" } },
-  { id: "g6", cat: "secret", src: IMG.bay, title: { de: "Koh Kudu – menschenleer", en: "Koh Kudu – deserted" }, tall: true },
+  { id: "g5", cat: "drone", src: IMG.droneAerial, title: { de: "Private Bucht von oben", en: "Private bay from above" } },
+  { id: "g6", cat: "secret", src: IMG.maya, title: { de: "Maya Bay – vor allen anderen", en: "Maya Bay – before everyone else" }, tall: true },
   { id: "g7", cat: "underwater", src: IMG.snorkel2, title: { de: "Korallengarten Koh Pakbia", en: "Coral garden Koh Pakbia" } },
   { id: "g8", cat: "reels", src: IMG.lagoon, title: { de: "Reel: Hong-Lagune", en: "Reel: Hong Lagoon" }, video: VIDEO.reel2 },
   { id: "g9", cat: "drone", src: IMG.boat, title: { de: "Ihr privates Boot-Setup", en: "Your private boat setup" } },
-  { id: "g10", cat: "secret", src: IMG.beach, title: { de: "Koh Nok – nur für Sie", en: "Koh Nok – just for you" } },
+  { id: "g10", cat: "secret", src: IMG.poda, title: { de: "Koh Nok – nur für Sie", en: "Koh Nok – just for you" } },
 ];
 
 export type Article = {

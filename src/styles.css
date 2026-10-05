@@ -153,10 +153,23 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 }
 /* Mobile performance (Secret Islands only): backdrop-filter cost scales with blur radius and the number of
    glass cards; scroll-scrubbed filter blur repaints every frame. Smaller radius keeps the frosted look. */
+.si-aurora-blob {
+  will-change: transform;
+}
 @media (max-width: 767px) {
+  /* Cards: no backdrop blur on phones (dozens of blurred layers = jank); a denser tint keeps the glass look. */
   .si-glass {
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: linear-gradient(135deg, rgb(30 58 95 / 0.55), rgb(17 34 64 / 0.45));
+  }
+  .si-aurora-blob {
+    animation: none !important;
+  }
+  /* Decorative blurred glow blobs inside sections: skip on phones (large filter layers inside moving blocks). */
+  .pointer-events-none.rounded-full[class*="blur-2xl"],
+  .pointer-events-none.rounded-full[class*="blur-3xl"] {
+    display: none;
   }
   .si-glass-strong {
     -webkit-backdrop-filter: blur(16px) saturate(150%);

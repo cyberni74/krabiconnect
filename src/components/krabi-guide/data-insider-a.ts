@@ -148,7 +148,7 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
     ],
     related: ["krabi-island-hopping-planner", "phi-phi-maya-bay-early-morning", "koh-kudu-koh-nok", "krabi-tides-guide"],
     tourIds: ["phi-phi-early-bird", "phang-nga-uncharted", "4islands-sunset"],
-    image: IMG.island,
+    image: IMG.poda,
   },
 
   /* ───────────────────────── Tides guide ───────────────────────── */
@@ -289,7 +289,7 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
     ],
     related: ["chicken-island-tup-sandbar", "hong-island-krabi", "koh-roi-hidden-lagoon", "krabi-island-hopping-planner"],
     tourIds: ["4islands-sunset", "family-sandbars", "hong-lagoons"],
-    image: IMG.sandbar,
+    image: IMG.tup,
   },
 
   /* ───────────────────────── Bioluminescent plankton (private speedboat) ───────────────────────── */
@@ -434,11 +434,11 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
     ],
     related: ["koh-poda-guide", "railay-phra-nang-cave", "krabi-with-kids", "boat-day-packing-list-etiquette"],
     tourIds: ["plankton-night", "sunset-glow-combo"],
-    image: IMG.sunset,
+    image: IMG.plankton,
     images: [
       {
         src: PLANKTON_IMG(1),
-        fallback: IMG.sunset,
+        fallback: IMG.plankton,
         alt: { de: "Sonnenuntergang vom privaten Speedboat vor den Kalkfelsen bei Krabi", en: "Sunset from the private speedboat in front of Krabi’s limestone cliffs" },
       },
       {
@@ -599,6 +599,6 @@ export const INSIDER_ARTICLES_A: GuideArticleInput[] = [
     ],
     related: ["krabi-with-kids", "best-time-to-visit-krabi", "boat-day-packing-list-etiquette", "krabi-bioluminescent-plankton-night-boat-tour"],
     tourIds: ["fishing-reef-half", "fishing-deep-sea", "fishing-night-squid", "fishing-catch-cook"],
-    image: IMG.boat,
+    image: IMG.fishReef,
   },
 ];
