@@ -28,11 +28,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     initDeviceLanguage();
   }, []);
   useEffect(() => {
-    if (!pathname.startsWith("/secret-islands") && !pathname.startsWith("/krabi-guide")) document.documentElement.lang = lang;
-  }, [lang, pathname]);
-
-  // Standalone landing page with its own header/footer chrome.
-  if (pathname.startsWith("/secret-islands") || pathname.startsWith("/krabi-guide")) return <>{children}</>;
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const hideNav = pathname === "/login" || pathname === "/admin";
   const hideTop =

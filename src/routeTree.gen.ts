@@ -15,18 +15,11 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as SecretIslandsRouteImport } from './routes/secret-islands'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ApiAgentRouteImport } from './routes/api/agent'
 import { Route as ApiImgRouteImport } from './routes/api/img'
-import { Route as BilderFileRouteImport } from './routes/bilder.$file'
 import { Route as ChatsIdRouteImport } from './routes/chats.$id'
 import { Route as ItemIdRouteImport } from './routes/item.$id'
-import { Route as KrabiGuideIndexRouteImport } from './routes/krabi-guide.index'
-import { Route as KrabiGuideSlugRouteImport } from './routes/krabi-guide.$slug'
-import { Route as SecretIslandsAnfragenRouteImport } from './routes/secret-islands_.anfragen'
 import { Route as ServiceIdRouteImport } from './routes/service.$id'
 import { Route as ApiAgentListingsRouteImport } from './routes/api/agent.listings'
 import { Route as ApiAgentRehostRouteImport } from './routes/api/agent.rehost'
@@ -67,24 +60,9 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SecretIslandsRoute = SecretIslandsRouteImport.update({
-  id: '/secret-islands',
-  path: '/secret-islands',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgentRoute = ApiAgentRouteImport.update({
@@ -97,11 +75,6 @@ const ApiImgRoute = ApiImgRouteImport.update({
   path: '/api/img',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BilderFileRoute = BilderFileRouteImport.update({
-  id: '/bilder/$file',
-  path: '/bilder/$file',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ChatsIdRoute = ChatsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -110,21 +83,6 @@ const ChatsIdRoute = ChatsIdRouteImport.update({
 const ItemIdRoute = ItemIdRouteImport.update({
   id: '/item/$id',
   path: '/item/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KrabiGuideIndexRoute = KrabiGuideIndexRouteImport.update({
-  id: '/krabi-guide/',
-  path: '/krabi-guide/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KrabiGuideSlugRoute = KrabiGuideSlugRouteImport.update({
-  id: '/krabi-guide/$slug',
-  path: '/krabi-guide/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SecretIslandsAnfragenRoute = SecretIslandsAnfragenRouteImport.update({
-  id: '/secret-islands_/anfragen',
-  path: '/secret-islands/anfragen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServiceIdRoute = ServiceIdRouteImport.update({
@@ -183,19 +141,12 @@ export interface FileRoutesByFullPath {
   '/chats': typeof ChatsRouteWithChildren
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
-  '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
-  '/secret-islands': typeof SecretIslandsRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
-  '/bilder/$file': typeof BilderFileRoute
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
-  '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
-  '/secret-islands/anfragen': typeof SecretIslandsAnfragenRoute
   '/service/$id': typeof ServiceIdRoute
-  '/krabi-guide/': typeof KrabiGuideIndexRoute
   '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
   '/api/agent/rehost': typeof ApiAgentRehostRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -212,19 +163,12 @@ export interface FileRoutesByTo {
   '/chats': typeof ChatsRouteWithChildren
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
-  '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
-  '/secret-islands': typeof SecretIslandsRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
-  '/bilder/$file': typeof BilderFileRoute
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
-  '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
-  '/secret-islands/anfragen': typeof SecretIslandsAnfragenRoute
   '/service/$id': typeof ServiceIdRoute
-  '/krabi-guide': typeof KrabiGuideIndexRoute
   '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
   '/api/agent/rehost': typeof ApiAgentRehostRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -242,19 +186,12 @@ export interface FileRoutesById {
   '/chats': typeof ChatsRouteWithChildren
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
-  '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
-  '/secret-islands': typeof SecretIslandsRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agent': typeof ApiAgentRouteWithChildren
   '/api/img': typeof ApiImgRouteWithChildren
-  '/bilder/$file': typeof BilderFileRoute
   '/chats/$id': typeof ChatsIdRoute
   '/item/$id': typeof ItemIdRoute
-  '/krabi-guide/$slug': typeof KrabiGuideSlugRoute
-  '/secret-islands_/anfragen': typeof SecretIslandsAnfragenRoute
   '/service/$id': typeof ServiceIdRoute
-  '/krabi-guide/': typeof KrabiGuideIndexRoute
   '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
   '/api/agent/rehost': typeof ApiAgentRehostRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -273,19 +210,12 @@ export interface FileRouteTypes {
     | '/chats'
     | '/create'
     | '/login'
-    | '/robots.txt'
     | '/search'
-    | '/secret-islands'
-    | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
-    | '/bilder/$file'
     | '/chats/$id'
     | '/item/$id'
-    | '/krabi-guide/$slug'
-    | '/secret-islands/anfragen'
     | '/service/$id'
-    | '/krabi-guide/'
     | '/api/agent/listings'
     | '/api/agent/rehost'
     | '/api/auth/$'
@@ -302,19 +232,12 @@ export interface FileRouteTypes {
     | '/chats'
     | '/create'
     | '/login'
-    | '/robots.txt'
     | '/search'
-    | '/secret-islands'
-    | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
-    | '/bilder/$file'
     | '/chats/$id'
     | '/item/$id'
-    | '/krabi-guide/$slug'
-    | '/secret-islands/anfragen'
     | '/service/$id'
-    | '/krabi-guide'
     | '/api/agent/listings'
     | '/api/agent/rehost'
     | '/api/auth/$'
@@ -331,19 +254,12 @@ export interface FileRouteTypes {
     | '/chats'
     | '/create'
     | '/login'
-    | '/robots.txt'
     | '/search'
-    | '/secret-islands'
-    | '/sitemap.xml'
     | '/api/agent'
     | '/api/img'
-    | '/bilder/$file'
     | '/chats/$id'
     | '/item/$id'
-    | '/krabi-guide/$slug'
-    | '/secret-islands_/anfragen'
     | '/service/$id'
-    | '/krabi-guide/'
     | '/api/agent/listings'
     | '/api/agent/rehost'
     | '/api/auth/$'
@@ -361,18 +277,11 @@ export interface RootRouteChildren {
   ChatsRoute: typeof ChatsRouteWithChildren
   CreateRoute: typeof CreateRoute
   LoginRoute: typeof LoginRoute
-  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SearchRoute: typeof SearchRoute
-  SecretIslandsRoute: typeof SecretIslandsRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAgentRoute: typeof ApiAgentRouteWithChildren
   ApiImgRoute: typeof ApiImgRouteWithChildren
-  BilderFileRoute: typeof BilderFileRoute
   ItemIdRoute: typeof ItemIdRoute
-  KrabiGuideSlugRoute: typeof KrabiGuideSlugRoute
-  SecretIslandsAnfragenRoute: typeof SecretIslandsAnfragenRoute
   ServiceIdRoute: typeof ServiceIdRoute
-  KrabiGuideIndexRoute: typeof KrabiGuideIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -420,32 +329,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/search': {
       id: '/search'
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/secret-islands': {
-      id: '/secret-islands'
-      path: '/secret-islands'
-      fullPath: '/secret-islands'
-      preLoaderRoute: typeof SecretIslandsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agent': {
@@ -462,13 +350,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiImgRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bilder/$file': {
-      id: '/bilder/$file'
-      path: '/bilder/$file'
-      fullPath: '/bilder/$file'
-      preLoaderRoute: typeof BilderFileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/chats/$id': {
       id: '/chats/$id'
       path: '/$id'
@@ -481,27 +362,6 @@ declare module '@tanstack/react-router' {
       path: '/item/$id'
       fullPath: '/item/$id'
       preLoaderRoute: typeof ItemIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/krabi-guide/': {
-      id: '/krabi-guide/'
-      path: '/krabi-guide'
-      fullPath: '/krabi-guide/'
-      preLoaderRoute: typeof KrabiGuideIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/krabi-guide/$slug': {
-      id: '/krabi-guide/$slug'
-      path: '/krabi-guide/$slug'
-      fullPath: '/krabi-guide/$slug'
-      preLoaderRoute: typeof KrabiGuideSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/secret-islands_/anfragen': {
-      id: '/secret-islands_/anfragen'
-      path: '/secret-islands/anfragen'
-      fullPath: '/secret-islands/anfragen'
-      preLoaderRoute: typeof SecretIslandsAnfragenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service/$id': {
@@ -638,18 +498,11 @@ const rootRouteChildren: RootRouteChildren = {
   ChatsRoute: ChatsRouteWithChildren,
   CreateRoute: CreateRoute,
   LoginRoute: LoginRoute,
-  RobotsDottxtRoute: RobotsDottxtRoute,
   SearchRoute: SearchRoute,
-  SecretIslandsRoute: SecretIslandsRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAgentRoute: ApiAgentRouteWithChildren,
   ApiImgRoute: ApiImgRouteWithChildren,
-  BilderFileRoute: BilderFileRoute,
   ItemIdRoute: ItemIdRoute,
-  KrabiGuideSlugRoute: KrabiGuideSlugRoute,
-  SecretIslandsAnfragenRoute: SecretIslandsAnfragenRoute,
   ServiceIdRoute: ServiceIdRoute,
-  KrabiGuideIndexRoute: KrabiGuideIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

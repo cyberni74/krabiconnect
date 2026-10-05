@@ -1,10 +1,4 @@
-import {
-  createRootRoute,
-  HeadContent,
-  Outlet,
-  Scripts,
-  useRouterState,
-} from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
@@ -24,15 +18,8 @@ const fetchSessionUser = createServerFn({ method: "GET" }).handler(async () => {
   return u ? { id: u.id, email: u.email } : null;
 });
 
-function isStandalonePath(pathname: string) {
-  return pathname.startsWith("/secret-islands") || pathname.startsWith("/krabi-guide");
-}
-
 export const Route = createRootRoute({
-  // Standalone marketing pages need no session/DB; skipping keeps them up even where no DATABASE_URL is set.
-  beforeLoad: async ({ location }) => ({
-    sessionUser: isStandalonePath(location.pathname) ? null : await fetchSessionUser(),
-  }),
+  beforeLoad: async () => ({ sessionUser: await fetchSessionUser() }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -46,8 +33,7 @@ export const Route = createRootRoute({
       },
       {
         name: "description",
-        content:
-          "KrabiMarketplace — local services, jobs and classifieds in Krabi. Thai and English, auto-translated.",
+        content: "KrabiMarketplace — local services, jobs and classifieds in Krabi. Thai and English, auto-translated.",
       },
     ],
     links: [
@@ -66,36 +52,19 @@ export const Route = createRootRoute({
   component: Root,
 });
 
-const STANDALONE_HTML_LANG: Record<string, string> = {
-  de: "de",
-  en: "en",
-  zh: "zh-Hans",
-  ko: "ko",
-  ja: "ja",
-};
-
 function Root() {
-  const loc = useRouterState({
-    select: (s) => ({ pathname: s.location.pathname, search: s.location.search }),
-  });
-  const standalone = isStandalonePath(loc.pathname);
-  const lang = standalone
-    ? (STANDALONE_HTML_LANG[String((loc.search as { lang?: string }).lang ?? "de")] ?? "de")
-    : "en";
   return (
-    <html lang={lang} className="antialiased" suppressHydrationWarning>
+    <html lang="en" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="bg-bg text-fg">
         <PreviewHostBridge />
-        {standalone ? null : (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(){try{var m=document.cookie.match(/(?:^|; )krabimarketplace-lang=(th|en)/);var lang=m?m[1]:null;if(!lang){var n=String(navigator.language||"").toLowerCase().replace("_","-");lang=n.indexOf("th")===0?"th":"en";}document.documentElement.lang=lang;}catch(e){}})();`,
-            }}
-          />
-        )}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=document.cookie.match(/(?:^|; )krabimarketplace-lang=(th|en)/);var lang=m?m[1]:null;if(!lang){var n=String(navigator.language||"").toLowerCase().replace("_","-");lang=n.indexOf("th")===0?"th":"en";}document.documentElement.lang=lang;}catch(e){}})();`,
+          }}
+        />
         <GrokChromeGate />
         <AuthProvider>
           <QueryProvider>
