@@ -1,0 +1,523 @@
+[
+  {
+    "ref": "IMG.hero",
+    "current": "/images/koh-hong-krabi-luftaufnahme-strand-lagune.webp",
+    "proposed": "/images/koh-hong-krabi-luftaufnahme-strand-lagune.webp",
+    "rename": false,
+    "alt": {
+      "de": "Luftaufnahme von Koh Hong bei Krabi: türkises Wasser, weißer Sandstrand und Kalksteinfelsen",
+      "en": "Aerial view of Koh Hong near Krabi: turquoise water, white sand beach and limestone cliffs"
+    },
+    "usedIn": [
+      "/secret-islands hero (sections-top)",
+      "Longtail-vs-Speedboat story fallback (sections-bottom; current alt 'Privates Speedboat vor einer leeren Insel' does not match)",
+      "guide: krabi-islands-insider-guide (hero + BlogPosting image)"
+    ],
+    "keyword": "Koh Hong Krabi / Hong Island Krabi",
+    "source": "owner photo",
+    "note": "Keep name. Hero = LCP image: keep priority/eager. Only real photo of a destination – best Google Images candidate.",
+    "pathNote": {
+      "current": "(+ -720.webp)",
+      "proposed": "(keep, + -720.webp)"
+    }
+  },
+  {
+    "ref": "IMG.boat",
+    "current": "/images/krabi-secret-islands-privates-speedboat.webp",
+    "proposed": "/images/krabi-secret-islands-privates-speedboat.webp",
+    "rename": false,
+    "alt": {
+      "de": "Privates Speedboat von Krabi Secret Islands mit Sonnendach – Charter ab Ao Nang für maximal 5 Gäste",
+      "en": "Krabi Secret Islands private speedboat with sun roof – charter from Ao Nang for up to 5 guests"
+    },
+    "usedIn": [
+      "gallery g9",
+      "guide: boat-day-packing-list-etiquette (hero)",
+      "guide plankton gallery fallback #2",
+      "JSON-LD TravelAgency image",
+      "og:image (.jpg)"
+    ],
+    "keyword": "privates Speedboat Krabi / private speedboat charter Krabi",
+    "source": "owner photo",
+    "note": "Keep name (brand + USP). Verify sun roof/hardtop wording against the real boat before shipping the alt.",
+    "pathNote": {
+      "current": "(+ -900.webp, .jpg)",
+      "proposed": "(keep, + -900.webp, .jpg)"
+    }
+  },
+  {
+    "ref": "IMG.poda",
+    "current": "/bilder/koh-poda-krabi-strand-kalksteinfelsen.webp",
+    "proposed": "/images/koh-poda-krabi-strand-kalksteinfelsen.webp",
+    "rename": true,
+    "alt": {
+      "de": "Weißer Sandstrand von Koh Poda bei Krabi mit Kalksteinfelsen und türkisem Wasser",
+      "en": "White sand beach on Koh Poda near Krabi with limestone rocks and turquoise water"
+    },
+    "usedIn": [
+      "gallery g10 (title says 'Koh Nok' – mismatch)",
+      "booking islands: poda, nok (nok = mismatch)",
+      "guide: koh-poda-guide",
+      "guide: avoid-crowds-krabi-timing"
+    ],
+    "keyword": "Koh Poda Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok. Stop using it for Koh Nok."
+  },
+  {
+    "ref": "IMG.tup",
+    "current": "/bilder/tup-sandbank-krabi-ebbe-drohnenaufnahme.webp",
+    "proposed": "/images/tup-sandbank-krabi-ebbe-drohnenaufnahme.webp",
+    "rename": true,
+    "alt": {
+      "de": "Tup-Sandbank bei Ebbe von oben: weißer Sandweg durch türkises Wasser zwischen den Inseln bei Krabi",
+      "en": "Tup sandbar at low tide from above: white sand path through turquoise water between islands near Krabi"
+    },
+    "usedIn": [
+      "tour: 4islands-sunset",
+      "gallery g1",
+      "booking islands: tup",
+      "guide: krabi-tides-guide",
+      "guide: chicken-island-tup-sandbar",
+      "legacy article: tide-guide"
+    ],
+    "keyword": "Tup Sandbank Krabi / 4 Islands Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.hong",
+    "current": "/bilder/hong-island-krabi-smaragdgruene-lagune.webp",
+    "proposed": "/images/hong-island-krabi-smaragdgruene-lagune.webp",
+    "rename": true,
+    "alt": {
+      "de": "Smaragdgrüne Lagune von Hong Island bei Krabi, umgeben von steilen Kalksteinwänden",
+      "en": "Emerald lagoon of Hong Island near Krabi, surrounded by steep limestone walls"
+    },
+    "usedIn": [
+      "tour: hong-lagoons",
+      "gallery g8 (reel poster)",
+      "booking islands: hong, phiphi (phiphi = mismatch)",
+      "guide: hong-island-krabi",
+      "guide plankton gallery fallback #3 (alt says plankton – mismatch)"
+    ],
+    "keyword": "Hong Island Krabi Lagune / Hong Island lagoon",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.roi",
+    "current": "/bilder/koh-roi-versteckte-lagune-phang-nga.webp",
+    "proposed": "/images/koh-roi-versteckte-lagune-phang-nga.webp",
+    "rename": true,
+    "alt": {
+      "de": "Versteckte Lagune von Koh Roi in der Phang-Nga-Bucht, umschlossen von Kalksteinfelsen",
+      "en": "Hidden lagoon of Koh Roi in Phang Nga Bay, enclosed by limestone cliffs"
+    },
+    "usedIn": [
+      "tour: phang-nga-uncharted",
+      "gallery g2",
+      "booking islands: roi, phranang (phranang = mismatch)",
+      "guide: koh-roi-hidden-lagoon",
+      "legacy article: koh-roi-kudu"
+    ],
+    "keyword": "Koh Roi Lagune / Koh Roi hidden lagoon",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.kudu",
+    "current": "/bilder/koh-kudu-hong-hoehle-phang-nga.webp",
+    "proposed": "/images/koh-kudu-hoehle-phang-nga-bucht.webp",
+    "rename": true,
+    "alt": {
+      "de": "Zum Himmel offene Höhle auf Koh Kudu in der Phang-Nga-Bucht mit grünem Wasser",
+      "en": "Sky-open cave chamber on Koh Kudu in Phang Nga Bay with green water"
+    },
+    "usedIn": [
+      "gallery g3 (reel poster)",
+      "guide: koh-kudu-koh-nok",
+      "(booking islands: kudu currently uses IMG.bay – should use this)"
+    ],
+    "keyword": "Koh Kudu Höhle / Koh Kudu cave",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Rename: 'hong' (Thai 'room') next to 'Hong Island' confuses the entity; 301 old URL."
+  },
+  {
+    "ref": "IMG.maya",
+    "current": "/bilder/maya-bay-phi-phi-sonnenaufgang.webp",
+    "proposed": "/images/maya-bay-phi-phi-sonnenaufgang.webp",
+    "rename": true,
+    "alt": {
+      "de": "Maya Bay auf Koh Phi Phi Leh bei Sonnenaufgang, menschenleerer Strand zwischen hohen Kalksteinfelsen",
+      "en": "Maya Bay on Koh Phi Phi Leh at sunrise, empty beach between towering limestone cliffs"
+    },
+    "usedIn": [
+      "tour: phi-phi-early-bird",
+      "gallery g6",
+      "booking islands: laolading, kudu (both mismatch)",
+      "guide: phi-phi-maya-bay-early-morning"
+    ],
+    "keyword": "Maya Bay Phi Phi früh / Maya Bay early morning",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok. Must not show boats inside the bay or swimmers (not allowed since 2022) – check image."
+  },
+  {
+    "ref": "IMG.reef",
+    "current": "/bilder/schnorcheln-krabi-korallenriff-schildkroete.webp",
+    "proposed": "/images/schnorcheln-krabi-korallenriff-schildkroete.webp",
+    "rename": true,
+    "alt": {
+      "de": "Schnorcheln über einem Korallenriff bei Krabi: Meeresschildkröte zwischen bunten Rifffischen",
+      "en": "Snorkeling over a coral reef near Krabi: sea turtle among colourful reef fish"
+    },
+    "usedIn": [
+      "tour: koh-rok-safari",
+      "gallery g4 (title 'Chicken Island')",
+      "booking islands: chicken",
+      "guide: best-snorkeling-spots-krabi",
+      "guide: koh-rok-koh-haa",
+      "guide plankton gallery fallback #4 (alt says plankton – mismatch)"
+    ],
+    "keyword": "Schnorcheln Krabi / snorkeling Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok; generic location on purpose (image is not a specific reef)."
+  },
+  {
+    "ref": "IMG.snorkelCouple",
+    "current": "/bilder/paar-schnorcheln-privates-speedboat-krabi.webp",
+    "proposed": "/images/paar-schnorcheln-privates-speedboat-krabi.webp",
+    "rename": true,
+    "alt": {
+      "de": "Paar schnorchelt im klaren Wasser neben dem privaten Speedboat bei Krabi",
+      "en": "Couple snorkeling in clear water next to the private speedboat near Krabi"
+    },
+    "usedIn": [
+      "gallery g7 (title 'Korallengarten Koh Pakbia')",
+      "guide: koh-lao-lading-koh-pakbia",
+      "guide: krabi-island-hopping-planner"
+    ],
+    "keyword": "Schnorcheltour privat Krabi / private snorkeling tour Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.plankton",
+    "current": "/bilder/leuchtendes-plankton-krabi-nacht-speedboat.webp",
+    "proposed": "/images/leuchtendes-plankton-krabi-nacht-speedboat.webp",
+    "rename": true,
+    "alt": {
+      "de": "Leuchtendes Plankton bei Nacht: blaue Biolumineszenz im Wasser neben dem privaten Speedboat in Krabi",
+      "en": "Bioluminescent plankton at night: blue glow in the water next to the private speedboat in Krabi"
+    },
+    "usedIn": [
+      "tour: plankton-night (Night Glow)",
+      "guide: krabi-bioluminescent-plankton-night-boat-tour (hero + gallery fallback #1, alt 'Sonnenuntergang' – mismatch)"
+    ],
+    "keyword": "leuchtendes Plankton Krabi / bioluminescent plankton Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok. Speedboat only – reject any version showing kayaks."
+  },
+  {
+    "ref": "IMG.fishReef",
+    "current": "/bilder/riff-angeln-krabi-zackenbarsch.webp",
+    "proposed": "/images/riff-angeln-krabi-zackenbarsch.webp",
+    "rename": true,
+    "alt": {
+      "de": "Frisch gefangener Zackenbarsch beim Riffangeln vom privaten Boot bei Krabi",
+      "en": "Freshly caught grouper on a reef fishing trip from a private boat near Krabi"
+    },
+    "usedIn": [
+      "tour: fishing-reef-half",
+      "guide: krabi-fishing-guide"
+    ],
+    "keyword": "Angeln Krabi / Krabi fishing trip",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.deepSea",
+    "current": "/bilder/hochsee-angeln-trolling-andamanensee.webp",
+    "proposed": "/images/hochseeangeln-krabi-trolling-andamanensee.webp",
+    "rename": true,
+    "alt": {
+      "de": "Hochseeangeln vor Krabi: Trolling-Ruten am Heck des Speedboats auf der Andamanensee",
+      "en": "Deep sea fishing off Krabi: trolling rods at the stern of the speedboat on the Andaman Sea"
+    },
+    "usedIn": [
+      "tour: fishing-deep-sea"
+    ],
+    "keyword": "Hochseeangeln Krabi / deep sea fishing Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Rename: add 'krabi' (the search place) and use the common compound 'hochseeangeln'."
+  },
+  {
+    "ref": "IMG.squid",
+    "current": "/bilder/tintenfisch-angeln-nacht-krabi.webp",
+    "proposed": "/images/nacht-tintenfischangeln-krabi.webp",
+    "rename": true,
+    "alt": {
+      "de": "Nachtangeln auf Tintenfisch mit Lampen am Boot vor Krabi",
+      "en": "Night squid fishing with lamps on the boat off Krabi"
+    },
+    "usedIn": [
+      "tour: fishing-night-squid"
+    ],
+    "keyword": "Tintenfischangeln Krabi / squid fishing Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Rename to match tour name 'Nacht-Tintenfischangeln' (low priority)."
+  },
+  {
+    "ref": "IMG.bbq",
+    "current": "/bilder/strand-bbq-sonnenuntergang-krabi.webp",
+    "proposed": "/images/catch-and-cook-bbq-krabi-sonnenuntergang.webp",
+    "rename": true,
+    "alt": {
+      "de": "Catch & Cook: fangfrischer Fisch auf dem Grill beim Strand-BBQ im Sonnenuntergang bei Krabi",
+      "en": "Catch & cook: freshly caught fish on the grill at a sunset beach BBQ near Krabi"
+    },
+    "usedIn": [
+      "tour: fishing-catch-cook",
+      "guide: secret-beaches-lagoons-krabi (topic mismatch – use IMG.roi or IMG.kudu there)"
+    ],
+    "keyword": "Catch and Cook Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Rename: target the product name 'Catch & Cook'."
+  },
+  {
+    "ref": "IMG.dinner",
+    "current": "/bilder/candlelight-dinner-speedboat-sonnenuntergang-krabi.webp",
+    "proposed": "/images/candlelight-dinner-speedboat-sonnenuntergang-krabi.webp",
+    "rename": true,
+    "alt": {
+      "de": "Candlelight-Dinner an Bord des privaten Speedboats im Sonnenuntergang vor Krabi",
+      "en": "Candlelight dinner on board the private speedboat at sunset off Krabi"
+    },
+    "usedIn": [
+      "tour: sunset-dinner"
+    ],
+    "keyword": "Sunset Dinner Boot Krabi / romantic dinner boat Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.family",
+    "current": "/bilder/familie-sandbank-krabi-kinder-schnorcheln.webp",
+    "proposed": "/images/familie-sandbank-krabi-kinder-schnorcheln.webp",
+    "rename": true,
+    "alt": {
+      "de": "Familie mit Kindern beim Schnorcheln an einer Sandbank bei Krabi",
+      "en": "Family with children snorkeling at a sandbar near Krabi"
+    },
+    "usedIn": [
+      "tour: family-sandbars",
+      "guide: krabi-with-kids"
+    ],
+    "keyword": "Krabi mit Kindern / Krabi with kids",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.jamesBond",
+    "current": "/bilder/james-bond-island-phang-nga-bucht.webp",
+    "proposed": "/images/james-bond-island-phang-nga-bucht.webp",
+    "rename": true,
+    "alt": {
+      "de": "James Bond Island (Koh Tapu): Kalksteinnadel im Wasser der Phang-Nga-Bucht",
+      "en": "James Bond Island (Koh Tapu): limestone pinnacle rising from Phang Nga Bay"
+    },
+    "usedIn": [
+      "tour: james-bond-bay",
+      "booking islands: pakbia (mismatch)",
+      "guide: james-bond-island-phang-nga-bay"
+    ],
+    "keyword": "James Bond Island Tour / Phang Nga Bucht",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.railay",
+    "current": "/bilder/railay-beach-krabi-goldene-stunde.webp",
+    "proposed": "/images/railay-beach-krabi-goldene-stunde.webp",
+    "rename": true,
+    "alt": {
+      "de": "Railay Beach bei Krabi in der goldenen Stunde, gerahmt von Kalksteinfelsen",
+      "en": "Railay Beach near Krabi at golden hour, framed by limestone cliffs"
+    },
+    "usedIn": [
+      "tour: sunset-glow-combo",
+      "tour: railay-escape",
+      "guide: railay-phra-nang-cave",
+      "legacy article: best-time-4-islands"
+    ],
+    "keyword": "Railay Beach Krabi",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "IMG.droneAerial",
+    "current": "/bilder/speedboat-krabi-drohnenaufnahme-inseln.webp",
+    "proposed": "/images/speedboat-krabi-drohnenaufnahme-inseln.webp",
+    "rename": true,
+    "alt": {
+      "de": "Drohnenaufnahme: Speedboat in türkisem Wasser zwischen Kalksteininseln bei Krabi",
+      "en": "Drone shot: speedboat in turquoise water between limestone islands near Krabi"
+    },
+    "usedIn": [
+      "gallery g5",
+      "booking islands: yawasam (mismatch)",
+      "guide: krabi-photo-drone-spots",
+      "guide: best-time-to-visit-krabi",
+      "legacy article: drone-thailand"
+    ],
+    "keyword": "Drohnenaufnahmen Krabi / drone video Krabi boat tour",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Name ok. Fits the drone package upsell."
+  },
+  {
+    "ref": "ROMANCE_IMGS[0]",
+    "current": "/bilder/privates-speedboat-krabi-paar-champagner-1.webp",
+    "proposed": "/images/privates-speedboat-krabi-paar-champagner-1.webp",
+    "rename": true,
+    "alt": {
+      "de": "Privates Speedboat allein in türkiser Lagune bei Krabi: Paar entspannt mit Champagner auf der Liegefläche",
+      "en": "Private speedboat alone in a turquoise lagoon near Krabi: couple relaxing with champagne on the sun pad"
+    },
+    "usedIn": [
+      "Longtail-vs-Speedboat story (our-day side)"
+    ],
+    "keyword": "privates Speedboat Krabi Paar / honeymoon boat tour Krabi",
+    "source": "AI-generated (Higgsfield; boat generated from text, not from the real boat)",
+    "note": "Name ok."
+  },
+  {
+    "ref": "ROMANCE_IMGS[1]",
+    "current": "/bilder/privates-speedboat-krabi-paar-champagner-2.webp",
+    "proposed": "/images/privates-speedboat-krabi-paar-champagner-2.webp",
+    "rename": true,
+    "alt": {
+      "de": "Paar stößt mit Champagner auf dem Vordeck des privaten Speedboats an, Kalksteinfelsen bei Krabi im Hintergrund",
+      "en": "Couple toasting with champagne on the foredeck of the private speedboat, Krabi limestone cliffs behind"
+    },
+    "usedIn": [
+      "currently unused (only ROMANCE_IMGS[0] renders)"
+    ],
+    "keyword": "Honeymoon Krabi Bootstour",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Alt must differ from variant 1 – verify against the actual picture before use."
+  },
+  {
+    "ref": "LONGTAIL_CROWD_IMG",
+    "current": "/bilder/longtail-boot-krabi-ueberfuellt.webp",
+    "proposed": "/images/longtail-boot-krabi-ueberfuellt.webp",
+    "rename": true,
+    "alt": {
+      "de": "Überfülltes Longtail-Boot in Krabi: genervtes Paar auf harten Holzbänken zwischen fremden Touristen und quengelnden Kindern",
+      "en": "Overcrowded longtail boat in Krabi: annoyed couple on hard wooden benches between strangers and whining children"
+    },
+    "usedIn": [
+      "Longtail-vs-Speedboat story (pain side)"
+    ],
+    "keyword": "Longtail oder Speedboot Krabi",
+    "source": "AI-generated (Higgsfield, illustrative)",
+    "note": "Keep (current alt is good). Never use in JSON-LD/og:image."
+  },
+  {
+    "ref": "LOGO_URL",
+    "current": "/bilder/krabi-secret-islands-logo.png",
+    "proposed": "/images/krabi-secret-islands-logo.png",
+    "rename": true,
+    "alt": {
+      "de": "Krabi Secret Islands Logo",
+      "en": "Krabi Secret Islands logo"
+    },
+    "usedIn": [
+      "favicon (seo.ts)",
+      "JSON-LD TravelAgency logo",
+      "header/footer"
+    ],
+    "keyword": "Krabi Secret Islands (brand)",
+    "source": "AI-generated (Higgsfield)",
+    "note": "Do not put it in public/brand/ – that folder holds KrabiMarketplace assets. Provide ≥112×112 px square PNG for Organization logo."
+  },
+  {
+    "ref": "guide plankton gallery #1",
+    "current": "/images/guide/krabi-leuchtendes-plankton-nacht-speedboat-1.webp",
+    "proposed": "/images/guide/sonnenuntergang-privates-speedboat-krabi-kalkfelsen.webp",
+    "rename": true,
+    "alt": {
+      "de": "Sonnenuntergang vom privaten Speedboat vor den Kalkfelsen bei Krabi",
+      "en": "Sunset from the private speedboat in front of Krabi’s limestone cliffs"
+    },
+    "usedIn": [
+      "guide: krabi-bioluminescent-plankton-night-boat-tour gallery #1",
+      "fallback today: IMG.plankton (shows plankton, not sunset)"
+    ],
+    "keyword": "leuchtendes Plankton Krabi / Night Glow Krabi",
+    "source": "planned (owner photo or Higgsfield with real boat reference)",
+    "note": "Not live yet → rename before upload, no redirect needed. Numbered '-1..-4' names say nothing about the picture.",
+    "pathNote": {
+      "current": "(planned, not uploaded)"
+    }
+  },
+  {
+    "ref": "guide plankton gallery #2",
+    "current": "/images/guide/krabi-leuchtendes-plankton-nacht-speedboat-2.webp",
+    "proposed": "/images/guide/privates-speedboat-ao-nang-bucht-abend.webp",
+    "rename": true,
+    "alt": {
+      "de": "Privates Speedboat in einer dunklen Bucht bei Ao Nang am Abend",
+      "en": "Private speedboat in a dark bay near Ao Nang in the evening"
+    },
+    "usedIn": [
+      "guide: krabi-bioluminescent-plankton-night-boat-tour gallery #2",
+      "fallback today: IMG.boat (daylight photo)"
+    ],
+    "keyword": "leuchtendes Plankton Krabi / Night Glow Krabi",
+    "source": "planned (owner photo or Higgsfield with real boat reference)",
+    "note": "Not live yet → rename before upload, no redirect needed. Numbered '-1..-4' names say nothing about the picture.",
+    "pathNote": {
+      "current": "(planned, not uploaded)"
+    }
+  },
+  {
+    "ref": "guide plankton gallery #3",
+    "current": "/images/guide/krabi-leuchtendes-plankton-nacht-speedboat-3.webp",
+    "proposed": "/images/guide/leuchtendes-plankton-krabi-nacht-wasser.webp",
+    "rename": true,
+    "alt": {
+      "de": "Leuchtendes Plankton im Wasser bei Krabi in der Nacht",
+      "en": "Bioluminescent plankton glowing in the water near Krabi at night"
+    },
+    "usedIn": [
+      "guide: krabi-bioluminescent-plankton-night-boat-tour gallery #3",
+      "fallback today: IMG.lagoon (daylight lagoon – mismatch)"
+    ],
+    "keyword": "leuchtendes Plankton Krabi / Night Glow Krabi",
+    "source": "planned (owner photo or Higgsfield with real boat reference)",
+    "note": "Not live yet → rename before upload, no redirect needed. Numbered '-1..-4' names say nothing about the picture.",
+    "pathNote": {
+      "current": "(planned, not uploaded)"
+    }
+  },
+  {
+    "ref": "guide plankton gallery #4",
+    "current": "/images/guide/krabi-leuchtendes-plankton-nacht-speedboat-4.webp",
+    "proposed": "/images/guide/schwimmen-leuchtendes-plankton-speedboat-krabi.webp",
+    "rename": true,
+    "alt": {
+      "de": "Gäste schwimmen nachts vom Speedboat aus im leuchtenden Plankton",
+      "en": "Guests swimming from the speedboat among glowing plankton at night"
+    },
+    "usedIn": [
+      "guide: krabi-bioluminescent-plankton-night-boat-tour gallery #4",
+      "fallback today: IMG.snorkel (daytime reef – mismatch)"
+    ],
+    "keyword": "leuchtendes Plankton Krabi / Night Glow Krabi",
+    "source": "planned (owner photo or Higgsfield with real boat reference)",
+    "note": "Not live yet → rename before upload, no redirect needed. Numbered '-1..-4' names say nothing about the picture.",
+    "pathNote": {
+      "current": "(planned, not uploaded)"
+    }
+  }
+]
