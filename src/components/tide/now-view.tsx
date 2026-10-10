@@ -22,7 +22,6 @@ import { TimeDialSheet } from "./time-dial-sheet";
 import { TimeSlider } from "./time-slider";
 
 const SLIDER_STEP = 5 * MIN;
-const SLIDER_BACK = 3 * 60 * MIN;
 const SLIDER_STEPS = 24 * 12;
 
 export function NowView({
@@ -60,11 +59,11 @@ export function NowView({
     [forecast, minuteKey],
   );
 
-  // Time slider: 3 h back to 21 h ahead, in 5-minute steps. Replaces dragging on the instrument.
-  const sliderStart = Math.floor((now - SLIDER_BACK) / SLIDER_STEP) * SLIDER_STEP;
+  // Time slider: now to 24 h ahead (future only), in 5-minute steps. Leftmost = live now.
+  const sliderStart = Math.floor(now / SLIDER_STEP) * SLIDER_STEP;
   const sliderValue = Math.min(
     SLIDER_STEPS,
-    Math.max(0, Math.round((((previewAt ?? now) - sliderStart) / SLIDER_STEP))),
+    previewAt == null ? 0 : Math.max(0, Math.round((previewAt - sliderStart) / SLIDER_STEP)),
   );
 
   return (
@@ -182,9 +181,9 @@ export function NowView({
               <TimeSlider
                 value={sliderValue}
                 max={SLIDER_STEPS}
-                onChange={(v) => setPreviewAt(sliderStart + v * SLIDER_STEP)}
+                onChange={(v) => setPreviewAt(v === 0 ? null : sliderStart + v * SLIDER_STEP)}
                 label={t("sliderLabel")}
-                valueText={`${fmtDay(sliderStart + sliderValue * SLIDER_STEP, lang)} ${fmtTime(sliderStart + sliderValue * SLIDER_STEP, lang)}`}
+                valueText={`${fmtDay(previewAt ?? now, lang)} ${fmtTime(previewAt ?? now, lang)}`}
               />
             </div>
           </div>
