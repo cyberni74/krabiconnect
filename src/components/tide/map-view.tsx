@@ -2,7 +2,7 @@ import { Crosshair, Loader2, MapPin, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type * as Maplibre from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { LOCATIONS, nearestLocation } from "@/lib/tide/locations";
+import { LOCATIONS, MAX_GPS_KM, nearestLocation } from "@/lib/tide/locations";
 import type { TideForecast } from "@/lib/tide/model";
 import { fmtTime, useTT } from "@/lib/tide/i18n";
 import { useTideSettings } from "@/lib/tide/store";
@@ -42,6 +42,7 @@ const OSM_STYLE = {
 export function locateNearest(
   onDone: (id: string, km: number) => void,
   onFail: (msg: string) => void,
+  onFar: (km: number) => void,
 ) {
   if (!("geolocation" in navigator)) {
     onFail("no geolocation");
@@ -50,6 +51,8 @@ export function locateNearest(
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const { loc, km } = nearestLocation(pos.coords.latitude, pos.coords.longitude);
+      // Browser location can be far off (Wi-Fi/IP fix) or the user is outside the area: never guess.
+      if (km > MAX_GPS_KM) return onFar(km);
       onDone(loc.id, km);
     },
     (err) => onFail(err.message),
@@ -156,6 +159,10 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
                 () => {
                   setLocating(false);
                   toast.error(t("gpsDenied"));
+                },
+                (km) => {
+                  setLocating(false);
+                  toast.error(t("gpsFar").replace("{km}", String(Math.round(km))));
                 },
               );
             }}

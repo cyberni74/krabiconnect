@@ -12,7 +12,7 @@ import { TideBackground } from "@/components/tide/tide-background";
 import { TidesView } from "@/components/tide/tides-view";
 import { TourView } from "@/components/tide/tour-view";
 import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
-import { useTT, type TideKey } from "@/lib/tide/i18n";
+import { translate, useTT, type TideKey } from "@/lib/tide/i18n";
 import { getLocation } from "@/lib/tide/locations";
 import { detectLang, useTideSettings, useTideView } from "@/lib/tide/store";
 import { useNow, useTide, useTideStateAt } from "@/lib/tide/use-tide";
@@ -100,6 +100,10 @@ function CaptainTide() {
         toast.success(`${getLocation(id).name} (${Math.round(km)} km)`);
       },
       () => undefined,
+      (km) => {
+        const { lang } = useTideSettings.getState();
+        toast.info(translate(lang, "gpsFar").replace("{km}", String(Math.round(km))));
+      },
     );
   }, []);
 

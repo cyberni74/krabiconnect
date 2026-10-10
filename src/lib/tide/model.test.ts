@@ -15,7 +15,7 @@ import { frameIndexFor, FRAME_LEVELS } from "./frames.ts";
 import { harmonicForecast, harmonicLevelAt, horizonEnd } from "./harmonic.ts";
 import { capsuleRing, circleRing, evaluateMark } from "./depth.ts";
 import { isTideOnlyHost, isTidePath } from "./hosts.ts";
-import { getLocation, nearestLocation } from "./locations.ts";
+import { getLocation, MAX_GPS_KM, nearestLocation } from "./locations.ts";
 
 const T0 = Date.UTC(2026, 9, 10, 0, 0);
 const PERIOD = 12.42 * HOUR;
@@ -120,6 +120,11 @@ describe("misc", () => {
   it("finds the nearest location", () => {
     assert.equal(nearestLocation(7.75, 98.77).loc.id, "phi-phi");
     assert.equal(nearestLocation(7.9, 98.4).loc.id, "phuket");
+  });
+  it("flags GPS fixes far outside the forecast area", () => {
+    // Bangkok: the closest point is still ~600 km away and must not become the location.
+    assert.ok(nearestLocation(13.75, 100.5).km > MAX_GPS_KM);
+    assert.ok(nearestLocation(8.02, 98.87).km <= MAX_GPS_KM);
   });
 });
 
