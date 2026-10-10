@@ -1,42 +1,19 @@
-import { Bell, BellOff, ShieldAlert, Ship } from "lucide-react";
+import { Bell, BellOff, Ship } from "lucide-react";
 import { useState } from "react";
 import { LOCATIONS } from "@/lib/tide/locations";
-import { levelAt, MIN, HOUR, type TideForecast } from "@/lib/tide/model";
-import { BKK_OFFSET, fill, fmtDay, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { useTT } from "@/lib/tide/i18n";
 import { useTideSettings } from "@/lib/tide/store";
 import { LangSwitch } from "./lang-switch";
 import { requestNotifyPermission } from "./notifier";
 
-/** epoch → "YYYY-MM-DDTHH:mm" in Bangkok time for <input type=datetime-local>. */
-function toLocalInput(t: number): string {
-  return new Date(t + BKK_OFFSET).toISOString().slice(0, 16);
-}
-function fromLocalInput(v: string): number | null {
-  const x = Date.parse(`${v}:00Z`);
-  return Number.isFinite(x) ? x - BKK_OFFSET : null;
-}
-
-export function CaptainView({ forecast, now }: { forecast: TideForecast | null; now: number }) {
-  const { t, lang } = useTT();
+export function CaptainView() {
+  const { t } = useTT();
   const s = useTideSettings();
-  const [dep, setDep] = useState(() =>
-    toLocalInput(Math.ceil((now + 2 * HOUR) / (30 * MIN)) * 30 * MIN),
-  );
-  const [ret, setRet] = useState(() =>
-    toLocalInput(Math.ceil((now + 8 * HOUR) / (30 * MIN)) * 30 * MIN),
-  );
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">(() =>
     typeof Notification === "undefined" ? "unsupported" : Notification.permission,
   );
 
-  const depT = fromLocalInput(dep);
-  const retT = fromLocalInput(ret);
-  const lvNow = forecast ? levelAt(forecast, now) : null;
-  const lvDep = forecast && depT != null ? levelAt(forecast, depT) : null;
-  const lvRet = forecast && retT != null ? levelAt(forecast, retT) : null;
   const need = s.boat.draft + s.boat.reserve;
-  const timeLabel = (x: number) =>
-    (Math.abs(x - now) < 20 * HOUR ? "" : `${fmtDay(x, lang)}, `) + fmtTime(x, lang);
 
   const anyAlert =
     s.alerts.beforeHigh || s.alerts.beforeLow || s.alerts.aboveOn || s.alerts.belowOn;
@@ -81,69 +58,6 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
           <div className="text-[11px] uppercase tracking-wider text-white/60">{t("minDepth")}</div>
           <div className="tide-digits text-[24px] font-bold">{need} cm</div>
           <p className="mt-1 text-[11.5px] leading-snug text-white/70">{t("depthHint")}</p>
-        </div>
-      </section>
-
-      <section className="tide-glass rounded p-4">
-        <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
-          {t("planner")}
-          {s.boat.name ? ` · ${s.boat.name}` : ""}
-        </h3>
-        <div className="mt-3 grid grid-cols-1 gap-3">
-          <Field label={t("departure")}>
-            <input
-              type="datetime-local"
-              className="tide-input text-[14px]"
-              value={dep}
-              onChange={(e) => setDep(e.target.value)}
-            />
-          </Field>
-          <Field label={t("ret")}>
-            <input
-              type="datetime-local"
-              className="tide-input text-[14px]"
-              value={ret}
-              onChange={(e) => setRet(e.target.value)}
-            />
-          </Field>
-        </div>
-        <div className="mt-3 space-y-2 text-[14px] leading-snug">
-          {depT != null && lvDep != null ? (
-            <p>
-              {fill(t("tplDeparture"), {
-                time: <b>{timeLabel(depT)}</b>,
-                cm: <b className="text-cyan-200">{Math.round(lvDep)} cm</b>,
-              })}
-            </p>
-          ) : null}
-          {depT != null && lvDep != null && lvNow != null && depT > now ? (
-            <p>
-              {fill(lvDep >= lvNow ? t("tplRises") : t("tplFalls"), {
-                cm: <b className="text-cyan-200">{Math.abs(Math.round(lvDep - lvNow))} cm</b>,
-              })}
-            </p>
-          ) : null}
-          {retT != null && lvRet != null ? (
-            <p>
-              {fill(t("tplReturn"), {
-                time: <b>{timeLabel(retT)}</b>,
-                cm: <b className="text-cyan-200">{Math.round(lvRet)} cm</b>,
-              })}
-              {lvDep != null ? (
-                <span className="text-white/60">
-                  {" "}
-                  ({t("change")} {fmtSigned(lvRet - lvDep)} cm)
-                </span>
-              ) : null}
-            </p>
-          ) : null}
-          {forecast && ((depT != null && lvDep == null) || (retT != null && lvRet == null)) ? (
-            <p className="text-amber-200">{t("noData")}</p>
-          ) : null}
-        </div>
-        <div className="mt-3 flex gap-2 rounded border border-amber-300/30 bg-amber-300/10 p-3 text-[11.5px] leading-snug text-amber-50">
-          <ShieldAlert className="size-4 shrink-0 text-amber-300" />
-          {t("noUkc")}
         </div>
       </section>
 

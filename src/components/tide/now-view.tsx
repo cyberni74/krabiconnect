@@ -20,7 +20,6 @@ import { SimulateSheet } from "./simulate-sheet";
 import { TideInstrument } from "./tide-instrument";
 import { TideMark } from "./tide-mark";
 import { TimeDialSheet } from "./time-dial-sheet";
-import { TourSheet } from "./tour-sheet";
 
 export function NowView({
   forecast,
@@ -30,6 +29,7 @@ export function NowView({
   previewAt,
   location,
   onOpenMap,
+  onOpenTour,
 }: {
   forecast: TideForecast;
   /** State at the shown time (preview or now). */
@@ -40,11 +40,11 @@ export function NowView({
   previewAt: number | null;
   location: TideLocation;
   onOpenMap: () => void;
+  onOpenTour: () => void;
 }) {
   const { t, lang } = useTT();
-  const [sheet, setSheet] = useState<"sim" | "dial" | "tour" | null>(null);
+  const [sheet, setSheet] = useState<"sim" | "dial" | null>(null);
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
-  const tour = useTideView((s) => s.tour);
   const isPreview = previewAt != null;
   const dirColor = state ? (state.rising ? RISE : FALL) : "#9fb3c8";
 
@@ -157,7 +157,6 @@ export function NowView({
             <TideInstrument
               forecast={forecast}
               state={state}
-              tour={tour}
               onPan={sheet ? undefined : setPreviewAt}
               minAt={bkkDayStart(now)}
               maxAt={horizonEnd(now)}
@@ -188,8 +187,6 @@ export function NowView({
               now={now}
               onClose={() => setSheet(null)}
             />
-          ) : sheet === "tour" ? (
-            <TourSheet key="tour" location={location} now={now} onClose={() => setSheet(null)} />
           ) : (
             <motion.div
               key="count"
@@ -200,7 +197,7 @@ export function NowView({
             >
               <CountdownCard state={liveState} now={now}>
                 <div className="mt-2.5 grid grid-cols-3 gap-2">
-                  <ToolButton onClick={() => setSheet("tour")} disabled={!forecast}>
+                  <ToolButton onClick={onOpenTour} disabled={!forecast}>
                     <Navigation className="size-4 text-cyan-300" />
                     {t("tourBtn")}
                   </ToolButton>

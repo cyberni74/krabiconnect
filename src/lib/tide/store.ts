@@ -83,14 +83,9 @@ type TideView = {
   /** null = live "now". */
   previewAt: number | null;
   setPreviewAt: (t: number | null) => void;
-  /** Planned tour window shown on the instrument while the tour sheet is open. */
-  tour: { from: number; to: number } | null;
-  setTour: (w: { from: number; to: number } | null) => void;
 };
 
 export const useTideView = create<TideView>()((set) => ({
   previewAt: null,
   setPreviewAt: (previewAt) => set({ previewAt }),
-  tour: null,
-  setTour: (tour) => set({ tour }),
 }));

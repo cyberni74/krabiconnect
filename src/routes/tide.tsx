@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { Anchor, ChartSpline, Map as MapIcon, Waves } from "lucide-react";
+import { Anchor, ChartSpline, Map as MapIcon, Navigation, Waves } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { CaptainView } from "@/components/tide/captain-view";
@@ -10,16 +10,18 @@ import { TideNotifier } from "@/components/tide/notifier";
 import { LangSwitch } from "@/components/tide/lang-switch";
 import { TideBackground } from "@/components/tide/tide-background";
 import { TidesView } from "@/components/tide/tides-view";
+import { TourView } from "@/components/tide/tour-view";
 import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
 import { useTT, type TideKey } from "@/lib/tide/i18n";
 import { getLocation } from "@/lib/tide/locations";
 import { useTideSettings, useTideView } from "@/lib/tide/store";
 import { useNow, useTide, useTideStateAt } from "@/lib/tide/use-tide";
 
-type Tab = "now" | "tides" | "map" | "captain";
+type Tab = "now" | "tides" | "tour" | "map" | "captain";
 const TABS: { id: Tab; key: TideKey; icon: typeof Waves }[] = [
   { id: "now", key: "now", icon: Waves },
   { id: "tides", key: "tides", icon: ChartSpline },
+  { id: "tour", key: "tour", icon: Navigation },
   { id: "map", key: "map", icon: MapIcon },
   { id: "captain", key: "captain", icon: Anchor },
 ];
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/tide")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { tab?: Tab } => {
     const tab = search.tab;
-    return tab === "tides" || tab === "map" || tab === "captain" ? { tab } : {};
+    return tab === "tides" || tab === "tour" || tab === "map" || tab === "captain" ? { tab } : {};
   },
   head: () => ({
     meta: [
@@ -138,6 +140,7 @@ function CaptainTide() {
                 previewAt={previewAt}
                 location={location}
                 onOpenMap={() => setTab("map")}
+                onOpenTour={() => setTab("tour")}
               />
             </motion.div>
           ) : (
@@ -171,8 +174,9 @@ function CaptainTide() {
               {tab === "tides" ? (
                 <TidesView location={location} live={forecast} state={state} now={now} />
               ) : null}
+              {tab === "tour" ? <TourView location={location} now={now} /> : null}
               {tab === "map" ? <MapView forecast={forecast} /> : null}
-              {tab === "captain" ? <CaptainView forecast={forecast} now={now} /> : null}
+              {tab === "captain" ? <CaptainView /> : null}
               <p className="px-2 pt-4 text-center text-[10.5px] leading-snug text-white/55">
                 {forecast.sourceLabel} · {forecast.station} · {forecast.datum}
                 <br />
@@ -186,7 +190,7 @@ function CaptainTide() {
           className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[rgb(6_12_19/0.96)] backdrop-blur"
           style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
         >
-          <ul className="grid h-[58px] grid-cols-4">
+          <ul className="grid h-[58px] grid-cols-5">
             {TABS.map(({ id, key, icon: Icon }) => {
               const on = id === tab;
               return (
@@ -195,7 +199,7 @@ function CaptainTide() {
                     type="button"
                     onClick={() => setTab(id)}
                     aria-current={on ? "page" : undefined}
-                    className={`tide-label relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] transition-colors ${on ? "bg-cyan-300/[0.08] text-cyan-200" : "text-white/55"}`}
+                    className={`tide-label relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] transition-colors ${on ? "bg-cyan-300/[0.08] text-cyan-200" : "text-white/55"}`}
                   >
                     {on ? <span className="absolute inset-x-0 top-0 h-[2px] bg-cyan-300" /> : null}
                     <Icon className="size-[20px]" strokeWidth={on ? 2.4 : 1.9} />
