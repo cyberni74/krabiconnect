@@ -10,60 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AccountRouteImport } from './routes/account'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as ChatsRouteImport } from './routes/chats'
-import { Route as CreateRouteImport } from './routes/create'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as SearchRouteImport } from './routes/search'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as TideRouteImport } from './routes/tide'
-import { Route as ApiAgentRouteImport } from './routes/api/agent'
-import { Route as ApiImgRouteImport } from './routes/api/img'
-import { Route as ChatsIdRouteImport } from './routes/chats.$id'
-import { Route as ItemIdRouteImport } from './routes/item.$id'
-import { Route as ServiceIdRouteImport } from './routes/service.$id'
-import { Route as ApiAgentListingsRouteImport } from './routes/api/agent.listings'
-import { Route as ApiAgentRehostRouteImport } from './routes/api/agent.rehost'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ApiImgSplatRouteImport } from './routes/api/img.$'
-import { Route as ApiAgentListingsIdRouteImport } from './routes/api/agent.listings.$id'
-import { Route as ApiAgentListingsRehostBackfillRouteImport } from './routes/api/agent.listings.rehost-backfill'
-import { Route as ApiAgentListingsRehostImageRouteImport } from './routes/api/agent.listings.rehost-image'
-import { Route as ApiAgentListingsIdTranslateSeedRouteImport } from './routes/api/agent.listings.$id.translate-seed'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AccountRoute = AccountRouteImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatsRoute = ChatsRouteImport.update({
-  id: '/chats',
-  path: '/chats',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CreateRoute = CreateRouteImport.update({
-  id: '/create',
-  path: '/create',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TideRoute = TideRouteImport.update({
@@ -71,231 +28,35 @@ const TideRoute = TideRouteImport.update({
   path: '/tide',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAgentRoute = ApiAgentRouteImport.update({
-  id: '/api/agent',
-  path: '/api/agent',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiImgRoute = ApiImgRouteImport.update({
-  id: '/api/img',
-  path: '/api/img',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatsIdRoute = ChatsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ChatsRoute,
-} as any)
-const ItemIdRoute = ItemIdRouteImport.update({
-  id: '/item/$id',
-  path: '/item/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServiceIdRoute = ServiceIdRouteImport.update({
-  id: '/service/$id',
-  path: '/service/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAgentListingsRoute = ApiAgentListingsRouteImport.update({
-  id: '/listings',
-  path: '/listings',
-  getParentRoute: () => ApiAgentRoute,
-} as any)
-const ApiAgentRehostRoute = ApiAgentRehostRouteImport.update({
-  id: '/rehost',
-  path: '/rehost',
-  getParentRoute: () => ApiAgentRoute,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiImgSplatRoute = ApiImgSplatRouteImport.update({
-  id: '/$',
-  path: '/$',
-  getParentRoute: () => ApiImgRoute,
-} as any)
-const ApiAgentListingsIdRoute = ApiAgentListingsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiAgentListingsRoute,
-} as any)
-const ApiAgentListingsRehostBackfillRoute =
-  ApiAgentListingsRehostBackfillRouteImport.update({
-    id: '/rehost-backfill',
-    path: '/rehost-backfill',
-    getParentRoute: () => ApiAgentListingsRoute,
-  } as any)
-const ApiAgentListingsRehostImageRoute =
-  ApiAgentListingsRehostImageRouteImport.update({
-    id: '/rehost-image',
-    path: '/rehost-image',
-    getParentRoute: () => ApiAgentListingsRoute,
-  } as any)
-const ApiAgentListingsIdTranslateSeedRoute =
-  ApiAgentListingsIdTranslateSeedRouteImport.update({
-    id: '/translate-seed',
-    path: '/translate-seed',
-    getParentRoute: () => ApiAgentListingsIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
-  '/chats': typeof ChatsRouteWithChildren
-  '/create': typeof CreateRoute
-  '/login': typeof LoginRoute
-  '/search': typeof SearchRoute
+  '/$': typeof SplatRoute
   '/tide': typeof TideRoute
-  '/api/agent': typeof ApiAgentRouteWithChildren
-  '/api/img': typeof ApiImgRouteWithChildren
-  '/chats/$id': typeof ChatsIdRoute
-  '/item/$id': typeof ItemIdRoute
-  '/service/$id': typeof ServiceIdRoute
-  '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
-  '/api/agent/rehost': typeof ApiAgentRehostRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/img/$': typeof ApiImgSplatRoute
-  '/api/agent/listings/$id': typeof ApiAgentListingsIdRouteWithChildren
-  '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
-  '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
-  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
-  '/chats': typeof ChatsRouteWithChildren
-  '/create': typeof CreateRoute
-  '/login': typeof LoginRoute
-  '/search': typeof SearchRoute
+  '/$': typeof SplatRoute
   '/tide': typeof TideRoute
-  '/api/agent': typeof ApiAgentRouteWithChildren
-  '/api/img': typeof ApiImgRouteWithChildren
-  '/chats/$id': typeof ChatsIdRoute
-  '/item/$id': typeof ItemIdRoute
-  '/service/$id': typeof ServiceIdRoute
-  '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
-  '/api/agent/rehost': typeof ApiAgentRehostRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/img/$': typeof ApiImgSplatRoute
-  '/api/agent/listings/$id': typeof ApiAgentListingsIdRouteWithChildren
-  '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
-  '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
-  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
-  '/chats': typeof ChatsRouteWithChildren
-  '/create': typeof CreateRoute
-  '/login': typeof LoginRoute
-  '/search': typeof SearchRoute
+  '/$': typeof SplatRoute
   '/tide': typeof TideRoute
-  '/api/agent': typeof ApiAgentRouteWithChildren
-  '/api/img': typeof ApiImgRouteWithChildren
-  '/chats/$id': typeof ChatsIdRoute
-  '/item/$id': typeof ItemIdRoute
-  '/service/$id': typeof ServiceIdRoute
-  '/api/agent/listings': typeof ApiAgentListingsRouteWithChildren
-  '/api/agent/rehost': typeof ApiAgentRehostRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/img/$': typeof ApiImgSplatRoute
-  '/api/agent/listings/$id': typeof ApiAgentListingsIdRouteWithChildren
-  '/api/agent/listings/rehost-backfill': typeof ApiAgentListingsRehostBackfillRoute
-  '/api/agent/listings/rehost-image': typeof ApiAgentListingsRehostImageRoute
-  '/api/agent/listings/$id/translate-seed': typeof ApiAgentListingsIdTranslateSeedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/account'
-    | '/admin'
-    | '/chats'
-    | '/create'
-    | '/login'
-    | '/search'
-    | '/tide'
-    | '/api/agent'
-    | '/api/img'
-    | '/chats/$id'
-    | '/item/$id'
-    | '/service/$id'
-    | '/api/agent/listings'
-    | '/api/agent/rehost'
-    | '/api/auth/$'
-    | '/api/img/$'
-    | '/api/agent/listings/$id'
-    | '/api/agent/listings/rehost-backfill'
-    | '/api/agent/listings/rehost-image'
-    | '/api/agent/listings/$id/translate-seed'
+  fullPaths: '/' | '/$' | '/tide'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/account'
-    | '/admin'
-    | '/chats'
-    | '/create'
-    | '/login'
-    | '/search'
-    | '/tide'
-    | '/api/agent'
-    | '/api/img'
-    | '/chats/$id'
-    | '/item/$id'
-    | '/service/$id'
-    | '/api/agent/listings'
-    | '/api/agent/rehost'
-    | '/api/auth/$'
-    | '/api/img/$'
-    | '/api/agent/listings/$id'
-    | '/api/agent/listings/rehost-backfill'
-    | '/api/agent/listings/rehost-image'
-    | '/api/agent/listings/$id/translate-seed'
-  id:
-    | '__root__'
-    | '/'
-    | '/account'
-    | '/admin'
-    | '/chats'
-    | '/create'
-    | '/login'
-    | '/search'
-    | '/tide'
-    | '/api/agent'
-    | '/api/img'
-    | '/chats/$id'
-    | '/item/$id'
-    | '/service/$id'
-    | '/api/agent/listings'
-    | '/api/agent/rehost'
-    | '/api/auth/$'
-    | '/api/img/$'
-    | '/api/agent/listings/$id'
-    | '/api/agent/listings/rehost-backfill'
-    | '/api/agent/listings/rehost-image'
-    | '/api/agent/listings/$id/translate-seed'
+  to: '/' | '/$' | '/tide'
+  id: '__root__' | '/' | '/$' | '/tide'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
-  AdminRoute: typeof AdminRoute
-  ChatsRoute: typeof ChatsRouteWithChildren
-  CreateRoute: typeof CreateRoute
-  LoginRoute: typeof LoginRoute
-  SearchRoute: typeof SearchRoute
+  SplatRoute: typeof SplatRoute
   TideRoute: typeof TideRoute
-  ApiAgentRoute: typeof ApiAgentRouteWithChildren
-  ApiImgRoute: typeof ApiImgRouteWithChildren
-  ItemIdRoute: typeof ItemIdRoute
-  ServiceIdRoute: typeof ServiceIdRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -307,46 +68,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/account': {
-      id: '/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chats': {
-      id: '/chats'
-      path: '/chats'
-      fullPath: '/chats'
-      preLoaderRoute: typeof ChatsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/create': {
-      id: '/create'
-      path: '/create'
-      fullPath: '/create'
-      preLoaderRoute: typeof CreateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tide': {
@@ -356,175 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TideRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/agent': {
-      id: '/api/agent'
-      path: '/api/agent'
-      fullPath: '/api/agent'
-      preLoaderRoute: typeof ApiAgentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/img': {
-      id: '/api/img'
-      path: '/api/img'
-      fullPath: '/api/img'
-      preLoaderRoute: typeof ApiImgRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chats/$id': {
-      id: '/chats/$id'
-      path: '/$id'
-      fullPath: '/chats/$id'
-      preLoaderRoute: typeof ChatsIdRouteImport
-      parentRoute: typeof ChatsRoute
-    }
-    '/item/$id': {
-      id: '/item/$id'
-      path: '/item/$id'
-      fullPath: '/item/$id'
-      preLoaderRoute: typeof ItemIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/service/$id': {
-      id: '/service/$id'
-      path: '/service/$id'
-      fullPath: '/service/$id'
-      preLoaderRoute: typeof ServiceIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/agent/listings': {
-      id: '/api/agent/listings'
-      path: '/listings'
-      fullPath: '/api/agent/listings'
-      preLoaderRoute: typeof ApiAgentListingsRouteImport
-      parentRoute: typeof ApiAgentRoute
-    }
-    '/api/agent/rehost': {
-      id: '/api/agent/rehost'
-      path: '/rehost'
-      fullPath: '/api/agent/rehost'
-      preLoaderRoute: typeof ApiAgentRehostRouteImport
-      parentRoute: typeof ApiAgentRoute
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/img/$': {
-      id: '/api/img/$'
-      path: '/$'
-      fullPath: '/api/img/$'
-      preLoaderRoute: typeof ApiImgSplatRouteImport
-      parentRoute: typeof ApiImgRoute
-    }
-    '/api/agent/listings/$id': {
-      id: '/api/agent/listings/$id'
-      path: '/$id'
-      fullPath: '/api/agent/listings/$id'
-      preLoaderRoute: typeof ApiAgentListingsIdRouteImport
-      parentRoute: typeof ApiAgentListingsRoute
-    }
-    '/api/agent/listings/rehost-backfill': {
-      id: '/api/agent/listings/rehost-backfill'
-      path: '/rehost-backfill'
-      fullPath: '/api/agent/listings/rehost-backfill'
-      preLoaderRoute: typeof ApiAgentListingsRehostBackfillRouteImport
-      parentRoute: typeof ApiAgentListingsRoute
-    }
-    '/api/agent/listings/rehost-image': {
-      id: '/api/agent/listings/rehost-image'
-      path: '/rehost-image'
-      fullPath: '/api/agent/listings/rehost-image'
-      preLoaderRoute: typeof ApiAgentListingsRehostImageRouteImport
-      parentRoute: typeof ApiAgentListingsRoute
-    }
-    '/api/agent/listings/$id/translate-seed': {
-      id: '/api/agent/listings/$id/translate-seed'
-      path: '/translate-seed'
-      fullPath: '/api/agent/listings/$id/translate-seed'
-      preLoaderRoute: typeof ApiAgentListingsIdTranslateSeedRouteImport
-      parentRoute: typeof ApiAgentListingsIdRoute
-    }
   }
 }
 
-interface ChatsRouteChildren {
-  ChatsIdRoute: typeof ChatsIdRoute
-}
-
-const ChatsRouteChildren: ChatsRouteChildren = {
-  ChatsIdRoute: ChatsIdRoute,
-}
-
-const ChatsRouteWithChildren = ChatsRoute._addFileChildren(ChatsRouteChildren)
-
-interface ApiAgentListingsIdRouteChildren {
-  ApiAgentListingsIdTranslateSeedRoute: typeof ApiAgentListingsIdTranslateSeedRoute
-}
-
-const ApiAgentListingsIdRouteChildren: ApiAgentListingsIdRouteChildren = {
-  ApiAgentListingsIdTranslateSeedRoute: ApiAgentListingsIdTranslateSeedRoute,
-}
-
-const ApiAgentListingsIdRouteWithChildren =
-  ApiAgentListingsIdRoute._addFileChildren(ApiAgentListingsIdRouteChildren)
-
-interface ApiAgentListingsRouteChildren {
-  ApiAgentListingsIdRoute: typeof ApiAgentListingsIdRouteWithChildren
-  ApiAgentListingsRehostBackfillRoute: typeof ApiAgentListingsRehostBackfillRoute
-  ApiAgentListingsRehostImageRoute: typeof ApiAgentListingsRehostImageRoute
-}
-
-const ApiAgentListingsRouteChildren: ApiAgentListingsRouteChildren = {
-  ApiAgentListingsIdRoute: ApiAgentListingsIdRouteWithChildren,
-  ApiAgentListingsRehostBackfillRoute: ApiAgentListingsRehostBackfillRoute,
-  ApiAgentListingsRehostImageRoute: ApiAgentListingsRehostImageRoute,
-}
-
-const ApiAgentListingsRouteWithChildren =
-  ApiAgentListingsRoute._addFileChildren(ApiAgentListingsRouteChildren)
-
-interface ApiAgentRouteChildren {
-  ApiAgentListingsRoute: typeof ApiAgentListingsRouteWithChildren
-  ApiAgentRehostRoute: typeof ApiAgentRehostRoute
-}
-
-const ApiAgentRouteChildren: ApiAgentRouteChildren = {
-  ApiAgentListingsRoute: ApiAgentListingsRouteWithChildren,
-  ApiAgentRehostRoute: ApiAgentRehostRoute,
-}
-
-const ApiAgentRouteWithChildren = ApiAgentRoute._addFileChildren(
-  ApiAgentRouteChildren,
-)
-
-interface ApiImgRouteChildren {
-  ApiImgSplatRoute: typeof ApiImgSplatRoute
-}
-
-const ApiImgRouteChildren: ApiImgRouteChildren = {
-  ApiImgSplatRoute: ApiImgSplatRoute,
-}
-
-const ApiImgRouteWithChildren =
-  ApiImgRoute._addFileChildren(ApiImgRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
-  AdminRoute: AdminRoute,
-  ChatsRoute: ChatsRouteWithChildren,
-  CreateRoute: CreateRoute,
-  LoginRoute: LoginRoute,
-  SearchRoute: SearchRoute,
+  SplatRoute: SplatRoute,
   TideRoute: TideRoute,
-  ApiAgentRoute: ApiAgentRouteWithChildren,
-  ApiImgRoute: ApiImgRouteWithChildren,
-  ItemIdRoute: ItemIdRoute,
-  ServiceIdRoute: ServiceIdRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
