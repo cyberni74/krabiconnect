@@ -308,6 +308,7 @@ export function ZonePanel({
   const { t, lang } = useTT();
   const show = useTideSettings((s) => s.showZones);
   const setShow = useTideSettings((s) => s.setShowZones);
+  const draftSource = useTideSettings((s) => s.boat.draftSource);
   const upsert = useTideSettings((s) => s.upsertMark);
   const remove = useTideSettings((s) => s.removeMark);
   const { adding, form, offset, setAdding, setForm, setOffset } = useZoneUi();
@@ -361,6 +362,10 @@ export function ZonePanel({
           <b>{draft + reserve} cm</b>
         </div>
       )}
+
+      {draft != null && draftSource === "published" ? (
+        <p className="mt-2 text-[11.5px] leading-snug text-amber-200">{t("draftPublished")}</p>
+      ) : null}
 
       <div className="tide-label mt-3 text-[10.5px] uppercase tracking-wider text-white/55">
         {t("zonesTime")}

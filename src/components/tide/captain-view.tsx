@@ -102,7 +102,7 @@ export function CaptainView() {
               step={1}
               placeholder="?"
               highlight={s.boat.draft == null}
-              onChange={(v) => s.setBoat({ draft: v })}
+              onChange={(v) => s.setBoat({ draft: v, draftSource: v == null ? null : "measured" })}
             />
           </Field>
           <Field label={`${t("reserve")} (cm)`}>
@@ -113,6 +113,11 @@ export function CaptainView() {
               onChange={(v) => s.setBoat({ reserve: v ?? 0 })}
             />
           </Field>
+          {s.boat.draftSource === "published" ? (
+            <p className="col-span-2 border border-amber-400 bg-amber-400/10 p-2.5 text-[12px] leading-snug text-amber-200">
+              {t("draftPublished")}
+            </p>
+          ) : null}
           <Field label={t("homePort")} className="col-span-2">
             <select
               className="tide-input"

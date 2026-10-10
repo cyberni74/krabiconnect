@@ -135,6 +135,8 @@ const de = {
     "Gezeit und Kartentiefe können unterschiedliche Bezugsflächen haben (Abweichung möglich).",
   zonesNeedDraft: "Tiefgang im Captain-Bereich eintragen",
   zonesClearance: "Freiraum",
+  draftPublished:
+    "Veröffentlichter Herstellerwert, meist für den Rumpf ohne Antrieb. Motor und Propeller können tiefer reichen: bitte am Boot ausmessen oder die Reserve erhöhen, sonst zeigt die App zu wenige rote Zonen.",
   method:
     "Berechnet aus harmonischen Konstanten der Messstation Phuket, lokal korrigiert. Wetter, Monsun und Luftdruck können Pegel um 10–30 cm und Zeiten um 10–20 min verschieben.",
   flood: "FLUT",
@@ -286,6 +288,8 @@ const en: Record<TideKey, string> = {
   zonesDatum: "Tide and charted depth may use different datums (deviation possible).",
   zonesNeedDraft: "Enter your draft on the Captain page",
   zonesClearance: "Clearance",
+  draftPublished:
+    "Published maker figure, usually for the hull without the drive. Engine and propeller can reach deeper: please measure on the boat or raise the reserve, otherwise the app shows too few red zones.",
   method:
     "Computed from harmonic constants of the Phuket gauge, locally corrected. Weather, monsoon and air pressure can shift levels by 10–30 cm and times by 10–20 min.",
   flood: "FLOOD",
@@ -435,6 +439,8 @@ const th: Record<TideKey, string> = {
   zonesDatum: "ระดับน้ำและความลึกในแผนที่อาจใช้ระดับอ้างอิงต่างกัน (อาจคลาดเคลื่อน)",
   zonesNeedDraft: "กรอกค่ากินน้ำลึกที่หน้ากัปตัน",
   zonesClearance: "ระยะเหลือ",
+  draftPublished:
+    "ค่าที่ผู้ผลิตเผยแพร่ มักเป็นค่าของตัวเรือไม่รวมเครื่องยนต์ เครื่องและใบจักรอาจลึกกว่า โปรดวัดจริงที่เรือหรือเพิ่มระยะปลอดภัย มิฉะนั้นแอปจะแสดงโซนสีแดงน้อยเกินไป",
   method:
     "คำนวณจากค่าคงที่ฮาร์มอนิกของสถานีวัดน้ำภูเก็ต ปรับแก้ตามพื้นที่ สภาพอากาศ มรสุม และความกดอากาศอาจทำให้ระดับน้ำคลาดเคลื่อน 10–30 ซม. และเวลาคลาดเคลื่อน 10–20 นาที",
   flood: "น้ำขึ้น",

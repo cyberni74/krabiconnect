@@ -19,6 +19,8 @@ export type BoatSettings = {
   ceCategory: string;
   /** Draft in cm at the lowest point (propeller/skeg). null = not measured yet — never guessed. */
   draft: number | null;
+  /** Where the draft figure comes from; "published" = maker figure, not measured on this boat. */
+  draftSource: "published" | "measured" | null;
   /** Desired under-keel reserve in cm. */
   reserve: number;
   homePort: string;
@@ -81,7 +83,7 @@ export const useTideSettings = create<TideSettings>()(
       favorites: [DEFAULT_LOCATION_ID],
       autoGps: false,
       scene: false,
-      // Maker figures for the Atomix 705 HT; draft stays empty until measured.
+      // Maker figures for the Atomix 705 HT.
       boat: {
         name: "",
         model: "Atomix 705 HT",
@@ -92,7 +94,9 @@ export const useTideSettings = create<TideSettings>()(
         fuelL: 220,
         persons: 7,
         ceCategory: "C",
-        draft: null,
+        // Published maker figure (hull); the drive/propeller can reach deeper.
+        draft: 50,
+        draftSource: "published",
         reserve: 50,
         homePort: "krabi-town",
       },
@@ -130,13 +134,17 @@ export const useTideSettings = create<TideSettings>()(
     }),
     {
       name: "captain-tide-settings",
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const p = persisted as Partial<TideSettings> & { boat?: Partial<BoatSettings> };
-        if (version < 2 && p.boat) {
-          // v1 shipped an invented 90 cm default; a draft must be measured, not assumed.
-          if (p.boat.draft === 90) p.boat.draft = null;
+        if (version < 2 && p.boat && p.boat.draft === 90) p.boat.draft = null; // v1: invented default
+        if (version < 3 && p.boat) {
           p.boat = { ...useTideSettings.getInitialState().boat, ...p.boat };
+          // Empty draft -> the published Atomix figure, flagged as such.
+          if (p.boat.draft == null) {
+            p.boat.draft = 50;
+            p.boat.draftSource = "published";
+          }
         }
         return p as TideSettings;
       },
