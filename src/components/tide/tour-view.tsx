@@ -53,7 +53,7 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
 
   const setDuration = (m: number) => setDur(Math.min(MAX_MIN, Math.max(STEP, m)));
   const dirColor = (rising: boolean) => (rising ? RISE : FALL);
-  const need = boat.draft + boat.reserve;
+  const need = boat.draft != null ? boat.draft + boat.reserve : null;
 
   return (
     <div className="space-y-3">
@@ -202,7 +202,9 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
 
         <div className="mt-3 flex items-baseline justify-between gap-3 border-t border-white/10 pt-3 text-[12px]">
           <span className="text-white/60">{t("minDepth")}</span>
-          <span className="tide-digits shrink-0 text-[15px] font-medium">{need} cm</span>
+          <span className="tide-digits shrink-0 text-[15px] font-medium">
+            {need != null ? `${need} cm` : "—"}
+          </span>
         </div>
         <p className="mt-2 text-[11px] leading-snug text-amber-200/90">{t("noUkc")}</p>
       </section>
