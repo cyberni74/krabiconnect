@@ -4,9 +4,9 @@ import { FALL, RISE } from "@/lib/tide/colors";
 import { HOUR, levelAt, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
 
 const W = 340;
-const H = 292;
+const H = 340;
 const TOP = 32;
-const BOTTOM = 252;
+const BOTTOM = 300;
 /** Staff (gauge) geometry. */
 const SX0 = 30;
 const SX1 = 58;
