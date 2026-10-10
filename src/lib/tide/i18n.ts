@@ -87,6 +87,10 @@ const de = {
   at: "um",
   in: "in",
   change: "Änderung",
+  pickTime: "Uhrzeit wählen",
+  dialHint: "Am Rad drehen – eine Umdrehung = 24 Stunden, über Mitternacht in den nächsten Tag.",
+  vsNow: "gegenüber jetzt",
+  thenNext: "Danach",
 };
 
 export type TideKey = keyof typeof de;
@@ -176,6 +180,10 @@ const en: Record<TideKey, string> = {
   at: "at",
   in: "in",
   change: "Change",
+  pickTime: "Pick a time",
+  dialHint: "Spin the dial – one turn = 24 hours, past midnight rolls into the next day.",
+  vsNow: "vs. now",
+  thenNext: "Next after that",
 };
 
 const dicts: Record<TideLang, Record<TideKey, string>> = { de, en };

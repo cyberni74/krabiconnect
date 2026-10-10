@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDown, ArrowUp, ChevronDown, PlayCircle, RefreshCcw } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, Clock3, PlayCircle, RefreshCcw } from "lucide-react";
 import { useState } from "react";
 import type { TideForecast, TideState } from "@/lib/tide/model";
 import { formatCountdown } from "@/lib/tide/model";
 import { FRAME_MAX, FRAME_MIN } from "@/lib/tide/frames";
-import { fmtDay, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { bkkDayStart, fmtDay, fmtSigned, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
 import type { TideLocation } from "@/lib/tide/locations";
 import { SimulateSheet } from "./simulate-sheet";
+import { TimeDialSheet } from "./time-dial-sheet";
 import { TideMark } from "./tide-mark";
 
 export const RISE = "#5eead4";
@@ -30,7 +31,7 @@ export function NowView({
   statusSlot: React.ReactNode;
 }) {
   const { t, lang } = useTT();
-  const [simOpen, setSimOpen] = useState(false);
+  const [sheet, setSheet] = useState<"sim" | "dial" | null>(null);
   const isPreview = previewAt != null;
   const dirColor = state ? (state.rising ? RISE : FALL) : "#fff";
   const outOfRange = state && (state.cm > FRAME_MAX + 5 || state.cm < FRAME_MIN - 5);
@@ -69,7 +70,11 @@ export function NowView({
           <div className="flex flex-1 flex-col items-center justify-center pb-4 text-center">
             <div className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
               {isPreview
-                ? `${t("simulation")} · ${fmtTime(previewAt, lang)} ${t("oClock")}`
+                ? `${t("simulation")} · ${
+                    bkkDayStart(previewAt) !== bkkDayStart(now)
+                      ? `${fmtWeekday(previewAt, lang)} `
+                      : ""
+                  }${fmtTime(previewAt, lang)} ${t("oClock")}`
                 : t("forecastNow")}
             </div>
             {state ? (
@@ -103,7 +108,7 @@ export function NowView({
       {statusSlot}
 
       {/* ── Middle: free view on the gauge, direction left, rate right ── */}
-      {state ? (
+      {state && sheet !== "dial" ? (
         <div className="pointer-events-none absolute inset-x-0 top-[30.5%] flex items-start justify-between px-3.5">
           <div className="flex w-[38%] max-w-[170px] flex-col gap-2">
             <motion.div
@@ -150,15 +155,25 @@ export function NowView({
               </div>
               <div className="text-[11px] text-white/75">{t("toGo")}</div>
             </motion.div>
-            {!simOpen ? (
-              <button
-                type="button"
-                onClick={() => setSimOpen(true)}
-                className="tide-glass-soft pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[10.5px] font-bold uppercase leading-tight tracking-[0.14em] text-cyan-50 active:scale-95"
-              >
-                <PlayCircle className="size-6 shrink-0 text-cyan-300" />
-                {t("simulate")}
-              </button>
+            {!sheet ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSheet("sim")}
+                  className="tide-glass-soft pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[10.5px] font-bold uppercase leading-tight tracking-[0.14em] text-cyan-50 active:scale-95"
+                >
+                  <PlayCircle className="size-6 shrink-0 text-cyan-300" />
+                  {t("simulate")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSheet("dial")}
+                  className="tide-glass-soft pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[10.5px] font-bold uppercase leading-tight tracking-[0.14em] text-cyan-50 active:scale-95"
+                >
+                  <Clock3 className="size-6 shrink-0 text-cyan-300" />
+                  {t("pickTime")}
+                </button>
+              </>
             ) : null}
           </div>
 
@@ -182,12 +197,14 @@ export function NowView({
         style={{ bottom: "calc(76px + env(safe-area-inset-bottom))" }}
       >
         <AnimatePresence mode="wait" initial={false}>
-          {simOpen && forecast ? (
-            <SimulateSheet
-              key="sim"
+          {sheet === "sim" && forecast ? (
+            <SimulateSheet key="sim" forecast={forecast} now={now} onClose={() => setSheet(null)} />
+          ) : sheet === "dial" && forecast ? (
+            <TimeDialSheet
+              key="dial"
               forecast={forecast}
               now={now}
-              onClose={() => setSimOpen(false)}
+              onClose={() => setSheet(null)}
             />
           ) : (
             <motion.div
