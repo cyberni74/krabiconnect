@@ -75,9 +75,11 @@ export function TimeSlider({
         style={{ width: `${pct}%` }}
       />
       <div
-        className="absolute top-1/2 size-7 -translate-x-1/2 -translate-y-1/2 rounded-[3px] border-[3px] border-sky-400 bg-[#e8eff6] shadow-[0_4px_14px_rgb(0_0_0_/_0.5)]"
+        className="absolute top-1/2 flex h-7 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-cyan-300 bg-[#0b1826] shadow-[0_0_12px_rgb(103_232_249_/_0.35)]"
         style={{ left: `${pct}%` }}
-      />
+      >
+        <div className="h-3.5 w-px bg-cyan-200" />
+      </div>
     </div>
   );
 }
