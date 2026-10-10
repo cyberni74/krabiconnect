@@ -59,6 +59,31 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
 
   return (
     <div className="space-y-3">
+      {/* ── Return deadline: the one thing a captain has to remember ── */}
+      <section className="tide-panel tide-bracket px-3.5 py-3">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <div className="tide-label text-[10.5px] uppercase tracking-[0.16em] text-white/55">
+              {t("tourDepart")}
+            </div>
+            <div className="tide-digits text-[24px] font-medium leading-tight">
+              {fmtTime(start, lang)}
+            </div>
+          </div>
+          <div className="min-w-0 text-right">
+            <div className="tide-label text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-300">
+              {t("tourBackBy")}
+            </div>
+            <div className="tide-digits text-[clamp(38px,11.5vw,52px)] font-medium leading-none text-cyan-200">
+              {fmtTime(end, lang)}
+            </div>
+            {bkkDayStart(end) !== bkkDayStart(start) ? (
+              <div className="tide-digits mt-0.5 text-[13px] text-white/70">{fmtDay(end, lang)}</div>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
       {/* ── Inputs ── */}
       <section className="tide-panel tide-bracket p-3">
         <div className="grid min-w-0 grid-cols-2 gap-2.5">
@@ -213,7 +238,7 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
 
       {/* ── Chart (drag = move start) ── */}
       <section className="tide-panel px-1.5 pb-1 pt-1.5">
-        <div className="h-[300px]">
+        <div className="aspect-square w-full">
           <TideInstrument
             forecast={forecast}
             state={startState}

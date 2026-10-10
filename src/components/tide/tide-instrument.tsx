@@ -55,7 +55,7 @@ export function TideInstrument({
   const [lo, hi] = useMemo(() => {
     const min = Math.min(...forecast.cm);
     const max = Math.max(...forecast.cm);
-    return [Math.min(0, Math.floor(min / 50) * 50), Math.max(400, Math.ceil((max + 10) / 50) * 50)];
+    return [Math.min(0, Math.floor(min / 50) * 50), Math.max(400, Math.ceil((max + 50) / 50) * 50)];
   }, [forecast]);
 
   const y = (cm: number) => BOTTOM - ((cm - lo) / (hi - lo)) * (BOTTOM - TOP);
@@ -324,10 +324,6 @@ export function TideInstrument({
         const ex = x(e.t);
         const high = e.type === "high";
         const anchor = ex > PX1 - 26 ? "end" : ex < PX0 + 16 ? "start" : "middle";
-        // A high-water time label right under the cursor tag would be drawn on top of it.
-        const labelHalf = uses12h(lang) ? 26 : 17;
-        const hideTime =
-          high && y(e.cm) - 18 < TOP + 6 && Math.abs(ex - cx) < tagW / 2 + labelHalf;
         return (
           <g key={e.t}>
             <circle
@@ -347,26 +343,33 @@ export function TideInstrument({
             >
               {Math.round(e.cm)}
             </text>
-            {hideTime ? null : (
-              <text
-                x={ex}
-                y={high ? y(e.cm) - 18 : y(e.cm) + 26}
-                className="tide-svg-num"
-                textAnchor={anchor}
-                fillOpacity="0.7"
-              >
-                {fmtTime(e.t, lang)}
-              </text>
-            )}
+            <text
+              x={ex}
+              y={high ? y(e.cm) - 18 : y(e.cm) + 26}
+              className="tide-svg-num"
+              textAnchor={anchor}
+              fillOpacity="0.7"
+            >
+              {fmtTime(e.t, lang)}
+            </text>
           </g>
         );
       })}
 
-      {hourTicks.map((tt) => (
-        <text key={tt} x={x(tt)} y={BOTTOM + 14} className="tide-svg-num" textAnchor="middle">
-          {fmtHour(tt, lang)}
-        </text>
-      ))}
+      {hourTicks.map((tt) =>
+        // 12-hour labels are wider ("12AM"): label every 6 h there, the 3 h grid lines stay.
+        uses12h(lang) && Math.round((tt + BKK_OFFSET) / HOUR) % 6 !== 0 ? null : (
+          <text
+            key={tt}
+            x={x(tt)}
+            y={BOTTOM + 14}
+            className="tide-svg-num"
+            textAnchor={x(tt) > PX1 - 16 ? "end" : "middle"}
+          >
+            {fmtHour(tt, lang)}
+          </text>
+        ),
+      )}
       <text x={PX1} y={BOTTOM + 28} className="tide-svg-label" textAnchor="end">
         UTC+7 · h
       </text>

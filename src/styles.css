@@ -126,7 +126,7 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 }
 .tide-svg-label {
   font:
-    600 8.5px "IBM Plex Sans Condensed",
+    600 10px "IBM Plex Sans Condensed",
     "IBM Plex Sans Thai",
     sans-serif;
   letter-spacing: 0.14em;
@@ -135,7 +135,7 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 }
 .tide-svg-num {
   font:
-    500 9.5px "IBM Plex Mono",
+    500 11px "IBM Plex Mono",
     ui-monospace,
     Menlo,
     monospace;
