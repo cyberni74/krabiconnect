@@ -11,7 +11,7 @@ import {
   type TideForecast,
 } from "./model.ts";
 import { frameIndexFor, FRAME_LEVELS } from "./frames.ts";
-import { demoForecast } from "./providers.ts";
+import { harmonicForecast, horizonEnd } from "./harmonic.ts";
 import { getLocation, nearestLocation } from "./locations.ts";
 
 const T0 = Date.UTC(2026, 9, 10, 0, 0);
@@ -28,7 +28,7 @@ function cosineForecast(): TideForecast {
   }
   return {
     locationId: "test",
-    source: "open-meteo",
+    source: "harmonic",
     sourceLabel: "test",
     station: "test",
     stationLat: null,
@@ -114,13 +114,65 @@ describe("misc", () => {
     assert.equal(formatCountdown(2 * HOUR + 34 * MIN + 18_000), "02:34:18");
     assert.equal(formatCountdown(-5), "00:00:00");
   });
-  it("demo forecast has alternating extremes", () => {
-    const f = demoForecast(getLocation("krabi-town"), T0);
-    assert.equal(f.source, "demo");
-    assert.ok(f.extremes.length > 20);
-  });
   it("finds the nearest location", () => {
     assert.equal(nearestLocation(7.75, 98.77).loc.id, "phi-phi");
     assert.equal(nearestLocation(7.9, 98.4).loc.id, "phuket");
+  });
+});
+
+describe("harmonic forecast", () => {
+  const BKK = 7 * HOUR;
+  const bangkok = (m: number, d: number, h: number, min: number) =>
+    Date.UTC(2026, m - 1, d, h, min) - BKK;
+  const day = (loc: string) =>
+    harmonicForecast(getLocation(loc), bangkok(10, 10, 0, 0), bangkok(10, 11, 0, 0));
+
+  it("alternates high and low water and stays in a sane range", () => {
+    for (const id of ["krabi-town", "phuket", "phang-nga", "koh-lanta", "phi-phi"]) {
+      const f = harmonicForecast(getLocation(id), bangkok(10, 1, 0, 0), bangkok(10, 31, 0, 0));
+      assert.ok(f.extremes.length > 55, `${id}: ${f.extremes.length} extremes in 30 days`);
+      for (let i = 1; i < f.extremes.length; i++) {
+        assert.notEqual(f.extremes[i].type, f.extremes[i - 1].type);
+      }
+      assert.ok(Math.min(...f.cm) > -40 && Math.max(...f.cm) < 560, id);
+    }
+  });
+
+  it("matches the Pak Nam Krabi table values the Krabi Town constants were calibrated on", () => {
+    const f = day("krabi-town");
+    const low = f.extremes.find(
+      (e) => e.type === "low" && Math.abs(e.t - bangkok(10, 10, 16, 44)) < 2 * HOUR,
+    )!;
+    const high = f.extremes.find(
+      (e) => e.type === "high" && Math.abs(e.t - bangkok(10, 10, 22, 59)) < 2 * HOUR,
+    )!;
+    assert.ok(Math.abs(low.t - bangkok(10, 10, 16, 44)) < 6 * MIN, "low water time");
+    assert.ok(Math.abs(high.t - bangkok(10, 10, 22, 59)) < 6 * MIN, "high water time");
+    assert.ok(Math.abs(low.cm - 84) < 6, `low ${low.cm}`);
+    assert.ok(Math.abs(high.cm - 388) < 6, `high ${high.cm}`);
+  });
+
+  it("reproduces the measured Phuket gauge (Ko Taphao Noi) for the same day", () => {
+    const f = day("phuket");
+    const low = f.extremes.find(
+      (e) => e.type === "low" && Math.abs(e.t - bangkok(10, 10, 16, 17)) < HOUR,
+    )!;
+    const high = f.extremes.find(
+      (e) => e.type === "high" && Math.abs(e.t - bangkok(10, 10, 22, 32)) < HOUR,
+    )!;
+    assert.ok(Math.abs(low.t - bangkok(10, 10, 16, 17)) < 5 * MIN);
+    assert.ok(Math.abs(high.t - bangkok(10, 10, 22, 32)) < 5 * MIN);
+    assert.ok(Math.abs(high.cm - 308) < 6, `high ${high.cm}`);
+  });
+
+  it("predicts three years ahead with the same rhythm (springs and neaps)", () => {
+    const far = Date.UTC(2029, 8, 1);
+    assert.ok(far < horizonEnd(Date.UTC(2026, 9, 10)) + 40 * 24 * HOUR);
+    const f = harmonicForecast(getLocation("krabi-town"), far, far + 15 * 24 * HOUR);
+    const ex = f.extremes;
+    assert.ok(ex.length > 50 && ex.length < 64, `${ex.length} extremes in 15 days`);
+    const ranges = ex.slice(1).map((e, i) => Math.abs(e.cm - ex[i].cm));
+    assert.ok(Math.min(...ranges) < 160, "neap range");
+    assert.ok(Math.max(...ranges) > 260 && Math.max(...ranges) < 460, "spring range");
   });
 });

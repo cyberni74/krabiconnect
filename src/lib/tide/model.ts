@@ -3,14 +3,14 @@
  * all heights are centimetres on the forecast's unified datum.
  */
 
-export type TideSource = "worldtides" | "open-meteo" | "demo";
+export type TideSource = "harmonic";
 
 export type TideExtreme = { t: number; cm: number; type: "high" | "low" };
 
 export type TideForecast = {
   locationId: string;
   source: TideSource;
-  /** Human-readable provider + station, e.g. "WorldTides · Krabi". */
+  /** Human-readable provider + station, e.g. "Harmonische Vorhersage". */
   sourceLabel: string;
   /** Where the prediction is computed (station name or model grid cell). */
   station: string;

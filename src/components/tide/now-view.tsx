@@ -18,15 +18,13 @@ export function NowView({
   previewAt,
   location,
   onOpenMap,
-  statusSlot,
 }: {
-  forecast: TideForecast | null;
+  forecast: TideForecast;
   state: TideState | null;
   now: number;
   previewAt: number | null;
   location: TideLocation;
   onOpenMap: () => void;
-  statusSlot: ReactNode;
 }) {
   const { t, lang } = useTT();
   const [sheet, setSheet] = useState<"sim" | "dial" | null>(null);
@@ -69,8 +67,6 @@ export function NowView({
           <LangSwitch />
         </div>
       </header>
-
-      {statusSlot}
 
       {/* ── Level readout (hidden while a sheet is open: the sheet + instrument show the preview) ── */}
       {!sheet ? (

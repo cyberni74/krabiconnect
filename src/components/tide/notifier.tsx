@@ -63,7 +63,7 @@ export function TideNotifier({ forecast }: { forecast: TideForecast | null }) {
   const alerts = useTideSettings((s) => s.alerts);
 
   useEffect(() => {
-    if (!forecast || forecast.source === "demo") return;
+    if (!forecast) return;
     const loc = getLocation(forecast.locationId);
     const t = (k: TideKey) => translate(lang, k);
     const check = () => {

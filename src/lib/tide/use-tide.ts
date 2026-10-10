@@ -1,58 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { getTideForecast, type TideResponse } from "./api";
-import { HOUR } from "./model";
+import { useEffect, useMemo, useState } from "react";
+import { harmonicForecast } from "./harmonic";
+import { getLocation } from "./locations";
+import { HOUR, tideStateAt, type TideForecast, type TideState } from "./model";
 
-const STORAGE_PREFIX = "captain-tide-cache:";
-/** A forecast older than this is flagged as stale in the UI. */
-export const STALE_AFTER = 6 * HOUR;
-
-function readCached(id: string): TideResponse | undefined {
-  try {
-    const raw = localStorage.getItem(STORAGE_PREFIX + id);
-    if (!raw) return undefined;
-    const parsed = JSON.parse(raw) as TideResponse;
-    if (!parsed?.forecast?.t?.length) return undefined;
-    return parsed;
-  } catch {
-    return undefined;
-  }
-}
-
-function writeCached(id: string, value: TideResponse) {
-  if (value.forecast.source === "demo") return;
-  try {
-    localStorage.setItem(STORAGE_PREFIX + id, JSON.stringify(value));
-  } catch {
-    /* storage full / private mode — live data still works */
-  }
-}
-
-export function useTide(locationId: string) {
-  const query = useQuery({
-    queryKey: ["tide", locationId],
-    queryFn: async () => {
-      const value = await getTideForecast({ data: { locationId } });
-      writeCached(locationId, value);
-      return value;
-    },
-    initialData: () => readCached(locationId),
-    initialDataUpdatedAt: () => readCached(locationId)?.forecast.fetchedAt,
-    staleTime: 30 * 60_000,
-    refetchInterval: 30 * 60_000,
-    refetchOnWindowFocus: true,
-    retry: 2,
-  });
-  const data = query.data ?? null;
-  return {
-    data,
-    forecast: data?.forecast ?? null,
-    isLoading: !data && query.isFetching,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
-  };
-}
+const BUCKET = 6 * HOUR;
 
 /** Re-renders every `ms` with the current epoch time. */
 export function useNow(ms = 1000): number {
@@ -62,4 +13,38 @@ export function useNow(ms = 1000): number {
     return () => window.clearInterval(id);
   }, [ms]);
   return now;
+}
+
+/**
+ * Live window (yesterday … +9 days) computed on the device from harmonic
+ * constants — no request, so it works offline and never goes stale.
+ * Regenerated every 6 h and when the location changes.
+ */
+export function useTide(locationId: string, now: number): TideForecast {
+  const bucket = Math.floor(now / BUCKET) * BUCKET;
+  return useMemo(
+    () => harmonicForecast(getLocation(locationId), bucket - 24 * HOUR, bucket + 9 * 24 * HOUR),
+    [locationId, bucket],
+  );
+}
+
+/**
+ * Tide state at `at`. A picked time outside the live window (e.g. a date two
+ * years ahead) gets its own small window, so the readouts always have data.
+ */
+export function useTideStateAt(
+  locationId: string,
+  live: TideForecast,
+  at: number,
+): { forecast: TideForecast; state: TideState | null } {
+  const inLive = at >= live.t[0] && at <= live.t[live.t.length - 1] - 6 * HOUR;
+  const own = useMemo(
+    () =>
+      inLive ? null : harmonicForecast(getLocation(locationId), at - 30 * HOUR, at + 30 * HOUR, 15),
+    // one window per picked quarter-hour is plenty
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [inLive, locationId, Math.floor(at / (6 * HOUR))],
+  );
+  const forecast = own ?? live;
+  return { forecast, state: useMemo(() => tideStateAt(forecast, at), [forecast, at]) };
 }

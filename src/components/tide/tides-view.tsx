@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, RotateCcw } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarDays, RotateCcw } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import {
   Area,
@@ -10,8 +10,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { harmonicForecast, horizonEnd } from "@/lib/tide/harmonic";
+import type { TideLocation } from "@/lib/tide/locations";
 import { HOUR, levelAt, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
-import { bkkDayStart, fmtDateNum, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
+import { BKK_OFFSET, bkkDayStart, fmtDateNum, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
 import { useTideView } from "@/lib/tide/store";
 import { FALL, RISE } from "@/lib/tide/colors";
 
@@ -19,12 +21,20 @@ const DAY = 24 * HOUR;
 const Y_AXIS_W = 38;
 const MARGIN_R = 10;
 
+const isoDay = (t: number) => new Date(t + BKK_OFFSET).toISOString().slice(0, 10);
+const fromIso = (v: string) => {
+  const [y, m, d] = v.split("-").map(Number);
+  return Date.UTC(y, m - 1, d) - BKK_OFFSET;
+};
+
 export function TidesView({
-  forecast,
+  location,
+  live,
   state,
   now,
 }: {
-  forecast: TideForecast;
+  location: TideLocation;
+  live: TideForecast;
   state: TideState | null;
   now: number;
 }) {
@@ -35,10 +45,17 @@ export function TidesView({
   const [day, setDay] = useState(today);
   const plotRef = useRef<HTMLDivElement>(null);
 
-  const days = useMemo(() => {
-    const end = forecast.t[forecast.t.length - 1];
-    return Array.from({ length: 7 }, (_, i) => today + i * DAY).filter((d) => d < end);
-  }, [forecast, today]);
+  const days = Array.from({ length: 7 }, (_, i) => today + i * DAY);
+  const lastDay = bkkDayStart(horizonEnd(now));
+
+  // Any date (up to 3 years ahead) is computed on the spot from the harmonic constants.
+  const forecast = useMemo(
+    () =>
+      day >= live.t[0] + HOUR && day + DAY <= live.t[live.t.length - 1] - HOUR
+        ? live
+        : harmonicForecast(location, day - HOUR, day + DAY + HOUR),
+    [live, location, day],
+  );
 
   const data = useMemo(() => {
     const pts: { t: number; cm: number }[] = [];
@@ -50,10 +67,13 @@ export function TidesView({
   }, [forecast, day]);
 
   const [yLo, yHi] = useMemo(() => {
-    const lo = Math.min(...forecast.cm);
-    const hi = Math.max(...forecast.cm);
-    return [Math.floor((lo - 20) / 100) * 100, Math.ceil((hi + 20) / 100) * 100];
-  }, [forecast]);
+    const lo = Math.min(...data.map((p) => p.cm));
+    const hi = Math.max(...data.map((p) => p.cm));
+    return [
+      Math.min(0, Math.floor((lo - 20) / 100) * 100),
+      Math.max(400, Math.ceil((hi + 20) / 100) * 100),
+    ];
+  }, [data]);
 
   const dayEx = forecast.extremes.filter((e) => e.t >= day && e.t < day + DAY);
   const hourly = data.filter((p) => (p.t - day) % HOUR === 0 && p.t < day + DAY);
@@ -119,6 +139,23 @@ export function TidesView({
             </button>
           ))}
         </div>
+        <label className="mt-2 flex items-center gap-2 text-[12px] text-white/70">
+          <CalendarDays className="size-4 shrink-0 text-cyan-300" />
+          <span className="shrink-0">{t("datePick")}</span>
+          <input
+            type="date"
+            className="tide-input tide-digits min-w-0 flex-1 py-1.5 text-[14px]"
+            min={isoDay(today)}
+            max={isoDay(lastDay)}
+            value={isoDay(day)}
+            onChange={(e) => {
+              if (!e.target.value) return;
+              const picked = Math.min(lastDay, Math.max(today, fromIso(e.target.value)));
+              setDay(picked);
+              setPreviewAt(null);
+            }}
+          />
+        </label>
 
         <div
           ref={plotRef}

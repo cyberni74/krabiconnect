@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { Anchor, AlertTriangle, ChartSpline, Map as MapIcon, Waves } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { Anchor, ChartSpline, Map as MapIcon, Waves } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { CaptainView } from "@/components/tide/captain-view";
 import { locateNearest, MapView } from "@/components/tide/map-view";
@@ -11,11 +11,10 @@ import { LangSwitch } from "@/components/tide/lang-switch";
 import { TideBackground } from "@/components/tide/tide-background";
 import { TidesView } from "@/components/tide/tides-view";
 import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
-import { fmtTime, useTT, type TideKey } from "@/lib/tide/i18n";
+import { useTT, type TideKey } from "@/lib/tide/i18n";
 import { getLocation } from "@/lib/tide/locations";
-import { tideStateAt } from "@/lib/tide/model";
 import { useTideSettings, useTideView } from "@/lib/tide/store";
-import { STALE_AFTER, useNow, useTide } from "@/lib/tide/use-tide";
+import { useNow, useTide, useTideStateAt } from "@/lib/tide/use-tide";
 
 type Tab = "now" | "tides" | "map" | "captain";
 const TABS: { id: Tab; key: TideKey; icon: typeof Waves }[] = [
@@ -67,8 +66,8 @@ function CaptainTide() {
   const scene = useTideSettings((s) => s.scene);
   const locationId = useTideSettings((s) => s.locationId);
   const location = getLocation(locationId);
-  const { data, forecast, isError, isLoading } = useTide(location.id);
   const now = useNow(1000);
+  const forecast = useTide(location.id, now);
   const previewAt = useTideView((s) => s.previewAt);
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
 
@@ -97,35 +96,8 @@ function CaptainTide() {
   }, []);
 
   const shownAt = previewAt ?? now;
-  const state = useMemo(
-    () => (forecast ? tideStateAt(forecast, shownAt) : null),
-    [forecast, shownAt],
-  );
+  const { state } = useTideStateAt(location.id, forecast, shownAt);
   const frame = state ? frameIndexFor(state.cm) : Math.floor(FRAME_LEVELS.length / 2);
-
-  const isDemo = forecast?.source === "demo";
-  const stale = forecast && !isDemo && (now - forecast.fetchedAt > STALE_AFTER || isError);
-
-  const hasStatus =
-    isDemo || stale || (!forecast && isError) || (data?.notice && !isDemo && tab !== "now");
-  const status = hasStatus ? (
-    <div className="flex shrink-0 flex-col gap-1">
-      {isDemo ? (
-        <Pill tone="amber">
-          <AlertTriangle className="size-3.5 shrink-0" />
-          {t("demoBanner")}
-        </Pill>
-      ) : null}
-      {stale ? (
-        <Pill tone="amber">
-          <AlertTriangle className="size-3.5 shrink-0" />
-          {t("stale")} {fmtTime(forecast.fetchedAt, lang)}
-        </Pill>
-      ) : null}
-      {!forecast && isError ? <Pill tone="amber">{t("noData")}</Pill> : null}
-      {data?.notice && !isDemo && tab !== "now" ? <Pill tone="muted">{data.notice}</Pill> : null}
-    </div>
-  ) : null;
 
   return (
     <div className="tide-app fixed inset-0 overflow-hidden">
@@ -164,7 +136,6 @@ function CaptainTide() {
                 previewAt={previewAt}
                 location={location}
                 onOpenMap={() => setTab("map")}
-                statusSlot={status}
               />
             </motion.div>
           ) : (
@@ -195,25 +166,16 @@ function CaptainTide() {
                 </div>
                 <LangSwitch />
               </div>
-              {status ? <div className="mb-3">{status}</div> : null}
               {tab === "tides" ? (
-                forecast ? (
-                  <TidesView forecast={forecast} state={state} now={now} />
-                ) : (
-                  <p className="tide-glass p-5 text-white/80">
-                    {isLoading ? t("loading") : t("noData")}
-                  </p>
-                )
+                <TidesView location={location} live={forecast} state={state} now={now} />
               ) : null}
               {tab === "map" ? <MapView forecast={forecast} /> : null}
               {tab === "captain" ? <CaptainView forecast={forecast} now={now} /> : null}
-              {forecast ? (
-                <p className="px-2 pt-4 text-center text-[10.5px] leading-snug text-white/55">
-                  {forecast.sourceLabel} · {forecast.station} · {forecast.datum}
-                  <br />
-                  {t("notMeasured")}
-                </p>
-              ) : null}
+              <p className="px-2 pt-4 text-center text-[10.5px] leading-snug text-white/55">
+                {forecast.sourceLabel} · {forecast.station} · {forecast.datum}
+                <br />
+                {t("notMeasured")}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -245,20 +207,6 @@ function CaptainTide() {
       </main>
 
       <TideNotifier forecast={forecast} />
-    </div>
-  );
-}
-
-function Pill({ children, tone }: { children: React.ReactNode; tone: "amber" | "muted" }) {
-  return (
-    <div
-      className={`tide-label flex w-full items-center gap-1.5 border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-        tone === "amber"
-          ? "border-amber-400 bg-amber-400/15 text-amber-300"
-          : "border-white/15 bg-white/5 normal-case text-white/70"
-      }`}
-    >
-      {children}
     </div>
   );
 }

@@ -203,6 +203,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
             <p className="mt-2 text-[10.5px] text-white/50">{forecast.copyright}</p>
           ) : null}
           <p className="mt-2 text-[11px] text-white/60">{t("notMeasured")}</p>
+          <p className="mt-1 text-[11px] text-white/60">{t("method")}</p>
           {scene ? <p className="mt-1 text-[11px] text-white/60">{t("illustrationNote")}</p> : null}
         </section>
       ) : null}
