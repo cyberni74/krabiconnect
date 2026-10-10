@@ -13,7 +13,7 @@ import {
 import { HOUR, levelAt, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
 import { bkkDayStart, fmtDateNum, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
 import { useTideView } from "@/lib/tide/store";
-import { FALL, RISE } from "./now-view";
+import { FALL, RISE } from "@/lib/tide/colors";
 
 const DAY = 24 * HOUR;
 const Y_AXIS_W = 38;
@@ -75,7 +75,7 @@ export function TidesView({
 
   return (
     <div className="space-y-3">
-      <section className="tide-glass rounded-[26px] p-4">
+      <section className="tide-glass rounded p-4">
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-cyan-200">
@@ -108,8 +108,8 @@ export function TidesView({
                 setDay(d);
                 setPreviewAt(null);
               }}
-              className={`min-w-[52px] shrink-0 rounded-2xl px-2.5 py-2 text-center transition ${
-                d === day ? "bg-cyan-300 text-[#032036]" : "bg-white/8 text-white/85"
+              className={`min-w-[52px] shrink-0 rounded px-2.5 py-2 text-center transition ${
+                d === day ? "bg-cyan-300 text-[#04131f]" : "bg-white/8 text-white/85"
               }`}
             >
               <div className="text-[11px] font-bold uppercase">
@@ -187,7 +187,7 @@ export function TidesView({
                   y={e.cm}
                   r={4.5}
                   fill={e.type === "high" ? RISE : FALL}
-                  stroke="#031123"
+                  stroke="#070d14"
                   strokeWidth={2}
                   label={{
                     value: `${Math.round(e.cm)}`,
@@ -206,7 +206,7 @@ export function TidesView({
             <button
               type="button"
               onClick={() => setPreviewAt(null)}
-              className="flex shrink-0 items-center gap-1 rounded-full bg-white/12 px-3 py-1.5 text-[11px] font-semibold"
+              className="flex shrink-0 items-center gap-1 rounded bg-white/12 px-3 py-1.5 text-[11px] font-semibold"
             >
               <RotateCcw className="size-3.5" />
               {t("backToNow")}
@@ -215,7 +215,7 @@ export function TidesView({
         </div>
       </section>
 
-      <section className="tide-glass rounded-[26px] p-4">
+      <section className="tide-glass rounded p-4">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
           {t("extremes")}
         </h3>
@@ -228,7 +228,7 @@ export function TidesView({
                 className="flex w-full items-center gap-3 py-2.5 text-left"
               >
                 <span
-                  className="grid size-8 place-items-center rounded-full"
+                  className="grid size-8 place-items-center rounded"
                   style={{
                     background: `${e.type === "high" ? RISE : FALL}26`,
                     color: e.type === "high" ? RISE : FALL,
@@ -254,7 +254,7 @@ export function TidesView({
         </ul>
       </section>
 
-      <section className="tide-glass rounded-[26px] p-4">
+      <section className="tide-glass rounded p-4">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
           {t("hourly")}
         </h3>
@@ -266,7 +266,7 @@ export function TidesView({
                 key={p.t}
                 type="button"
                 onClick={() => setPreviewAt(p.t)}
-                className={`rounded-xl px-1 py-1.5 text-center ${sel ? "bg-cyan-300 text-[#032036]" : "bg-white/6"}`}
+                className={`rounded px-1 py-1.5 text-center ${sel ? "bg-cyan-300 text-[#04131f]" : "bg-white/6"}`}
               >
                 <div className="tide-digits text-[10.5px] opacity-75">{fmtTime(p.t, lang)}</div>
                 <div className="tide-digits text-[13.5px] font-semibold">{Math.round(p.cm)}</div>

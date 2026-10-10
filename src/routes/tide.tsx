@@ -7,9 +7,10 @@ import { CaptainView } from "@/components/tide/captain-view";
 import { locateNearest, MapView } from "@/components/tide/map-view";
 import { NowView } from "@/components/tide/now-view";
 import { TideNotifier } from "@/components/tide/notifier";
+import { LangSwitch } from "@/components/tide/lang-switch";
 import { TideBackground } from "@/components/tide/tide-background";
 import { TidesView } from "@/components/tide/tides-view";
-import { FRAME_LEVELS, frameIndexFor, frameSrc } from "@/lib/tide/frames";
+import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
 import { fmtTime, useTT, type TideKey } from "@/lib/tide/i18n";
 import { getLocation } from "@/lib/tide/locations";
 import { tideStateAt } from "@/lib/tide/model";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/tide")({
   head: () => ({
     meta: [
       { title: "CAPTAIN TIDE – Gezeiten Krabi" },
-      { name: "theme-color", content: "#031123" },
+      { name: "theme-color", content: "#070d14" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       {
@@ -42,7 +43,12 @@ export const Route = createFileRoute("/tide")({
           "Live-Gezeitenprognose für Kapitäne in Krabi: Wasserstand, Countdown bis Ebbe und Flut, 7-Tage-Kurve.",
       },
     ],
-    links: [{ rel: "preload", as: "image", href: frameSrc(15), type: "image/webp" }],
+    links: [
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+      },
+    ],
   }),
   pendingComponent: Splash,
   component: CaptainTide,
@@ -58,12 +64,17 @@ function CaptainTide() {
   const setTab = (next: Tab) =>
     navigate({ search: next === "now" ? {} : { tab: next }, replace: true });
   const { t, lang } = useTT();
+  const scene = useTideSettings((s) => s.scene);
   const locationId = useTideSettings((s) => s.locationId);
   const location = getLocation(locationId);
   const { data, forecast, isError, isLoading } = useTide(location.id);
   const now = useNow(1000);
   const previewAt = useTideView((s) => s.previewAt);
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   // A picked/simulated time only lives inside one tab; every tab opens on "now".
   useEffect(() => {
@@ -95,37 +106,46 @@ function CaptainTide() {
   const isDemo = forecast?.source === "demo";
   const stale = forecast && !isDemo && (now - forecast.fetchedAt > STALE_AFTER || isError);
 
-  const status = (
-    <div
-      className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-1 px-4"
-      style={{ top: tab === "now" ? "26%" : "calc(env(safe-area-inset-top) + 8px)" }}
-    >
+  const hasStatus =
+    isDemo || stale || (!forecast && isError) || (data?.notice && !isDemo && tab !== "now");
+  const status = hasStatus ? (
+    <div className="flex shrink-0 flex-col gap-1">
       {isDemo ? (
         <Pill tone="amber">
-          <AlertTriangle className="size-3.5" />
+          <AlertTriangle className="size-3.5 shrink-0" />
           {t("demoBanner")}
         </Pill>
       ) : null}
       {stale ? (
         <Pill tone="amber">
-          <AlertTriangle className="size-3.5" />
+          <AlertTriangle className="size-3.5 shrink-0" />
           {t("stale")} {fmtTime(forecast.fetchedAt, lang)}
         </Pill>
       ) : null}
       {!forecast && isError ? <Pill tone="amber">{t("noData")}</Pill> : null}
       {data?.notice && !isDemo && tab !== "now" ? <Pill tone="muted">{data.notice}</Pill> : null}
     </div>
-  );
+  ) : null;
 
   return (
     <div className="tide-app fixed inset-0 overflow-hidden">
-      {/* Wide screens: blurred continuation of the scene around the phone-shaped stage. */}
-      <div className="absolute inset-0 hidden [@media(min-aspect-ratio:9/16)]:block">
-        <TideBackground index={frame} blur dim={0.35} />
-      </div>
+      {/* Wide screens + photo mode: blurred scene around the phone-shaped stage. */}
+      {scene ? (
+        <div className="absolute inset-0 hidden [@media(min-aspect-ratio:9/16)]:block">
+          <TideBackground index={frame} blur dim={0.5} />
+        </div>
+      ) : null}
 
-      <main className="relative mx-auto h-full w-full max-w-[calc(100dvh*9/16)] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)]">
-        <TideBackground index={frame} dim={tab === "now" ? 0 : 0.38} blur={tab !== "now"} />
+      <main
+        className={`relative mx-auto h-full w-full max-w-[calc(100dvh*9/16)] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] ${scene ? "" : "tide-instrument-bg"}`}
+      >
+        {scene ? (
+          <>
+            <TideBackground index={frame} dim={tab === "now" ? 0.28 : 0.55} blur={tab !== "now"} />
+            {/* The supplied photos carry their own title box at the top; fade it out. */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-[30%] bg-gradient-to-b from-[#070d14] via-[#070d14]/95 to-transparent" />
+          </>
+        ) : null}
 
         <AnimatePresence mode="wait" initial={false}>
           {tab === "now" ? (
@@ -160,23 +180,27 @@ function CaptainTide() {
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
-              {status}
-              <div className="mb-3 flex items-baseline justify-between px-2 pt-1">
-                <h1 className="text-[26px] font-bold">{t(TABS.find((x) => x.id === tab)!.key)}</h1>
-                <button
-                  type="button"
-                  onClick={() => setTab("map")}
-                  className="text-[13px] font-semibold text-cyan-200"
-                >
-                  {location.name}
-                </button>
+              <div className="mb-3 flex items-end justify-between gap-2 px-0.5 pt-1">
+                <div className="min-w-0 border-l-2 border-cyan-400/70 pl-2 leading-tight">
+                  <h1 className="text-[22px] font-bold uppercase tracking-wide">
+                    {t(TABS.find((x) => x.id === tab)!.key)}
+                  </h1>
+                  <button
+                    type="button"
+                    onClick={() => setTab("map")}
+                    className="tide-label truncate text-[12px] font-semibold text-cyan-200"
+                  >
+                    {location.name}
+                  </button>
+                </div>
+                <LangSwitch />
               </div>
-              {(isDemo || stale) && <div className="h-8" />}
+              {status ? <div className="mb-3">{status}</div> : null}
               {tab === "tides" ? (
                 forecast ? (
                   <TidesView forecast={forecast} state={state} now={now} />
                 ) : (
-                  <p className="tide-glass rounded-3xl p-5 text-white/80">
+                  <p className="tide-glass p-5 text-white/80">
                     {isLoading ? t("loading") : t("noData")}
                   </p>
                 )
@@ -195,10 +219,10 @@ function CaptainTide() {
         </AnimatePresence>
 
         <nav
-          className="absolute inset-x-3 z-30"
-          style={{ bottom: "calc(8px + env(safe-area-inset-bottom))" }}
+          className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[rgb(6_12_19/0.96)] backdrop-blur"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
-          <ul className="tide-glass grid h-[60px] grid-cols-4 rounded-[22px] px-1">
+          <ul className="grid h-[58px] grid-cols-4">
             {TABS.map(({ id, key, icon: Icon }) => {
               const on = id === tab;
               return (
@@ -207,17 +231,11 @@ function CaptainTide() {
                     type="button"
                     onClick={() => setTab(id)}
                     aria-current={on ? "page" : undefined}
-                    className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors ${on ? "text-cyan-200" : "text-white/60"}`}
+                    className={`tide-label relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] transition-colors ${on ? "bg-cyan-300/[0.08] text-cyan-200" : "text-white/55"}`}
                   >
-                    {on ? (
-                      <motion.span
-                        layoutId="tide-tab"
-                        className="absolute inset-x-1.5 inset-y-1.5 rounded-2xl bg-white/10"
-                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                      />
-                    ) : null}
-                    <Icon className="relative size-[21px]" strokeWidth={on ? 2.4 : 2} />
-                    <span className="relative">{t(key)}</span>
+                    {on ? <span className="absolute inset-x-0 top-0 h-[2px] bg-cyan-300" /> : null}
+                    <Icon className="size-[20px]" strokeWidth={on ? 2.4 : 1.9} />
+                    <span>{t(key)}</span>
                   </button>
                 </li>
               );
@@ -234,10 +252,10 @@ function CaptainTide() {
 function Pill({ children, tone }: { children: React.ReactNode; tone: "amber" | "muted" }) {
   return (
     <div
-      className={`pointer-events-auto flex max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-[10.5px] font-bold uppercase tracking-wide backdrop-blur-md ${
+      className={`tide-label flex w-full items-center gap-1.5 border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
         tone === "amber"
-          ? "bg-amber-400/90 text-[#2a1600]"
-          : "bg-black/40 text-white/80 normal-case"
+          ? "border-amber-400 bg-amber-400/15 text-amber-300"
+          : "border-white/15 bg-white/5 normal-case text-white/70"
       }`}
     >
       {children}

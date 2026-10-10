@@ -1,3 +1,4 @@
+import { createElement, Fragment, type ReactNode } from "react";
 import { useTideSettings, type TideLang } from "./store";
 
 export const TZ = "Asia/Bangkok";
@@ -36,7 +37,7 @@ const de = {
   hourly: "Stündlicher Pegel",
   extremes: "Hoch- & Niedrigwasser",
   today: "Heute",
-  tapChart: "Tippe oder ziehe über die Kurve – der Hintergrund folgt.",
+  tapChart: "Tippe oder ziehe über die Kurve, um den Pegel zu dieser Uhrzeit zu sehen.",
   locations: "Standorte",
   useGps: "Meinen Standort verwenden",
   gpsLocating: "Ortung läuft …",
@@ -91,6 +92,28 @@ const de = {
   dialHint: "Am Rad drehen – eine Umdrehung = 24 Stunden, über Mitternacht in den nächsten Tag.",
   vsNow: "gegenüber jetzt",
   thenNext: "Danach",
+  flood: "FLUT",
+  ebb: "EBBE",
+  turn: "WECHSEL",
+  risingShort: "Wasser steigt",
+  fallingShort: "Wasser fällt",
+  eventLine: "{type} um {time} Uhr",
+  ago: "zurück",
+  unitDay: "T",
+  unitHour: "h",
+  unitMin: "min",
+  tplDeparture: "Bei deiner geplanten Abfahrt um {time} wird ein Pegel von {cm} prognostiziert.",
+  tplReturn: "Bei deiner geplanten Rückkehr um {time} wird ein Pegel von {cm} prognostiziert.",
+  tplRises: "Bis zu deinem geplanten Abfahrtszeitpunkt steigt das Wasser voraussichtlich um {cm}.",
+  tplFalls: "Bis zu deinem geplanten Abfahrtszeitpunkt fällt das Wasser voraussichtlich um {cm}.",
+  gauge: "PEGEL",
+  trend24: "VERLAUF 24 STD",
+  hw: "HW",
+  nw: "NW",
+  scene: "Foto-Hintergrund",
+  sceneNote: "Zeigt die Krabi-Illustrationen hinter den Instrumenten.",
+  nightHint: "UTC+7",
+  display: "Anzeige",
 };
 
 export type TideKey = keyof typeof de;
@@ -129,7 +152,7 @@ const en: Record<TideKey, string> = {
   hourly: "Hourly level",
   extremes: "High & low water",
   today: "Today",
-  tapChart: "Tap or drag across the curve – the background follows.",
+  tapChart: "Tap or drag across the curve to read the level at that time.",
   locations: "Locations",
   useGps: "Use my location",
   gpsLocating: "Locating …",
@@ -184,9 +207,144 @@ const en: Record<TideKey, string> = {
   dialHint: "Spin the dial – one turn = 24 hours, past midnight rolls into the next day.",
   vsNow: "vs. now",
   thenNext: "Next after that",
+  flood: "FLOOD",
+  ebb: "EBB",
+  turn: "TURN",
+  risingShort: "Water rising",
+  fallingShort: "Water falling",
+  eventLine: "{type} at {time}",
+  ago: "ago",
+  unitDay: "d",
+  unitHour: "h",
+  unitMin: "min",
+  tplDeparture: "At your planned departure at {time} a level of {cm} is predicted.",
+  tplReturn: "At your planned return at {time} a level of {cm} is predicted.",
+  tplRises: "Until your planned departure the water is expected to rise by {cm}.",
+  tplFalls: "Until your planned departure the water is expected to fall by {cm}.",
+  gauge: "GAUGE",
+  trend24: "24 H TREND",
+  hw: "HW",
+  nw: "LW",
+  scene: "Photo background",
+  sceneNote: "Shows the Krabi illustrations behind the instruments.",
+  nightHint: "UTC+7",
+  display: "Display",
 };
 
-const dicts: Record<TideLang, Record<TideKey, string>> = { de, en };
+const th: Record<TideKey, string> = {
+  forecastNow: "พยากรณ์น้ำขึ้นน้ำลงปัจจุบัน",
+  simulation: "จำลอง",
+  rising: "น้ำขึ้น – ระดับน้ำสูงขึ้น",
+  falling: "น้ำลง – ระดับน้ำลดลง",
+  slack: "น้ำเปลี่ยนทิศ",
+  nextHighIn: "น้ำขึ้นสูงสุดครั้งถัดไปในอีก",
+  nextLowIn: "น้ำลงต่ำสุดครั้งถัดไปในอีก",
+  highAt: "น้ำขึ้นสูงสุด",
+  lowAt: "น้ำลงต่ำสุด",
+  predicted: "ระดับที่พยากรณ์",
+  last30: "30 นาทีที่ผ่านมา",
+  perHour: "ต่อชั่วโมง",
+  toGo: "ถึงจุดสูง/ต่ำสุด",
+  simulate: "จำลองน้ำขึ้นน้ำลง",
+  close: "ปิด",
+  backToNow: "กลับสู่ปัจจุบัน",
+  now: "ตอนนี้",
+  tides: "น้ำขึ้นน้ำลง",
+  map: "แผนที่",
+  captain: "กัปตัน",
+  oClock: "น.",
+  demoBanner: "โหมดสาธิต – เส้นโค้งจำลอง ไม่ใช่การพยากรณ์จริง",
+  stale: "ข้อมูลล้าสมัย – ณ เวลา",
+  noData: "ไม่มีข้อมูลพยากรณ์สำหรับเวลานี้",
+  loading: "กำลังโหลดข้อมูลพยากรณ์ …",
+  source: "แหล่งข้อมูล",
+  station: "จุดพยากรณ์",
+  datum: "ระดับอ้างอิง",
+  notMeasured: "เป็นการพยากรณ์ทางดาราศาสตร์/แบบจำลอง ไม่ใช่ค่าที่วัดสด ห้ามใช้เพื่อการเดินเรือ",
+  sevenDays: "พยากรณ์น้ำขึ้นน้ำลง · 7 วัน",
+  hourly: "ระดับน้ำรายชั่วโมง",
+  extremes: "น้ำขึ้นสูงสุดและน้ำลงต่ำสุด",
+  today: "วันนี้",
+  tapChart: "แตะหรือลากบนกราฟเพื่อดูระดับน้ำ ณ เวลานั้น",
+  locations: "สถานที่",
+  useGps: "ใช้ตำแหน่งของฉัน",
+  gpsLocating: "กำลังหาตำแหน่ง …",
+  gpsDenied: "ไม่สามารถเข้าถึงตำแหน่งได้",
+  gpsNearest: "จุดพยากรณ์ที่ใกล้ที่สุด",
+  autoGps: "เลือกด้วย GPS อัตโนมัติเมื่อเปิดแอป",
+  favorites: "รายการโปรด",
+  illustrationNote: "ภาพพื้นหลังเป็นภาพประกอบของระดับน้ำ",
+  boat: "เรือของฉัน",
+  boatName: "ชื่อเรือ",
+  draft: "กินน้ำลึก",
+  reserve: "ระยะปลอดภัยใต้กระดูกงู",
+  homePort: "ท่าเรือประจำ",
+  planner: "วางแผนการเดินทาง",
+  departure: "ออกเดินทาง",
+  ret: "เดินทางกลับ",
+  atDeparture: "",
+  atReturn: "",
+  levelPredicted: "",
+  predictedSuffix: "",
+  untilDeparture: "",
+  rises: "",
+  falls: "",
+  minDepth: "ความลึกน้ำที่ต้องการ (กินน้ำลึก + ระยะปลอดภัย)",
+  depthHint:
+    "ตรวจสอบกับแผนที่เดินเรือที่ยืนยันแล้วด้วยตนเอง: ความลึกในแผนที่ + ระดับน้ำที่พยากรณ์ ต้องไม่น้อยกว่าค่านี้",
+  noUkc:
+    "หากไม่มีข้อมูลความลึกจากแผนที่ที่ยืนยันแล้ว แอปไม่สามารถคำนวณความลึกน้ำจริงหรือระยะใต้กระดูกงูได้ และไม่ใช่การรับรองว่าผ่านได้อย่างปลอดภัย",
+  alerts: "การแจ้งเตือน",
+  beforeHigh: "เตือนก่อนน้ำขึ้นสูงสุด",
+  beforeLow: "เตือนก่อนน้ำลงต่ำสุด",
+  leadTime: "เตือนล่วงหน้า",
+  minutes: "นาที",
+  aboveAlarm: "แจ้งเตือนเมื่อระดับสูงกว่า",
+  belowAlarm: "แจ้งเตือนเมื่อระดับต่ำกว่า",
+  alertsNote:
+    "การแจ้งเตือนอิงจากการพยากรณ์ของสถานที่ที่เลือก และทำงานขณะเปิด CAPTAIN TIDE หรือทำงานอยู่เบื้องหลัง",
+  enableNotif: "อนุญาตการแจ้งเตือน",
+  notifBlocked: "ถูกเบราว์เซอร์บล็อก",
+  language: "ภาษา",
+  play: "เล่น",
+  pause: "หยุดชั่วคราว",
+  outOfRange: "นอกช่วงภาพ – ใช้ภาพที่ใกล้ที่สุด",
+  reminderHigh: "น้ำขึ้นสูงสุดในอีก",
+  reminderLow: "น้ำลงต่ำสุดในอีก",
+  crossAbove: "ระดับน้ำสูงกว่า",
+  crossBelow: "ระดับน้ำต่ำกว่า",
+  at: "เวลา",
+  in: "อีก",
+  change: "เปลี่ยนแปลง",
+  pickTime: "เลือกเวลา",
+  dialHint: "หมุนวงล้อ – 1 รอบ = 24 ชั่วโมง ข้ามเที่ยงคืนไปวันถัดไป",
+  vsNow: "เทียบกับตอนนี้",
+  thenNext: "ถัดไป",
+  flood: "น้ำขึ้น",
+  ebb: "น้ำลง",
+  turn: "เปลี่ยนทิศ",
+  risingShort: "ระดับน้ำกำลังขึ้น",
+  fallingShort: "ระดับน้ำกำลังลง",
+  eventLine: "{type} เวลา {time} น.",
+  ago: "ที่แล้ว",
+  unitDay: "วัน",
+  unitHour: "ชม.",
+  unitMin: "นาที",
+  tplDeparture: "ที่เวลาออกเดินทางตามแผน {time} คาดการณ์ระดับน้ำ {cm}",
+  tplReturn: "ที่เวลาเดินทางกลับตามแผน {time} คาดการณ์ระดับน้ำ {cm}",
+  tplRises: "จนถึงเวลาออกเดินทาง คาดว่าระดับน้ำจะสูงขึ้น {cm}",
+  tplFalls: "จนถึงเวลาออกเดินทาง คาดว่าระดับน้ำจะลดลง {cm}",
+  gauge: "เกจน้ำ",
+  trend24: "แนวโน้ม 24 ชม.",
+  hw: "สูงสุด",
+  nw: "ต่ำสุด",
+  scene: "ภาพพื้นหลัง",
+  sceneNote: "แสดงภาพประกอบกระบี่ด้านหลังเครื่องมือวัด",
+  nightHint: "UTC+7",
+  display: "การแสดงผล",
+};
+
+const dicts: Record<TideLang, Record<TideKey, string>> = { de, en, th };
 
 export function translate(lang: TideLang, k: TideKey): string {
   return dicts[lang][k];
@@ -198,12 +356,19 @@ export function useTT() {
   return { t, lang };
 }
 
+export const LOCALES: Record<TideLang, string> = {
+  de: "de-DE",
+  en: "en-GB",
+  // Gregorian years and Latin digits: easier to read on a boat, matches the gauge numbers.
+  th: "th-TH-u-ca-gregory-nu-latn",
+};
+
 const fmtCache = new Map<string, Intl.DateTimeFormat>();
 function fmt(lang: TideLang, opts: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
   const key = lang + JSON.stringify(opts);
   let f = fmtCache.get(key);
   if (!f) {
-    f = new Intl.DateTimeFormat(lang === "de" ? "de-DE" : "en-GB", { timeZone: TZ, ...opts });
+    f = new Intl.DateTimeFormat(LOCALES[lang], { timeZone: TZ, ...opts });
     fmtCache.set(key, f);
   }
   return f;
@@ -240,4 +405,29 @@ export function bkkDayStart(t: number): number {
 export function fmtSigned(cm: number): string {
   const r = Math.round(cm);
   return `${r > 0 ? "+" : r < 0 ? "−" : "±"}${Math.abs(r)}`;
+}
+
+/** Fill "{name}" slots with nodes (so values can be bold/coloured); word order stays per language. */
+export function fill(template: string, vars: Record<string, ReactNode>): ReactNode[] {
+  return template.split(/(\{\w+\})/g).map((part, i) => {
+    const m = /^\{(\w+)\}$/.exec(part);
+    return createElement(Fragment, { key: i }, m ? (vars[m[1]] ?? "") : part);
+  });
+}
+
+export function fmtMeters(cm: number, lang: TideLang): string {
+  return (cm / 100).toLocaleString(LOCALES[lang], {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+/** "5 h 49 min" / "1 d 2 h 05 min" in the active language. */
+export function fmtDuration(ms: number, lang: TideLang): string {
+  const total = Math.round(Math.abs(ms) / 60_000);
+  const d = Math.floor(total / 1440);
+  const h = Math.floor((total % 1440) / 60);
+  const m = total % 60;
+  const u = (k: TideKey) => translate(lang, k);
+  return `${d ? `${d} ${u("unitDay")} ` : ""}${h} ${u("unitHour")} ${String(m).padStart(2, "0")} ${u("unitMin")}`;
 }

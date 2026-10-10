@@ -45,6 +45,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
   const setLocation = useTideSettings((s) => s.setLocation);
   const favorites = useTideSettings((s) => s.favorites);
   const toggleFavorite = useTideSettings((s) => s.toggleFavorite);
+  const scene = useTideSettings((s) => s.scene);
   const autoGps = useTideSettings((s) => s.autoGps);
   const setAutoGps = useTideSettings((s) => s.setAutoGps);
   const [locating, setLocating] = useState(false);
@@ -110,7 +111,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
 
   return (
     <div className="space-y-3">
-      <section className="tide-glass overflow-hidden rounded-[26px]">
+      <section className="tide-glass overflow-hidden rounded">
         <div ref={mapEl} className="h-[240px] w-full bg-[#0b2a44]" />
         <div className="space-y-2 p-4">
           <button
@@ -131,7 +132,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
                 },
               );
             }}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 text-[14px] font-bold text-[#032036] active:scale-[0.98] disabled:opacity-70"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded bg-cyan-400 text-[14px] font-bold text-[#04131f] active:scale-[0.98] disabled:opacity-70"
           >
             {locating ? (
               <Loader2 className="size-5 animate-spin" />
@@ -152,7 +153,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
         </div>
       </section>
 
-      <section className="tide-glass rounded-[26px] p-2">
+      <section className="tide-glass rounded p-2">
         <h3 className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
           {t("locations")}
         </h3>
@@ -165,7 +166,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
                 <button
                   type="button"
                   onClick={() => setLocation(l.id)}
-                  className={`flex min-h-12 flex-1 items-center gap-3 rounded-2xl px-3 py-2 text-left ${on ? "bg-cyan-300/18" : ""}`}
+                  className={`flex min-h-12 flex-1 items-center gap-3 rounded px-3 py-2 text-left ${on ? "bg-cyan-300/18" : ""}`}
                 >
                   <MapPin className={`size-5 ${on ? "text-cyan-300" : "text-white/50"}`} />
                   <span className="flex-1">
@@ -193,7 +194,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
       </section>
 
       {forecast ? (
-        <section className="tide-glass rounded-[26px] p-4 text-[12.5px] leading-relaxed text-white/80">
+        <section className="tide-glass rounded p-4 text-[12.5px] leading-relaxed text-white/80">
           <Row k={t("source")} v={forecast.sourceLabel} />
           <Row k={t("station")} v={forecast.station} />
           <Row k={t("datum")} v={forecast.datum} />
@@ -202,7 +203,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
             <p className="mt-2 text-[10.5px] text-white/50">{forecast.copyright}</p>
           ) : null}
           <p className="mt-2 text-[11px] text-white/60">{t("notMeasured")}</p>
-          <p className="mt-1 text-[11px] text-white/60">{t("illustrationNote")}</p>
+          {scene ? <p className="mt-1 text-[11px] text-white/60">{t("illustrationNote")}</p> : null}
         </section>
       ) : null}
     </div>

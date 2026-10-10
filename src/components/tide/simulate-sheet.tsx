@@ -94,7 +94,7 @@ export function SimulateSheet({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 60 }}
       transition={{ type: "spring", stiffness: 320, damping: 32 }}
-      className="tide-glass rounded-[28px] px-4 pb-3 pt-3.5"
+      className="tide-glass rounded px-4 pb-3 pt-3.5"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -112,7 +112,7 @@ export function SimulateSheet({
           type="button"
           onClick={onClose}
           aria-label={t("close")}
-          className="grid size-10 place-items-center rounded-full bg-white/12 active:scale-95"
+          className="grid size-10 place-items-center rounded bg-white/12 active:scale-95"
         >
           <X className="size-5" />
         </button>
@@ -140,7 +140,7 @@ export function SimulateSheet({
             cy={y(e.cm)}
             r="3.5"
             fill={e.type === "high" ? "#5eead4" : "#fdba74"}
-            stroke="#031123"
+            stroke="#070d14"
             strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
           />
@@ -182,7 +182,7 @@ export function SimulateSheet({
             if (offset >= SPAN_MIN) setOffset(0);
             setPlaying((p) => !p);
           }}
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-cyan-400 text-[13px] font-bold uppercase tracking-wider text-[#032036] active:scale-[0.98]"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded bg-cyan-400 text-[13px] font-bold uppercase tracking-wider text-[#04131f] active:scale-[0.98]"
         >
           {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
           {playing ? t("pause") : t("play")}
@@ -193,7 +193,7 @@ export function SimulateSheet({
             setPlaying(false);
             setOffset(0);
           }}
-          className="flex h-11 items-center gap-2 rounded-full bg-white/12 px-4 text-[12px] font-semibold active:scale-[0.98]"
+          className="flex h-11 items-center gap-2 rounded bg-white/12 px-4 text-[12px] font-semibold active:scale-[0.98]"
         >
           <RotateCcw className="size-4" />
           {t("now")}

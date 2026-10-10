@@ -50,3 +50,18 @@ export function nearestLocation(lat: number, lon: number): { loc: TideLocation; 
   }
   return { loc: best, km: bestKm };
 }
+
+/** 8.02, 98.87 → "08°01′N 098°52′E" (degrees + decimal minutes, chart style). */
+export function fmtLatLon(lat: number, lon: number): string {
+  const part = (v: number, pos: string, neg: string, width: number) => {
+    const a = Math.abs(v);
+    let deg = Math.floor(a);
+    let min = Math.round((a - deg) * 60);
+    if (min === 60) {
+      deg += 1;
+      min = 0;
+    }
+    return `${String(deg).padStart(width, "0")}°${String(min).padStart(2, "0")}′${v >= 0 ? pos : neg}`;
+  };
+  return `${part(lat, "N", "S", 2)} ${part(lon, "E", "W", 3)}`;
+}

@@ -2,10 +2,18 @@ import { motion } from "motion/react";
 import { ArrowDown, ArrowUp, Minus, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { frameIndexFor } from "@/lib/tide/frames";
-import { bkkDayStart, fmtDateNum, fmtSigned, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
+import {
+  bkkDayStart,
+  fmtDateNum,
+  fmtDuration,
+  fmtSigned,
+  fmtTime,
+  fmtWeekday,
+  useTT,
+} from "@/lib/tide/i18n";
 import { HOUR, levelAt, MIN, tideStateAt, type TideForecast } from "@/lib/tide/model";
 import { useTideView } from "@/lib/tide/store";
-import { FALL, RISE } from "./now-view";
+import { FALL, RISE } from "@/lib/tide/colors";
 import { preloadFrame } from "./tide-background";
 
 const DAY = 24 * HOUR;
@@ -129,7 +137,6 @@ export function TimeDialSheet({
   const days = Array.from({ length: 7 }, (_, i) => today + i * DAY).filter((d) => d <= maxT);
   const dirColor = state ? (state.rising ? RISE : FALL) : "#fff";
   const diffFromNow = state && nowLevel != null ? state.cm - nowLevel : null;
-  const hoursAhead = (at - now) / HOUR;
 
   return (
     <motion.div
@@ -137,7 +144,7 @@ export function TimeDialSheet({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 60 }}
       transition={{ type: "spring", stiffness: 320, damping: 32 }}
-      className="tide-glass rounded-[28px] px-4 pb-3 pt-3"
+      className="tide-glass rounded px-4 pb-3 pt-3"
     >
       <div className="flex items-center justify-between">
         <div className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-cyan-200">
@@ -147,7 +154,7 @@ export function TimeDialSheet({
           type="button"
           onClick={onClose}
           aria-label={t("close")}
-          className="grid size-9 place-items-center rounded-full bg-white/12 active:scale-95"
+          className="grid size-9 place-items-center rounded bg-white/12 active:scale-95"
         >
           <X className="size-5" />
         </button>
@@ -159,8 +166,8 @@ export function TimeDialSheet({
             key={d}
             type="button"
             onClick={() => commit(d + minuteOfDay * MIN)}
-            className={`min-w-[46px] shrink-0 rounded-xl px-2 py-1 text-center ${
-              d === day ? "bg-cyan-300 text-[#032036]" : "bg-white/8 text-white/80"
+            className={`min-w-[46px] shrink-0 rounded px-2 py-1 text-center ${
+              d === day ? "bg-cyan-300 text-[#04131f]" : "bg-white/8 text-white/80"
             }`}
           >
             <div className="text-[10.5px] font-bold uppercase">
@@ -179,7 +186,7 @@ export function TimeDialSheet({
         <svg
           ref={svgRef}
           viewBox={`0 0 ${SIZE} ${SIZE}`}
-          className="size-[min(236px,58vw)] shrink-0 touch-none select-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+          className="size-[min(212px,54vw)] shrink-0 touch-none select-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
           role="slider"
           tabIndex={0}
           aria-label={t("pickTime")}
@@ -302,7 +309,7 @@ export function TimeDialSheet({
 
       {state ? (
         <div className="mt-1 grid grid-cols-2 gap-2 text-[12px] leading-snug">
-          <div className="rounded-2xl bg-white/7 px-3 py-2">
+          <div className="rounded bg-white/7 px-3 py-2">
             <div className="flex items-center gap-1 font-bold" style={{ color: dirColor }}>
               {state.rising ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />}
               {state.rising ? t("rising") : t("falling")}
@@ -311,11 +318,12 @@ export function TimeDialSheet({
               {diffFromNow != null ? `${fmtSigned(diffFromNow)} cm ${t("vsNow")}` : ""}
             </div>
             <div className="tide-digits text-white/55">
-              {hoursAhead >= 0 ? t("in") : ""} {formatAhead(Math.abs(hoursAhead), lang)}
-              {hoursAhead < 0 ? (lang === "de" ? " zurück" : " ago") : ""}
+              {at >= now
+                ? `${t("in")} ${fmtDuration(at - now, lang)}`
+                : `${fmtDuration(now - at, lang)} ${t("ago")}`}
             </div>
           </div>
-          <div className="rounded-2xl bg-white/7 px-3 py-2">
+          <div className="rounded bg-white/7 px-3 py-2">
             <div className="text-white/60">{t("thenNext")}</div>
             <div className="font-bold">
               {state.next.type === "high" ? t("highAt") : t("lowAt")}{" "}
@@ -334,15 +342,6 @@ export function TimeDialSheet({
   );
 }
 
-function formatAhead(h: number, lang: string): string {
-  const total = Math.round(h * 60);
-  const d = Math.floor(total / 1440);
-  const hh = Math.floor((total % 1440) / 60);
-  const mm = total % 60;
-  const dayUnit = lang === "de" ? "T" : "d";
-  return `${d ? `${d} ${dayUnit} ` : ""}${hh} h ${String(mm).padStart(2, "0")} min`;
-}
-
 function StepButton({
   label,
   onClick,
@@ -357,7 +356,7 @@ function StepButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="flex size-11 shrink-0 flex-col items-center justify-center rounded-full bg-white/10 text-[8.5px] font-bold active:scale-90"
+      className="flex size-11 shrink-0 flex-col items-center justify-center rounded bg-white/10 text-[8.5px] font-bold active:scale-90"
     >
       {children}
       15′

@@ -2,8 +2,9 @@ import { Bell, BellOff, ShieldAlert, Ship } from "lucide-react";
 import { useState } from "react";
 import { LOCATIONS } from "@/lib/tide/locations";
 import { levelAt, MIN, HOUR, type TideForecast } from "@/lib/tide/model";
-import { BKK_OFFSET, fmtDay, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { BKK_OFFSET, fill, fmtDay, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
 import { useTideSettings } from "@/lib/tide/store";
+import { LangSwitch } from "./lang-switch";
 import { requestNotifyPermission } from "./notifier";
 
 /** epoch → "YYYY-MM-DDTHH:mm" in Bangkok time for <input type=datetime-local>. */
@@ -34,14 +35,15 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
   const lvDep = forecast && depT != null ? levelAt(forecast, depT) : null;
   const lvRet = forecast && retT != null ? levelAt(forecast, retT) : null;
   const need = s.boat.draft + s.boat.reserve;
-  const dayLabel = (x: number) => (Math.abs(x - now) < 20 * HOUR ? "" : `${fmtDay(x, lang)}, `);
+  const timeLabel = (x: number) =>
+    (Math.abs(x - now) < 20 * HOUR ? "" : `${fmtDay(x, lang)}, `) + fmtTime(x, lang);
 
   const anyAlert =
     s.alerts.beforeHigh || s.alerts.beforeLow || s.alerts.aboveOn || s.alerts.belowOn;
 
   return (
     <div className="space-y-3">
-      <section className="tide-glass rounded-[26px] p-4">
+      <section className="tide-glass rounded p-4">
         <h3 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
           <Ship className="size-4" /> {t("boat")}
         </h3>
@@ -75,14 +77,14 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
             </select>
           </Field>
         </div>
-        <div className="mt-3 rounded-2xl bg-white/6 p-3">
+        <div className="mt-3 rounded bg-white/6 p-3">
           <div className="text-[11px] uppercase tracking-wider text-white/60">{t("minDepth")}</div>
           <div className="tide-digits text-[24px] font-bold">{need} cm</div>
           <p className="mt-1 text-[11.5px] leading-snug text-white/70">{t("depthHint")}</p>
         </div>
       </section>
 
-      <section className="tide-glass rounded-[26px] p-4">
+      <section className="tide-glass rounded p-4">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
           {t("planner")}
           {s.boat.name ? ` · ${s.boat.name}` : ""}
@@ -108,22 +110,25 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
         <div className="mt-3 space-y-2 text-[14px] leading-snug">
           {depT != null && lvDep != null ? (
             <p>
-              {t("atDeparture")} {dayLabel(depT)}
-              <b>{fmtTime(depT, lang)}</b> {t("levelPredicted")}{" "}
-              <b className="text-cyan-200">{Math.round(lvDep)} cm</b> {t("predictedSuffix")}
+              {fill(t("tplDeparture"), {
+                time: <b>{timeLabel(depT)}</b>,
+                cm: <b className="text-cyan-200">{Math.round(lvDep)} cm</b>,
+              })}
             </p>
           ) : null}
           {depT != null && lvDep != null && lvNow != null && depT > now ? (
             <p>
-              {t("untilDeparture")} {lvDep >= lvNow ? t("rises") : t("falls")}{" "}
-              <b className="text-cyan-200">{Math.abs(Math.round(lvDep - lvNow))} cm</b>.
+              {fill(lvDep >= lvNow ? t("tplRises") : t("tplFalls"), {
+                cm: <b className="text-cyan-200">{Math.abs(Math.round(lvDep - lvNow))} cm</b>,
+              })}
             </p>
           ) : null}
           {retT != null && lvRet != null ? (
             <p>
-              {t("atReturn")} {dayLabel(retT)}
-              <b>{fmtTime(retT, lang)}</b> {t("levelPredicted")}{" "}
-              <b className="text-cyan-200">{Math.round(lvRet)} cm</b> {t("predictedSuffix")}
+              {fill(t("tplReturn"), {
+                time: <b>{timeLabel(retT)}</b>,
+                cm: <b className="text-cyan-200">{Math.round(lvRet)} cm</b>,
+              })}
               {lvDep != null ? (
                 <span className="text-white/60">
                   {" "}
@@ -136,13 +141,13 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
             <p className="text-amber-200">{t("noData")}</p>
           ) : null}
         </div>
-        <div className="mt-3 flex gap-2 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-3 text-[11.5px] leading-snug text-amber-50">
+        <div className="mt-3 flex gap-2 rounded border border-amber-300/30 bg-amber-300/10 p-3 text-[11.5px] leading-snug text-amber-50">
           <ShieldAlert className="size-4 shrink-0 text-amber-300" />
           {t("noUkc")}
         </div>
       </section>
 
-      <section className="tide-glass rounded-[26px] p-4">
+      <section className="tide-glass rounded p-4">
         <h3 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
           <Bell className="size-4" /> {t("alerts")}
         </h3>
@@ -189,7 +194,7 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
             type="button"
             disabled={perm === "denied" || perm === "unsupported"}
             onClick={async () => setPerm(await requestNotifyPermission())}
-            className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 text-[13px] font-bold text-[#032036] disabled:bg-white/10 disabled:text-white/60"
+            className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded bg-cyan-400 text-[13px] font-bold text-[#04131f] disabled:bg-white/10 disabled:text-white/60"
           >
             {perm === "denied" || perm === "unsupported" ? (
               <BellOff className="size-4" />
@@ -202,20 +207,28 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
         <p className="mt-2 text-[11px] leading-snug text-white/60">{t("alertsNote")}</p>
       </section>
 
-      <section className="tide-glass flex items-center justify-between rounded-[26px] p-4">
-        <span className="text-[14px] font-semibold">{t("language")}</span>
-        <div className="flex rounded-full bg-white/10 p-1">
-          {(["de", "en"] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => s.setLang(l)}
-              className={`h-9 rounded-full px-4 text-[13px] font-bold ${s.lang === l ? "bg-cyan-300 text-[#032036]" : "text-white/80"}`}
-            >
-              {l === "de" ? "Deutsch" : "English"}
-            </button>
-          ))}
+      <section className="tide-glass p-4">
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
+          {t("language")} · Sprache · ภาษา
+        </h3>
+        <div className="mt-2">
+          <LangSwitch size="large" />
         </div>
+        <h3 className="mt-4 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
+          {t("display")}
+        </h3>
+        <label className="mt-1 flex min-h-11 items-center justify-between gap-3 text-[14px]">
+          <span>
+            {t("scene")}
+            <span className="block text-[11px] leading-snug text-white/55">{t("sceneNote")}</span>
+          </span>
+          <input
+            type="checkbox"
+            checked={s.scene}
+            onChange={(e) => s.setScene(e.target.checked)}
+            className="size-5 shrink-0 accent-cyan-400"
+          />
+        </label>
       </section>
     </div>
   );
@@ -281,21 +294,21 @@ function ThresholdRow({
   set: (on: boolean, value: number) => void;
 }) {
   return (
-    <div className="flex min-h-11 items-center justify-between gap-3 py-2 text-[14px]">
-      <label className="flex flex-1 items-center gap-3">
+    <div className="py-2.5 text-[14px]">
+      <label className="flex min-h-9 items-center gap-3">
         <input
           type="checkbox"
           checked={on}
           onChange={(e) => set(e.target.checked, value)}
-          className="size-5 accent-cyan-400"
+          className="size-5 shrink-0 accent-cyan-400"
         />
         {label}
       </label>
-      <div className="flex items-center gap-1">
+      <div className="mt-1 flex items-center justify-end gap-1.5">
         <input
           type="number"
           inputMode="numeric"
-          className="tide-input tide-digits w-20 py-1.5 text-right"
+          className="tide-input tide-digits w-28 py-1.5 text-right"
           value={value}
           onChange={(e) => {
             const v = Math.round(Number(e.target.value));

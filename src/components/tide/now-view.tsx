@@ -1,17 +1,15 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDown, ArrowUp, ChevronDown, Clock3, PlayCircle, RefreshCcw } from "lucide-react";
-import { useState } from "react";
-import type { TideForecast, TideState } from "@/lib/tide/model";
-import { formatCountdown } from "@/lib/tide/model";
-import { FRAME_MAX, FRAME_MIN } from "@/lib/tide/frames";
-import { bkkDayStart, fmtDay, fmtSigned, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
-import type { TideLocation } from "@/lib/tide/locations";
+import { ArrowDown, ArrowUp, Clock3, PlayCircle, RefreshCcw } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { FALL, RISE } from "@/lib/tide/colors";
+import { fill, fmtDay, fmtMeters, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { fmtLatLon, type TideLocation } from "@/lib/tide/locations";
+import { formatCountdown, type TideForecast, type TideState } from "@/lib/tide/model";
+import { LangSwitch } from "./lang-switch";
 import { SimulateSheet } from "./simulate-sheet";
-import { TimeDialSheet } from "./time-dial-sheet";
+import { TideInstrument } from "./tide-instrument";
 import { TideMark } from "./tide-mark";
-
-export const RISE = "#5eead4";
-export const FALL = "#fdba74";
+import { TimeDialSheet } from "./time-dial-sheet";
 
 export function NowView({
   forecast,
@@ -28,174 +26,121 @@ export function NowView({
   previewAt: number | null;
   location: TideLocation;
   onOpenMap: () => void;
-  statusSlot: React.ReactNode;
+  statusSlot: ReactNode;
 }) {
   const { t, lang } = useTT();
   const [sheet, setSheet] = useState<"sim" | "dial" | null>(null);
   const isPreview = previewAt != null;
-  const dirColor = state ? (state.rising ? RISE : FALL) : "#fff";
-  const outOfRange = state && (state.cm > FRAME_MAX + 5 || state.cm < FRAME_MIN - 5);
+  const dirColor = state ? (state.rising ? RISE : FALL) : "#9fb3c8";
 
   return (
-    <div className="absolute inset-0">
-      {/* ── Top 25 %: brand, place, clock, level ── */}
-      <header className="tide-header absolute inset-x-0 top-0 h-[27%] min-h-[190px]">
-        <div
-          className="flex h-full flex-col px-5"
-          style={{ paddingTop: "max(env(safe-area-inset-top), 14px)" }}
-        >
-          <div className="flex items-center gap-3">
-            <TideMark className="size-8 shrink-0" />
-            <div className="min-w-0 flex-1 leading-tight">
-              <div className="text-[13px] font-bold tracking-[0.22em]">CAPTAIN TIDE</div>
-              <button
-                type="button"
-                onClick={onOpenMap}
-                className="flex max-w-full items-center gap-1 text-[12.5px] text-cyan-100/85"
-              >
-                <span className="truncate">{location.name} · Thailand</span>
-                <ChevronDown className="size-3.5 shrink-0" />
-              </button>
-            </div>
-            <div className="text-right leading-tight">
-              <div className="tide-digits text-[15px] font-semibold">
-                {fmtTime(now, lang, true)}
-              </div>
-              <div className="text-[10.5px] uppercase tracking-wider text-cyan-100/70">
-                {fmtDay(now, lang)} · ICT
-              </div>
+    <div
+      className="hide-scroll absolute inset-0 flex flex-col gap-2 overflow-y-auto px-3"
+      style={{
+        paddingTop: "max(env(safe-area-inset-top), 10px)",
+        paddingBottom: "calc(76px + env(safe-area-inset-bottom))",
+      }}
+    >
+      {/* ── Title bar ── */}
+      <header className="shrink-0">
+        <div className="flex items-center gap-2.5">
+          <TideMark className="size-7 shrink-0" />
+          <div className="tide-label flex-1 text-[13px] font-bold tracking-[0.24em]">
+            CAPTAIN TIDE
+          </div>
+          <div className="text-right leading-tight">
+            <div className="tide-digits text-[16px] font-medium">{fmtTime(now, lang, true)}</div>
+            <div className="tide-label text-[9.5px] uppercase tracking-wider text-white/55">
+              {fmtDay(now, lang)} · UTC+7
             </div>
           </div>
-
-          <div className="flex flex-1 flex-col items-center justify-center pb-4 text-center">
-            <div className="text-[10.5px] font-semibold uppercase tracking-[0.24em] text-cyan-200/90">
-              {isPreview
-                ? `${t("simulation")} · ${
-                    bkkDayStart(previewAt) !== bkkDayStart(now)
-                      ? `${fmtWeekday(previewAt, lang)} `
-                      : ""
-                  }${fmtTime(previewAt, lang)} ${t("oClock")}`
-                : t("forecastNow")}
+        </div>
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={onOpenMap}
+            className="min-w-0 border-l-2 border-cyan-400/70 pl-2 text-left leading-tight"
+          >
+            <div className="tide-label truncate text-[13px] font-semibold">{location.name}</div>
+            <div className="tide-digits truncate text-[10px] text-white/55">
+              {fmtLatLon(location.lat, location.lon)}
             </div>
-            {state ? (
-              <div className="tide-shadow flex items-baseline gap-2">
-                <span className="tide-digits text-[clamp(56px,10.5dvh,92px)] font-bold leading-[0.95]">
-                  {Math.round(state.cm)}
-                </span>
-                <span className="text-[clamp(20px,3.2dvh,28px)] font-semibold text-cyan-100">
-                  cm
-                </span>
-                <span className="tide-digits ml-1 text-[13px] font-medium text-white/65">
-                  {(state.cm / 100).toLocaleString(lang === "de" ? "de-DE" : "en-GB", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  m
-                </span>
-              </div>
-            ) : (
-              <div className="mt-2 text-lg font-semibold text-white/80">
-                {forecast ? t("noData") : t("loading")}
-              </div>
-            )}
-            {outOfRange ? (
-              <div className="text-[10.5px] text-white/60">{t("outOfRange")}</div>
-            ) : null}
-          </div>
+          </button>
+          <LangSwitch />
         </div>
       </header>
 
       {statusSlot}
 
-      {/* ── Middle: free view on the gauge, direction left, rate right ── */}
-      {state && sheet !== "dial" ? (
-        <div className="pointer-events-none absolute inset-x-0 top-[30.5%] flex items-start justify-between px-3.5">
-          <div className="flex w-[38%] max-w-[170px] flex-col gap-2">
-            <motion.div
-              key={state.slack ? "slack" : state.rising ? "up" : "down"}
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="tide-glass-soft rounded-2xl px-3 py-2.5"
-            >
-              <div className="flex items-center gap-1.5" style={{ color: dirColor }}>
-                {state.slack ? (
-                  <RefreshCcw className="size-5" strokeWidth={2.6} />
-                ) : state.rising ? (
-                  <ArrowUp className="size-6" strokeWidth={3} />
-                ) : (
-                  <ArrowDown className="size-6" strokeWidth={3} />
-                )}
-                <span className="text-[17px] font-extrabold tracking-wide">
-                  {state.slack
-                    ? lang === "de"
-                      ? "WECHSEL"
-                      : "TURN"
-                    : state.rising
-                      ? lang === "de"
-                        ? "FLUT"
-                        : "FLOOD"
-                      : lang === "de"
-                        ? "EBBE"
-                        : "EBB"}
+      {/* ── Level readout (hidden while a sheet is open: the sheet + instrument show the preview) ── */}
+      {!sheet ? (
+        <section className="tide-panel tide-bracket flex shrink-0 items-stretch gap-3 px-3 py-2.5">
+          <div className="min-w-0 flex-1">
+            <div className="tide-label text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-300">
+              {isPreview
+                ? `${t("simulation")} · ${fmtDay(previewAt, lang)} ${fmtTime(previewAt, lang)}`
+                : t("forecastNow")}
+            </div>
+            {state ? (
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className="tide-digits text-[clamp(54px,8.8dvh,80px)] font-medium leading-none">
+                  {Math.round(state.cm)}
+                </span>
+                <span className="flex flex-col leading-tight">
+                  <span className="tide-label text-[17px] font-semibold text-cyan-200">cm</span>
+                  <span className="tide-digits whitespace-nowrap text-[11px] text-white/50">
+                    {fmtMeters(state.cm, lang)} m
+                  </span>
                 </span>
               </div>
-              <div className="mt-0.5 text-[11.5px] font-medium leading-snug text-white/85">
-                {state.slack
-                  ? t("slack")
-                  : state.rising
-                    ? lang === "de"
-                      ? "Wasser steigt"
-                      : "Water rising"
-                    : lang === "de"
-                      ? "Wasser fällt"
-                      : "Water falling"}
+            ) : (
+              <div className="mt-2 text-[15px] text-white/75">
+                {forecast ? t("noData") : t("loading")}
               </div>
-              <div className="tide-digits mt-1.5 text-[12.5px] font-semibold text-white/90">
-                {fmtSigned(state.toNext)} cm
-              </div>
-              <div className="text-[11px] text-white/75">{t("toGo")}</div>
-            </motion.div>
-            {!sheet ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setSheet("sim")}
-                  className="tide-glass-soft pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[10.5px] font-bold uppercase leading-tight tracking-[0.14em] text-cyan-50 active:scale-95"
-                >
-                  <PlayCircle className="size-6 shrink-0 text-cyan-300" />
-                  {t("simulate")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSheet("dial")}
-                  className="tide-glass-soft pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[10.5px] font-bold uppercase leading-tight tracking-[0.14em] text-cyan-50 active:scale-95"
-                >
-                  <Clock3 className="size-6 shrink-0 text-cyan-300" />
-                  {t("pickTime")}
-                </button>
-              </>
-            ) : null}
+            )}
           </div>
-
-          <div className="tide-glass-soft w-[38%] max-w-[170px] rounded-2xl px-3 py-2.5 text-right">
-            <div className="tide-digits text-[17px] font-bold" style={{ color: dirColor }}>
-              {state.perHour != null ? `${fmtSigned(state.perHour)} cm` : "—"}
+          {state ? (
+            <div className="flex w-[46%] max-w-[190px] shrink-0 flex-col justify-center gap-1 border-l border-white/10 pl-3">
+              <motion.div
+                key={state.slack ? "turn" : state.rising ? "up" : "down"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center gap-1.5 self-start border px-1.5 py-0.5"
+                style={{ borderColor: dirColor, color: dirColor }}
+              >
+                {state.slack ? (
+                  <RefreshCcw className="size-4" strokeWidth={2.6} />
+                ) : state.rising ? (
+                  <ArrowUp className="size-4" strokeWidth={3} />
+                ) : (
+                  <ArrowDown className="size-4" strokeWidth={3} />
+                )}
+                <span className="tide-label text-[14px] font-bold tracking-wider">
+                  {state.slack ? t("turn") : state.rising ? t("flood") : t("ebb")}
+                </span>
+              </motion.div>
+              <Row label={t("perHour")} value={state.perHour} color={dirColor} />
+              <Row label={t("last30")} value={state.change30} />
+              <Row label={t("toGo")} value={state.toNext} color={dirColor} />
             </div>
-            <div className="text-[11px] text-white/75">{t("perHour")}</div>
-            <div className="tide-digits mt-1 text-[12.5px] font-semibold text-white/90">
-              {state.change30 != null ? `${fmtSigned(state.change30)} cm` : "—"}
-            </div>
-            <div className="text-[11px] text-white/75">{t("last30")}</div>
-          </div>
-        </div>
+          ) : null}
+        </section>
       ) : null}
 
-      {/* ── Bottom 35 %: countdown card / simulator ── */}
-      <div className="tide-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 h-[30%]" />
-      <div
-        className="absolute inset-x-0 px-3"
-        style={{ bottom: "calc(76px + env(safe-area-inset-bottom))" }}
-      >
+      {/* ── Instrument ── */}
+      <section className="tide-panel flex min-h-[250px] flex-1 flex-col px-1.5 pb-1 pt-1.5">
+        <div className="min-h-0 flex-1">
+          {forecast ? <TideInstrument forecast={forecast} state={state} /> : null}
+        </div>
+        {forecast ? (
+          <div className="tide-label truncate px-1 text-center text-[9.5px] text-white/45">
+            {forecast.sourceLabel} · {forecast.station} · {forecast.datum}
+          </div>
+        ) : null}
+      </section>
+
+      {/* ── Countdown / tools ── */}
+      <div className="shrink-0">
         <AnimatePresence mode="wait" initial={false}>
           {sheet === "sim" && forecast ? (
             <SimulateSheet key="sim" forecast={forecast} now={now} onClose={() => setSheet(null)} />
@@ -209,16 +154,23 @@ export function NowView({
           ) : (
             <motion.div
               key="count"
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 24 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0, y: 16 }}
+              transition={{ duration: 0.25 }}
             >
-              <CountdownCard
-                state={isPreview ? null : state}
-                now={now}
-                source={forecast ? `${forecast.sourceLabel} · ${forecast.station}` : null}
-              />
+              <CountdownCard state={isPreview ? null : state} now={now}>
+                <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  <ToolButton onClick={() => setSheet("sim")} disabled={!forecast}>
+                    <PlayCircle className="size-4 text-cyan-300" />
+                    {t("simulate")}
+                  </ToolButton>
+                  <ToolButton onClick={() => setSheet("dial")} disabled={!forecast}>
+                    <Clock3 className="size-4 text-cyan-300" />
+                    {t("pickTime")}
+                  </ToolButton>
+                </div>
+              </CountdownCard>
             </motion.div>
           )}
         </AnimatePresence>
@@ -227,61 +179,99 @@ export function NowView({
   );
 }
 
+function Row({ label, value, color }: { label: string; value: number | null; color?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-2">
+      <span className="tide-label truncate text-[10.5px] text-white/55">{label}</span>
+      <span className="tide-digits shrink-0 text-[13px] font-medium" style={{ color }}>
+        {value != null ? `${fmtSigned(value)} cm` : "—"}
+      </span>
+    </div>
+  );
+}
+
+function ToolButton({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="tide-label flex h-10 items-center justify-center gap-1.5 border border-cyan-300/35 bg-cyan-300/[0.07] px-1 text-[10.5px] font-bold uppercase leading-tight tracking-[0.1em] text-cyan-50 active:bg-cyan-300/20 disabled:opacity-40"
+    >
+      {children}
+    </button>
+  );
+}
+
 function CountdownCard({
   state,
   now,
-  source,
+  children,
 }: {
   state: TideState | null;
   now: number;
-  source: string | null;
+  children?: ReactNode;
 }) {
   const { t, lang } = useTT();
   if (!state) {
     return (
-      <div className="tide-glass rounded-[28px] px-5 py-6 text-center text-sm text-white/75">
-        {t("loading")}
-      </div>
+      <div className="tide-panel px-4 py-6 text-center text-sm text-white/70">{t("loading")}</div>
     );
   }
   const { next, following } = state;
   const isHigh = next.type === "high";
   const color = isHigh ? RISE : FALL;
   return (
-    <div className="tide-glass-count rounded-[28px] px-5 pb-3 pt-3.5">
-      <div>
-        <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color }}>
-          {state.slack ? `${t("slack")} · ` : ""}
+    <div className="tide-panel tide-bracket px-3.5 pb-3 pt-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <div
+          className="tide-label flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em]"
+          style={{ color }}
+        >
+          <span className="size-2" style={{ background: color }} />
           {isHigh ? t("nextHighIn") : t("nextLowIn")}
         </div>
+        {state.slack ? (
+          <span className="tide-label border border-cyan-300/60 px-1.5 text-[10px] font-bold uppercase tracking-wider text-cyan-200">
+            {t("slack")}
+          </span>
+        ) : null}
       </div>
-      <div className="tide-digits tide-shadow text-[clamp(48px,8.2dvh,74px)] font-bold leading-[1.02]">
+      <div className="tide-digits text-[clamp(44px,7.6dvh,64px)] font-medium leading-[1.05]">
         {formatCountdown(next.t - now)}
       </div>
-      <div className="tide-shadow text-[14px] text-white/95">
-        {isHigh ? t("highAt") : t("lowAt")} {lang === "de" ? "um" : "at"}{" "}
-        <b className="tide-digits">
-          {fmtTime(next.t, lang)}
-          {lang === "de" ? " Uhr" : ""}
-        </b>
-        <span className="text-white/50"> · </span>
+      <div className="text-[13.5px] text-white/90">
+        {fill(t("eventLine"), {
+          type: isHigh ? t("highAt") : t("lowAt"),
+          time: <b className="tide-digits">{fmtTime(next.t, lang)}</b>,
+        })}
+        <span className="text-white/40"> · </span>
         <b className="tide-digits">{Math.round(next.cm)} cm</b>
       </div>
       {following ? (
-        <div className="tide-shadow mt-2 flex items-center justify-between gap-2 border-t border-white/12 pt-2 text-[12.5px] text-white/80">
-          <span>
-            {following.type === "high" ? t("highAt") : t("lowAt")}{" "}
-            <b className="tide-digits text-white">{fmtTime(following.t, lang)}</b> ·{" "}
+        <div className="mt-2 flex items-center justify-between gap-2 border-t border-white/10 pt-1.5 text-[12px] text-white/70">
+          <span className="min-w-0 truncate">
+            {fill(t("eventLine"), {
+              type: following.type === "high" ? t("highAt") : t("lowAt"),
+              time: <b className="tide-digits text-white">{fmtTime(following.t, lang)}</b>,
+            })}
+            {" · "}
             <span className="tide-digits">{Math.round(following.cm)} cm</span>
           </span>
-          <span className="tide-digits font-semibold text-white">
+          <span className="tide-digits shrink-0 text-white">
             {t("in")} {formatCountdown(following.t - now)}
           </span>
         </div>
       ) : null}
-      {source ? (
-        <div className="mt-1 truncate text-center text-[9.5px] text-white/50">{source}</div>
-      ) : null}
+      {children}
     </div>
   );
 }

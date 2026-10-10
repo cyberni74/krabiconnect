@@ -106,48 +106,88 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 
 /* ── CAPTAIN TIDE ─────────────────────────────────────────── */
 .tide-app {
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-  color: #fff;
-  background: #031123;
+  --tide-line: rgb(150 185 215 / 0.24);
+  font-family: "IBM Plex Sans", "IBM Plex Sans Thai", "Inter", ui-sans-serif, system-ui, sans-serif;
+  color: #e8eff6;
+  background: #070d14;
   -webkit-tap-highlight-color: transparent;
 }
+.tide-label,
 .tide-app h1,
 .tide-app h2,
 .tide-app h3 {
-  letter-spacing: -0.01em;
+  font-family:
+    "IBM Plex Sans Condensed", "IBM Plex Sans Thai", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 .tide-digits {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "cv11" 1;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
 }
-.tide-shadow {
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 18px rgb(0 20 40 / 0.55);
+.tide-svg-label {
+  font:
+    600 8.5px "IBM Plex Sans Condensed",
+    "IBM Plex Sans Thai",
+    sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: rgb(150 185 215 / 0.72);
 }
-.tide-glass {
-  background: linear-gradient(160deg, rgb(10 40 72 / 0.62), rgb(3 18 38 / 0.72));
-  border: 1px solid rgb(255 255 255 / 0.14);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    0 18px 50px rgb(0 10 25 / 0.45);
-  -webkit-backdrop-filter: blur(22px) saturate(1.35);
-  backdrop-filter: blur(22px) saturate(1.35);
+.tide-svg-num {
+  font:
+    500 9.5px "IBM Plex Mono",
+    ui-monospace,
+    Menlo,
+    monospace;
+  fill: rgb(200 220 240 / 0.8);
+  /* dark halo keeps labels legible where they cross grid lines or the cursor */
+  paint-order: stroke;
+  stroke: rgb(7 13 20 / 0.9);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
-.tide-glass-soft {
-  background: rgb(4 26 50 / 0.42);
-  border: 1px solid rgb(255 255 255 / 0.12);
-  -webkit-backdrop-filter: blur(14px) saturate(1.25);
-  backdrop-filter: blur(14px) saturate(1.25);
+.tide-instrument-bg {
+  background:
+    radial-gradient(120% 50% at 50% -8%, rgb(24 62 98 / 0.55), transparent 62%),
+    linear-gradient(rgb(150 185 215 / 0.045) 1px, transparent 1px) 0 0 / 100% 32px,
+    linear-gradient(90deg, rgb(150 185 215 / 0.045) 1px, transparent 1px) 0 0 / 32px 100%,
+    #070d14;
 }
-.tide-header {
-  background: linear-gradient(180deg, rgb(2 14 30 / 0.82) 0%, rgb(3 20 40 / 0.62) 70%, rgb(3 20 40 / 0) 100%);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
-  backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+/* Flat instrument panels (no glass blobs): hairline border, small radius. */
+.tide-panel,
+.tide-glass,
+.tide-glass-soft,
+.tide-glass-count {
+  background: rgb(8 18 29 / 0.9);
+  border: 1px solid var(--tide-line);
+  border-radius: 3px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
-.tide-bottom-fade {
-  background: linear-gradient(0deg, rgb(2 12 26 / 0.7) 0%, rgb(2 12 26 / 0.35) 55%, rgb(2 12 26 / 0) 100%);
+.tide-panel {
+  position: relative;
+}
+.tide-bracket::before,
+.tide-bracket::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  border: 2px solid #38bdf8;
+}
+.tide-bracket::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.tide-bracket::after {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
 }
 .tide-range {
   -webkit-appearance: none;
@@ -158,60 +198,47 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
   touch-action: none;
 }
 .tide-range::-webkit-slider-runnable-track {
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #22d3ee, #5eead4);
-  opacity: 0.85;
+  height: 4px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #38bdf8, #7dd3fc);
 }
 .tide-range::-moz-range-track {
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #22d3ee, #5eead4);
+  height: 4px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #38bdf8, #7dd3fc);
 }
 .tide-range::-webkit-slider-thumb {
   -webkit-appearance: none;
-  margin-top: -13px;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: #fff;
-  border: 4px solid #22d3ee;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+  margin-top: -12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  background: #e8eff6;
+  border: 3px solid #38bdf8;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.5);
 }
 .tide-range::-moz-range-thumb {
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  background: #fff;
-  border: 4px solid #22d3ee;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: #e8eff6;
+  border: 3px solid #38bdf8;
 }
 .tide-input {
   width: 100%;
-  border-radius: 14px;
-  background: rgb(255 255 255 / 0.08);
-  border: 1px solid rgb(255 255 255 / 0.16);
-  padding: 0.7rem 0.85rem;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(150 185 215 / 0.28);
+  padding: 0.65rem 0.8rem;
   color: #fff;
   font-size: 16px;
   color-scheme: dark;
 }
 .tide-input:focus {
-  outline: 2px solid #22d3ee;
+  outline: 2px solid #38bdf8;
   outline-offset: 1px;
 }
-/* Countdown card: lighter in the middle so the gauge stays readable through it. */
-.tide-glass-count {
-  background: linear-gradient(
-    90deg,
-    rgb(3 20 42 / 0.66) 0%,
-    rgb(3 20 42 / 0.4) 42%,
-    rgb(3 20 42 / 0.4) 66%,
-    rgb(3 20 42 / 0.66) 100%
-  );
-  border: 1px solid rgb(255 255 255 / 0.14);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    0 18px 50px rgb(0 10 25 / 0.35);
-  -webkit-backdrop-filter: blur(7px) saturate(1.3);
-  backdrop-filter: blur(7px) saturate(1.3);
+/* Night-chart look for the OSM raster tiles. */
+.tide-app .maplibregl-canvas {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) saturate(0.55) contrast(0.95);
 }

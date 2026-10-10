@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { DEFAULT_LOCATION_ID } from "./locations";
 
-export type TideLang = "de" | "en";
+export type TideLang = "de" | "en" | "th";
+export const TIDE_LANGS: TideLang[] = ["de", "en", "th"];
 
 export type BoatSettings = {
   name: string;
@@ -29,12 +30,15 @@ type TideSettings = {
   locationId: string;
   favorites: string[];
   autoGps: boolean;
+  /** Show the supplied Krabi illustrations behind the instruments. */
+  scene: boolean;
   boat: BoatSettings;
   alerts: AlertSettings;
   setLang: (lang: TideLang) => void;
   setLocation: (id: string) => void;
   toggleFavorite: (id: string) => void;
   setAutoGps: (on: boolean) => void;
+  setScene: (on: boolean) => void;
   setBoat: (patch: Partial<BoatSettings>) => void;
   setAlerts: (patch: Partial<AlertSettings>) => void;
 };
@@ -46,6 +50,7 @@ export const useTideSettings = create<TideSettings>()(
       locationId: DEFAULT_LOCATION_ID,
       favorites: [DEFAULT_LOCATION_ID],
       autoGps: false,
+      scene: false,
       boat: { name: "", draft: 90, reserve: 50, homePort: "krabi-town" },
       alerts: {
         beforeHigh: false,
@@ -65,6 +70,7 @@ export const useTideSettings = create<TideSettings>()(
             : [...s.favorites, id],
         })),
       setAutoGps: (autoGps) => set({ autoGps }),
+      setScene: (scene) => set({ scene }),
       setBoat: (patch) => set((s) => ({ boat: { ...s.boat, ...patch } })),
       setAlerts: (patch) => set((s) => ({ alerts: { ...s.alerts, ...patch } })),
     }),
