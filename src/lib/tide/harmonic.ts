@@ -79,6 +79,12 @@ export function harmonicForecast(
   };
 }
 
+/** Predicted level (cm above the location's chart datum) at one instant. */
+export function harmonicLevelAt(locationId: string, time: number): number {
+  const { predictor } = predictorFor(locationId);
+  return predictor.getWaterLevelAtTime({ time: new Date(time) }).level * 100;
+}
+
 export const harmonicMeta = {
   referenceName: harmonics.reference.name,
   generated: harmonics.generated,

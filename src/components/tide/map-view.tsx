@@ -7,6 +7,12 @@ import type { TideForecast } from "@/lib/tide/model";
 import { fmtTime, useTT } from "@/lib/tide/i18n";
 import { useTideSettings } from "@/lib/tide/store";
 import { toast } from "sonner";
+import { harmonicLevelAt } from "@/lib/tide/harmonic";
+import { useNow } from "@/lib/tide/use-tide";
+// MapLibre 6 looks for its worker next to the bundled script, where Vite does not emit it;
+// bundle the worker with its dependencies and tell MapLibre where it is (needed for GeoJSON layers).
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import { ZoneMapLayer, ZoneOverlay, ZonePanel, useZoneEvals } from "./zones";
 
 const OSM_STYLE = {
   version: 8 as const,
@@ -18,7 +24,19 @@ const OSM_STYLE = {
       attribution: "© OpenStreetMap",
     },
   },
-  layers: [{ id: "osm", type: "raster" as const, source: "osm" }],
+  layers: [
+    {
+      id: "osm",
+      type: "raster" as const,
+      source: "osm",
+      // Night-chart look; done in the layer (not a CSS filter) so overlays keep their true colours.
+      paint: {
+        "raster-brightness-max": 0.6,
+        "raster-saturation": -0.45,
+        "raster-contrast": 0.2,
+      },
+    },
+  ],
 };
 
 export function locateNearest(
@@ -49,6 +67,9 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
   const autoGps = useTideSettings((s) => s.autoGps);
   const setAutoGps = useTideSettings((s) => s.setAutoGps);
   const [locating, setLocating] = useState(false);
+  const [ready, setReady] = useState(false);
+  const now = useNow(30_000);
+  const { evals, at, draft, reserve } = useZoneEvals(forecast, now);
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Maplibre.Map | null>(null);
   const markers = useRef<Map<string, HTMLElement>>(new Map());
@@ -59,6 +80,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
     void import("maplibre-gl").then((mod) => {
       const maplibregl = (mod as { default?: typeof Maplibre }).default ?? mod;
       if (disposed || !mapEl.current) return;
+      maplibregl.setWorkerUrl(workerUrl);
       const map = new maplibregl.Map({
         container: mapEl.current,
         style: OSM_STYLE,
@@ -67,6 +89,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
         attributionControl: { compact: true },
       });
       mapRef.current = map;
+      map.on("load", () => setReady(true));
       for (const l of LOCATIONS) {
         const el = document.createElement("button");
         el.type = "button";
@@ -112,7 +135,11 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
   return (
     <div className="space-y-3">
       <section className="tide-glass overflow-hidden rounded">
-        <div ref={mapEl} className="h-[240px] w-full bg-[#0b2a44]" />
+        <div className="relative" data-zone-map>
+          <div ref={mapEl} className="h-[300px] w-full bg-[#0b2a44]" />
+          <ZoneOverlay />
+        </div>
+        <ZoneMapLayer mapRef={mapRef} ready={ready} evals={evals} />
         <div className="space-y-2 p-4">
           <button
             type="button"
@@ -152,6 +179,14 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
           </label>
         </div>
       </section>
+
+      <ZonePanel
+        evals={evals}
+        at={at}
+        draft={draft}
+        reserve={reserve}
+        levelAtNow={forecast ? harmonicLevelAt(locationId, now) : null}
+      />
 
       <section className="tide-glass rounded p-2">
         <h3 className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">

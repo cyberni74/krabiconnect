@@ -8,10 +8,13 @@ import {
   MIN,
   nextCrossing,
   tideStateAt,
+  tourStats,
   type TideForecast,
 } from "./model.ts";
 import { frameIndexFor, FRAME_LEVELS } from "./frames.ts";
-import { harmonicForecast, horizonEnd } from "./harmonic.ts";
+import { harmonicForecast, harmonicLevelAt, horizonEnd } from "./harmonic.ts";
+import { capsuleRing, circleRing, evaluateMark } from "./depth.ts";
+import { isTideOnlyHost, isTidePath } from "./hosts.ts";
 import { getLocation, nearestLocation } from "./locations.ts";
 
 const T0 = Date.UTC(2026, 9, 10, 0, 0);
@@ -174,5 +177,103 @@ describe("harmonic forecast", () => {
     const ranges = ex.slice(1).map((e, i) => Math.abs(e.cm - ex[i].cm));
     assert.ok(Math.min(...ranges) < 160, "neap range");
     assert.ok(Math.max(...ranges) > 260 && Math.max(...ranges) < 460, "spring range");
+  });
+});
+
+describe("tourStats", () => {
+  const f = cosineForecast();
+  it("summarises a falling tour through low water", () => {
+    // High at T0, low at T0 + 6.21 h: tour from +3 h to +9 h covers the low.
+    const s = tourStats(f, T0 + 3 * HOUR, T0 + 9 * HOUR)!;
+    assert.equal(s.startRising, false);
+    assert.equal(s.endRising, true);
+    assert.equal(s.events.length, 1);
+    assert.equal(s.events[0].type, "low");
+    assert.ok(Math.abs(s.min.t - (T0 + PERIOD / 2)) < 15 * MIN);
+    assert.ok(s.min.cm < s.startCm && s.min.cm < s.endCm);
+    assert.ok(s.maxRate > 20 && s.maxRate < 120, `rate ${s.maxRate}`);
+    assert.ok(Math.abs(s.net - (s.endCm - s.startCm)) < 1e-9);
+  });
+  it("returns null when the window leaves the forecast", () => {
+    assert.equal(tourStats(f, T0 + 70 * HOUR, T0 + 80 * HOUR), null);
+  });
+});
+
+describe("depth zones", () => {
+  const mark = (depthM: number) => ({
+    id: "m",
+    kind: "point" as const,
+    name: "bar",
+    depthM,
+    radiusM: 100,
+    a: [8.0, 98.9] as [number, number],
+  });
+  it("flags insufficient depth red, tight amber, and says nothing otherwise", () => {
+    // draft 90 + reserve 50 = 140 cm needed; charted 0.5 m
+    assert.equal(evaluateMark(mark(0.5), 80, 90, 50).state, "red"); // 50+80 = 130 < 140
+    assert.equal(evaluateMark(mark(0.5), 100, 90, 50).state, "amber"); // 150 -> +10
+    assert.equal(evaluateMark(mark(0.5), 200, 90, 50).state, "none"); // +110
+    assert.equal(evaluateMark(mark(0.5), 80, 90, 50).clearanceCm, -10);
+  });
+  it("never rates a spot without a measured draft", () => {
+    const e = evaluateMark(mark(5), 300, null, 50);
+    assert.equal(e.state, "no-draft");
+    assert.equal(e.clearanceCm, null);
+  });
+  it("treats drying heights (negative depth) as needing more water", () => {
+    assert.equal(evaluateMark(mark(-0.3), 150, 90, 50).state, "red"); // -30+150 = 120 < 140
+  });
+  it("builds closed rings of the right size", () => {
+    const ring = circleRing([8, 98.9], 100);
+    assert.deepEqual(ring[0], ring[ring.length - 1]);
+    const lons = ring.map((p) => p[0]);
+    const widthM =
+      (Math.max(...lons) - Math.min(...lons)) * 111_320 * Math.cos((8 * Math.PI) / 180);
+    assert.ok(Math.abs(widthM - 200) < 3, `width ${widthM}`);
+    const cap = capsuleRing([8, 98.9], [8, 98.91], 50);
+    assert.deepEqual(cap[0], cap[cap.length - 1]);
+    const capLons = cap.map((p) => p[0]);
+    const lenM =
+      (Math.max(...capLons) - Math.min(...capLons)) * 111_320 * Math.cos((8 * Math.PI) / 180);
+    assert.ok(Math.abs(lenM - (1100 + 100)) < 25, `length ${lenM}`);
+  });
+  it("harmonicLevelAt agrees with the forecast samples", () => {
+    const t = Date.UTC(2026, 9, 10, 9, 44);
+    const f = harmonicForecast(getLocation("krabi-town"), t - HOUR, t + HOUR, 5);
+    assert.ok(Math.abs(harmonicLevelAt("krabi-town", t) - levelAt(f, t)!) < 1.5);
+  });
+});
+
+describe("tide-only hosts", () => {
+  it("recognises cyberni.de and www, ignoring case, port and proxy lists", () => {
+    for (const h of [
+      "cyberni.de",
+      "www.cyberni.de",
+      "CYBERNI.DE",
+      "cyberni.de:443",
+      "cyberni.de, proxy.example",
+    ]) {
+      assert.equal(isTideOnlyHost(h), true, h);
+    }
+  });
+  it("does not match look-alikes or other hosts", () => {
+    for (const h of [
+      "",
+      null,
+      undefined,
+      "cyberni.de.evil.com",
+      "evilcyberni.de",
+      "sub.cyberni.de",
+      "krabiconnect.vercel.app",
+      "localhost:8080",
+    ]) {
+      assert.equal(isTideOnlyHost(h), false, String(h));
+    }
+  });
+  it("knows tide paths", () => {
+    assert.equal(isTidePath("/tide"), true);
+    assert.equal(isTidePath("/tide/x"), true);
+    assert.equal(isTidePath("/tides"), false);
+    assert.equal(isTidePath("/"), false);
   });
 });

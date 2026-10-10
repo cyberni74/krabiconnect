@@ -1,42 +1,19 @@
-import { Bell, BellOff, ShieldAlert, Ship } from "lucide-react";
+import { Bell, BellOff, Ship } from "lucide-react";
 import { useState } from "react";
 import { LOCATIONS } from "@/lib/tide/locations";
-import { levelAt, MIN, HOUR, type TideForecast } from "@/lib/tide/model";
-import { BKK_OFFSET, fill, fmtDay, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { useTT } from "@/lib/tide/i18n";
 import { useTideSettings } from "@/lib/tide/store";
 import { LangSwitch } from "./lang-switch";
 import { requestNotifyPermission } from "./notifier";
 
-/** epoch → "YYYY-MM-DDTHH:mm" in Bangkok time for <input type=datetime-local>. */
-function toLocalInput(t: number): string {
-  return new Date(t + BKK_OFFSET).toISOString().slice(0, 16);
-}
-function fromLocalInput(v: string): number | null {
-  const x = Date.parse(`${v}:00Z`);
-  return Number.isFinite(x) ? x - BKK_OFFSET : null;
-}
-
-export function CaptainView({ forecast, now }: { forecast: TideForecast | null; now: number }) {
-  const { t, lang } = useTT();
+export function CaptainView() {
+  const { t } = useTT();
   const s = useTideSettings();
-  const [dep, setDep] = useState(() =>
-    toLocalInput(Math.ceil((now + 2 * HOUR) / (30 * MIN)) * 30 * MIN),
-  );
-  const [ret, setRet] = useState(() =>
-    toLocalInput(Math.ceil((now + 8 * HOUR) / (30 * MIN)) * 30 * MIN),
-  );
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">(() =>
     typeof Notification === "undefined" ? "unsupported" : Notification.permission,
   );
 
-  const depT = fromLocalInput(dep);
-  const retT = fromLocalInput(ret);
-  const lvNow = forecast ? levelAt(forecast, now) : null;
-  const lvDep = forecast && depT != null ? levelAt(forecast, depT) : null;
-  const lvRet = forecast && retT != null ? levelAt(forecast, retT) : null;
-  const need = s.boat.draft + s.boat.reserve;
-  const timeLabel = (x: number) =>
-    (Math.abs(x - now) < 20 * HOUR ? "" : `${fmtDay(x, lang)}, `) + fmtTime(x, lang);
+  const need = s.boat.draft != null ? s.boat.draft + s.boat.reserve : null;
 
   const anyAlert =
     s.alerts.beforeHigh || s.alerts.beforeLow || s.alerts.aboveOn || s.alerts.belowOn;
@@ -57,12 +34,90 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
               onChange={(e) => s.setBoat({ name: e.target.value })}
             />
           </Field>
+          <Field label={t("boatModel")} className="col-span-2">
+            <input
+              className="tide-input"
+              value={s.boat.model}
+              maxLength={40}
+              onChange={(e) => s.setBoat({ model: e.target.value })}
+            />
+          </Field>
+          <Field label={t("boatEngine")} className="col-span-2">
+            <input
+              className="tide-input"
+              value={s.boat.engine}
+              placeholder={t("boatEnginePh")}
+              maxLength={60}
+              onChange={(e) => s.setBoat({ engine: e.target.value })}
+            />
+          </Field>
+          <Field label={t("boatLength")}>
+            <DecInput value={s.boat.lengthM} max={30} onChange={(v) => s.setBoat({ lengthM: v })} />
+          </Field>
+          <Field label={t("boatBeam")}>
+            <DecInput value={s.boat.beamM} max={10} onChange={(v) => s.setBoat({ beamM: v })} />
+          </Field>
+          <Field label={t("boatWeight")}>
+            <DecInput
+              value={s.boat.weightKg}
+              max={50000}
+              step={10}
+              onChange={(v) => s.setBoat({ weightKg: v })}
+            />
+          </Field>
+          <Field label={t("boatFuel")}>
+            <DecInput
+              value={s.boat.fuelL}
+              max={5000}
+              step={5}
+              onChange={(v) => s.setBoat({ fuelL: v })}
+            />
+          </Field>
+          <Field label={t("boatPersons")}>
+            <DecInput
+              value={s.boat.persons}
+              max={99}
+              step={1}
+              onChange={(v) => s.setBoat({ persons: v })}
+            />
+          </Field>
+          <Field label={t("boatCe")}>
+            <select
+              className="tide-input"
+              value={s.boat.ceCategory}
+              onChange={(e) => s.setBoat({ ceCategory: e.target.value })}
+            >
+              {["", "A", "B", "C", "D"].map((c) => (
+                <option key={c} value={c}>
+                  {c || "—"}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <p className="col-span-2 -mt-1 text-[11px] text-white/50">{t("boatMaker")}</p>
           <Field label={`${t("draft")} (cm)`}>
-            <NumInput value={s.boat.draft} onChange={(v) => s.setBoat({ draft: v })} />
+            <DecInput
+              value={s.boat.draft}
+              max={2000}
+              step={1}
+              placeholder="?"
+              highlight={s.boat.draft == null}
+              onChange={(v) => s.setBoat({ draft: v, draftSource: v == null ? null : "measured" })}
+            />
           </Field>
           <Field label={`${t("reserve")} (cm)`}>
-            <NumInput value={s.boat.reserve} onChange={(v) => s.setBoat({ reserve: v })} />
+            <DecInput
+              value={s.boat.reserve}
+              max={2000}
+              step={1}
+              onChange={(v) => s.setBoat({ reserve: v ?? 0 })}
+            />
           </Field>
+          {s.boat.draftSource === "published" ? (
+            <p className="col-span-2 border border-amber-400 bg-amber-400/10 p-2.5 text-[12px] leading-snug text-amber-200">
+              {t("draftPublished")}
+            </p>
+          ) : null}
           <Field label={t("homePort")} className="col-span-2">
             <select
               className="tide-input"
@@ -79,71 +134,13 @@ export function CaptainView({ forecast, now }: { forecast: TideForecast | null; 
         </div>
         <div className="mt-3 rounded bg-white/6 p-3">
           <div className="text-[11px] uppercase tracking-wider text-white/60">{t("minDepth")}</div>
-          <div className="tide-digits text-[24px] font-bold">{need} cm</div>
+          <div className="tide-digits text-[24px] font-bold">
+            {need != null ? `${need} cm` : "—"}
+          </div>
+          {need == null ? (
+            <p className="mt-1 text-[12px] font-semibold text-amber-300">{t("draftMissing")}</p>
+          ) : null}
           <p className="mt-1 text-[11.5px] leading-snug text-white/70">{t("depthHint")}</p>
-        </div>
-      </section>
-
-      <section className="tide-glass rounded p-4">
-        <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">
-          {t("planner")}
-          {s.boat.name ? ` · ${s.boat.name}` : ""}
-        </h3>
-        <div className="mt-3 grid grid-cols-1 gap-3">
-          <Field label={t("departure")}>
-            <input
-              type="datetime-local"
-              className="tide-input text-[14px]"
-              value={dep}
-              onChange={(e) => setDep(e.target.value)}
-            />
-          </Field>
-          <Field label={t("ret")}>
-            <input
-              type="datetime-local"
-              className="tide-input text-[14px]"
-              value={ret}
-              onChange={(e) => setRet(e.target.value)}
-            />
-          </Field>
-        </div>
-        <div className="mt-3 space-y-2 text-[14px] leading-snug">
-          {depT != null && lvDep != null ? (
-            <p>
-              {fill(t("tplDeparture"), {
-                time: <b>{timeLabel(depT)}</b>,
-                cm: <b className="text-cyan-200">{Math.round(lvDep)} cm</b>,
-              })}
-            </p>
-          ) : null}
-          {depT != null && lvDep != null && lvNow != null && depT > now ? (
-            <p>
-              {fill(lvDep >= lvNow ? t("tplRises") : t("tplFalls"), {
-                cm: <b className="text-cyan-200">{Math.abs(Math.round(lvDep - lvNow))} cm</b>,
-              })}
-            </p>
-          ) : null}
-          {retT != null && lvRet != null ? (
-            <p>
-              {fill(t("tplReturn"), {
-                time: <b>{timeLabel(retT)}</b>,
-                cm: <b className="text-cyan-200">{Math.round(lvRet)} cm</b>,
-              })}
-              {lvDep != null ? (
-                <span className="text-white/60">
-                  {" "}
-                  ({t("change")} {fmtSigned(lvRet - lvDep)} cm)
-                </span>
-              ) : null}
-            </p>
-          ) : null}
-          {forecast && ((depT != null && lvDep == null) || (retT != null && lvRet == null)) ? (
-            <p className="text-amber-200">{t("noData")}</p>
-          ) : null}
-        </div>
-        <div className="mt-3 flex gap-2 rounded border border-amber-300/30 bg-amber-300/10 p-3 text-[11.5px] leading-snug text-amber-50">
-          <ShieldAlert className="size-4 shrink-0 text-amber-300" />
-          {t("noUkc")}
         </div>
       </section>
 
@@ -251,18 +248,36 @@ function Field({
   );
 }
 
-function NumInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+/** Number field that may be empty (null) and accepts decimals. */
+function DecInput({
+  value,
+  onChange,
+  max,
+  step = 0.1,
+  placeholder,
+  highlight,
+}: {
+  value: number | null;
+  onChange: (v: number | null) => void;
+  max: number;
+  step?: number;
+  placeholder?: string;
+  highlight?: boolean;
+}) {
   return (
     <input
       type="number"
-      inputMode="numeric"
+      inputMode="decimal"
       min={0}
-      max={2000}
-      className="tide-input tide-digits"
-      value={Number.isFinite(value) ? value : 0}
+      max={max}
+      step={step}
+      placeholder={placeholder}
+      className={`tide-input tide-digits ${highlight ? "!border-amber-400" : ""}`}
+      value={value ?? ""}
       onChange={(e) => {
-        const v = Math.round(Number(e.target.value));
-        onChange(Number.isFinite(v) ? Math.min(2000, Math.max(0, v)) : 0);
+        if (e.target.value === "") return onChange(null);
+        const v = Number(e.target.value);
+        onChange(Number.isFinite(v) ? Math.min(max, Math.max(0, v)) : null);
       }}
     />
   );
