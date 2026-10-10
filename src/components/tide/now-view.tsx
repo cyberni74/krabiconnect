@@ -50,7 +50,7 @@ export function NowView({
 
   return (
     <div
-      className="hide-scroll absolute inset-0 flex flex-col gap-2 overflow-y-auto px-3"
+      className="hide-scroll tide-scroll absolute inset-0 flex flex-col gap-2 overflow-y-auto px-3"
       style={{
         paddingTop: "max(env(safe-area-inset-top), 10px)",
         paddingBottom: "calc(86px + env(safe-area-inset-bottom))",
