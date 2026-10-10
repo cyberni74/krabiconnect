@@ -14,7 +14,7 @@ import { TourView } from "@/components/tide/tour-view";
 import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
 import { useTT, type TideKey } from "@/lib/tide/i18n";
 import { getLocation } from "@/lib/tide/locations";
-import { useTideSettings, useTideView } from "@/lib/tide/store";
+import { detectLang, useTideSettings, useTideView } from "@/lib/tide/store";
 import { useNow, useTide, useTideStateAt } from "@/lib/tide/use-tide";
 
 type Tab = "now" | "tides" | "tour" | "map" | "captain";
@@ -72,6 +72,12 @@ function CaptainTide() {
   const forecast = useTide(location.id, now);
   const previewAt = useTideView((s) => s.previewAt);
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
+
+  // Until a language is picked by hand, follow the browser on every visit.
+  useEffect(() => {
+    const st = useTideSettings.getState();
+    if (!st.langManual) useTideSettings.setState({ lang: detectLang() });
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = lang;
