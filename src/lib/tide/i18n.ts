@@ -510,13 +510,38 @@ function fmt(lang: TideLang, opts: Intl.DateTimeFormatOptions): Intl.DateTimeFor
   return f;
 }
 
-export function fmtTime(t: number, lang: TideLang, seconds = false): string {
-  return fmt(lang, {
+/** English and Thai show 12-hour times with AM/PM; German stays on the 24-hour clock. */
+export const uses12h = (lang: TideLang) => lang !== "de";
+
+function clockParts(t: number, lang: TideLang) {
+  const parts = fmt(lang, {
     hour: "2-digit",
     minute: "2-digit",
-    ...(seconds ? { second: "2-digit" } : {}),
-    hour12: false,
-  }).format(t);
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(t);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  return { h: get("hour"), m: get("minute"), s: get("second") };
+}
+
+export function fmtTime(t: number, lang: TideLang, seconds = false): string {
+  if (!uses12h(lang)) {
+    return fmt(lang, {
+      hour: "2-digit",
+      minute: "2-digit",
+      ...(seconds ? { second: "2-digit" } : {}),
+      hour12: false,
+    }).format(t);
+  }
+  const { h, m, s } = clockParts(t, lang);
+  const two = (n: number) => String(n).padStart(2, "0");
+  return `${h % 12 || 12}:${two(m)}${seconds ? `:${two(s)}` : ""} ${h < 12 ? "AM" : "PM"}`;
+}
+
+/** Compact hour for chart axes: "18" (24 h) or "6PM" (12 h). */
+export function fmtHour(t: number, lang: TideLang): string {
+  const { h } = clockParts(t, lang);
+  return uses12h(lang) ? `${h % 12 || 12}${h < 12 ? "AM" : "PM"}` : String(h).padStart(2, "0");
 }
 
 export function fmtDay(t: number, lang: TideLang): string {

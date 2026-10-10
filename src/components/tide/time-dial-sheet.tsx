@@ -6,9 +6,11 @@ import {
   bkkDayStart,
   fmtDateNum,
   fmtDuration,
+  fmtHour,
   fmtSigned,
   fmtTime,
   fmtWeekday,
+  uses12h,
   useTT,
 } from "@/lib/tide/i18n";
 import { HOUR, levelAt, MIN, tideStateAt, type TideForecast } from "@/lib/tide/model";
@@ -245,7 +247,7 @@ export function TimeDialSheet({
                 fontWeight="600"
                 fill="rgba(255,255,255,0.6)"
               >
-                {String(h).padStart(2, "0")}
+                {fmtHour(day + h * HOUR, lang)}
               </text>
             );
           })}
@@ -290,7 +292,7 @@ export function TimeDialSheet({
             x={C}
             y={C + 8}
             textAnchor="middle"
-            fontSize="34"
+            fontSize={uses12h(lang) ? 26 : 34}
             fontWeight="700"
             fill="#fff"
             style={{ fontVariantNumeric: "tabular-nums" }}

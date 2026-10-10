@@ -1,5 +1,13 @@
 import { useMemo, useRef } from "react";
-import { BKK_OFFSET, bkkDayStart, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
+import {
+  BKK_OFFSET,
+  bkkDayStart,
+  fmtHour,
+  fmtTime,
+  fmtWeekday,
+  uses12h,
+  useTT,
+} from "@/lib/tide/i18n";
 import { FALL, RISE } from "@/lib/tide/colors";
 import { HOUR, levelAt, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
 
@@ -108,7 +116,7 @@ export function TideInstrument({
   const tourX1 = tour ? Math.max(PX0, Math.min(PX1, x(tour.to))) : 0;
 
   const dayTag = bkkDayStart(at) !== bkkDayStart(Date.now()) ? `${fmtWeekday(at, lang)} ` : "";
-  const tagW = dayTag ? 58 : 38;
+  const tagW = (dayTag ? 58 : 38) + (uses12h(lang) ? 26 : 0);
 
   const pan = (clientX: number) => {
     const d = drag.current;
@@ -316,6 +324,10 @@ export function TideInstrument({
         const ex = x(e.t);
         const high = e.type === "high";
         const anchor = ex > PX1 - 26 ? "end" : ex < PX0 + 16 ? "start" : "middle";
+        // A high-water time label right under the cursor tag would be drawn on top of it.
+        const labelHalf = uses12h(lang) ? 26 : 17;
+        const hideTime =
+          high && y(e.cm) - 18 < TOP + 6 && Math.abs(ex - cx) < tagW / 2 + labelHalf;
         return (
           <g key={e.t}>
             <circle
@@ -335,22 +347,24 @@ export function TideInstrument({
             >
               {Math.round(e.cm)}
             </text>
-            <text
-              x={ex}
-              y={high ? y(e.cm) - 18 : y(e.cm) + 26}
-              className="tide-svg-num"
-              textAnchor={anchor}
-              fillOpacity="0.7"
-            >
-              {fmtTime(e.t, lang)}
-            </text>
+            {hideTime ? null : (
+              <text
+                x={ex}
+                y={high ? y(e.cm) - 18 : y(e.cm) + 26}
+                className="tide-svg-num"
+                textAnchor={anchor}
+                fillOpacity="0.7"
+              >
+                {fmtTime(e.t, lang)}
+              </text>
+            )}
           </g>
         );
       })}
 
       {hourTicks.map((tt) => (
         <text key={tt} x={x(tt)} y={BOTTOM + 14} className="tide-svg-num" textAnchor="middle">
-          {fmtTime(tt, lang).slice(0, 2)}
+          {fmtHour(tt, lang)}
         </text>
       ))}
       <text x={PX1} y={BOTTOM + 28} className="tide-svg-label" textAnchor="end">

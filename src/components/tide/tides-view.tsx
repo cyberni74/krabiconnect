@@ -13,7 +13,15 @@ import {
 import { harmonicForecast, horizonEnd } from "@/lib/tide/harmonic";
 import type { TideLocation } from "@/lib/tide/locations";
 import { HOUR, levelAt, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
-import { BKK_OFFSET, bkkDayStart, fmtDateNum, fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
+import {
+  BKK_OFFSET,
+  bkkDayStart,
+  fmtDateNum,
+  fmtHour,
+  fmtTime,
+  fmtWeekday,
+  useTT,
+} from "@/lib/tide/i18n";
 import { useTideView } from "@/lib/tide/store";
 import { FALL, RISE } from "@/lib/tide/colors";
 
@@ -182,7 +190,7 @@ export function TidesView({
                 type="number"
                 domain={[day, day + DAY]}
                 ticks={[0, 3, 6, 9, 12, 15, 18, 21, 24].map((h) => day + h * HOUR)}
-                tickFormatter={(v: number) => fmtTime(v, lang).slice(0, 2)}
+                tickFormatter={(v: number) => fmtHour(v, lang)}
                 tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
