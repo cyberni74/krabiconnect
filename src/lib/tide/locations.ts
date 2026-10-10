@@ -38,6 +38,9 @@ export function distanceKm(aLat: number, aLon: number, bLat: number, bLon: numbe
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+/** Beyond this distance the GPS fix is outside the Krabi forecast area: do not switch location. */
+export const MAX_GPS_KM = 60;
+
 export function nearestLocation(lat: number, lon: number): { loc: TideLocation; km: number } {
   let best = LOCATIONS[0];
   let bestKm = Infinity;

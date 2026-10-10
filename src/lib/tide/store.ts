@@ -5,6 +5,19 @@ import { DEFAULT_LOCATION_ID } from "./locations";
 export type TideLang = "de" | "en" | "th";
 export const TIDE_LANGS: TideLang[] = ["de", "en", "th"];
 
+/** Browser language -> app language. Anything unknown falls back to English. */
+export function detectLang(): TideLang {
+  if (typeof navigator === "undefined") return "en";
+  const list = navigator.languages?.length ? navigator.languages : [navigator.language];
+  for (const raw of list) {
+    const code = String(raw || "")
+      .toLowerCase()
+      .split("-")[0];
+    if (code === "de" || code === "en" || code === "th") return code;
+  }
+  return "en";
+}
+
 export type BoatSettings = {
   /** Individual boat name. */
   name: string;
@@ -54,6 +67,8 @@ export type AlertSettings = {
 
 type TideSettings = {
   lang: TideLang;
+  /** true once the captain picked a language by hand; then the browser setting is ignored. */
+  langManual: boolean;
   locationId: string;
   favorites: string[];
   autoGps: boolean;
@@ -78,7 +93,8 @@ type TideSettings = {
 export const useTideSettings = create<TideSettings>()(
   persist(
     (set) => ({
-      lang: "de",
+      lang: detectLang(),
+      langManual: false,
       locationId: DEFAULT_LOCATION_ID,
       favorites: [DEFAULT_LOCATION_ID],
       autoGps: false,
@@ -111,7 +127,7 @@ export const useTideSettings = create<TideSettings>()(
         belowOn: false,
         below: 150,
       },
-      setLang: (lang) => set({ lang }),
+      setLang: (lang) => set({ lang, langManual: true }),
       setLocation: (locationId) => set({ locationId }),
       toggleFavorite: (id) =>
         set((s) => ({
@@ -134,7 +150,7 @@ export const useTideSettings = create<TideSettings>()(
     }),
     {
       name: "captain-tide-settings",
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         const p = persisted as Partial<TideSettings> & { boat?: Partial<BoatSettings> };
         if (version < 2 && p.boat && p.boat.draft === 90) p.boat.draft = null; // v1: invented default
@@ -145,6 +161,11 @@ export const useTideSettings = create<TideSettings>()(
             p.boat.draft = 50;
             p.boat.draftSource = "published";
           }
+        }
+        if (version < 4) {
+          // Earlier builds always stored "de". Until a language is picked by hand, follow the browser.
+          p.langManual = false;
+          p.lang = detectLang();
         }
         return p as TideSettings;
       },

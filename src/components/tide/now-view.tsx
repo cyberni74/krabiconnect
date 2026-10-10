@@ -8,13 +8,13 @@ import {
   RefreshCcw,
   RotateCcw,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { FALL, RISE } from "@/lib/tide/colors";
 import { bkkDayStart, fill, fmtDay, fmtMeters, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
 import { useTideView } from "@/lib/tide/store";
 import { horizonEnd } from "@/lib/tide/harmonic";
 import { fmtLatLon, type TideLocation } from "@/lib/tide/locations";
-import { formatCountdown, type TideForecast, type TideState } from "@/lib/tide/model";
+import { formatCountdown, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
 import { LangSwitch } from "./lang-switch";
 import { SimulateSheet } from "./simulate-sheet";
 import { TideInstrument } from "./tide-instrument";
@@ -47,10 +47,26 @@ export function NowView({
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
   const isPreview = previewAt != null;
   const dirColor = state ? (state.rising ? RISE : FALL) : "#9fb3c8";
+  // The instrument is a large SVG; the level and cursor only change meaningfully per minute,
+  // so it is redrawn once a minute. The countdown below still ticks every second.
+  const minuteKey = Math.floor((state?.at ?? now) / MIN);
+  const instrument = useMemo(
+    () => (
+      <TideInstrument
+        forecast={forecast}
+        state={state}
+        onPan={sheet ? undefined : setPreviewAt}
+        minAt={bkkDayStart(now)}
+        maxAt={horizonEnd(now)}
+      />
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [forecast, minuteKey, sheet, setPreviewAt],
+  );
 
   return (
     <div
-      className="hide-scroll absolute inset-0 flex flex-col gap-2 overflow-y-auto px-3"
+      className="hide-scroll tide-scroll absolute inset-0 flex flex-col gap-2 overflow-y-auto px-3"
       style={{
         paddingTop: "max(env(safe-area-inset-top), 10px)",
         paddingBottom: "calc(86px + env(safe-area-inset-bottom))",
@@ -152,17 +168,7 @@ export function NowView({
 
       {/* ── Instrument ── */}
       <section className="tide-panel flex min-h-[250px] flex-1 flex-col px-1.5 pb-1 pt-1.5">
-        <div className="min-h-0 flex-1">
-          {forecast ? (
-            <TideInstrument
-              forecast={forecast}
-              state={state}
-              onPan={sheet ? undefined : setPreviewAt}
-              minAt={bkkDayStart(now)}
-              maxAt={horizonEnd(now)}
-            />
-          ) : null}
-        </div>
+        <div className="min-h-0 flex-1">{forecast ? instrument : null}</div>
         {!sheet ? (
           <div className="tide-label px-1 pt-0.5 text-center text-[10px] uppercase tracking-[0.14em] text-cyan-300/70">
             {t("dragHint")}

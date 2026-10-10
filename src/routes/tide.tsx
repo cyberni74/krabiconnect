@@ -12,9 +12,9 @@ import { TideBackground } from "@/components/tide/tide-background";
 import { TidesView } from "@/components/tide/tides-view";
 import { TourView } from "@/components/tide/tour-view";
 import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
-import { useTT, type TideKey } from "@/lib/tide/i18n";
+import { translate, useTT, type TideKey } from "@/lib/tide/i18n";
 import { getLocation } from "@/lib/tide/locations";
-import { useTideSettings, useTideView } from "@/lib/tide/store";
+import { detectLang, useTideSettings, useTideView } from "@/lib/tide/store";
 import { useNow, useTide, useTideStateAt } from "@/lib/tide/use-tide";
 
 type Tab = "now" | "tides" | "tour" | "map" | "captain";
@@ -73,6 +73,12 @@ function CaptainTide() {
   const previewAt = useTideView((s) => s.previewAt);
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
 
+  // Until a language is picked by hand, follow the browser on every visit.
+  useEffect(() => {
+    const st = useTideSettings.getState();
+    if (!st.langManual) useTideSettings.setState({ lang: detectLang() });
+  }, []);
+
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
@@ -94,6 +100,10 @@ function CaptainTide() {
         toast.success(`${getLocation(id).name} (${Math.round(km)} km)`);
       },
       () => undefined,
+      (km) => {
+        const { lang } = useTideSettings.getState();
+        toast.info(translate(lang, "gpsFar").replace("{km}", String(Math.round(km))));
+      },
     );
   }, []);
 
@@ -146,7 +156,7 @@ function CaptainTide() {
           ) : (
             <motion.div
               key={tab}
-              className="hide-scroll absolute inset-0 overflow-y-auto overscroll-contain px-3"
+              className="hide-scroll tide-scroll absolute inset-0 overflow-x-hidden overflow-y-auto px-3"
               style={{
                 paddingTop: "calc(env(safe-area-inset-top) + 16px)",
                 paddingBottom: "calc(106px + env(safe-area-inset-bottom))",
@@ -187,7 +197,7 @@ function CaptainTide() {
         </AnimatePresence>
 
         <nav
-          className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[rgb(6_12_19/0.96)] backdrop-blur"
+          className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[#060c13]"
           style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
         >
           <ul className="grid h-[58px] grid-cols-5">

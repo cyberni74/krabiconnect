@@ -158,12 +158,10 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 .tide-glass,
 .tide-glass-soft,
 .tide-glass-count {
-  background: rgb(8 18 29 / 0.9);
+  background: #08121d;
   border: 1px solid var(--tide-line);
   border-radius: 3px;
   box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
 }
 .tide-panel {
   position: relative;
@@ -226,6 +224,10 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 }
 .tide-input {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: block;
   border-radius: 3px;
   background: rgb(255 255 255 / 0.05);
   border: 1px solid rgb(150 185 215 / 0.28);
@@ -242,4 +244,24 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 /* Placing a shallow spot: let taps pass through the location pins. */
 .zone-adding .maplibregl-marker {
   pointer-events: none;
+}
+
+/* Native date/time fields: fit their cell, no intrinsic overflow on iOS. */
+.tide-input[type="date"],
+.tide-input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-min-logical-width: 0;
+}
+/* Tide pages never scroll sideways; only vertically. */
+.tide-app {
+  overscroll-behavior-x: none;
+}
+
+/* Native feel: scroll areas stop at their edges (no rubber band showing the page behind),
+   vertical pans go straight to the scroller, and nothing is blurred while scrolling. */
+.tide-scroll {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
