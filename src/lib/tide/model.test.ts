@@ -14,6 +14,7 @@ import {
 import { frameIndexFor, FRAME_LEVELS } from "./frames.ts";
 import { harmonicForecast, harmonicLevelAt, horizonEnd } from "./harmonic.ts";
 import { capsuleRing, circleRing, evaluateMark } from "./depth.ts";
+import { isTideOnlyHost, isTidePath } from "./hosts.ts";
 import { getLocation, nearestLocation } from "./locations.ts";
 
 const T0 = Date.UTC(2026, 9, 10, 0, 0);
@@ -240,5 +241,39 @@ describe("depth zones", () => {
     const t = Date.UTC(2026, 9, 10, 9, 44);
     const f = harmonicForecast(getLocation("krabi-town"), t - HOUR, t + HOUR, 5);
     assert.ok(Math.abs(harmonicLevelAt("krabi-town", t) - levelAt(f, t)!) < 1.5);
+  });
+});
+
+describe("tide-only hosts", () => {
+  it("recognises cyberni.de and www, ignoring case, port and proxy lists", () => {
+    for (const h of [
+      "cyberni.de",
+      "www.cyberni.de",
+      "CYBERNI.DE",
+      "cyberni.de:443",
+      "cyberni.de, proxy.example",
+    ]) {
+      assert.equal(isTideOnlyHost(h), true, h);
+    }
+  });
+  it("does not match look-alikes or other hosts", () => {
+    for (const h of [
+      "",
+      null,
+      undefined,
+      "cyberni.de.evil.com",
+      "evilcyberni.de",
+      "sub.cyberni.de",
+      "krabiconnect.vercel.app",
+      "localhost:8080",
+    ]) {
+      assert.equal(isTideOnlyHost(h), false, String(h));
+    }
+  });
+  it("knows tide paths", () => {
+    assert.equal(isTidePath("/tide"), true);
+    assert.equal(isTidePath("/tide/x"), true);
+    assert.equal(isTidePath("/tides"), false);
+    assert.equal(isTidePath("/"), false);
   });
 });
