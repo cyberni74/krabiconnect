@@ -38,7 +38,9 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
   const boat = useTideSettings((s) => s.boat);
   const today = bkkDayStart(now);
   const lastStart = horizonEnd(now) - MAX_MIN * MIN;
-  const clampStart = (v: number) => Math.min(lastStart, Math.max(today, v));
+  // Never plan a start in the past.
+  const earliest = Math.ceil(now / (5 * MIN)) * 5 * MIN;
+  const clampStart = (v: number) => Math.min(lastStart, Math.max(earliest, v));
   const [start, setStart] = useState(() => Math.ceil((now + HOUR) / (30 * MIN)) * 30 * MIN);
   const [dur, setDur] = useState(180);
   const end = start + dur * MIN;

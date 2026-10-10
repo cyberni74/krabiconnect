@@ -65,7 +65,8 @@ export function TimeDialSheet({
   const { t, lang } = useTT();
   const setPreviewAt = useTideView((s) => s.setPreviewAt);
   const today = bkkDayStart(now);
-  const minT = today;
+  // Nothing before "now": the past is of no use for planning.
+  const minT = Math.ceil(now / STEP) * STEP;
   const maxT = Math.min(forecast.t[forecast.t.length - 1] - STEP, today + 7 * DAY - STEP);
   const clamp = (x: number) => Math.min(maxT, Math.max(minT, x));
   const [at, setAt] = useState(() => clamp(Math.ceil((now + 30 * MIN) / (15 * MIN)) * 15 * MIN));
