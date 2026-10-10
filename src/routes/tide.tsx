@@ -146,7 +146,7 @@ function CaptainTide() {
           ) : (
             <motion.div
               key={tab}
-              className="hide-scroll absolute inset-0 overflow-y-auto overscroll-contain px-3"
+              className="hide-scroll absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain px-3"
               style={{
                 paddingTop: "calc(env(safe-area-inset-top) + 16px)",
                 paddingBottom: "calc(106px + env(safe-area-inset-bottom))",

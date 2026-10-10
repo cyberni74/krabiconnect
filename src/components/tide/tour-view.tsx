@@ -59,7 +59,7 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
     <div className="space-y-3">
       {/* ── Inputs ── */}
       <section className="tide-panel tide-bracket p-3">
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid min-w-0 grid-cols-2 gap-2.5">
           <Field label={t("tourDay")}>
             <input
               type="date"
@@ -231,7 +231,7 @@ export function TourView({ location, now }: { location: TideLocation; now: numbe
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block min-w-0">
+    <label className="block min-w-0 max-w-full overflow-hidden">
       <span className="tide-label mb-1 block text-[10.5px] uppercase tracking-wider text-white/55">
         {label}
       </span>

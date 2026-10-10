@@ -226,6 +226,10 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 }
 .tide-input {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: block;
   border-radius: 3px;
   background: rgb(255 255 255 / 0.05);
   border: 1px solid rgb(150 185 215 / 0.28);
@@ -242,4 +246,16 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 /* Placing a shallow spot: let taps pass through the location pins. */
 .zone-adding .maplibregl-marker {
   pointer-events: none;
+}
+
+/* Native date/time fields: fit their cell, no intrinsic overflow on iOS. */
+.tide-input[type="date"],
+.tide-input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-min-logical-width: 0;
+}
+/* Tide pages never scroll sideways; only vertically. */
+.tide-app {
+  overscroll-behavior-x: none;
 }
