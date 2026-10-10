@@ -5,6 +5,7 @@ import { HOUR, levelAt, MIN, type TideForecast } from "@/lib/tide/model";
 import { fmtTime, fmtWeekday, useTT } from "@/lib/tide/i18n";
 import { useTideView } from "@/lib/tide/store";
 import { preloadFrame } from "./tide-background";
+import { TimeSlider } from "./time-slider";
 import { frameIndexFor } from "@/lib/tide/frames";
 
 const SPAN_MIN = 24 * 60;
@@ -161,18 +162,15 @@ export function SimulateSheet({
         ))}
       </div>
 
-      <input
-        type="range"
-        min={0}
-        max={SPAN_MIN}
-        step={5}
+      <TimeSlider
         value={Math.round(offset)}
-        onChange={(e) => {
+        max={SPAN_MIN}
+        onChange={(v) => {
           setPlaying(false);
-          setOffset(Number(e.target.value));
+          setOffset(v);
         }}
-        aria-label={t("simulation")}
-        className="tide-range"
+        label={t("simulation")}
+        valueText={`${fmtWeekday(at, lang)} ${fmtTime(at, lang)}`}
       />
 
       <div className="flex items-center gap-2">

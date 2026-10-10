@@ -19,6 +19,7 @@ import { SimulateSheet } from "./simulate-sheet";
 import { TideInstrument } from "./tide-instrument";
 import { TideMark } from "./tide-mark";
 import { TimeDialSheet } from "./time-dial-sheet";
+import { TimeSlider } from "./time-slider";
 
 const SLIDER_STEP = 5 * MIN;
 const SLIDER_BACK = 3 * 60 * MIN;
@@ -173,21 +174,20 @@ export function NowView({
       <section className="tide-panel flex shrink-0 flex-col px-1.5 pb-1 pt-1.5">
         <div className="h-[clamp(270px,44dvh,340px)]">{forecast ? instrument : null}</div>
         {!sheet ? (
-          <label className="block px-1 pt-1">
+          <div className="block px-1 pt-1">
             <span className="tide-label block text-center text-[10px] uppercase tracking-[0.14em] text-cyan-300/80">
               {t("sliderLabel")}
             </span>
-            <input
-              type="range"
-              min={0}
-              max={SLIDER_STEPS}
-              step={1}
-              value={sliderValue}
-              onChange={(e) => setPreviewAt(sliderStart + Number(e.target.value) * SLIDER_STEP)}
-              className="tide-range mt-1 w-full"
-              aria-valuetext={`${fmtDay(sliderStart + sliderValue * SLIDER_STEP, lang)} ${fmtTime(sliderStart + sliderValue * SLIDER_STEP, lang)}`}
-            />
-          </label>
+            <div className="mt-1">
+              <TimeSlider
+                value={sliderValue}
+                max={SLIDER_STEPS}
+                onChange={(v) => setPreviewAt(sliderStart + v * SLIDER_STEP)}
+                label={t("sliderLabel")}
+                valueText={`${fmtDay(sliderStart + sliderValue * SLIDER_STEP, lang)} ${fmtTime(sliderStart + sliderValue * SLIDER_STEP, lang)}`}
+              />
+            </div>
+          </div>
         ) : null}
         {forecast ? (
           <div className="tide-label truncate px-1 text-center text-[9.5px] text-white/45">
