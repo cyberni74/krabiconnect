@@ -36,7 +36,7 @@ export function NowView({
       className="hide-scroll absolute inset-0 flex flex-col gap-2 overflow-y-auto px-3"
       style={{
         paddingTop: "max(env(safe-area-inset-top), 10px)",
-        paddingBottom: "calc(76px + env(safe-area-inset-bottom))",
+        paddingBottom: "calc(86px + env(safe-area-inset-bottom))",
       }}
     >
       {/* ── Title bar ── */}

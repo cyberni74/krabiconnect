@@ -144,7 +144,7 @@ function CaptainTide() {
               className="hide-scroll absolute inset-0 overflow-y-auto overscroll-contain px-3"
               style={{
                 paddingTop: "calc(env(safe-area-inset-top) + 16px)",
-                paddingBottom: "calc(96px + env(safe-area-inset-bottom))",
+                paddingBottom: "calc(106px + env(safe-area-inset-bottom))",
               }}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -182,7 +182,7 @@ function CaptainTide() {
 
         <nav
           className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[rgb(6_12_19/0.96)] backdrop-blur"
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
         >
           <ul className="grid h-[58px] grid-cols-4">
             {TABS.map(({ id, key, icon: Icon }) => {
