@@ -19,7 +19,13 @@ const fetchSessionUser = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const Route = createRootRoute({
-  beforeLoad: async () => ({ sessionUser: await fetchSessionUser() }),
+  // CAPTAIN TIDE is public and database-free; skip the session/admin lookup there.
+  beforeLoad: async ({ location }) => ({
+    sessionUser:
+      location.pathname === "/tide" || location.pathname.startsWith("/tide/")
+        ? null
+        : await fetchSessionUser(),
+  }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
