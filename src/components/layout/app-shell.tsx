@@ -31,6 +31,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  // CAPTAIN TIDE is a standalone full-screen app with its own chrome.
+  if (pathname === "/tide" || pathname.startsWith("/tide/")) return <>{children}</>;
+
   const hideNav = pathname === "/login" || pathname === "/admin";
   const hideTop =
     hideNav ||

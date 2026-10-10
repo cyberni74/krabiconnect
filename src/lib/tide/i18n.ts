@@ -1,0 +1,436 @@
+import { createElement, Fragment, type ReactNode } from "react";
+import { useTideSettings, type TideLang } from "./store";
+
+export const TZ = "Asia/Bangkok";
+
+const de = {
+  forecastNow: "Aktuelle Gezeitenprognose",
+  simulation: "Simulation",
+  rising: "Flut – Wasser steigt",
+  falling: "Ebbe – Wasser fällt",
+  slack: "Gezeitenwechsel",
+  nextHighIn: "Nächstes Hochwasser in",
+  nextLowIn: "Nächstes Niedrigwasser in",
+  highAt: "Hochwasser",
+  lowAt: "Niedrigwasser",
+  predicted: "Prognostizierter Pegel",
+  last30: "letzte 30 min",
+  perHour: "pro Stunde",
+  toGo: "bis zum Extrem",
+  simulate: "Gezeiten simulieren",
+  close: "Schließen",
+  backToNow: "Zurück zu jetzt",
+  now: "Jetzt",
+  tides: "Gezeiten",
+  map: "Karte",
+  captain: "Captain",
+  oClock: "Uhr",
+  noData: "Keine Prognosedaten für diesen Zeitpunkt",
+  loading: "Lade Gezeitenprognose …",
+  source: "Quelle",
+  station: "Prognosestandort",
+  datum: "Höhenbezug",
+  notMeasured: "Astronomisch-modellierte Prognose, keine Live-Messung. Nicht zur Navigation.",
+  sevenDays: "Gezeitenprognose · 7 Tage",
+  hourly: "Stündlicher Pegel",
+  extremes: "Hoch- & Niedrigwasser",
+  today: "Heute",
+  tapChart: "Tippe oder ziehe über die Kurve, um den Pegel zu dieser Uhrzeit zu sehen.",
+  locations: "Standorte",
+  useGps: "Meinen Standort verwenden",
+  gpsLocating: "Ortung läuft …",
+  gpsDenied: "Standortzugriff nicht möglich",
+  gpsNearest: "Nächster Prognosestandort",
+  autoGps: "Beim Start automatisch per GPS wählen",
+  favorites: "Favoriten",
+  illustrationNote: "Hintergrund zeigt das Krabi-Deltabecken als Illustration des Pegels.",
+  boat: "Mein Boot",
+  boatName: "Bootsname",
+  draft: "Tiefgang",
+  reserve: "Sicherheitsreserve unter dem Kiel",
+  homePort: "Heimathafen",
+  planner: "Fahrtplanung",
+  departure: "Abfahrt",
+  ret: "Rückkehr",
+  atDeparture: "Bei deiner geplanten Abfahrt um",
+  atReturn: "Bei deiner geplanten Rückkehr um",
+  levelPredicted: "wird ein Pegel von",
+  predictedSuffix: "prognostiziert.",
+  untilDeparture: "Bis zu deinem geplanten Abfahrtszeitpunkt",
+  rises: "steigt das Wasser voraussichtlich um",
+  falls: "fällt das Wasser voraussichtlich um",
+  minDepth: "Benötigte Wassertiefe (Tiefgang + Reserve)",
+  depthHint:
+    "Vergleiche selbst mit einer verifizierten Seekarte: Kartentiefe + prognostizierter Pegel muss mindestens diesen Wert erreichen.",
+  noUkc:
+    "Ohne verifizierte Kartentiefen kann die App keine tatsächliche Wassertiefe oder Unterkielfreiheit berechnen. Keine Befahrbarkeitsfreigabe.",
+  alerts: "Benachrichtigungen",
+  beforeHigh: "Erinnerung vor Hochwasser",
+  beforeLow: "Erinnerung vor Niedrigwasser",
+  leadTime: "Vorlauf",
+  minutes: "Min.",
+  aboveAlarm: "Alarm bei Überschreiten von",
+  belowAlarm: "Alarm bei Unterschreiten von",
+  alertsNote:
+    "Benachrichtigungen basieren auf der Prognose des gewählten Standorts und funktionieren, solange CAPTAIN TIDE geöffnet ist bzw. im Hintergrund läuft.",
+  enableNotif: "Benachrichtigungen erlauben",
+  notifBlocked: "Vom Browser blockiert",
+  language: "Sprache",
+  play: "Abspielen",
+  pause: "Pause",
+  outOfRange: "außerhalb der Bildspanne – nächstgelegene Grafik",
+  reminderHigh: "Hochwasser in",
+  reminderLow: "Niedrigwasser in",
+  crossAbove: "Pegel steigt über",
+  crossBelow: "Pegel fällt unter",
+  at: "um",
+  in: "in",
+  change: "Änderung",
+  pickTime: "Uhrzeit wählen",
+  dialHint: "Am Rad drehen – eine Umdrehung = 24 Stunden, über Mitternacht in den nächsten Tag.",
+  vsNow: "gegenüber jetzt",
+  thenNext: "Danach",
+  datePick: "Datum (bis 3 Jahre)",
+  method:
+    "Berechnet aus harmonischen Konstanten der Messstation Phuket, lokal korrigiert. Wetter, Monsun und Luftdruck können Pegel um 10–30 cm und Zeiten um 10–20 min verschieben.",
+  flood: "FLUT",
+  ebb: "EBBE",
+  turn: "WECHSEL",
+  risingShort: "Wasser steigt",
+  fallingShort: "Wasser fällt",
+  eventLine: "{type} um {time} Uhr",
+  ago: "zurück",
+  unitDay: "T",
+  unitHour: "h",
+  unitMin: "min",
+  tplDeparture: "Bei deiner geplanten Abfahrt um {time} wird ein Pegel von {cm} prognostiziert.",
+  tplReturn: "Bei deiner geplanten Rückkehr um {time} wird ein Pegel von {cm} prognostiziert.",
+  tplRises: "Bis zu deinem geplanten Abfahrtszeitpunkt steigt das Wasser voraussichtlich um {cm}.",
+  tplFalls: "Bis zu deinem geplanten Abfahrtszeitpunkt fällt das Wasser voraussichtlich um {cm}.",
+  gauge: "PEGEL",
+  trend24: "VERLAUF 24 STD",
+  hw: "HW",
+  nw: "NW",
+  scene: "Foto-Hintergrund",
+  sceneNote: "Zeigt die Krabi-Illustrationen hinter den Instrumenten.",
+  nightHint: "UTC+7",
+  display: "Anzeige",
+};
+
+export type TideKey = keyof typeof de;
+
+const en: Record<TideKey, string> = {
+  forecastNow: "Current tide prediction",
+  simulation: "Simulation",
+  rising: "Flood – water rising",
+  falling: "Ebb – water falling",
+  slack: "Tide turning",
+  nextHighIn: "Next high water in",
+  nextLowIn: "Next low water in",
+  highAt: "High water",
+  lowAt: "Low water",
+  predicted: "Predicted level",
+  last30: "last 30 min",
+  perHour: "per hour",
+  toGo: "to extreme",
+  simulate: "Simulate tides",
+  close: "Close",
+  backToNow: "Back to now",
+  now: "Now",
+  tides: "Tides",
+  map: "Map",
+  captain: "Captain",
+  oClock: "",
+  noData: "No prediction data for this time",
+  loading: "Loading tide prediction …",
+  source: "Source",
+  station: "Prediction point",
+  datum: "Datum",
+  notMeasured: "Astronomical/model prediction, not a live measurement. Not for navigation.",
+  sevenDays: "Tide prediction · 7 days",
+  hourly: "Hourly level",
+  extremes: "High & low water",
+  today: "Today",
+  tapChart: "Tap or drag across the curve to read the level at that time.",
+  locations: "Locations",
+  useGps: "Use my location",
+  gpsLocating: "Locating …",
+  gpsDenied: "Location access unavailable",
+  gpsNearest: "Nearest prediction point",
+  autoGps: "Pick automatically via GPS on start",
+  favorites: "Favourites",
+  illustrationNote: "The background shows the Krabi estuary as an illustration of the level.",
+  boat: "My boat",
+  boatName: "Boat name",
+  draft: "Draft",
+  reserve: "Under-keel safety reserve",
+  homePort: "Home port",
+  planner: "Trip planner",
+  departure: "Departure",
+  ret: "Return",
+  atDeparture: "At your planned departure at",
+  atReturn: "At your planned return at",
+  levelPredicted: "a level of",
+  predictedSuffix: "is predicted.",
+  untilDeparture: "Until your planned departure",
+  rises: "the water is expected to rise by",
+  falls: "the water is expected to fall by",
+  minDepth: "Required water depth (draft + reserve)",
+  depthHint:
+    "Check against a verified chart yourself: charted depth + predicted level must reach at least this value.",
+  noUkc:
+    "Without verified charted depths the app cannot compute actual water depth or under-keel clearance. No passage clearance.",
+  alerts: "Notifications",
+  beforeHigh: "Reminder before high water",
+  beforeLow: "Reminder before low water",
+  leadTime: "Lead time",
+  minutes: "min",
+  aboveAlarm: "Alarm when level rises above",
+  belowAlarm: "Alarm when level falls below",
+  alertsNote:
+    "Notifications use the selected location's prediction and work while CAPTAIN TIDE is open or running in the background.",
+  enableNotif: "Allow notifications",
+  notifBlocked: "Blocked by the browser",
+  language: "Language",
+  play: "Play",
+  pause: "Pause",
+  outOfRange: "outside illustrated span – nearest image",
+  reminderHigh: "High water in",
+  reminderLow: "Low water in",
+  crossAbove: "Level rises above",
+  crossBelow: "Level falls below",
+  at: "at",
+  in: "in",
+  change: "Change",
+  pickTime: "Pick a time",
+  dialHint: "Spin the dial – one turn = 24 hours, past midnight rolls into the next day.",
+  vsNow: "vs. now",
+  thenNext: "Next after that",
+  datePick: "Date (up to 3 years)",
+  method:
+    "Computed from harmonic constants of the Phuket gauge, locally corrected. Weather, monsoon and air pressure can shift levels by 10–30 cm and times by 10–20 min.",
+  flood: "FLOOD",
+  ebb: "EBB",
+  turn: "TURN",
+  risingShort: "Water rising",
+  fallingShort: "Water falling",
+  eventLine: "{type} at {time}",
+  ago: "ago",
+  unitDay: "d",
+  unitHour: "h",
+  unitMin: "min",
+  tplDeparture: "At your planned departure at {time} a level of {cm} is predicted.",
+  tplReturn: "At your planned return at {time} a level of {cm} is predicted.",
+  tplRises: "Until your planned departure the water is expected to rise by {cm}.",
+  tplFalls: "Until your planned departure the water is expected to fall by {cm}.",
+  gauge: "GAUGE",
+  trend24: "24 H TREND",
+  hw: "HW",
+  nw: "LW",
+  scene: "Photo background",
+  sceneNote: "Shows the Krabi illustrations behind the instruments.",
+  nightHint: "UTC+7",
+  display: "Display",
+};
+
+const th: Record<TideKey, string> = {
+  forecastNow: "พยากรณ์น้ำขึ้นน้ำลงปัจจุบัน",
+  simulation: "จำลอง",
+  rising: "น้ำขึ้น – ระดับน้ำสูงขึ้น",
+  falling: "น้ำลง – ระดับน้ำลดลง",
+  slack: "น้ำเปลี่ยนทิศ",
+  nextHighIn: "น้ำขึ้นสูงสุดครั้งถัดไปในอีก",
+  nextLowIn: "น้ำลงต่ำสุดครั้งถัดไปในอีก",
+  highAt: "น้ำขึ้นสูงสุด",
+  lowAt: "น้ำลงต่ำสุด",
+  predicted: "ระดับที่พยากรณ์",
+  last30: "30 นาทีที่ผ่านมา",
+  perHour: "ต่อชั่วโมง",
+  toGo: "ถึงจุดสูง/ต่ำสุด",
+  simulate: "จำลองน้ำขึ้นน้ำลง",
+  close: "ปิด",
+  backToNow: "กลับสู่ปัจจุบัน",
+  now: "ตอนนี้",
+  tides: "น้ำขึ้นน้ำลง",
+  map: "แผนที่",
+  captain: "กัปตัน",
+  oClock: "น.",
+  noData: "ไม่มีข้อมูลพยากรณ์สำหรับเวลานี้",
+  loading: "กำลังโหลดข้อมูลพยากรณ์ …",
+  source: "แหล่งข้อมูล",
+  station: "จุดพยากรณ์",
+  datum: "ระดับอ้างอิง",
+  notMeasured: "เป็นการพยากรณ์ทางดาราศาสตร์/แบบจำลอง ไม่ใช่ค่าที่วัดสด ห้ามใช้เพื่อการเดินเรือ",
+  sevenDays: "พยากรณ์น้ำขึ้นน้ำลง · 7 วัน",
+  hourly: "ระดับน้ำรายชั่วโมง",
+  extremes: "น้ำขึ้นสูงสุดและน้ำลงต่ำสุด",
+  today: "วันนี้",
+  tapChart: "แตะหรือลากบนกราฟเพื่อดูระดับน้ำ ณ เวลานั้น",
+  locations: "สถานที่",
+  useGps: "ใช้ตำแหน่งของฉัน",
+  gpsLocating: "กำลังหาตำแหน่ง …",
+  gpsDenied: "ไม่สามารถเข้าถึงตำแหน่งได้",
+  gpsNearest: "จุดพยากรณ์ที่ใกล้ที่สุด",
+  autoGps: "เลือกด้วย GPS อัตโนมัติเมื่อเปิดแอป",
+  favorites: "รายการโปรด",
+  illustrationNote: "ภาพพื้นหลังเป็นภาพประกอบของระดับน้ำ",
+  boat: "เรือของฉัน",
+  boatName: "ชื่อเรือ",
+  draft: "กินน้ำลึก",
+  reserve: "ระยะปลอดภัยใต้กระดูกงู",
+  homePort: "ท่าเรือประจำ",
+  planner: "วางแผนการเดินทาง",
+  departure: "ออกเดินทาง",
+  ret: "เดินทางกลับ",
+  atDeparture: "",
+  atReturn: "",
+  levelPredicted: "",
+  predictedSuffix: "",
+  untilDeparture: "",
+  rises: "",
+  falls: "",
+  minDepth: "ความลึกน้ำที่ต้องการ (กินน้ำลึก + ระยะปลอดภัย)",
+  depthHint:
+    "ตรวจสอบกับแผนที่เดินเรือที่ยืนยันแล้วด้วยตนเอง: ความลึกในแผนที่ + ระดับน้ำที่พยากรณ์ ต้องไม่น้อยกว่าค่านี้",
+  noUkc:
+    "หากไม่มีข้อมูลความลึกจากแผนที่ที่ยืนยันแล้ว แอปไม่สามารถคำนวณความลึกน้ำจริงหรือระยะใต้กระดูกงูได้ และไม่ใช่การรับรองว่าผ่านได้อย่างปลอดภัย",
+  alerts: "การแจ้งเตือน",
+  beforeHigh: "เตือนก่อนน้ำขึ้นสูงสุด",
+  beforeLow: "เตือนก่อนน้ำลงต่ำสุด",
+  leadTime: "เตือนล่วงหน้า",
+  minutes: "นาที",
+  aboveAlarm: "แจ้งเตือนเมื่อระดับสูงกว่า",
+  belowAlarm: "แจ้งเตือนเมื่อระดับต่ำกว่า",
+  alertsNote:
+    "การแจ้งเตือนอิงจากการพยากรณ์ของสถานที่ที่เลือก และทำงานขณะเปิด CAPTAIN TIDE หรือทำงานอยู่เบื้องหลัง",
+  enableNotif: "อนุญาตการแจ้งเตือน",
+  notifBlocked: "ถูกเบราว์เซอร์บล็อก",
+  language: "ภาษา",
+  play: "เล่น",
+  pause: "หยุดชั่วคราว",
+  outOfRange: "นอกช่วงภาพ – ใช้ภาพที่ใกล้ที่สุด",
+  reminderHigh: "น้ำขึ้นสูงสุดในอีก",
+  reminderLow: "น้ำลงต่ำสุดในอีก",
+  crossAbove: "ระดับน้ำสูงกว่า",
+  crossBelow: "ระดับน้ำต่ำกว่า",
+  at: "เวลา",
+  in: "อีก",
+  change: "เปลี่ยนแปลง",
+  pickTime: "เลือกเวลา",
+  dialHint: "หมุนวงล้อ – 1 รอบ = 24 ชั่วโมง ข้ามเที่ยงคืนไปวันถัดไป",
+  vsNow: "เทียบกับตอนนี้",
+  thenNext: "ถัดไป",
+  datePick: "วันที่ (ล่วงหน้าได้ 3 ปี)",
+  method:
+    "คำนวณจากค่าคงที่ฮาร์มอนิกของสถานีวัดน้ำภูเก็ต ปรับแก้ตามพื้นที่ สภาพอากาศ มรสุม และความกดอากาศอาจทำให้ระดับน้ำคลาดเคลื่อน 10–30 ซม. และเวลาคลาดเคลื่อน 10–20 นาที",
+  flood: "น้ำขึ้น",
+  ebb: "น้ำลง",
+  turn: "เปลี่ยนทิศ",
+  risingShort: "ระดับน้ำกำลังขึ้น",
+  fallingShort: "ระดับน้ำกำลังลง",
+  eventLine: "{type} เวลา {time} น.",
+  ago: "ที่แล้ว",
+  unitDay: "วัน",
+  unitHour: "ชม.",
+  unitMin: "นาที",
+  tplDeparture: "ที่เวลาออกเดินทางตามแผน {time} คาดการณ์ระดับน้ำ {cm}",
+  tplReturn: "ที่เวลาเดินทางกลับตามแผน {time} คาดการณ์ระดับน้ำ {cm}",
+  tplRises: "จนถึงเวลาออกเดินทาง คาดว่าระดับน้ำจะสูงขึ้น {cm}",
+  tplFalls: "จนถึงเวลาออกเดินทาง คาดว่าระดับน้ำจะลดลง {cm}",
+  gauge: "เกจน้ำ",
+  trend24: "แนวโน้ม 24 ชม.",
+  hw: "สูงสุด",
+  nw: "ต่ำสุด",
+  scene: "ภาพพื้นหลัง",
+  sceneNote: "แสดงภาพประกอบกระบี่ด้านหลังเครื่องมือวัด",
+  nightHint: "UTC+7",
+  display: "การแสดงผล",
+};
+
+const dicts: Record<TideLang, Record<TideKey, string>> = { de, en, th };
+
+export function translate(lang: TideLang, k: TideKey): string {
+  return dicts[lang][k];
+}
+
+export function useTT() {
+  const lang = useTideSettings((s) => s.lang);
+  const t = (k: TideKey) => dicts[lang][k];
+  return { t, lang };
+}
+
+export const LOCALES: Record<TideLang, string> = {
+  de: "de-DE",
+  en: "en-GB",
+  // Gregorian years and Latin digits: easier to read on a boat, matches the gauge numbers.
+  th: "th-TH-u-ca-gregory-nu-latn",
+};
+
+const fmtCache = new Map<string, Intl.DateTimeFormat>();
+function fmt(lang: TideLang, opts: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = lang + JSON.stringify(opts);
+  let f = fmtCache.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(LOCALES[lang], { timeZone: TZ, ...opts });
+    fmtCache.set(key, f);
+  }
+  return f;
+}
+
+export function fmtTime(t: number, lang: TideLang, seconds = false): string {
+  return fmt(lang, {
+    hour: "2-digit",
+    minute: "2-digit",
+    ...(seconds ? { second: "2-digit" } : {}),
+    hour12: false,
+  }).format(t);
+}
+
+export function fmtDay(t: number, lang: TideLang): string {
+  return fmt(lang, { weekday: "short", day: "numeric", month: "short" }).format(t);
+}
+
+export function fmtWeekday(t: number, lang: TideLang): string {
+  return fmt(lang, { weekday: "short" }).format(t);
+}
+
+export function fmtDateNum(t: number, lang: TideLang): string {
+  return fmt(lang, { day: "numeric", month: "numeric" }).format(t);
+}
+
+/** Bangkok is UTC+7 with no DST — midnight of the Bangkok day containing t. */
+export const BKK_OFFSET = 7 * 60 * 60_000;
+export function bkkDayStart(t: number): number {
+  const day = 24 * 60 * 60_000;
+  return Math.floor((t + BKK_OFFSET) / day) * day - BKK_OFFSET;
+}
+
+export function fmtSigned(cm: number): string {
+  const r = Math.round(cm);
+  return `${r > 0 ? "+" : r < 0 ? "−" : "±"}${Math.abs(r)}`;
+}
+
+/** Fill "{name}" slots with nodes (so values can be bold/coloured); word order stays per language. */
+export function fill(template: string, vars: Record<string, ReactNode>): ReactNode[] {
+  return template.split(/(\{\w+\})/g).map((part, i) => {
+    const m = /^\{(\w+)\}$/.exec(part);
+    return createElement(Fragment, { key: i }, m ? (vars[m[1]] ?? "") : part);
+  });
+}
+
+export function fmtMeters(cm: number, lang: TideLang): string {
+  return (cm / 100).toLocaleString(LOCALES[lang], {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+/** "5 h 49 min" / "1 d 2 h 05 min" in the active language. */
+export function fmtDuration(ms: number, lang: TideLang): string {
+  const total = Math.round(Math.abs(ms) / 60_000);
+  const d = Math.floor(total / 1440);
+  const h = Math.floor((total % 1440) / 60);
+  const m = total % 60;
+  const u = (k: TideKey) => translate(lang, k);
+  return `${d ? `${d} ${u("unitDay")} ` : ""}${h} ${u("unitHour")} ${String(m).padStart(2, "0")} ${u("unitMin")}`;
+}
