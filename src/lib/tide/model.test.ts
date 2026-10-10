@@ -8,6 +8,7 @@ import {
   MIN,
   nextCrossing,
   tideStateAt,
+  tourStats,
   type TideForecast,
 } from "./model.ts";
 import { frameIndexFor, FRAME_LEVELS } from "./frames.ts";
@@ -174,5 +175,24 @@ describe("harmonic forecast", () => {
     const ranges = ex.slice(1).map((e, i) => Math.abs(e.cm - ex[i].cm));
     assert.ok(Math.min(...ranges) < 160, "neap range");
     assert.ok(Math.max(...ranges) > 260 && Math.max(...ranges) < 460, "spring range");
+  });
+});
+
+describe("tourStats", () => {
+  const f = cosineForecast();
+  it("summarises a falling tour through low water", () => {
+    // High at T0, low at T0 + 6.21 h: tour from +3 h to +9 h covers the low.
+    const s = tourStats(f, T0 + 3 * HOUR, T0 + 9 * HOUR)!;
+    assert.equal(s.startRising, false);
+    assert.equal(s.endRising, true);
+    assert.equal(s.events.length, 1);
+    assert.equal(s.events[0].type, "low");
+    assert.ok(Math.abs(s.min.t - (T0 + PERIOD / 2)) < 15 * MIN);
+    assert.ok(s.min.cm < s.startCm && s.min.cm < s.endCm);
+    assert.ok(s.maxRate > 20 && s.maxRate < 120, `rate ${s.maxRate}`);
+    assert.ok(Math.abs(s.net - (s.endCm - s.startCm)) < 1e-9);
+  });
+  it("returns null when the window leaves the forecast", () => {
+    assert.equal(tourStats(f, T0 + 70 * HOUR, T0 + 80 * HOUR), null);
   });
 });

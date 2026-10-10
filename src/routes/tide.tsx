@@ -97,6 +97,7 @@ function CaptainTide() {
 
   const shownAt = previewAt ?? now;
   const { state } = useTideStateAt(location.id, forecast, shownAt);
+  const { state: liveState } = useTideStateAt(location.id, forecast, now);
   const frame = state ? frameIndexFor(state.cm) : Math.floor(FRAME_LEVELS.length / 2);
 
   return (
@@ -132,6 +133,7 @@ function CaptainTide() {
               <NowView
                 forecast={forecast}
                 state={state}
+                liveState={liveState}
                 now={now}
                 previewAt={previewAt}
                 location={location}

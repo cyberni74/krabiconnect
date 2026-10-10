@@ -1,8 +1,18 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDown, ArrowUp, Clock3, PlayCircle, RefreshCcw } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Clock3,
+  Navigation,
+  PlayCircle,
+  RefreshCcw,
+  RotateCcw,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { FALL, RISE } from "@/lib/tide/colors";
-import { fill, fmtDay, fmtMeters, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { bkkDayStart, fill, fmtDay, fmtMeters, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { useTideView } from "@/lib/tide/store";
+import { horizonEnd } from "@/lib/tide/harmonic";
 import { fmtLatLon, type TideLocation } from "@/lib/tide/locations";
 import { formatCountdown, type TideForecast, type TideState } from "@/lib/tide/model";
 import { LangSwitch } from "./lang-switch";
@@ -10,24 +20,31 @@ import { SimulateSheet } from "./simulate-sheet";
 import { TideInstrument } from "./tide-instrument";
 import { TideMark } from "./tide-mark";
 import { TimeDialSheet } from "./time-dial-sheet";
+import { TourSheet } from "./tour-sheet";
 
 export function NowView({
   forecast,
   state,
+  liveState,
   now,
   previewAt,
   location,
   onOpenMap,
 }: {
   forecast: TideForecast;
+  /** State at the shown time (preview or now). */
   state: TideState | null;
+  /** State right now, for the countdown. */
+  liveState: TideState | null;
   now: number;
   previewAt: number | null;
   location: TideLocation;
   onOpenMap: () => void;
 }) {
   const { t, lang } = useTT();
-  const [sheet, setSheet] = useState<"sim" | "dial" | null>(null);
+  const [sheet, setSheet] = useState<"sim" | "dial" | "tour" | null>(null);
+  const setPreviewAt = useTideView((s) => s.setPreviewAt);
+  const tour = useTideView((s) => s.tour);
   const isPreview = previewAt != null;
   const dirColor = state ? (state.rising ? RISE : FALL) : "#9fb3c8";
 
@@ -74,9 +91,19 @@ export function NowView({
           <div className="min-w-0 flex-1">
             <div className="tide-label text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-300">
               {isPreview
-                ? `${t("simulation")} · ${fmtDay(previewAt, lang)} ${fmtTime(previewAt, lang)}`
+                ? `${t("preview")} · ${fmtDay(previewAt, lang)} ${fmtTime(previewAt, lang)}`
                 : t("forecastNow")}
             </div>
+            {isPreview ? (
+              <button
+                type="button"
+                onClick={() => setPreviewAt(null)}
+                className="tide-label mt-1 flex items-center gap-1 border border-cyan-300/50 px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-cyan-200 active:bg-cyan-300/20"
+              >
+                <RotateCcw className="size-3.5" />
+                {t("backToNow")}
+              </button>
+            ) : null}
             {state ? (
               <div className="mt-1 flex items-baseline gap-1.5">
                 <span className="tide-digits text-[clamp(54px,8.8dvh,80px)] font-medium leading-none">
@@ -126,8 +153,22 @@ export function NowView({
       {/* ── Instrument ── */}
       <section className="tide-panel flex min-h-[250px] flex-1 flex-col px-1.5 pb-1 pt-1.5">
         <div className="min-h-0 flex-1">
-          {forecast ? <TideInstrument forecast={forecast} state={state} /> : null}
+          {forecast ? (
+            <TideInstrument
+              forecast={forecast}
+              state={state}
+              tour={tour}
+              onPan={sheet ? undefined : setPreviewAt}
+              minAt={bkkDayStart(now)}
+              maxAt={horizonEnd(now)}
+            />
+          ) : null}
         </div>
+        {!sheet ? (
+          <div className="tide-label px-1 pt-0.5 text-center text-[10px] uppercase tracking-[0.14em] text-cyan-300/70">
+            {t("dragHint")}
+          </div>
+        ) : null}
         {forecast ? (
           <div className="tide-label truncate px-1 text-center text-[9.5px] text-white/45">
             {forecast.sourceLabel} · {forecast.station} · {forecast.datum}
@@ -147,6 +188,8 @@ export function NowView({
               now={now}
               onClose={() => setSheet(null)}
             />
+          ) : sheet === "tour" ? (
+            <TourSheet key="tour" location={location} now={now} onClose={() => setSheet(null)} />
           ) : (
             <motion.div
               key="count"
@@ -155,15 +198,19 @@ export function NowView({
               exit={{ opacity: 0, y: 16 }}
               transition={{ duration: 0.25 }}
             >
-              <CountdownCard state={isPreview ? null : state} now={now}>
-                <div className="mt-2.5 grid grid-cols-2 gap-2">
-                  <ToolButton onClick={() => setSheet("sim")} disabled={!forecast}>
-                    <PlayCircle className="size-4 text-cyan-300" />
-                    {t("simulate")}
+              <CountdownCard state={liveState} now={now}>
+                <div className="mt-2.5 grid grid-cols-3 gap-2">
+                  <ToolButton onClick={() => setSheet("tour")} disabled={!forecast}>
+                    <Navigation className="size-4 text-cyan-300" />
+                    {t("tourBtn")}
                   </ToolButton>
                   <ToolButton onClick={() => setSheet("dial")} disabled={!forecast}>
                     <Clock3 className="size-4 text-cyan-300" />
                     {t("pickTime")}
+                  </ToolButton>
+                  <ToolButton onClick={() => setSheet("sim")} disabled={!forecast}>
+                    <PlayCircle className="size-4 text-cyan-300" />
+                    {t("simulate")}
                   </ToolButton>
                 </div>
               </CountdownCard>
@@ -200,7 +247,7 @@ function ToolButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="tide-label flex h-10 items-center justify-center gap-1.5 border border-cyan-300/35 bg-cyan-300/[0.07] px-1 text-[10.5px] font-bold uppercase leading-tight tracking-[0.1em] text-cyan-50 active:bg-cyan-300/20 disabled:opacity-40"
+      className="tide-label flex min-h-[52px] flex-col items-center justify-center gap-0.5 border border-cyan-300/35 bg-cyan-300/[0.07] px-1 py-1 text-center text-[10px] font-bold uppercase leading-tight tracking-[0.08em] text-cyan-50 active:bg-cyan-300/20 disabled:opacity-40"
     >
       {children}
     </button>

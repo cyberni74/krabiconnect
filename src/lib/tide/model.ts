@@ -202,3 +202,46 @@ export function formatCountdown(ms: number): string {
   const s = total % 60;
   return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
 }
+
+export type TourStats = {
+  startCm: number;
+  endCm: number;
+  startRising: boolean;
+  endRising: boolean;
+  net: number;
+  min: { cm: number; t: number };
+  max: { cm: number; t: number };
+  maxRate: number;
+  events: TideExtreme[];
+};
+
+/** Level picture of a planned tour window [start, end]. Null when outside the forecast. */
+export function tourStats(f: TideForecast, start: number, end: number): TourStats | null {
+  const a = tideStateAt(f, start);
+  const b = tideStateAt(f, end);
+  if (!a || !b) return null;
+  let min = { cm: Infinity, t: start };
+  let max = { cm: -Infinity, t: start };
+  let maxRate = 0;
+  const step = 5 * MIN;
+  let prev = a.cm;
+  for (let tt = start; tt <= end; tt += step) {
+    const v = levelAt(f, tt);
+    if (v == null) continue;
+    if (v < min.cm) min = { cm: v, t: tt };
+    if (v > max.cm) max = { cm: v, t: tt };
+    if (tt > start) maxRate = Math.max(maxRate, (Math.abs(v - prev) * HOUR) / step);
+    prev = v;
+  }
+  return {
+    startCm: a.cm,
+    endCm: b.cm,
+    startRising: a.rising,
+    endRising: b.rising,
+    net: b.cm - a.cm,
+    min,
+    max,
+    maxRate,
+    events: f.extremes.filter((e) => e.t >= start && e.t <= end),
+  };
+}
