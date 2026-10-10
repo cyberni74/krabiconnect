@@ -37,6 +37,9 @@ const de = {
   useGps: "Meinen Standort verwenden",
   gpsLocating: "Ortung läuft …",
   gpsDenied: "Standortzugriff nicht möglich",
+  gpsBlocked:
+    "Ortung ist blockiert. Erlaube Chrome den Standort: iPhone-Einstellungen › Datenschutz › Ortungsdienste",
+  gpsTimeout: "Standort nicht gefunden. Bitte nochmal versuchen, am besten im Freien",
   gpsFar: "Du bist ca. {km} km von den Prognosestandorten entfernt – bitte Standort von Hand wählen",
   sliderLabel: "Zeit verschieben (24 h)",
   predictionPoint: "Prognosepunkt",
@@ -195,6 +198,9 @@ const en: Record<TideKey, string> = {
   useGps: "Use my location",
   gpsLocating: "Locating …",
   gpsDenied: "Location access unavailable",
+  gpsBlocked:
+    "Location is blocked. Allow Chrome location: iPhone Settings › Privacy › Location Services",
+  gpsTimeout: "Location not found. Please try again, best outdoors",
   gpsFar: "You are about {km} km from the prediction points – please pick a location by hand",
   sliderLabel: "Move time (24 h)",
   predictionPoint: "Prediction point",
@@ -350,6 +356,9 @@ const th: Record<TideKey, string> = {
   useGps: "ใช้ตำแหน่งของฉัน",
   gpsLocating: "กำลังหาตำแหน่ง …",
   gpsDenied: "ไม่สามารถเข้าถึงตำแหน่งได้",
+  gpsBlocked:
+    "การระบุตำแหน่งถูกบล็อก อนุญาต Chrome ที่ตั้งค่า iPhone › ความเป็นส่วนตัว › บริการระบุตำแหน่ง",
+  gpsTimeout: "ไม่พบตำแหน่ง กรุณาลองอีกครั้ง ควรอยู่กลางแจ้ง",
   gpsFar: "คุณอยู่ห่างจากจุดพยากรณ์ประมาณ {km} กม. — กรุณาเลือกสถานที่เอง",
   sliderLabel: "เลื่อนเวลา (24 ชม.)",
   predictionPoint: "จุดพยากรณ์",

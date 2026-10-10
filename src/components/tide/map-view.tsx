@@ -41,11 +41,11 @@ const OSM_STYLE = {
 
 export function locateNearest(
   onDone: (id: string, km: number) => void,
-  onFail: (msg: string) => void,
+  onFail: (code: number) => void,
   onFar: (km: number) => void,
 ) {
   if (!("geolocation" in navigator)) {
-    onFail("no geolocation");
+    onFail(0);
     return;
   }
   navigator.geolocation.getCurrentPosition(
@@ -57,7 +57,7 @@ export function locateNearest(
       if (km > MAX_GPS_KM) return onFar(km);
       onDone(loc.id, km);
     },
-    (err) => onFail(err.message),
+    (err) => onFail(err.code),
     { enableHighAccuracy: false, timeout: 12_000, maximumAge: 5 * 60_000 },
   );
 }
@@ -181,9 +181,9 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
                   const name = LOCATIONS.find((l) => l.id === id)?.name ?? id;
                   toast.success(`${t("gpsNearest")}: ${name} (${Math.round(km)} km)`);
                 },
-                () => {
+                (code) => {
                   setLocating(false);
-                  toast.error(t("gpsDenied"));
+                  toast.error(t(code === 1 ? "gpsBlocked" : code === 3 ? "gpsTimeout" : "gpsDenied"));
                 },
                 (km) => {
                   setLocating(false);
