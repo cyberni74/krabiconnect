@@ -1,329 +1,237 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import {
-  Briefcase,
-  Car,
-  Home as HomeIcon,
-  List,
-  Map as MapIcon,
-  Palmtree,
-  Search as SearchIcon,
-  Smartphone,
-  Store,
-  Wrench,
-} from "lucide-react";
-import { lazy, Suspense, useState, type FormEvent, type ReactNode } from "react";
-import { ListingCard } from "@/components/listings/listing-card";
-import { listFeed } from "@/lib/server/listings";
-import { useT, type I18nKey } from "@/lib/i18n";
-import { useEnsureEnglishOverlays } from "@/lib/use-english-overlay";
-import { cn } from "@/lib/utils";
-import {
-  JOB_CATEGORIES,
-  MARKET_CATEGORIES,
-  SERVICE_CATEGORIES,
-  categoryName,
-} from "@/lib/constants";
-import { useAreaStore } from "@/lib/area";
-import type { FeedCard } from "@/lib/types";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "motion/react";
+import { Anchor, ChartSpline, Map as MapIcon, Navigation, Waves } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { CaptainView } from "@/components/tide/captain-view";
+import { locateNearest, MapView } from "@/components/tide/map-view";
+import { NowView } from "@/components/tide/now-view";
+import { TideNotifier } from "@/components/tide/notifier";
+import { LangSwitch } from "@/components/tide/lang-switch";
+import { TideBackground } from "@/components/tide/tide-background";
+import { TidesView } from "@/components/tide/tides-view";
+import { TourView } from "@/components/tide/tour-view";
+import { FRAME_LEVELS, frameIndexFor } from "@/lib/tide/frames";
+import { translate, useTT, type TideKey } from "@/lib/tide/i18n";
+import { getLocation } from "@/lib/tide/locations";
+import { detectLang, useTideSettings, useTideView } from "@/lib/tide/store";
+import { useNow, useTide, useTideStateAt } from "@/lib/tide/use-tide";
 
-export const Route = createFileRoute("/")({ component: Home });
-
-/** Stable empty feed so MapView does not see a new [] identity every render. */
-const EMPTY_LISTINGS: FeedCard[] = [];
-
-const MapView = lazy(() => import("@/components/map/MapViewMapLibre"));
-
-const MODULES = [
-  {
-    id: "services" as const,
-    icon: Wrench,
-    title: "services" as const,
-    hint: "moduleServices" as const,
-  },
-  {
-    id: "jobs" as const,
-    icon: Briefcase,
-    title: "jobs" as const,
-    hint: "moduleJobs" as const,
-  },
-  {
-    id: "market" as const,
-    icon: Store,
-    title: "market" as const,
-    hint: "moduleMarket" as const,
-  },
+type Tab = "now" | "tides" | "tour" | "map" | "captain";
+const TABS: { id: Tab; key: TideKey; icon: typeof Waves }[] = [
+  { id: "now", key: "now", icon: Waves },
+  { id: "tides", key: "tides", icon: ChartSpline },
+  { id: "tour", key: "tour", icon: Navigation },
+  { id: "map", key: "map", icon: MapIcon },
+  { id: "captain", key: "captain", icon: Anchor },
 ];
 
-const FEATURED = [
-  { kind: "market" as const, category: "vehicles", icon: Car },
-  { kind: "market" as const, category: "property", icon: HomeIcon },
-  { kind: "jobs" as const, category: "hospitality", icon: Briefcase },
-  { kind: "services" as const, category: "trades", icon: Wrench },
-  { kind: "services" as const, category: "tours", icon: Palmtree },
-  { kind: "market" as const, category: "electronics", icon: Smartphone },
-];
+export const Route = createFileRoute("/")({
+  ssr: false,
+  validateSearch: (search: Record<string, unknown>): { tab?: Tab } => {
+    const tab = search.tab;
+    return tab === "tides" || tab === "tour" || tab === "map" || tab === "captain" ? { tab } : {};
+  },
+  head: () => ({
+    meta: [
+      { title: "CAPTAIN TIDE – Gezeiten Krabi" },
+      { name: "theme-color", content: "#070d14" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      {
+        name: "description",
+        content:
+          "Live-Gezeitenprognose für Kapitäne in Krabi: Wasserstand, Countdown bis Ebbe und Flut, 7-Tage-Kurve.",
+      },
+    ],
+    links: [
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+      },
+    ],
+  }),
+  pendingComponent: Splash,
+  component: CaptainTide,
+});
 
-function Home() {
-  const { lang, t } = useT();
-  const nav = useNavigate();
-  const [view, setView] = useState<"list" | "map">("list");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [kind, setKind] = useState<"all" | "services" | "jobs" | "market">("all");
-  const [category, setCategory] = useState("");
-  const [q, setQ] = useState("");
-  const district = useAreaStore((s) => s.district);
+function Splash() {
+  return <div className="tide-app fixed inset-0" />;
+}
 
-  const feed = useQuery({
-    queryKey: ["feed", kind, district, category],
-    queryFn: () =>
-      listFeed({
-        data: {
-          kind,
-          district: district || undefined,
-          category: category || undefined,
-        },
-      }),
-    placeholderData: keepPreviousData,
-  });
+function CaptainTide() {
+  const { tab = "now" } = Route.useSearch();
+  const navigate = useNavigate({ from: "/" });
+  const setTab = (next: Tab) =>
+    navigate({ search: next === "now" ? {} : { tab: next }, replace: true });
+  const { t, lang } = useTT();
+  const scene = useTideSettings((s) => s.scene);
+  const locationId = useTideSettings((s) => s.locationId);
+  const location = getLocation(locationId);
+  const now = useNow(1000);
+  const forecast = useTide(location.id, now);
+  const previewAt = useTideView((s) => s.previewAt);
+  const setPreviewAt = useTideView((s) => s.setPreviewAt);
 
-  // Same array for list cards and map pins — do not strip null lat/lng.
-  const listings = feed.data ?? EMPTY_LISTINGS;
-  useEnsureEnglishOverlays(listings);
-  const showSkeleton = feed.isLoading && listings.length === 0;
-  const cats =
-    kind === "jobs"
-      ? JOB_CATEGORIES
-      : kind === "market"
-        ? MARKET_CATEGORIES
-        : kind === "services"
-          ? SERVICE_CATEGORIES
-          : [];
+  // Until a language is picked by hand, follow the browser on every visit.
+  useEffect(() => {
+    const st = useTideSettings.getState();
+    if (!st.langManual) useTideSettings.setState({ lang: detectLang() });
+  }, []);
 
-  function onSearch(e: FormEvent) {
-    e.preventDefault();
-    void nav({ to: "/search", search: { q: q.trim() } });
-  }
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  // A picked/simulated time only lives inside one tab; every tab opens on "now".
+  useEffect(() => {
+    setPreviewAt(null);
+  }, [tab, setPreviewAt]);
+
+  // Optional GPS pick on launch.
+  const gpsTried = useRef(false);
+  useEffect(() => {
+    if (gpsTried.current) return;
+    gpsTried.current = true;
+    if (!useTideSettings.getState().autoGps) return;
+    locateNearest(
+      (id, km) => {
+        useTideSettings.getState().setLocation(id);
+        toast.success(`${getLocation(id).name} (${Math.round(km)} km)`);
+      },
+      () => undefined,
+      (km) => {
+        const { lang } = useTideSettings.getState();
+        toast.info(translate(lang, "gpsFar").replace("{km}", String(Math.round(km))));
+      },
+    );
+  }, []);
+
+  const shownAt = previewAt ?? now;
+  const [nowKey, setNowKey] = useState(0);
+  const { state } = useTideStateAt(location.id, forecast, shownAt);
+  const { state: liveState } = useTideStateAt(location.id, forecast, now);
+  const frame = state ? frameIndexFor(state.cm) : Math.floor(FRAME_LEVELS.length / 2);
 
   return (
-    <main className="px-4 pb-8">
-      <section className="relative mb-5">
-        <img
-          src="/brand/hero.png"
-          alt="KrabiMarketplace"
-          className="mx-auto h-44 w-full object-contain"
-        />
-        <form
-          onSubmit={onSearch}
-          className="relative z-10 mt-3 flex items-center gap-1 rounded-full bg-surface p-1.5 shadow-float"
-        >
-          <SearchIcon className="ml-3 size-4 shrink-0 text-muted" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={t("portalSearch")}
-            className="h-10 min-w-0 flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-faint"
-            aria-label={t("search")}
-          />
-          <button
-            type="submit"
-            className="h-10 shrink-0 rounded-full bg-primary px-4 text-sm font-semibold text-primary-fg"
-          >
-            {t("search")}
-          </button>
-        </form>
-      </section>
-
-      <div className="mb-4 grid grid-cols-3 gap-2">
-        {MODULES.map((m) => {
-          const Icon = m.icon;
-          const active = kind === m.id;
-          return (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => {
-                setKind(active ? "all" : m.id);
-                setCategory("");
-              }}
-              className={cn(
-                "flex flex-col items-start gap-1 rounded-2xl px-3 py-3 text-left shadow-card",
-                active ? "bg-primary text-primary-fg" : "bg-surface text-fg",
-              )}
-            >
-              <Icon className="size-5" />
-              <span className="text-sm font-semibold">{t(m.title)}</span>
-              <span className={cn("text-2xs leading-snug", active ? "text-primary-fg/80" : "text-muted")}>
-                {t(m.hint)}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mb-5">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">{t("popular")}</p>
-        <div className="grid grid-cols-3 gap-2">
-          {FEATURED.map((f) => {
-            const Icon = f.icon;
-            const active = kind === f.kind && category === f.category;
-            return (
-              <button
-                key={`${f.kind}-${f.category}`}
-                type="button"
-                onClick={() => {
-                  if (active) {
-                    setKind("all");
-                    setCategory("");
-                  } else {
-                    setKind(f.kind);
-                    setCategory(f.category);
-                  }
-                }}
-                className={cn(
-                  "flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left shadow-card",
-                  active ? "bg-primary text-primary-fg" : "bg-surface text-fg",
-                )}
-              >
-                <Icon className="size-4 shrink-0" />
-                <span className="truncate text-xs font-semibold">
-                  {categoryName(
-                    f.kind === "jobs" ? "job" : f.kind === "market" ? "market" : "service",
-                    f.category,
-                    lang,
-                  )}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {cats.length ? (
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 hide-scroll">
-          <Chip active={!category} onClick={() => setCategory("")}>
-            {t("all")}
-          </Chip>
-          {cats.map((c) => (
-            <Chip
-              key={c.id}
-              active={category === c.id}
-              onClick={() => setCategory(category === c.id ? "" : c.id)}
-            >
-              {categoryName(
-                kind === "jobs" ? "job" : kind === "market" ? "market" : "service",
-                c.id,
-                lang,
-              )}
-            </Chip>
-          ))}
+    <div className="tide-app fixed inset-0 overflow-hidden">
+      {/* Wide screens + photo mode: blurred scene around the phone-shaped stage. */}
+      {scene ? (
+        <div className="absolute inset-0 hidden [@media(min-aspect-ratio:9/16)]:block">
+          <TideBackground index={frame} blur dim={0.5} />
         </div>
       ) : null}
 
-      {listings.length > 0 && view === "list" ? (
-        <h2 className="mb-3 text-sm font-semibold text-muted">{t("latest")}</h2>
-      ) : null}
+      <main
+        className={`relative mx-auto h-full w-full max-w-[calc(100dvh*9/16)] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] ${scene ? "" : "tide-instrument-bg"}`}
+      >
+        {scene ? (
+          <>
+            <TideBackground index={frame} dim={tab === "now" ? 0.28 : 0.55} blur={tab !== "now"} />
+            {/* The supplied photos carry their own title box at the top; fade it out. */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-[30%] bg-gradient-to-b from-[#070d14] via-[#070d14]/95 to-transparent" />
+          </>
+        ) : null}
 
-      {showSkeleton ? (
-        <div className="grid gap-4">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-64 animate-pulse rounded-2xl bg-surface-2" />
-          ))}
-        </div>
-      ) : (
-        <>
-          {view === "list" ? (
-            listings.length === 0 ? (
-              <EmptyHome t={t} />
-            ) : (
-              <div className="grid gap-4">
-                {listings.map((c) => (
-                  <ListingCard key={`${c.kind}-${c.id}`} card={c} />
-                ))}
-              </div>
-            )
-          ) : null}
-          <div className={view === "map" ? "block" : "hidden"}>
-            <Suspense fallback={<div className="h-[28rem] animate-pulse rounded-2xl bg-surface-2" />}>
-              <MapView
-                items={listings}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-                active={view === "map"}
+        <AnimatePresence mode="wait" initial={false}>
+          {tab === "now" ? (
+            <motion.div
+              key="now"
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <NowView
+                key={nowKey}
+                forecast={forecast}
+                state={state}
+                liveState={liveState}
+                now={now}
+                previewAt={previewAt}
+                location={location}
+                onOpenMap={() => setTab("map")}
+                onOpenTour={() => setTab("tour")}
               />
-            </Suspense>
-          </div>
-        </>
-      )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key={tab}
+              className="hide-scroll tide-scroll absolute inset-0 overflow-x-hidden overflow-y-auto px-3"
+              style={{
+                paddingTop: "calc(env(safe-area-inset-top) + 16px)",
+                paddingBottom: "calc(106px + env(safe-area-inset-bottom))",
+              }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="mb-3 flex items-end justify-between gap-2 px-0.5 pt-1">
+                <div className="min-w-0 border-l-2 border-cyan-400/70 pl-2 leading-tight">
+                  <h1 className="text-[22px] font-bold uppercase tracking-wide">
+                    {t(TABS.find((x) => x.id === tab)!.key)}
+                  </h1>
+                  <button
+                    type="button"
+                    onClick={() => setTab("map")}
+                    className="tide-label truncate text-[12px] font-semibold text-cyan-200"
+                  >
+                    {location.name}
+                  </button>
+                </div>
+                <LangSwitch />
+              </div>
+              {tab === "tides" ? (
+                <TidesView location={location} live={forecast} state={state} now={now} />
+              ) : null}
+              {tab === "tour" ? <TourView location={location} now={now} /> : null}
+              {tab === "map" ? <MapView forecast={forecast} /> : null}
+              {tab === "captain" ? <CaptainView /> : null}
+              <p className="px-2 pt-4 text-center text-[10.5px] leading-snug text-white/55">
+                {forecast.sourceLabel} · {forecast.station} · {forecast.datum}
+                <br />
+                {t("notMeasured")}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-30 mx-auto flex max-w-lg justify-end px-4">
-        <button
-          type="button"
-          onClick={() => setView((v) => (v === "map" ? "list" : "map"))}
-          className="pointer-events-auto inline-flex h-12 items-center gap-2 rounded-full bg-fg px-4 text-sm font-medium text-primary-fg shadow-float"
+        <nav
+          className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[#060c13]"
+          style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
         >
-          {view === "map" ? <List className="size-4" /> : <MapIcon className="size-4" />}
-          {view === "map" ? t("showList") : t("showMap")}
-        </button>
-      </div>
-    </main>
-  );
-}
+          <ul className="grid h-[58px] grid-cols-5">
+            {TABS.map(({ id, key, icon: Icon }) => {
+              const on = id === tab;
+              return (
+                <li key={id} className="flex">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Tapping the open tab again is a reset: back to live time, sheets closed.
+                      if (on) {
+                        setPreviewAt(null);
+                        setNowKey((k) => k + 1);
+                      }
+                      setTab(id);
+                    }}
+                    aria-current={on ? "page" : undefined}
+                    className={`tide-label relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] transition-colors ${on ? "bg-cyan-300/[0.08] text-cyan-200" : "text-white/55"}`}
+                  >
+                    {on ? <span className="absolute inset-x-0 top-0 h-[2px] bg-cyan-300" /> : null}
+                    <Icon className="size-[20px]" strokeWidth={on ? 2.4 : 1.9} />
+                    <span>{t(key)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </main>
 
-function EmptyHome({ t }: { t: (k: I18nKey) => string }) {
-  const steps = [
-    { n: "1", title: t("how1"), body: t("how1b") },
-    { n: "2", title: t("how2"), body: t("how2b") },
-    { n: "3", title: t("how3"), body: t("how3b") },
-  ];
-  return (
-    <div className="space-y-4">
-      <div className="rounded-2xl bg-surface px-4 py-6 shadow-card">
-        <h2 className="text-center text-base font-semibold">{t("howTitle")}</h2>
-        <ol className="mt-4 grid grid-cols-3 gap-2">
-          {steps.map((s) => (
-            <li key={s.n} className="text-center">
-              <span className="mx-auto grid size-8 place-items-center rounded-full bg-primary-soft text-sm font-semibold text-primary">
-                {s.n}
-              </span>
-              <p className="mt-2 text-sm font-semibold">{s.title}</p>
-              <p className="mt-0.5 text-2xs leading-snug text-muted">{s.body}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-      <div className="rounded-2xl bg-surface px-4 py-8 text-center shadow-card">
-        <p className="mb-4 text-sm text-muted">{t("emptyFeed")}</p>
-        <Link
-          to="/create"
-          className="inline-flex h-11 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-fg"
-        >
-          {t("create")}
-        </Link>
-      </div>
+      <TideNotifier forecast={forecast} />
     </div>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "h-8 shrink-0 rounded-full px-3 text-xs font-medium",
-        active ? "bg-fg text-primary-fg" : "bg-surface text-muted shadow-card",
-      )}
-    >
-      {children}
-    </button>
   );
 }

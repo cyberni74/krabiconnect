@@ -7,9 +7,9 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
       for (const c of list) {
-        if (c.url.includes("/tide") && "focus" in c) return c.focus();
+        if ("focus" in c) return c.focus();
       }
-      return self.clients.openWindow("/tide");
+      return self.clients.openWindow("/");
     }),
   );
 });

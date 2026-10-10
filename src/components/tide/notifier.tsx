@@ -29,7 +29,7 @@ function registration(): Promise<ServiceWorkerRegistration | null> {
   if (!swReg) {
     swReg =
       "serviceWorker" in navigator
-        ? navigator.serviceWorker.register("/tide-sw.js", { scope: "/tide" }).catch(() => null)
+        ? navigator.serviceWorker.register("/tide-sw.js", { scope: "/" }).catch(() => null)
         : Promise.resolve(null);
   }
   return swReg;
