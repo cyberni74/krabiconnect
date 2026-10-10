@@ -193,7 +193,8 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
   width: 100%;
   height: 44px;
   background: transparent;
-  touch-action: none;
+  /* Sideways drags move the thumb; up/down drags still scroll the page. */
+  touch-action: pan-y;
 }
 .tide-range::-webkit-slider-runnable-track {
   height: 4px;
