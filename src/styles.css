@@ -103,3 +103,115 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
 .maplibregl-ctrl-attrib {
   font-size: 10px;
 }
+
+/* ── CAPTAIN TIDE ─────────────────────────────────────────── */
+.tide-app {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  color: #fff;
+  background: #031123;
+  -webkit-tap-highlight-color: transparent;
+}
+.tide-app h1,
+.tide-app h2,
+.tide-app h3 {
+  letter-spacing: -0.01em;
+}
+.tide-digits {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  letter-spacing: -0.035em;
+}
+.tide-shadow {
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 2px 18px rgb(0 20 40 / 0.55);
+}
+.tide-glass {
+  background: linear-gradient(160deg, rgb(10 40 72 / 0.62), rgb(3 18 38 / 0.72));
+  border: 1px solid rgb(255 255 255 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 18px 50px rgb(0 10 25 / 0.45);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  backdrop-filter: blur(22px) saturate(1.35);
+}
+.tide-glass-soft {
+  background: rgb(4 26 50 / 0.42);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: blur(14px) saturate(1.25);
+}
+.tide-header {
+  background: linear-gradient(180deg, rgb(2 14 30 / 0.82) 0%, rgb(3 20 40 / 0.62) 70%, rgb(3 20 40 / 0) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+}
+.tide-bottom-fade {
+  background: linear-gradient(0deg, rgb(2 12 26 / 0.7) 0%, rgb(2 12 26 / 0.35) 55%, rgb(2 12 26 / 0) 100%);
+}
+.tide-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  touch-action: none;
+}
+.tide-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #5eead4);
+  opacity: 0.85;
+}
+.tide-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #5eead4);
+}
+.tide-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -13px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #fff;
+  border: 4px solid #22d3ee;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+}
+.tide-range::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #fff;
+  border: 4px solid #22d3ee;
+}
+.tide-input {
+  width: 100%;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  padding: 0.7rem 0.85rem;
+  color: #fff;
+  font-size: 16px;
+  color-scheme: dark;
+}
+.tide-input:focus {
+  outline: 2px solid #22d3ee;
+  outline-offset: 1px;
+}
+/* Countdown card: lighter in the middle so the gauge stays readable through it. */
+.tide-glass-count {
+  background: linear-gradient(
+    90deg,
+    rgb(3 20 42 / 0.66) 0%,
+    rgb(3 20 42 / 0.4) 42%,
+    rgb(3 20 42 / 0.4) 66%,
+    rgb(3 20 42 / 0.66) 100%
+  );
+  border: 1px solid rgb(255 255 255 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 18px 50px rgb(0 10 25 / 0.35);
+  -webkit-backdrop-filter: blur(7px) saturate(1.3);
+  backdrop-filter: blur(7px) saturate(1.3);
+}
