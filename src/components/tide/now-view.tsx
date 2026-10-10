@@ -10,9 +10,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { FALL, RISE } from "@/lib/tide/colors";
-import { bkkDayStart, fill, fmtDay, fmtMeters, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
+import { fill, fmtDay, fmtMeters, fmtSigned, fmtTime, useTT } from "@/lib/tide/i18n";
 import { useTideView } from "@/lib/tide/store";
-import { horizonEnd } from "@/lib/tide/harmonic";
 import { fmtLatLon, type TideLocation } from "@/lib/tide/locations";
 import { formatCountdown, MIN, type TideForecast, type TideState } from "@/lib/tide/model";
 import { LangSwitch } from "./lang-switch";
@@ -20,6 +19,10 @@ import { SimulateSheet } from "./simulate-sheet";
 import { TideInstrument } from "./tide-instrument";
 import { TideMark } from "./tide-mark";
 import { TimeDialSheet } from "./time-dial-sheet";
+
+const SLIDER_STEP = 5 * MIN;
+const SLIDER_BACK = 3 * 60 * MIN;
+const SLIDER_STEPS = 24 * 12;
 
 export function NowView({
   forecast,
@@ -51,17 +54,16 @@ export function NowView({
   // so it is redrawn once a minute. The countdown below still ticks every second.
   const minuteKey = Math.floor((state?.at ?? now) / MIN);
   const instrument = useMemo(
-    () => (
-      <TideInstrument
-        forecast={forecast}
-        state={state}
-        onPan={sheet ? undefined : setPreviewAt}
-        minAt={bkkDayStart(now)}
-        maxAt={horizonEnd(now)}
-      />
-    ),
+    () => <TideInstrument forecast={forecast} state={state} />,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [forecast, minuteKey, sheet, setPreviewAt],
+    [forecast, minuteKey],
+  );
+
+  // Time slider: 3 h back to 21 h ahead, in 5-minute steps. Replaces dragging on the instrument.
+  const sliderStart = Math.floor((now - SLIDER_BACK) / SLIDER_STEP) * SLIDER_STEP;
+  const sliderValue = Math.min(
+    SLIDER_STEPS,
+    Math.max(0, Math.round((((previewAt ?? now) - sliderStart) / SLIDER_STEP))),
   );
 
   return (
@@ -94,7 +96,7 @@ export function NowView({
           >
             <div className="tide-label truncate text-[13px] font-semibold">{location.name}</div>
             <div className="tide-digits truncate text-[10px] text-white/55">
-              {fmtLatLon(location.lat, location.lon)}
+              {t("predictionPoint")} · {fmtLatLon(location.lat, location.lon)}
             </div>
           </button>
           <LangSwitch />
@@ -170,9 +172,21 @@ export function NowView({
       <section className="tide-panel flex min-h-[250px] flex-1 flex-col px-1.5 pb-1 pt-1.5">
         <div className="min-h-0 flex-1">{forecast ? instrument : null}</div>
         {!sheet ? (
-          <div className="tide-label px-1 pt-0.5 text-center text-[10px] uppercase tracking-[0.14em] text-cyan-300/70">
-            {t("dragHint")}
-          </div>
+          <label className="block px-1 pt-1">
+            <span className="tide-label block text-center text-[10px] uppercase tracking-[0.14em] text-cyan-300/80">
+              {t("sliderLabel")}
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={SLIDER_STEPS}
+              step={1}
+              value={sliderValue}
+              onChange={(e) => setPreviewAt(sliderStart + Number(e.target.value) * SLIDER_STEP)}
+              className="tide-range mt-1 w-full"
+              aria-valuetext={`${fmtDay(sliderStart + sliderValue * SLIDER_STEP, lang)} ${fmtTime(sliderStart + sliderValue * SLIDER_STEP, lang)}`}
+            />
+          </label>
         ) : null}
         {forecast ? (
           <div className="tide-label truncate px-1 text-center text-[9.5px] text-white/45">

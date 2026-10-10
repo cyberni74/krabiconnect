@@ -178,9 +178,14 @@ type TideView = {
   /** null = live "now". */
   previewAt: number | null;
   setPreviewAt: (t: number | null) => void;
+  /** Last GPS fix of the device (not the prediction point). */
+  userFix: { lat: number; lon: number } | null;
+  setUserFix: (f: { lat: number; lon: number } | null) => void;
 };
 
 export const useTideView = create<TideView>()((set) => ({
   previewAt: null,
   setPreviewAt: (previewAt) => set({ previewAt }),
+  userFix: null,
+  setUserFix: (userFix) => set({ userFix }),
 }));

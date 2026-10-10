@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Anchor, ChartSpline, Map as MapIcon, Navigation, Waves } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CaptainView } from "@/components/tide/captain-view";
 import { locateNearest, MapView } from "@/components/tide/map-view";
@@ -108,6 +108,7 @@ function CaptainTide() {
   }, []);
 
   const shownAt = previewAt ?? now;
+  const [nowKey, setNowKey] = useState(0);
   const { state } = useTideStateAt(location.id, forecast, shownAt);
   const { state: liveState } = useTideStateAt(location.id, forecast, now);
   const frame = state ? frameIndexFor(state.cm) : Math.floor(FRAME_LEVELS.length / 2);
@@ -143,6 +144,7 @@ function CaptainTide() {
               transition={{ duration: 0.25 }}
             >
               <NowView
+                key={nowKey}
                 forecast={forecast}
                 state={state}
                 liveState={liveState}
@@ -207,7 +209,14 @@ function CaptainTide() {
                 <li key={id} className="flex">
                   <button
                     type="button"
-                    onClick={() => setTab(id)}
+                    onClick={() => {
+                      // Tapping the open tab again is a reset: back to live time, sheets closed.
+                      if (on) {
+                        setPreviewAt(null);
+                        setNowKey((k) => k + 1);
+                      }
+                      setTab(id);
+                    }}
                     aria-current={on ? "page" : undefined}
                     className={`tide-label relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] transition-colors ${on ? "bg-cyan-300/[0.08] text-cyan-200" : "text-white/55"}`}
                   >

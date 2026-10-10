@@ -5,7 +5,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { LOCATIONS, MAX_GPS_KM, nearestLocation } from "@/lib/tide/locations";
 import type { TideForecast } from "@/lib/tide/model";
 import { fmtTime, useTT } from "@/lib/tide/i18n";
-import { useTideSettings } from "@/lib/tide/store";
+import { useTideSettings, useTideView } from "@/lib/tide/store";
 import { toast } from "sonner";
 import { harmonicLevelAt } from "@/lib/tide/harmonic";
 import { useNow } from "@/lib/tide/use-tide";
@@ -50,7 +50,9 @@ export function locateNearest(
   }
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      const { loc, km } = nearestLocation(pos.coords.latitude, pos.coords.longitude);
+      const fix = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      useTideView.getState().setUserFix(fix);
+      const { loc, km } = nearestLocation(fix.lat, fix.lon);
       // Browser location can be far off (Wi-Fi/IP fix) or the user is outside the area: never guess.
       if (km > MAX_GPS_KM) return onFar(km);
       onDone(loc.id, km);
@@ -76,6 +78,9 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Maplibre.Map | null>(null);
   const markers = useRef<Map<string, HTMLElement>>(new Map());
+  const libRef = useRef<typeof Maplibre | null>(null);
+  const userPin = useRef<Maplibre.Marker | null>(null);
+  const userFix = useTideView((s) => s.userFix);
 
   useEffect(() => {
     let disposed = false;
@@ -83,6 +88,7 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
     void import("maplibre-gl").then((mod) => {
       const maplibregl = (mod as { default?: typeof Maplibre }).default ?? mod;
       if (disposed || !mapEl.current) return;
+      libRef.current = maplibregl;
       maplibregl.setWorkerUrl(workerUrl);
       const map = new maplibregl.Map({
         container: mapEl.current,
@@ -112,9 +118,28 @@ export function MapView({ forecast }: { forecast: TideForecast | null }) {
       disposed = true;
       mapRef.current?.remove();
       mapRef.current = null;
+      userPin.current = null;
       pins.clear();
     };
   }, []);
+
+  // Device position: an orange dot, separate from the blue prediction points (which sit at sea).
+  useEffect(() => {
+    const map = mapRef.current;
+    const lib = libRef.current;
+    if (!userFix || !map || !lib || !ready) return;
+    const lngLat: [number, number] = [userFix.lon, userFix.lat];
+    if (userPin.current) {
+      userPin.current.setLngLat(lngLat);
+      return;
+    }
+    const el = document.createElement("div");
+    el.setAttribute("aria-label", t("yourPosition"));
+    el.style.cssText =
+      "width:14px;height:14px;border-radius:999px;background:#f97316;border:3px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.3)";
+    userPin.current = new lib.Marker({ element: el }).setLngLat(lngLat).addTo(map);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userFix, ready]);
 
   function paint(selected: string) {
     for (const [id, el] of markers.current) {
