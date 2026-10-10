@@ -169,8 +169,9 @@ export function NowView({
       ) : null}
 
       {/* ── Instrument ── */}
-      <section className="tide-panel flex min-h-[250px] flex-1 flex-col px-1.5 pb-1 pt-1.5">
-        <div className="min-h-0 flex-1">{forecast ? instrument : null}</div>
+      {/* Fixed height: the chart keeps its size; the page scrolls below it instead of squeezing it. */}
+      <section className="tide-panel flex shrink-0 flex-col px-1.5 pb-1 pt-1.5">
+        <div className="h-[clamp(270px,44dvh,340px)]">{forecast ? instrument : null}</div>
         {!sheet ? (
           <label className="block px-1 pt-1">
             <span className="tide-label block text-center text-[10px] uppercase tracking-[0.14em] text-cyan-300/80">
