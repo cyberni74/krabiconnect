@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as TideRouteImport } from './routes/tide'
+import { Route as ApiPresenceRouteImport } from './routes/api/presence'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const TideRoute = TideRouteImport.update({
   path: '/tide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPresenceRoute = ApiPresenceRouteImport.update({
+  id: '/api/presence',
+  path: '/api/presence',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/tide': typeof TideRoute
+  '/api/presence': typeof ApiPresenceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/tide': typeof TideRoute
+  '/api/presence': typeof ApiPresenceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/tide': typeof TideRoute
+  '/api/presence': typeof ApiPresenceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$' | '/tide'
+  fullPaths: '/' | '/$' | '/tide' | '/api/presence'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$' | '/tide'
-  id: '__root__' | '/' | '/$' | '/tide'
+  to: '/' | '/$' | '/tide' | '/api/presence'
+  id: '__root__' | '/' | '/$' | '/tide' | '/api/presence'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   TideRoute: typeof TideRoute
+  ApiPresenceRoute: typeof ApiPresenceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/presence': {
+      id: '/api/presence'
+      path: '/api/presence'
+      fullPath: '/api/presence'
+      preLoaderRoute: typeof ApiPresenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   TideRoute: TideRoute,
+  ApiPresenceRoute: ApiPresenceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

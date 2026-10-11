@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { CaptainView } from "@/components/tide/captain-view";
 import { locateNearest, MapView } from "@/components/tide/map-view";
 import { NowView } from "@/components/tide/now-view";
+import { OnlineCount } from "@/components/tide/online-count";
 import { TideNotifier } from "@/components/tide/notifier";
 import { LangSwitch } from "@/components/tide/lang-switch";
 import { TideBackground } from "@/components/tide/tide-background";
@@ -200,7 +201,7 @@ function CaptainTide() {
 
         <nav
           className="absolute inset-x-0 bottom-0 z-30 border-t border-[var(--tide-line)] bg-[#060c13]"
-          style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
+          style={{ paddingBottom: "calc(4px + env(safe-area-inset-bottom))" }}
         >
           <ul className="grid h-[58px] grid-cols-5">
             {TABS.map(({ id, key, icon: Icon }) => {
@@ -228,6 +229,7 @@ function CaptainTide() {
               );
             })}
           </ul>
+          <OnlineCount />
         </nav>
       </main>
 
