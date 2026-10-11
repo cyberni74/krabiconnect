@@ -12,11 +12,3 @@ export function env(key: string): string | undefined {
 export function isWorkspacePreview(): boolean {
   return !env("GROK_PROJECT_ID");
 }
-
-/**
- * Image hosting (optional):
- * - SITE_URL — optional public origin. Listing heroes use a relative `/api/img?u=`
- *   so they load on the Vercel host even if this domain is parked / not attached.
- * - BLOB_READ_WRITE_TOKEN — Vercel Blob read-write token for POST /api/agent/rehost.
- *   When unset, rehost returns 503. GET /api/img still works without Blob.
- */
