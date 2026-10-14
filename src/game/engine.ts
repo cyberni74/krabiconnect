@@ -165,6 +165,10 @@ export class Game implements G {
   private ver = 0;
   private snap: UiSnapshot | null = null;
   mouse: Pt = { x: -1, y: -1 };
+  /** Touch device: smart default verb, larger speech text. */
+  touch = false;
+  textScale = 1;
+  revealUntil = 0;
 
   /* ---- UI subscription ---- */
   subscribe = (fn: () => void) => {
@@ -196,7 +200,9 @@ export class Game implements G {
 
   sentence() {
     if (this.busy > 0 && !this.choices) return "";
-    const verbLabel = { walk: "Gehe zu", look: "Schau an", take: "Nimm", use: "Benutze", talk: "Rede mit", give: "Gib" }[this.verb];
+    let v = this.verb;
+    if (this.touch && v === "walk" && this.hover && !this.hover.exit) v = this.hover.actor ? "talk" : "look";
+    const verbLabel = { walk: "Gehe zu", look: "Schau an", take: "Nimm", use: "Benutze", talk: "Rede mit", give: "Gib" }[v];
     const target = this.hover ? this.hsName(this.hover) : this.hoverItem && this.hoverItem !== this.sel ? itemName(this.hoverItem, this) : "";
     if (this.sel) {
       const prep = this.verb === "give" ? "an" : "mit";
@@ -300,6 +306,12 @@ export class Game implements G {
   }
   sfx(name: Parameters<G["sfx"]>[0]) {
     audio.sfx(name);
+    const buzz = { pickup: 20, coin: 15, fanfare: [30, 60, 30], magic: 40, wrong: [20, 40, 20], dig: 25, door: 0, splash: 10, horn: 80 }[name];
+    try {
+      if (buzz && typeof navigator !== "undefined") navigator.vibrate?.(buzz);
+    } catch {
+      /* unsupported */
+    }
   }
   finish() {
     this.screen = "end";
@@ -404,11 +416,13 @@ export class Game implements G {
     this.emit();
   }
 
+  /** Smallest hotspot under the point wins, so details on top of big areas stay reachable. */
   hitTest(p: Pt): Hotspot | null {
-    const hs = this.scene.hotspots;
-    for (let i = hs.length - 1; i >= 0; i--) {
-      const h = hs[i];
+    let best: Hotspot | null = null;
+    let bestArea = Infinity;
+    for (const h of this.scene.hotspots) {
       if (h.hidden?.(this)) continue;
+      let area = Infinity;
       if (h.actor) {
         const a = this.actors.get(h.actor);
         const def = this.scene.actors?.find((d) => d.id === h.actor);
@@ -416,13 +430,21 @@ export class Game implements G {
         const [bw, bh] = def.box ?? [56, 120];
         const w = bw * a.scale;
         const hh = bh * a.scale;
-        if (p.x > a.x - w / 2 && p.x < a.x + w / 2 && p.y > a.y - hh && p.y < a.y + 4) return h;
+        if (p.x > a.x - w / 2 && p.x < a.x + w / 2 && p.y > a.y - hh && p.y < a.y + 4) area = w * hh;
       } else if (h.rect) {
         const [x, y, w, hh] = h.rect;
-        if (p.x >= x && p.x <= x + w && p.y >= y && p.y <= y + hh) return h;
-      } else if (h.poly && inside(p, h.poly)) return h;
+        if (p.x >= x && p.x <= x + w && p.y >= y && p.y <= y + hh) area = w * hh;
+      } else if (h.poly && inside(p, h.poly)) {
+        const xs = h.poly.map((q) => q.x);
+        const ys = h.poly.map((q) => q.y);
+        area = (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys));
+      }
+      if (area < bestArea) {
+        bestArea = area;
+        best = h;
+      }
     }
-    return null;
+    return best;
   }
 
   pointerMove(p: Pt) {
@@ -432,6 +454,55 @@ export class Game implements G {
       this.hover = h;
       this.emit();
     }
+  }
+
+  reveal(ms = 2600) {
+    this.revealUntil = performance.now() + ms;
+  }
+
+  private hotspotCenter(h: Hotspot): Pt | null {
+    if (h.actor) {
+      const a = this.actors.get(h.actor);
+      const def = this.scene.actors?.find((d) => d.id === h.actor);
+      if (!a || !def || def.hidden?.(this)) return null;
+      return { x: a.x, y: a.y - ((def.box?.[1] ?? 120) * a.scale) / 2 };
+    }
+    if (h.rect) return { x: h.rect[0] + h.rect[2] / 2, y: h.rect[1] + h.rect[3] / 2 };
+    if (h.poly) return { x: h.poly.reduce((s, p) => s + p.x, 0) / h.poly.length, y: h.poly.reduce((s, p) => s + p.y, 0) / h.poly.length };
+    return null;
+  }
+
+  private drawReveal(ctx: CanvasRenderingContext2D) {
+    const left = this.revealUntil - performance.now();
+    if (left <= 0 || this.screen !== "play") return;
+    const a = Math.min(1, left / 400);
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.font = `600 ${Math.round(13 * this.textScale)}px "Kanit", sans-serif`;
+    const pulse = 1 + Math.sin(this.t * 6) * 0.15;
+    for (const h of this.scene.hotspots) {
+      if (h.hidden?.(this)) continue;
+      const c = this.hotspotCenter(h);
+      if (!c) continue;
+      const x = Math.max(24, Math.min(W - 24, c.x));
+      const y = Math.max(16, Math.min(H - 30, c.y));
+      ctx.beginPath();
+      ctx.arc(x, y, 9 * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = h.exit ? "rgba(120,220,255,0.35)" : "rgba(255,220,120,0.35)";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = h.exit ? "#9fe0ff" : "#ffe08a";
+      ctx.stroke();
+      const label = (h.exit ? "➜ " : "") + this.hsName(h);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(0,0,0,0.85)";
+      ctx.strokeText(label, x, y + 12);
+      ctx.fillStyle = "#fff";
+      ctx.fillText(label, x, y + 12);
+    }
+    ctx.restore();
   }
 
   hoverInv(id: string | null) {
@@ -463,6 +534,7 @@ export class Game implements G {
     if (this.skip()) return;
     if (this.cardState || this.busy > 0) return;
     const h = this.hitTest(p);
+    this.hover = h;
     if (!h) {
       this.sel = null;
       if (this.verb !== "walk") this.verb = "walk";
@@ -472,6 +544,7 @@ export class Game implements G {
     }
     let verb = this.verb;
     if (alt) verb = h.exit ? "walk" : h.actor ? "talk" : "look";
+    else if (this.touch && verb === "walk" && !h.exit) verb = h.actor ? "talk" : "look";
     const sel = this.sel;
     this.verb = "walk";
     this.sel = null;
@@ -666,6 +739,7 @@ export class Game implements G {
         ctx.globalAlpha = 1;
       }
     }
+    this.drawReveal(ctx);
     if (this.speech) this.drawSpeech(ctx, this.speech);
     if (this.fadeA > 0) {
       ctx.fillStyle = `rgba(4,6,10,${this.fadeA})`;
@@ -686,7 +760,8 @@ export class Game implements G {
     const x = a ? a.x : 480;
     const y = a ? a.y - headH * a.scale - 14 : 60;
     ctx.save();
-    ctx.font = `600 19px "Kanit", sans-serif`;
+    const ts = this.textScale;
+    ctx.font = `600 ${Math.round(19 * ts)}px "Kanit", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     const words = s.text.split(" ");
@@ -694,13 +769,13 @@ export class Game implements G {
     let cur = "";
     for (const w of words) {
       const test = cur ? cur + " " + w : w;
-      if (ctx.measureText(test).width > 380 && cur) {
+      if (ctx.measureText(test).width > Math.min(W - 40, 380 * ts) && cur) {
         lines.push(cur);
         cur = w;
       } else cur = test;
     }
     if (cur) lines.push(cur);
-    const lh = 23;
+    const lh = Math.round(23 * ts);
     let maxW = 0;
     for (const l of lines) maxW = Math.max(maxW, ctx.measureText(l).width);
     const cx = Math.max(maxW / 2 + 12, Math.min(W - maxW / 2 - 12, x));
@@ -709,7 +784,7 @@ export class Game implements G {
     for (let i = 0; i < lines.length; i++) {
       const ly = top - (lines.length - 1 - i) * lh;
       ctx.strokeStyle = "rgba(0,0,0,0.92)";
-      ctx.lineWidth = 5;
+      ctx.lineWidth = 5 * ts;
       ctx.strokeText(lines[i], cx, ly);
       ctx.fillStyle = this.speakerColor(s.who);
       ctx.fillText(lines[i], cx, ly);
@@ -738,7 +813,7 @@ export class Game implements G {
     }
     ctx.font = `400 14px "Kanit", sans-serif`;
     ctx.fillStyle = `rgba(233,220,192,${0.4 + 0.3 * Math.sin(this.t * 3)})`;
-    ctx.fillText("Klicken zum Fortfahren", W / 2, H - 40);
+    ctx.fillText(this.touch ? "Tippen zum Fortfahren" : "Klicken zum Fortfahren", W / 2, H - 40);
     ctx.restore();
   }
 }

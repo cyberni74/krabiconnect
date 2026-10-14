@@ -184,7 +184,7 @@ export const pier: SceneDef = {
         await g.say("Ein Seil. Jeder ordentliche Pirat braucht ein Seil.");
       },
     },
-    { id: "bollard", name: "Poller", rect: [540, 312, 44, 44], at: { x: 560, y: 380 }, look: "Ein eiserner Poller. Kalt, rund, zuverlässig." },
+    { id: "bollard", name: "Poller", rect: [540, 312, 44, 44], hidden: (g) => !g.flag("rope"), at: { x: 560, y: 380 }, look: "Ein eiserner Poller. Kalt, rund, zuverlässig." },
     {
       id: "barnabas",
       name: "Opa Barnabas",
