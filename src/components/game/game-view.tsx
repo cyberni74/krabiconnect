@@ -220,6 +220,7 @@ export function GameView() {
       <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none" }}>
         <div ref={wrapRef} className="relative max-h-full w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc(100dvh * ${W / H})` }}>
           {canvasEl}
+          {playing && <ExitZones ui={ui} game={game} />}
           {topButtons}
           {playing && (
             <div className="pointer-events-none absolute left-1/2 top-1.5 z-10 max-w-[60%] -translate-x-1/2 truncate rounded-full bg-black/45 px-3 py-0.5 text-center font-[Kanit] text-sm font-semibold text-[#9fe0ff]">
@@ -298,6 +299,7 @@ export function GameView() {
         style={{ aspectRatio: `${W} / ${H}` }}
       >
         {canvasEl}
+        {playing && <ExitZones ui={ui} game={game} />}
         {playing && (
           <div className="pointer-events-none absolute left-3 top-2 font-[Pirata_One] text-sm text-[#f3dfb0]/80 drop-shadow sm:text-lg">{ui.sceneTitle}</div>
         )}
@@ -340,6 +342,26 @@ export function GameView() {
         </>
       )}
     </div>
+  );
+}
+
+/** Transparent tap targets over every exit: one tap walks there and changes the room. */
+function ExitZones({ ui, game }: { ui: UiSnapshot; game: Game }) {
+  return (
+    <>
+      {ui.exits.map((e) => (
+        <button
+          key={e.id}
+          aria-label={`Weiter: ${e.name}`}
+          onClick={() => game.useExit(e.id)}
+          className="group absolute z-10 flex flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-[#9fe0ff]/35 bg-[#9fe0ff]/5 transition active:bg-[#9fe0ff]/25"
+          style={{ left: `${e.left}%`, top: `${e.top}%`, width: `${e.width}%`, height: `${e.height}%`, minWidth: 64, minHeight: 64 }}
+        >
+          <span className="animate-pulse text-3xl leading-none text-[#e6f8ff]/80 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{e.arrow}</span>
+          <span className="max-w-full truncate px-1 font-[Kanit] text-[11px] font-semibold text-[#e6f8ff]/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">{e.name}</span>
+        </button>
+      ))}
+    </>
   );
 }
 

@@ -35,6 +35,18 @@ export interface UiSnapshot {
   sceneTitle: string;
   hasSave: boolean;
   muted: boolean;
+  exits: ExitZone[];
+}
+
+/** Big transparent tap target for a scene exit, in percent of the frame. */
+export interface ExitZone {
+  id: string;
+  name: string;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  arrow: string;
 }
 
 const DEFAULTS: Record<Verb, string[]> = {
@@ -194,9 +206,54 @@ export class Game implements G {
       sceneTitle: this.scene.title,
       hasSave: hasSave(),
       muted: audio.muted,
+      exits: this.exitZones(),
     };
     return this.snap;
   };
+
+  private exitZones(): ExitZone[] {
+    if (this.screen !== "play") return [];
+    const out: ExitZone[] = [];
+    for (const h of this.scene.hotspots) {
+      if (!h.exit || h.hidden?.(this)) continue;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      if (h.rect) {
+        [x0, y0] = [h.rect[0], h.rect[1]];
+        [x1, y1] = [x0 + h.rect[2], y0 + h.rect[3]];
+      } else if (h.poly) {
+        for (const p of h.poly) {
+          x0 = Math.min(x0, p.x);
+          y0 = Math.min(y0, p.y);
+          x1 = Math.max(x1, p.x);
+          y1 = Math.max(y1, p.y);
+        }
+      } else continue;
+      // at least 90×90 logical px so it is easy to hit with a thumb
+      const w = Math.min(W, Math.max(x1 - x0, 90));
+      const hh = Math.min(H, Math.max(y1 - y0, 90));
+      const cx = (x0 + x1) / 2;
+      const cy = (y0 + y1) / 2;
+      const x = Math.max(0, Math.min(W - w, cx - w / 2));
+      const y = Math.max(0, Math.min(H - hh, cy - hh / 2));
+      const arrow = cx < W * 0.2 ? "←" : cx > W * 0.8 ? "→" : "↑";
+      out.push({ id: h.id, name: this.hsName(h), left: (x / W) * 100, top: (y / H) * 100, width: (w / W) * 100, height: (hh / H) * 100, arrow });
+    }
+    return out;
+  }
+
+  /** One tap on an exit zone walks there and changes the scene. */
+  useExit(id: string) {
+    audio.unlock();
+    if (this.screen !== "play" || this.busy > 0 || this.choices || this.cardState) return;
+    if (this.skip()) return;
+    const h = this.scene.hotspots.find((x) => x.id === id && x.exit && !x.hidden?.(this));
+    if (!h) return;
+    this.verb = "walk";
+    this.sel = null;
+    this.hover = null;
+    this.emit();
+    void this.act(h, "walk", null);
+  }
 
   sentence() {
     if (this.busy > 0 && !this.choices) return "";
