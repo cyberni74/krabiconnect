@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as AbenteuerRouteImport } from './routes/abenteuer'
 import { Route as TideRouteImport } from './routes/tide'
 import { Route as ApiPresenceRouteImport } from './routes/api/presence'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbenteuerRoute = AbenteuerRouteImport.update({
+  id: '/abenteuer',
+  path: '/abenteuer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TideRoute = TideRouteImport.update({
@@ -38,12 +44,14 @@ const ApiPresenceRoute = ApiPresenceRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/abenteuer': typeof AbenteuerRoute
   '/tide': typeof TideRoute
   '/api/presence': typeof ApiPresenceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/abenteuer': typeof AbenteuerRoute
   '/tide': typeof TideRoute
   '/api/presence': typeof ApiPresenceRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/abenteuer': typeof AbenteuerRoute
   '/tide': typeof TideRoute
   '/api/presence': typeof ApiPresenceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$' | '/tide' | '/api/presence'
+  fullPaths: '/' | '/$' | '/abenteuer' | '/tide' | '/api/presence'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$' | '/tide' | '/api/presence'
-  id: '__root__' | '/' | '/$' | '/tide' | '/api/presence'
+  to: '/' | '/$' | '/abenteuer' | '/tide' | '/api/presence'
+  id: '__root__' | '/' | '/$' | '/abenteuer' | '/tide' | '/api/presence'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  AbenteuerRoute: typeof AbenteuerRoute
   TideRoute: typeof TideRoute
   ApiPresenceRoute: typeof ApiPresenceRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abenteuer': {
+      id: '/abenteuer'
+      path: '/abenteuer'
+      fullPath: '/abenteuer'
+      preLoaderRoute: typeof AbenteuerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tide': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  AbenteuerRoute: AbenteuerRoute,
   TideRoute: TideRoute,
   ApiPresenceRoute: ApiPresenceRoute,
 }
