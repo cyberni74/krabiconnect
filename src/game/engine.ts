@@ -1,8 +1,9 @@
 import { audio } from "./audio";
+import { SPRITE_SCALE } from "./engine-constants";
 import { COMBOS, comboKey, itemName, ITEMS } from "./items";
 import { drawPerson, FINN } from "./people";
 import { CHAPTERS, SCENES, type ChapterDef } from "./scenes/index";
-import type { ActorRuntime, Facing, Flags, G, Hotspot, Pt, Reaction, SceneDef, Verb } from "./types";
+import type { ActorDef, ActorRuntime, Facing, Flags, G, Hotspot, Pt, Reaction, SceneDef, Verb } from "./types";
 import { H, W } from "./types";
 
 
@@ -502,9 +503,7 @@ export class Game implements G {
         const a = this.actors.get(h.actor);
         const def = this.scene.actors?.find((d) => d.id === h.actor);
         if (!a || !def || def.hidden?.(this)) continue;
-        const [bw, bh] = def.box ?? [56, 120];
-        const w = bw * a.scale;
-        const hh = bh * a.scale;
+        const { w, h: hh } = this.actorBox(def, a);
         if (p.x > a.x - w / 2 && p.x < a.x + w / 2 && p.y > a.y - hh && p.y < a.y + 4) area = w * hh;
       } else if (h.rect) {
         const [x, y, w, hh] = h.rect;
@@ -776,6 +775,18 @@ export class Game implements G {
     }
     return img.complete && img.naturalWidth > 0 ? img : null;
   }
+  /** On-screen size of an actor: from its sprite image when it has one, otherwise from the legacy box. */
+  private actorBox(def: ActorDef, a: ActorRuntime): { w: number; h: number } {
+    const sp = def.sprite;
+    const img = sp ? this.loadImg(sp.frames[sp.pick(a, this)]) : null;
+    if (sp && img) {
+      const sc = sp.scale ?? SPRITE_SCALE;
+      return { w: img.naturalWidth * sc, h: img.naturalHeight * sc * (sp.crop ?? 1) };
+    }
+    const [bw, bh] = def.box ?? [56, 120];
+    return { w: bw * a.scale, h: bh * a.scale };
+  }
+
   /** Starts loading every image of the current chapter so scenes never pop in. */
   preload() {
     const koh = this.chapter.start.startsWith("koh_");
@@ -867,7 +878,7 @@ export class Game implements G {
             const fl = typeof sp.float === "function" ? sp.float(this) : sp.float ?? 0;
             const breathe = Math.sin(this.t * 2.5 + a.x) > 0.75 ? -4 : 0;
             const dy = (fl ? -Math.sin(this.t * 1.4) * fl : 0) + breathe;
-            this.drawImg(ctx, img, a.x, a.y, a.facing, dy, sp.scale ?? 2, sp.crop ?? 1, !fl && !sp.crop);
+            this.drawImg(ctx, img, a.x, a.y, a.facing, dy, sp.scale ?? SPRITE_SCALE, sp.crop ?? 1, !fl && !sp.crop);
             sp.after?.(ctx, a, this);
           } else if (!sp) d.draw(ctx, a, this);
         },
@@ -885,7 +896,7 @@ export class Game implements G {
             if (frames!.every(Boolean)) {
               const idx = walking ? Math.floor(this.walkPhase * 4) % 4 : 0;
               const dy = walking ? -4 * Math.abs(Math.sin(this.walkPhase * Math.PI * 2)) : Math.sin(t * 2.5) > 0.75 ? -4 : 0;
-              this.drawImg(ctx, frames![idx]!, this.hero.x, this.hero.y, this.hero.facing, dy, 2, 1, true);
+              this.drawImg(ctx, frames![idx]!, this.hero.x, this.hero.y, this.hero.facing, dy, SPRITE_SCALE, 1, true);
             }
             return;
           }
@@ -927,9 +938,9 @@ export class Game implements G {
   private drawSpeech(ctx: CanvasRenderingContext2D, s: Speech) {
     const a = this.actor(s.who);
     const def = this.scene.actors?.find((d) => d.id === s.who);
-    const headH = def?.box?.[1] ?? 128;
+    const headH = def && a ? this.actorBox(def, a).h : s.who === "hero" ? 178 : 128 * (a?.scale ?? 1);
     const x = a ? a.x : 480;
-    const y = a ? a.y - headH * a.scale - 14 : 60;
+    const y = a ? a.y - headH - 14 : 60;
     ctx.save();
     const ts = this.textScale;
     ctx.font = `600 ${Math.round(19 * ts)}px "Kanit", sans-serif`;

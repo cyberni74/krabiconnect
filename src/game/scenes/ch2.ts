@@ -162,6 +162,7 @@ export const deck: SceneDef = {
       sprite: {
         frames: { idle: "/chars/parrot-idle.png", squawk: "/chars/parrot-squawk.png" },
         pick: (a) => (a.talking ? "squawk" : "idle"),
+        scale: 1.6,
       },
       name: "Krächz",
       color: "#7dff9a",

@@ -1,6 +1,7 @@
 import { barrel, cloud, crate, ellipse, fireflies, foliage, glow, grain, lin, palm, planks, poly, rad, rect, ridge, rock, seaBase, seaShimmer, shade, sky, twinkle, vignette } from "../art";
 import { MONKEY, NOK, PLOY, SORN, drawSprite, spriteShadow } from "../sprites";
 import { bye, talk } from "../story";
+import { SPRITE_SCALE } from "../engine-constants";
 import type { ActorRuntime, G, SceneDef } from "../types";
 
 type C = CanvasRenderingContext2D;
@@ -16,9 +17,9 @@ const breath = (t: number) => (Math.sin(t * 2.5) > 0.75 ? -PX : 0);
 
 /** Generated pixel frames are 72 px tall (monkey 44) and drawn at 2 logical px per sprite pixel. */
 
-function drawImageSprite(ctx: C, img: HTMLImageElement, x: number, y: number, facing: 1 | -1, bob: number) {
-  const w = img.naturalWidth * 2;
-  const h = img.naturalHeight * 2;
+function drawImageSprite(ctx: C, img: HTMLImageElement, x: number, y: number, facing: 1 | -1, bob: number, scale = SPRITE_SCALE) {
+  const w = img.naturalWidth * scale;
+  const h = img.naturalHeight * scale;
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.translate(Math.round(x), Math.round(y));
@@ -191,7 +192,7 @@ export const kohPier: SceneDef = {
       x: 860,
       y: 372,
       facing: 1,
-      box: [48, 96],
+      box: [76, 176],
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
         if (SORN_IMG.idle.complete) drawImageSprite(ctx, a.talking ? SORN_IMG.talk : SORN_IMG.idle, a.x, a.y, a.facing, breath(a.t));
@@ -368,7 +369,7 @@ export const kohJungle: SceneDef = {
       x: 730,
       y: 392,
       facing: -1,
-      box: [48, 96],
+      box: [76, 176],
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
         if (PLOY_IMG.idle.complete) drawImageSprite(ctx, a.talking ? PLOY_IMG.talk : PLOY_IMG.idle, a.x, a.y, a.facing, breath(a.t));
@@ -382,12 +383,12 @@ export const kohJungle: SceneDef = {
       x: 430,
       y: 200,
       facing: -1,
-      box: [40, 40],
+      box: [80, 96],
       pos: (g) => (g.flag("monkeyHasLamp") ? { x: 440, y: 376 } : { x: 525, y: 240 }),
       draw: (ctx, a, g) => {
         const bob = Math.sin(a.t * 5) * PX * 0.5;
         if (MONKEY_IMG.idle.complete) {
-          drawImageSprite(ctx, a.talking ? MONKEY_IMG.screech : MONKEY_IMG.idle, a.x, a.y, a.facing, bob);
+          drawImageSprite(ctx, a.talking ? MONKEY_IMG.screech : MONKEY_IMG.idle, a.x, a.y, a.facing, bob, 2);
           if (g.flag("monkeyHasLamp")) glow(ctx, a.x + 12, a.y - 3 * PX, 14, "rgba(255,240,160,0.8)");
           return;
         }
@@ -591,7 +592,7 @@ export const kohCave: SceneDef = {
       x: 30,
       y: 390,
       facing: 1,
-      box: [48, 96],
+      box: [76, 176],
       hidden: (g) => !g.flag("sornHere"),
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);

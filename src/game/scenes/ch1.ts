@@ -502,11 +502,12 @@ export const tavern: SceneDef = {
       sprite: {
         frames: { idle: "/chars/mo-idle.png", talk: "/chars/mo-talk.png" },
         pick: (a) => (a.talking ? "talk" : "idle"),
+        scale: 1.85,
       },
       name: "Mo",
       color: "#9fe6a0",
       x: 150,
-      y: 254,
+      y: 224,
       facing: 1,
       scale: 0.98,
       box: [70, 128],
@@ -781,6 +782,23 @@ export const shop: SceneDef = {
   id: "shop",
   title: "Pfefferkorns Krimskrams",
   art: "/art/shop.png",
+  artOverlay(ctx, g) {
+    if (g.flag("oilBought")) return;
+    ctx.save();
+    ctx.translate(688, 268);
+    ctx.fillStyle = lin(ctx, -16, 0, 16, 0, [[0, "#2f4a2c"], [0.5, "#6f9a5c"], [1, "#2a3a26"]]);
+    ctx.beginPath();
+    ctx.roundRect(-16, -34, 32, 34, 5);
+    ctx.fill();
+    poly(ctx, [10, -30, 26, -46, 29, -43, 14, -26], "#4b6b47");
+    rect(ctx, -12, -24, 24, 12, "#e8d8a8");
+    ctx.fillStyle = "#7a2a1a";
+    ctx.font = "bold 9px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("ÖL", 0, -15);
+    glow(ctx, 0, -18, 38, "rgba(255,230,160,0.3)");
+    ctx.restore();
+  },
   ambient: "tavern",
   walk: [{ x: 20, y: 376 }, { x: 940, y: 376 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(376, 0.98, 432, 1.08),
@@ -902,11 +920,12 @@ export const shop: SceneDef = {
         frames: { idle: "/chars/pfeffer-idle.png", talk: "/chars/pfeffer-talk.png" },
         pick: (a) => (a.talking ? "talk" : "idle"),
         crop: 0.78,
+        scale: 1.9,
       },
       name: "Frau Pfefferkorn",
       color: "#f0b8ff",
       x: 770,
-      y: 287,
+      y: 293,
       facing: -1,
       scale: 0.98,
       box: [60, 124],
@@ -935,7 +954,7 @@ export const shop: SceneDef = {
     {
       id: "oil",
       name: "Lampenöl",
-      rect: [690, 60, 70, 90],
+      rect: [662, 222, 52, 48],
       hidden: (g) => !!g.flag("oilBought"),
       look: "Eine Kanne Lampenöl. Preisschild: 2 Dublonen.",
       take: (g) => buyOil(g),
