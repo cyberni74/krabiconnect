@@ -1,3 +1,4 @@
+import { getLang, loadLang, onLang, setLang, tr } from "@/game/i18n";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { audio } from "@/game/audio";
 import { Game, type UiSnapshot } from "@/game/engine";
@@ -147,15 +148,24 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
     raf = requestAnimationFrame(loop);
     void document.fonts?.ready.then(() => game.refresh());
     const onKey = (e: KeyboardEvent) => {
+      if (e.shiftKey && (e.key === "L" || e.key === "l")) {
+        setLang(getLang() === "th" ? "de" : "th");
+        e.preventDefault();
+        return;
+      }
       if (e.key === " " || e.key === "Escape" || e.key === ".") {
         if (game.skip()) e.preventDefault();
       }
     };
+    loadLang();
+    const offLang = onLang(() => game.emit());
+    game.emit();
     const onFs = () => setFs(!!document.fullscreenElement);
     window.addEventListener("keydown", onKey);
     document.addEventListener("fullscreenchange", onFs);
     return () => {
       cancelAnimationFrame(raf);
+      offLang();
       ro.disconnect();
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("fullscreenchange", onFs);
@@ -270,10 +280,10 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
       {layout === "portrait" && playing && !portraitOk && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/90 p-4 text-center">
           <div className="animate-[spin_2.4s_ease-in-out_infinite] text-5xl">📱</div>
-          <div className="font-[Pirata_One] text-3xl text-[#f2c76b]">Dreh dein Handy quer</div>
-          <div className="font-[Kanit] text-sm text-[#e9dcc0]">Im Querformat siehst du die ganze Szene.</div>
+          <div className="font-[Pirata_One] text-3xl text-[#f2c76b]">{tr("Dreh dein Handy quer")}</div>
+          <div className="font-[Kanit] text-sm text-[#e9dcc0]">{tr("Im Querformat siehst du die ganze Szene.")}</div>
           <button onClick={() => setPortraitOk(true)} className="mt-1 rounded-full border border-[#5a3a20] px-4 py-2 font-[Kanit] text-sm text-[#d9c39a]">
-            Trotzdem hochkant spielen
+            {tr("Trotzdem hochkant spielen")}
           </button>
         </div>
       )}
@@ -282,12 +292,15 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
 
   const topButtons = playing && (
     <div className="absolute right-2 top-2 z-20 flex gap-1.5" style={compact ? { right: "max(0.5rem, env(safe-area-inset-right))" } : undefined}>
-      {touch && <IconBtn label="Hotspots zeigen" onClick={() => game.reveal()}>🔍</IconBtn>}
-      <IconBtn label={ui.muted ? "Ton an" : "Ton aus"} onClick={() => { audio.unlock(); audio.toggleMute(); game.emit(); }}>
+      {touch && <IconBtn label={tr("Hotspots zeigen")} onClick={() => game.reveal()}>🔍</IconBtn>}
+      <IconBtn label={tr(ui.muted ? "Ton an" : "Ton aus")} onClick={() => { audio.unlock(); audio.toggleMute(); game.emit(); }}>
         {ui.muted ? "🔇" : "🔊"}
       </IconBtn>
-      {canFs && layout !== "desktop" && <IconBtn label="Vollbild" onClick={goFullscreen}>{fs ? "⤡" : "⛶"}</IconBtn>}
-      <IconBtn label="Zum Titelbild" onClick={() => game.toTitle()}>☰</IconBtn>
+      {canFs && layout !== "desktop" && <IconBtn label={tr("Vollbild")} onClick={goFullscreen}>{fs ? "⤡" : "⛶"}</IconBtn>}
+      <IconBtn label={getLang() === "th" ? "Deutsch" : "ไทย"} onClick={() => setLang(getLang() === "th" ? "de" : "th")}>
+        <span className="text-[11px] font-bold">{getLang() === "th" ? "DE" : "ไทย"}</span>
+      </IconBtn>
+      <IconBtn label={tr("Zum Titelbild")} onClick={() => game.toTitle()}>☰</IconBtn>
     </div>
   );
 
@@ -313,7 +326,7 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
                   className={`flex h-12 items-center gap-1.5 rounded-full border-2 px-3.5 font-[Kanit] text-sm font-semibold shadow-lg backdrop-blur ${ui.busy ? "opacity-50" : ""} ${ui.verb !== "walk" ? "border-[#e9c873] bg-[#3a2814]/90 text-[#ffe9a8]" : "border-[#5a3a20] bg-black/60 text-[#e9dcc0]"}`}
                 >
                   <span className="text-lg">{VERB_ICON[ui.verb]}</span>
-                  {ui.verb === "walk" ? "Aktion" : verbLabel}
+                  {tr(ui.verb === "walk" ? "Aktion" : verbLabel)}
                   {ui.sel && <img src={itemIcon(ui.sel)} alt="" className="h-7 w-7" />}
                 </button>
               </div>
@@ -321,7 +334,7 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
                 <button
                   onClick={() => { setVerbMenu(false); setBag((b) => !b); }}
                   className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#5a3a20] bg-black/60 text-2xl shadow-lg backdrop-blur ${ui.busy ? "opacity-50" : ""}`}
-                  aria-label="Inventar"
+                  aria-label={tr("Inventar")}
                 >
                   🎒
                   {ui.inv.length > 0 && (
@@ -342,7 +355,7 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
                       className={`flex h-14 w-20 flex-col items-center justify-center rounded-xl border font-[Kanit] text-xs font-semibold ${ui.verb === v.id ? "border-[#e9c873] bg-[#3a2814] text-[#ffe9a8]" : "border-[#3a2a1a] bg-[#1a120c] text-[#d9c39a]"}`}
                     >
                       <span className="text-lg leading-none">{VERB_ICON[v.id]}</span>
-                      {v.id === "walk" ? "Automatisch" : v.label}
+                      {tr(v.id === "walk" ? "Automatisch" : v.label)}
                     </button>
                   ))}
                 </div>
@@ -350,7 +363,7 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
               {bag && (
                 <div className="absolute inset-x-2 bottom-16 z-30 rounded-2xl border border-[#5a3a20] bg-[#120c08]/95 p-2 shadow-2xl">
                   <div className="mb-1 px-1 font-[Kanit] text-xs text-[#a89070]">
-                    {ui.verb === "use" || ui.verb === "give" ? (ui.sel ? `${ui.sentence} … dann ins Bild tippen oder zweiten Gegenstand wählen` : "Gegenstand wählen") : "Tippen = anschauen · erst „Benutze“ oder „Gib“ wählen, um ihn einzusetzen"}
+                    {ui.verb === "use" || ui.verb === "give" ? (ui.sel ? `${ui.sentence} … ${tr("dann ins Bild tippen oder zweiten Gegenstand wählen")}` : tr("Gegenstand wählen")) : tr("Tippen = anschauen · erst „Benutze“ oder „Gib“ wählen, um ihn einzusetzen")}
                   </div>
                   <InventoryGrid ui={ui} game={game} onPick={(id) => {
                     const wasSel = ui.sel;
@@ -403,7 +416,7 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
                         : "border-[#3a2a1a] bg-[#1a120c] text-[#d9c39a] hover:bg-[#2a1c12]"
                     }`}
                   >
-                    {touch && v.id === "walk" ? "Automatisch" : v.label}
+                    {tr(touch && v.id === "walk" ? "Automatisch" : v.label)}
                   </button>
                 ))}
               </div>
@@ -414,8 +427,8 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
           )}
           <p className="text-center font-[Kanit] text-xs text-[#7a6650]">
             {touch
-              ? "Tippen = gehen / ansehen / reden · Gedrückt halten = anschauen · 🔍 zeigt alle Hotspots · speichert automatisch"
-              : "Verb wählen, dann auf etwas klicken · Rechtsklick = Anschauen / Reden · Leertaste überspringt Text · Spielstand speichert automatisch"}
+              ? tr("Tippen = gehen / ansehen / reden · Gedrückt halten = anschauen · 🔍 zeigt alle Hotspots · speichert automatisch")
+              : tr("Verb wählen, dann auf etwas klicken · Rechtsklick = Anschauen / Reden · Leertaste überspringt Text · Spielstand speichert automatisch")}
           </p>
         </>
       )}
@@ -430,7 +443,7 @@ function ExitZones({ ui, game }: { ui: UiSnapshot; game: Game }) {
       {ui.exits.map((e) => (
         <button
           key={e.id}
-          aria-label={`Weiter: ${e.name}`}
+          aria-label={`${tr("Weiter")}: ${e.name}`}
           onClick={() => game.useExit(e.id)}
           className="group absolute z-10 flex flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-[#9fe0ff]/35 bg-[#9fe0ff]/5 transition active:bg-[#9fe0ff]/25"
           style={{ left: `${e.left}%`, top: `${e.top}%`, width: `${e.width}%`, height: `${e.height}%`, minWidth: 64, minHeight: 64 }}
@@ -444,7 +457,7 @@ function ExitZones({ ui, game }: { ui: UiSnapshot; game: Game }) {
 }
 
 function InventoryGrid({ ui, game, onPick, cols }: { ui: UiSnapshot; game: Game; onPick: (id: string) => void; cols: string }) {
-  if (ui.inv.length === 0) return <div className="py-6 text-center font-[Kanit] text-sm text-[#7a6650]">Taschen leer. Noch.</div>;
+  if (ui.inv.length === 0) return <div className="py-6 text-center font-[Kanit] text-sm text-[#7a6650]">{tr("Taschen leer. Noch.")}</div>;
   return (
     <div className={`grid content-start gap-1.5 ${cols}`}>
       {ui.inv.map((id) => (
@@ -495,43 +508,59 @@ function IconBtn({ children, label, onClick }: { children: React.ReactNode; labe
   );
 }
 
+function LangToggle({ className = "absolute right-3 top-3" }: { className?: string }) {
+  const l = getLang();
+  const b = (id: "de" | "th", label: string) => (
+    <button
+      key={id}
+      onClick={() => setLang(id)}
+      aria-pressed={l === id}
+      className={`px-3 py-1.5 font-[Kanit] text-sm font-semibold transition ${l === id ? "bg-[#e9c873] text-[#2a1a08]" : "bg-[#120c08]/80 text-[#e9dcc0] hover:bg-[#3a2410]"}`}
+    >
+      {label}
+    </button>
+  );
+  return <div className={`${className} z-30 flex overflow-hidden rounded-full border-2 border-[#e9c873]/80 shadow-lg`}>{b("de", "Deutsch")}{b("th", "ไทย")}</div>;
+}
+
 function TitleScreen({ hasSave, title, subtitle, compact, onNew, onContinue, onChapter, installHint, onHintDone }: { hasSave: boolean; title: string; subtitle: string; compact: boolean; onNew: () => void; onContinue: () => void; onChapter: (n: 1 | 2 | 3) => void; installHint: boolean; onHintDone: () => void }) {
   const [pick, setPick] = useState(false);
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-black/30 via-black/10 to-black/70 px-4 text-center">
-      <div className="font-[Kanit] text-[10px] uppercase tracking-[0.35em] text-[#f3dfb0]/80 sm:text-sm">{subtitle}</div>
-      <h1 className="mt-1 font-[Pirata_One] text-4xl leading-none text-[#f2c76b] drop-shadow-[0_4px_20px_rgba(255,160,60,0.6)] sm:text-7xl lg:text-8xl">
+      <LangToggle />
+      <div className={`font-[Kanit] text-[10px] text-[#f3dfb0]/80 sm:text-sm ${getLang() === "th" ? "tracking-wide" : "uppercase tracking-[0.35em]"}`}>{subtitle}</div>
+      <h1 className={`mt-1 ${getLang() === "th" ? "font-[Kanit] font-semibold" : "font-[Pirata_One]"} text-4xl leading-none text-[#f2c76b] drop-shadow-[0_4px_20px_rgba(255,160,60,0.6)] sm:text-7xl lg:text-8xl`}>
         {title}
       </h1>
       <div className="mt-4 flex flex-wrap justify-center gap-2 sm:mt-8 sm:gap-3">
         <button onClick={onNew} className="rounded-full border-2 border-[#e9c873] bg-[#3a2410]/90 px-6 py-3 font-[Kanit] text-base font-semibold text-[#ffe9a8] shadow-lg hover:bg-[#5a3818] sm:px-7 sm:text-lg">
-          Neues Spiel
+          {tr("Neues Spiel")}
         </button>
         {hasSave && (
           <button onClick={onContinue} className="rounded-full border-2 border-[#9fe0ff]/70 bg-[#0c1a24]/90 px-6 py-3 font-[Kanit] text-base font-semibold text-[#cfefff] shadow-lg hover:bg-[#14283a] sm:px-7 sm:text-lg">
-            Weiterspielen
+            {tr("Weiterspielen")}
           </button>
         )}
       </div>
       <button onClick={() => setPick((v) => !v)} className="mt-4 font-[Kanit] text-sm text-[#9fe0ff] underline underline-offset-4 hover:text-white sm:mt-6">
-        Kapitel wählen
+        {tr("Kapitel wählen")}
       </button>
       {pick && (
         <div className="mt-2 flex flex-wrap justify-center gap-2">
           {([1, 2, 3] as const).map((n) => (
             <button key={n} onClick={() => onChapter(n)} className="rounded-full border border-[#9fe0ff]/60 bg-[#0c1a24]/90 px-4 py-1.5 font-[Kanit] text-sm font-semibold text-[#cfefff] hover:bg-[#14283a]">
-              Kapitel {n}
+              {tr(`Kapitel ${n}`)}
             </button>
           ))}
         </div>
       )}
       {installHint && (
         <div className="mt-3 max-w-md rounded-xl border border-[#e9c873]/50 bg-black/65 px-3 py-2 font-[Kanit] text-xs text-[#f3dfb0] backdrop-blur">
-          <b>Vollbild ohne Browserleiste:</b> Tippe unten im Safari auf <b>Teilen</b> und wähle <b>„Zum Home-Bildschirm“</b>. Dann startet das Spiel wie eine App.
-          <button onClick={onHintDone} className="ml-2 underline underline-offset-2 text-[#9fe0ff]">Verstanden</button>
+          {getLang() === "th" ? (<><b>เต็มจอไม่มีแถบเบราว์เซอร์:</b> แตะ <b>แชร์</b> ใน Safari แล้วเลือก <b>“เพิ่มลงในหน้าจอโฮม”</b> เกมจะเปิดเหมือนแอป</>) : (<><b>Vollbild ohne Browserleiste:</b> Tippe unten im Safari auf <b>Teilen</b> und wähle <b>„Zum Home-Bildschirm“</b>. Dann startet das Spiel wie eine App.</>)}
+          <button onClick={onHintDone} className="ml-2 underline underline-offset-2 text-[#9fe0ff]">{tr("Verstanden")}</button>
         </div>
       )}
-      {compact && <div className="mt-3 font-[Kanit] text-xs text-[#e9dcc0]/70">Tippen zum Gehen · Gedrückt halten zum Anschauen · 🔍 zeigt Hotspots</div>}
+      {compact && <div className="mt-3 font-[Kanit] text-xs text-[#e9dcc0]/70">{tr("Tippen zum Gehen · Gedrückt halten zum Anschauen · 🔍 zeigt Hotspots")}</div>}
     </div>
   );
 }
@@ -539,12 +568,12 @@ function TitleScreen({ hasSave, title, subtitle, compact, onNew, onContinue, onC
 function EndScreen({ text, onAgain }: { text: string; onAgain: () => void }) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 px-4 text-center">
-      <h2 className="font-[Pirata_One] text-5xl text-[#f2c76b] sm:text-8xl">Ende</h2>
+      <h2 className={`${getLang() === "th" ? "font-[Kanit] font-semibold" : "font-[Pirata_One]"} text-5xl text-[#f2c76b] sm:text-8xl`}>{tr("Ende")}</h2>
       <p className="mt-2 max-w-xl font-[Kanit] text-sm text-[#e9dcc0] sm:text-lg">
         {text}
       </p>
       <button onClick={onAgain} className="mt-5 rounded-full border-2 border-[#e9c873] bg-[#3a2410] px-6 py-2.5 font-[Kanit] font-semibold text-[#ffe9a8] hover:bg-[#5a3818]">
-        Nochmal spielen
+        {tr("Nochmal spielen")}
       </button>
 
     </div>

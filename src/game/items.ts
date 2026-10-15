@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 import { ellipse, glow, lin, poly, rad, rect } from "./art";
 import type { G, Reaction } from "./types";
 
@@ -325,7 +326,7 @@ export const ITEMS: Record<string, ItemDef> = {
 
 export function itemName(id: string, g: G): string {
   const n = ITEMS[id]?.name ?? id;
-  return typeof n === "function" ? n(g) : n;
+  return tr(typeof n === "function" ? n(g) : n);
 }
 
 const iconCache = new Map<string, string>();

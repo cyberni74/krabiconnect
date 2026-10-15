@@ -1,3 +1,4 @@
+import { getLang, tr, words } from "./i18n";
 import { audio } from "./audio";
 import { SPRITE_SCALE } from "./engine-constants";
 import { COMBOS, comboKey, itemName, ITEMS } from "./items";
@@ -33,6 +34,7 @@ export interface UiSnapshot {
   busy: boolean;
   screen: "title" | "play" | "end";
   sceneTitle: string;
+  lang: string;
   hasSave: boolean;
   muted: boolean;
   exits: ExitZone[];
@@ -208,13 +210,14 @@ export class Game implements G {
       choices: this.choices?.options ?? null,
       busy: this.busy > 0,
       screen: this.screen,
-      sceneTitle: this.scene.title,
+      sceneTitle: tr(this.scene.title),
+      lang: getLang(),
       hasSave: hasSave(this.saveKey),
       muted: audio.muted,
       exits: this.exitZones(),
-      endText: this.chapter.endText,
-      title: this.chapter.title,
-      subtitle: this.chapter.subtitle,
+      endText: tr(this.chapter.endText),
+      title: tr(this.chapter.title),
+      subtitle: tr(this.chapter.subtitle),
     };
     return this.snap;
   };
@@ -269,17 +272,17 @@ export class Game implements G {
     if (this.busy > 0 && !this.choices) return "";
     let v = this.verb;
     if (this.touch && v === "walk" && this.hover && !this.hover.exit) v = this.hover.actor ? "talk" : "look";
-    const verbLabel = { walk: "Gehe zu", look: "Schau an", take: "Nimm", use: "Benutze", talk: "Rede mit", give: "Gib" }[v];
+    const verbLabel = tr({ walk: "Gehe zu", look: "Schau an", take: "Nimm", use: "Benutze", talk: "Rede mit", give: "Gib" }[v]);
     const target = this.hover ? this.hsName(this.hover) : this.hoverItem && this.hoverItem !== this.sel ? itemName(this.hoverItem, this) : "";
     if (this.sel) {
-      const prep = this.verb === "give" ? "an" : "mit";
+      const prep = tr(this.verb === "give" ? "an" : "mit");
       return `${verbLabel} ${itemName(this.sel, this)} ${prep} ${target}`.trim();
     }
     return `${verbLabel} ${target}`.trim();
   }
 
   hsName(h: Hotspot) {
-    return typeof h.name === "function" ? h.name(this) : h.name;
+    return tr(typeof h.name === "function" ? h.name(this) : h.name);
   }
 
   /* ---- state API ---- */
@@ -315,6 +318,7 @@ export class Game implements G {
 
   /* ---- scripting primitives ---- */
   say(text: string, who = "hero"): Promise<void> {
+    text = tr(text);
     return new Promise((resolve) => {
       const ms = Math.max(1500, text.length * 55 + 900);
       this.speech = { who, text, until: performance.now() + ms, resolve };
@@ -340,13 +344,13 @@ export class Game implements G {
   }
   choose(options: string[]): Promise<number> {
     return new Promise((resolve) => {
-      this.choices = { options, resolve };
+      this.choices = { options: options.map(tr), resolve };
       this.emit();
     });
   }
   card(title: string, sub?: string): Promise<void> {
     return new Promise((resolve) => {
-      this.cardState = { title, sub, t0: performance.now(), resolve };
+      this.cardState = { title: tr(title), sub: sub ? tr(sub) : sub, t0: performance.now(), resolve };
     });
   }
   fade(to: 0 | 1, ms = 450): Promise<void> {
@@ -955,17 +959,16 @@ export class Game implements G {
     ctx.font = `600 ${Math.round(19 * ts)}px "Kanit", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
-    const words = s.text.split(" ");
     const lines: string[] = [];
     let cur = "";
-    for (const w of words) {
-      const test = cur ? cur + " " + w : w;
-      if (ctx.measureText(test).width > Math.min(W - 40, 380 * ts) && cur) {
-        lines.push(cur);
-        cur = w;
+    for (const w of words(s.text)) {
+      const test = cur + w;
+      if (ctx.measureText(test.trimEnd()).width > Math.min(W - 40, 380 * ts) && cur) {
+        lines.push(cur.trimEnd());
+        cur = w.trimStart();
       } else cur = test;
     }
-    if (cur) lines.push(cur);
+    if (cur) lines.push(cur.trimEnd());
     const lh = Math.round(23 * ts);
     let maxW = 0;
     for (const l of lines) maxW = Math.max(maxW, ctx.measureText(l).width);
@@ -991,7 +994,7 @@ export class Game implements G {
     ctx.globalAlpha = k;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `64px "Pirata One", serif`;
+    ctx.font = getLang() === "th" ? `600 56px "Kanit", sans-serif` : `64px "Pirata One", serif`;
     ctx.fillStyle = "#f2c76b";
     ctx.shadowColor = "rgba(255,170,60,0.6)";
     ctx.shadowBlur = 24;
@@ -1004,7 +1007,7 @@ export class Game implements G {
     }
     ctx.font = `400 14px "Kanit", sans-serif`;
     ctx.fillStyle = `rgba(233,220,192,${0.4 + 0.3 * Math.sin(this.t * 3)})`;
-    ctx.fillText(this.touch ? "Tippen zum Fortfahren" : "Klicken zum Fortfahren", W / 2, H - 40);
+    ctx.fillText(tr(this.touch ? "Tippen zum Fortfahren" : "Klicken zum Fortfahren"), W / 2, H - 40);
     ctx.restore();
   }
 }
