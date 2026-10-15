@@ -609,10 +609,33 @@ export const temple: SceneDef = {
       ctx.restore();
     }
     if (g.flag("doorOpen")) {
-      ctx.fillStyle = rad(ctx, 470, 300, 10, 150, [[0, "#1a3a4a"], [1, "#04080a"]]);
+      // open doorway: dark passage that glows turquoise toward the sea cave
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(404, 154, 134, 172);
+      ctx.clip();
+      ctx.fillStyle = lin(ctx, 0, 154, 0, 326, [[0, "#02080c"], [0.55, "#06222c"], [1, "#0e4a56"]]);
       ctx.fillRect(404, 154, 134, 172);
-      rect(ctx, 452, 312, 36, 16, "#5a5a48");
+      ctx.fillStyle = rad(ctx, 471, 318, 6, 120, [[0, "rgba(120,240,230,0.75)"], [0.4, "rgba(40,150,160,0.35)"], [1, "rgba(0,0,0,0)"]]);
+      ctx.fillRect(404, 154, 134, 172);
+      // side walls in perspective
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.beginPath();
+      ctx.moveTo(404, 154); ctx.lineTo(436, 190); ctx.lineTo(436, 326); ctx.lineTo(404, 326); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(538, 154); ctx.lineTo(506, 190); ctx.lineTo(506, 326); ctx.lineTo(538, 326); ctx.fill();
+      // floor steps
+      for (let i = 0; i < 4; i++) {
+        const y = 326 - i * 9;
+        const inset = i * 5;
+        rect(ctx, 404 + inset, y - 3, 134 - inset * 2, 4, `rgba(${90 - i * 14},${100 - i * 14},${84 - i * 12},0.9)`);
+      }
+      ctx.restore();
+      // pedestal
+      rect(ctx, 454, 312, 32, 14, "#6a6a56");
+      rect(ctx, 454, 312, 32, 3, "#8a8a72");
       if (!g.flag("mirror")) {
+        glow(ctx, 470, 296, 30, "rgba(190,220,255,0.55)");
         ellipse(ctx, 470, 296, 18, 18, "#c9b36a");
         ellipse(ctx, 470, 296, 14, 14, lin(ctx, 456, 282, 484, 310, [[0, "#f0f6ff"], [1, "#5a6c8c"]]));
       }
