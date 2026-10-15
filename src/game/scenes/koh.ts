@@ -14,8 +14,29 @@ const legsFor = (walking: boolean, phase: number): "a" | "b" | "idle" => (walkin
 /** Gentle breathing for standing characters: one pixel up every few beats. */
 const breath = (t: number) => (Math.sin(t * 2.5) > 0.75 ? -PX : 0);
 
+/** Generated pixel sprites for Nok: standing and mid-stride (72 px tall, drawn at 2 logical px per sprite pixel). */
+const nokStand: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/nok-stand.png" }) : null;
+const nokWalk: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/nok-walk.png" }) : null;
+
+function drawImageSprite(ctx: C, img: HTMLImageElement, x: number, y: number, facing: 1 | -1, bob: number) {
+  const w = img.naturalWidth * 2;
+  const h = img.naturalHeight * 2;
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.translate(Math.round(x), Math.round(y));
+  if (facing === -1) ctx.scale(-1, 1);
+  ctx.drawImage(img, Math.round(-w / 2), Math.round(-h + bob), w, h);
+  ctx.restore();
+}
+
 const heroSprite = (ctx: C, a: ActorRuntime, pose: { walking: boolean; phase: number; t: number }) => {
   spriteShadow(ctx, a.x, a.y, PX);
+  if (nokStand?.complete && nokWalk?.complete) {
+    const img = pose.walking ? nokWalk : nokStand;
+    const bob = pose.walking ? -2 * Math.abs(Math.sin(pose.phase * Math.PI * 2)) * 2 : breath(pose.t);
+    drawImageSprite(ctx, img, a.x, a.y, a.facing, bob);
+    return;
+  }
   const step = Math.floor(pose.phase * 2) % 2 === 0;
   drawSprite(ctx, NOK, a.x, a.y, PX, {
     facing: a.facing,
