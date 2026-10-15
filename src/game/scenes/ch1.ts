@@ -1370,11 +1370,84 @@ async function zachTalk(g: G) {
 }
 
 /* ===================== LIGHTHOUSE ===================== */
+/** Rope-and-plank bridge over the chasm to the lighthouse cliff. */
+const BR_A = { x: 546, y: 334 };
+const BR_B = { x: 744, y: 292 };
+const brY = (t: number) => BR_A.y + (BR_B.y - BR_A.y) * t + Math.sin(t * Math.PI) * 5;
+function drawBridge(ctx: CanvasRenderingContext2D) {
+  const N = 30;
+  const pt = (t: number) => ({ x: BR_A.x + (BR_B.x - BR_A.x) * t, y: brY(t) });
+  // shadow on the water below
+  ctx.fillStyle = "rgba(4,10,24,0.45)";
+  ctx.beginPath();
+  ctx.ellipse((BR_A.x + BR_B.x) / 2, (BR_A.y + BR_B.y) / 2 + 34, 105, 8, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  // underside beam
+  ctx.fillStyle = "#2a1a0e";
+  ctx.beginPath();
+  for (let i = 0; i <= N; i++) { const q = pt(i / N); ctx.lineTo(q.x, q.y + 10); }
+  for (let i = N; i >= 0; i--) { const q = pt(i / N); ctx.lineTo(q.x, q.y + 17); }
+  ctx.fill();
+  // back rail
+  const post = (t: number, back: boolean, h: number) => {
+    const q = pt(t);
+    const y = q.y + (back ? -7 : 8);
+    ctx.fillStyle = "#4a3018";
+    ctx.fillRect(q.x - 2, y - h, 4, h + 3);
+    ctx.fillStyle = "#8a6038";
+    ctx.fillRect(q.x - 2, y - h, 1.5, h + 3);
+    return { x: q.x, y: y - h + 3 };
+  };
+  const rope = (pts: { x: number; y: number }[]) => {
+    ctx.strokeStyle = "#b88a52";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    pts.forEach((c, i) => {
+      if (i === 0) { ctx.moveTo(c.x, c.y); return; }
+      const p0 = pts[i - 1];
+      ctx.quadraticCurveTo((p0.x + c.x) / 2, (p0.y + c.y) / 2 + 5, c.x, c.y);
+    });
+    ctx.stroke();
+  };
+  const ts = [0, 0.25, 0.5, 0.75, 1];
+  rope(ts.map((t) => post(t, true, 24)));
+  // planks (deck seen from slightly above)
+  for (let i = 0; i < N; i++) {
+    const a = pt(i / N);
+    const b = pt((i + 1) / N);
+    ctx.fillStyle = i % 2 ? "#7a5634" : "#6a4a2a";
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y - 7);
+    ctx.lineTo(b.x + 0.6, b.y - 7);
+    ctx.lineTo(b.x + 0.6, b.y + 9);
+    ctx.lineTo(a.x, a.y + 9);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,210,150,0.25)";
+    ctx.fillRect(a.x, a.y - 7, b.x - a.x, 1.5);
+    ctx.fillStyle = "rgba(20,10,4,0.7)";
+    ctx.fillRect(a.x, a.y - 7, 1, 16);
+  }
+  // front rail
+  rope(ts.map((t) => post(t, false, 30)));
+  // hanging ropes between the front posts
+  ctx.strokeStyle = "rgba(184,138,82,0.8)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 12; i++) {
+    const q = pt(i / 12);
+    ctx.beginPath();
+    ctx.moveTo(q.x, q.y + 8);
+    ctx.lineTo(q.x, q.y + 8 - 24 + Math.sin((i / 12) * Math.PI) * 0);
+    ctx.stroke();
+  }
+}
+
 export const lighthouse: SceneDef = {
   id: "lighthouse",
   title: "Klippe am Leuchtturm",
   art: "/art/lighthouse.png",
   artOverlay(ctx, g) {
+    drawBridge(ctx);
     if (!g.flag("lit")) return;
     // the lamp burns: warm glow in the lantern room and two sweeping beams
     const lx = 829;
@@ -1396,8 +1469,11 @@ export const lighthouse: SceneDef = {
     ctx.restore();
   },
   ambient: "wind",
-  walk: [{ x: 0, y: 340 }, { x: 480, y: 332 }, { x: 480, y: 432 }, { x: 0, y: 432 }],
-  scale: depth(352, 0.92, 432, 1.06),
+  walk: [
+    { x: 0, y: 340 }, { x: 480, y: 332 }, { x: 546, y: 326 }, { x: 744, y: 284 }, { x: 764, y: 280 }, { x: 900, y: 280 },
+    { x: 900, y: 298 }, { x: 746, y: 302 }, { x: 546, y: 344 }, { x: 480, y: 432 }, { x: 0, y: 432 },
+  ],
+  scale: depth(280, 0.6, 432, 1.06),
   staticKey: (g) => `${g.flag("lit") ? 1 : 0}${g.flag("oilIn") ? 1 : 0}`,
   paintStatic(ctx, g) {
     sky(ctx, 330, [[0, "#050a1e"], [0.5, "#121a44"], [1, "#3a2e5e"]]);
@@ -1492,7 +1568,7 @@ export const lighthouse: SceneDef = {
       id: "lamp",
       name: "Leuchtfeuer",
       rect: [795, 20, 80, 85],
-      at: { x: 820, y: 376 },
+      at: { x: 830, y: 290 },
       look: (g) => g.say(g.flag("lit") ? "Es brennt! Hell wie… ein Leuchtturm." : g.flag("oilIn") ? "Das Öl ist drin. Jetzt fehlt nur noch ein Funke." : "Das Leuchtfeuer oben im Turm. Der Brenner ist trocken wie Opa Barnabas' Humor."),
       use: (g) => g.say(g.flag("lit") ? "Es brennt schon. Ich will es nicht noch heller machen, sonst wacht die ganze Stadt auf." : "Ich brauche etwas zum Brennen. Und etwas zum Anzünden."),
       useWith: {
@@ -1517,13 +1593,14 @@ export const lighthouse: SceneDef = {
       id: "lh",
       name: "Leuchtturm",
       rect: [785, 30, 100, 200],
+      at: { x: 830, y: 290 },
       look: "Ein rot-weißer Leuchtturm. Er sieht aus wie eine riesige Zuckerstange mit Verantwortung.",
     },
     {
       id: "lhDoor",
       name: "Turmtür",
       rect: [800, 215, 60, 60],
-      at: { x: 820, y: 376 },
+      at: { x: 830, y: 290 },
       look: "Die Tür zum Turm. Dahinter: 127 Stufen. Ich hab sie nicht gezählt. Doch, hab ich.",
       use: "Ohne Öl und Feuer brauche ich da oben nicht hinauf.",
       useWith: { oel: (g) => climb(g, async () => { g.remove("oel"); g.set("oilIn"); await g.say("Öl eingefüllt!"); }) },
