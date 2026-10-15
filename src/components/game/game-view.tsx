@@ -277,11 +277,12 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
         />
       )}
       {ui.screen === "end" && <EndScreen text={ui.endText} onAgain={() => game.newGame()} />}
-      {layout === "portrait" && playing && !portraitOk && (
+      {layout === "portrait" && !portraitOk && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/90 p-4 text-center">
           <div className="animate-[spin_2.4s_ease-in-out_infinite] text-5xl">📱</div>
           <div className="font-[Pirata_One] text-3xl text-[#f2c76b]">{tr("Dreh dein Handy quer")}</div>
           <div className="font-[Kanit] text-sm text-[#e9dcc0]">{tr("Im Querformat siehst du die ganze Szene.")}</div>
+          <LangToggle className="relative mt-1" />
           <button onClick={() => setPortraitOk(true)} className="mt-1 rounded-full border border-[#5a3a20] px-4 py-2 font-[Kanit] text-sm text-[#d9c39a]">
             {tr("Trotzdem hochkant spielen")}
           </button>
