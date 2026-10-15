@@ -1,4 +1,5 @@
 import { getLang, tr, words } from "./i18n";
+import { hint } from "./hints";
 import { audio } from "./audio";
 import { SPRITE_SCALE } from "./engine-constants";
 import { COMBOS, comboKey, itemName, ITEMS } from "./items";
@@ -537,6 +538,13 @@ export class Game implements G {
       this.hover = h;
       this.emit();
     }
+  }
+
+  /** Says a contextual hint for the current story state. */
+  showHint() {
+    if (this.screen !== "play" || this.busy > 0 || this.choices || this.cardState) return;
+    audio.unlock();
+    void this.run(hint(this));
   }
 
   reveal(ms = 2600) {

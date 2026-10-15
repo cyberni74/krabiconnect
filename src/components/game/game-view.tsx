@@ -290,6 +290,7 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
 
   const topButtons = playing && (
     <div className="absolute right-2 top-2 z-20 flex gap-1.5" style={compact ? { right: "max(0.5rem, env(safe-area-inset-right))" } : undefined}>
+      <IconBtn label={tr("Hinweis")} onClick={() => game.showHint()}>💡</IconBtn>
       {touch && <IconBtn label={tr("Hotspots zeigen")} onClick={() => game.reveal()}>🔍</IconBtn>}
       <IconBtn label={tr(ui.muted ? "Ton an" : "Ton aus")} onClick={() => { audio.unlock(); audio.toggleMute(); game.emit(); }}>
         {ui.muted ? "🔇" : "🔊"}
@@ -444,7 +445,7 @@ function ExitZones({ ui, game }: { ui: UiSnapshot; game: Game }) {
           style={{ left: `${e.left}%`, top: `${e.top}%`, width: `${e.width}%`, height: `${e.height}%`, minWidth: 44, minHeight: 44 }}
         >
           <span className="animate-pulse text-xl leading-none text-[#e6f8ff]/70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{e.arrow}</span>
-          <span className="max-w-full truncate px-1 font-[Kanit] text-[9px] font-semibold text-[#e6f8ff]/70 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">{e.name}</span>
+          <span className="max-w-[140%] px-1 text-center font-[Kanit] text-[9px] font-semibold leading-tight text-[#e6f8ff]/70 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">{e.name}</span>
         </button>
       ))}
     </>

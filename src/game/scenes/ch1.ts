@@ -1249,7 +1249,7 @@ export const clearing: SceneDef = {
   title: "Lichtung der Reime",
   art: "/art/clearing.png",
   ambient: "jungle",
-  walk: [{ x: 200, y: 360 }, { x: 300, y: 312 }, { x: 660, y: 308 }, { x: 790, y: 350 }, { x: 770, y: 404 }, { x: 300, y: 414 }],
+  walk: [{ x: 24, y: 400 }, { x: 200, y: 360 }, { x: 300, y: 312 }, { x: 660, y: 308 }, { x: 790, y: 350 }, { x: 770, y: 404 }, { x: 300, y: 420 }, { x: 24, y: 424 }],
   scale: depth(364, 0.95, 432, 1.06),
   paintStatic(ctx) {
     sky(ctx, 440, [[0, "#04101a"], [0.5, "#0a2026"], [1, "#0c1a1a"]]);

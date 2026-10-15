@@ -736,7 +736,7 @@ export const temple: SceneDef = {
       rect: [398, 140, 145, 190],
       at: { x: 480, y: 392 },
       exit: true,
-      zone: (g) => !!g.flag("doorOpen"),
+      zone: (g) => !!g.flag("doorOpen") && !!g.flag("mirror"),
       look: async (g) => {
         await g.say(g.flag("doorOpen") ? "Das Tor ist offen. Von drinnen weht kalte, salzige Luft." : "Ein Steintor mit drei runden Mondsteinen. Kein Schlüsselloch. Nur Rätsel. Ich hasse Rätsel. Ich liebe Rätsel.");
         if (!g.flag("doorOpen")) await g.say("Die Mondsteine sitzen fest im Tor. Ich muss sie drücken – nur in welcher Reihenfolge? Das Wandbild links verrät es bestimmt.");
