@@ -1000,6 +1000,10 @@ async function finale(g: G) {
   await g.say("Ich hab's geschafft. Licht, Richtung, ein Lied – und eine Perle obendrauf.");
   await g.say("Und Morwenna? Sie wohnt jetzt in einem Glas in Pfefferkorns Laden. Neben dem Kugelfisch. Die zwei verstehen sich prächtig.");
   await g.wait(500);
-  g.finish();
+  await g.fade(1, 700);
+  await g.card("Monate später…", "Eine Insel vor Krabi, weit im Süden");
+  g.beginChapter(["lampe"]);
+  await g.card("Kapitel 3", "Die Gezeitenhöhle von Koh Kham Nang");
+  await g.goto("koh_pier", 780, 384, 1);
 }
 

@@ -2,7 +2,7 @@ import { audio } from "./audio";
 import { SPRITE_SCALE } from "./engine-constants";
 import { COMBOS, comboKey, itemName, ITEMS } from "./items";
 import { drawPerson, FINN } from "./people";
-import { CHAPTERS, SCENES, type ChapterDef } from "./scenes/index";
+import { CHAPTER_STARTS, CHAPTERS, SCENES, type ChapterDef } from "./scenes/index";
 import type { ActorDef, ActorRuntime, Facing, Flags, G, Hotspot, Pt, Reaction, SceneDef, Verb } from "./types";
 import { H, W } from "./types";
 
@@ -39,7 +39,6 @@ export interface UiSnapshot {
   endText: string;
   title: string;
   subtitle: string;
-  next: { href: string; label: string } | null;
 }
 
 /** Big transparent tap target for a scene exit, in percent of the frame. */
@@ -216,7 +215,6 @@ export class Game implements G {
       endText: this.chapter.endText,
       title: this.chapter.title,
       subtitle: this.chapter.subtitle,
-      next: this.chapter.next ?? null,
     };
     return this.snap;
   };
@@ -382,6 +380,12 @@ export class Game implements G {
       /* unsupported */
     }
   }
+  beginChapter(inv: string[]) {
+    this.flags = { chapter: 3 };
+    this.inv = [...inv];
+    this.sel = null;
+    this.emit();
+  }
   finish() {
     this.cardState = null;
     this.speech = null;
@@ -449,18 +453,19 @@ export class Game implements G {
     this.chapter = c;
     this.saveKey = c.key;
   }
-  newGame() {
-    this.flags = {};
-    this.inv = [...this.chapter.inv];
+  /** Starts a new game, optionally at the beginning of chapter 2 or 3. */
+  newGame(from: 1 | 2 | 3 = 1) {
+    const st = CHAPTER_STARTS[from];
+    this.flags = { ...st.flags };
+    this.inv = [...st.inv];
     this.sel = null;
     this.verb = "walk";
     this.screen = "play";
-    const c = this.chapter;
-    this.enterScene(SCENES[c.start], c.x, c.y, c.facing);
+    this.enterScene(SCENES[st.scene], st.x, st.y, st.facing);
     this.fadeA = 1;
     void this.run(async (g) => {
       await g.fade(0, 700);
-      await c.intro(g);
+      await st.intro(g);
     });
     this.save();
   }
@@ -789,14 +794,18 @@ export class Game implements G {
 
   /** Starts loading every image of the current chapter so scenes never pop in. */
   preload() {
-    const koh = this.chapter.start.startsWith("koh_");
     this.loadImg(this.chapter.titleArt);
     for (const f of this.chapter.heroFrames ?? []) this.loadImg(f);
-    for (const sc of Object.values(SCENES)) {
-      if (sc.id.startsWith("koh_") !== koh) continue;
-      this.loadImg(sc.art);
-      for (const a of sc.actors ?? []) for (const f of Object.values(a.sprite?.frames ?? {})) this.loadImg(f);
-    }
+    const load = (koh: boolean) => {
+      for (const sc of Object.values(SCENES)) {
+        if (sc.id.startsWith("koh_") !== koh) continue;
+        this.loadImg(sc.art);
+        for (const a of sc.actors ?? []) for (const f of Object.values(a.sprite?.frames ?? {})) this.loadImg(f);
+      }
+    };
+    load(false);
+    // chapter 3 images follow a little later so the first scenes load first
+    if (typeof window !== "undefined") window.setTimeout(() => load(true), 4000);
   }
 
   /** The scene's pre-made background, once it has loaded. */

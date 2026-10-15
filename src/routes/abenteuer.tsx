@@ -10,7 +10,7 @@ export const Route = createFileRoute("/abenteuer")({
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "description", content: "Ein Point-&-Click-Piratenabenteuer in zwei Kapiteln – mit Reimduellen, einer Meerhexe und verschwundener Flut." },
+      { name: "description", content: "Ein Point-&-Click-Piratenabenteuer in drei Kapiteln: Reimduelle, eine Meerhexe, verschwundene Flut und eine Höhle bei Ebbe." },
     ],
     links: [
       {

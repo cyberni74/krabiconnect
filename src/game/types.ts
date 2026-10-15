@@ -51,6 +51,8 @@ export interface G {
   flash(color: string, ms?: number): void;
   refresh(): void;
   sfx(name: "pickup" | "coin" | "dig" | "door" | "magic" | "splash" | "fanfare" | "wrong" | "horn"): void;
+  /** Starts the next chapter: clears flags and replaces the inventory. */
+  beginChapter(inv: string[]): void;
   finish(): void;
 }
 

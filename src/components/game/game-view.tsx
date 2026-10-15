@@ -232,12 +232,12 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
           title={ui.title}
           subtitle={ui.subtitle}
           compact={layout !== "desktop"}
-          other={chapter === "ch1" ? { href: "/insel", label: "Kapitel 3: Die Gezeitenhöhle" } : { href: "/abenteuer", label: "Kapitel 1 & 2: Krabbenbucht" }}
           onNew={() => start(() => game.newGame())}
           onContinue={() => start(() => game.continueGame())}
+          onChapter={(n) => start(() => game.newGame(n))}
         />
       )}
-      {ui.screen === "end" && <EndScreen text={ui.endText} next={ui.next} onAgain={() => game.newGame()} />}
+      {ui.screen === "end" && <EndScreen text={ui.endText} onAgain={() => game.newGame()} />}
       {layout === "portrait" && playing && !portraitOk && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/90 p-4 text-center">
           <div className="animate-[spin_2.4s_ease-in-out_infinite] text-5xl">📱</div>
@@ -466,7 +466,8 @@ function IconBtn({ children, label, onClick }: { children: React.ReactNode; labe
   );
 }
 
-function TitleScreen({ hasSave, title, subtitle, compact, other, onNew, onContinue }: { hasSave: boolean; title: string; subtitle: string; compact: boolean; other: { href: string; label: string }; onNew: () => void; onContinue: () => void }) {
+function TitleScreen({ hasSave, title, subtitle, compact, onNew, onContinue, onChapter }: { hasSave: boolean; title: string; subtitle: string; compact: boolean; onNew: () => void; onContinue: () => void; onChapter: (n: 1 | 2 | 3) => void }) {
+  const [pick, setPick] = useState(false);
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-black/30 via-black/10 to-black/70 px-4 text-center">
       <div className="font-[Kanit] text-[10px] uppercase tracking-[0.35em] text-[#f3dfb0]/80 sm:text-sm">{subtitle}</div>
@@ -483,15 +484,24 @@ function TitleScreen({ hasSave, title, subtitle, compact, other, onNew, onContin
           </button>
         )}
       </div>
-      <a href={other.href} className="mt-4 font-[Kanit] text-sm text-[#9fe0ff] underline underline-offset-4 hover:text-white sm:mt-6">
-        {other.label} →
-      </a>
+      <button onClick={() => setPick((v) => !v)} className="mt-4 font-[Kanit] text-sm text-[#9fe0ff] underline underline-offset-4 hover:text-white sm:mt-6">
+        Kapitel wählen
+      </button>
+      {pick && (
+        <div className="mt-2 flex flex-wrap justify-center gap-2">
+          {([1, 2, 3] as const).map((n) => (
+            <button key={n} onClick={() => onChapter(n)} className="rounded-full border border-[#9fe0ff]/60 bg-[#0c1a24]/90 px-4 py-1.5 font-[Kanit] text-sm font-semibold text-[#cfefff] hover:bg-[#14283a]">
+              Kapitel {n}
+            </button>
+          ))}
+        </div>
+      )}
       {compact && <div className="mt-3 font-[Kanit] text-xs text-[#e9dcc0]/70">Tippen zum Gehen · Gedrückt halten zum Anschauen · 🔍 zeigt Hotspots</div>}
     </div>
   );
 }
 
-function EndScreen({ text, next, onAgain }: { text: string; next: { href: string; label: string } | null; onAgain: () => void }) {
+function EndScreen({ text, onAgain }: { text: string; onAgain: () => void }) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 px-4 text-center">
       <h2 className="font-[Pirata_One] text-5xl text-[#f2c76b] sm:text-8xl">Ende</h2>
@@ -501,11 +511,7 @@ function EndScreen({ text, next, onAgain }: { text: string; next: { href: string
       <button onClick={onAgain} className="mt-5 rounded-full border-2 border-[#e9c873] bg-[#3a2410] px-6 py-2.5 font-[Kanit] font-semibold text-[#ffe9a8] hover:bg-[#5a3818]">
         Nochmal spielen
       </button>
-      {next && (
-        <a href={next.href} className="mt-3 rounded-full border-2 border-[#9fe0ff]/70 bg-[#0c1a24]/90 px-6 py-2.5 font-[Kanit] font-semibold text-[#cfefff] hover:bg-[#14283a]">
-          {next.label}
-        </a>
-      )}
+
     </div>
   );
 }
