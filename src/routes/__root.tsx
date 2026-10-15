@@ -8,13 +8,15 @@ import appCss from "../styles.css?url";
 const APP_NAME = "CAPTAIN TIDE";
 
 export const Route = createRootRoute({
-  head: () => ({
+  head: ({ matches }) => {
+    const game = matches.some((m) => (m.routeId as string) === "/abenteuer");
+    return {
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: APP_NAME },
-      { name: "theme-color", content: "#070d14" },
-      { name: "apple-mobile-web-app-title", content: "Captain Tide" },
+      { title: game ? "Die Gezeiten von Krabbenbucht" : APP_NAME },
+      { name: "theme-color", content: game ? "#0b0806" : "#070d14" },
+      { name: "apple-mobile-web-app-title", content: game ? "Krabbenbucht" : "Captain Tide" },
       {
         httpEquiv: "Content-Security-Policy",
         content:
@@ -24,12 +26,13 @@ export const Route = createRootRoute({
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/tide/icon.svg" },
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/__grok/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/tide/icon-180.png" },
+      { rel: "manifest", href: game ? "/game/manifest.webmanifest" : "/__grok/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: game ? "/game/icon-180.png" : "/tide/icon-180.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
     ],
-  }),
+    };
+  },
   component: Root,
 });
 
