@@ -11,9 +11,18 @@ const PX = 4;
 /** Sprite legs cycle: two frames while walking. */
 const legsFor = (walking: boolean, phase: number): "a" | "b" | "idle" => (walking ? (Math.floor(phase * 2) % 2 === 0 ? "a" : "b") : "idle");
 
+/** Gentle breathing for standing characters: one pixel up every few beats. */
+const breath = (t: number) => (Math.sin(t * 2.5) > 0.75 ? -PX : 0);
+
 const heroSprite = (ctx: C, a: ActorRuntime, pose: { walking: boolean; phase: number; t: number }) => {
   spriteShadow(ctx, a.x, a.y, PX);
-  drawSprite(ctx, NOK, a.x, a.y, PX, { facing: a.facing, legs: legsFor(pose.walking, pose.phase), bob: pose.walking ? -PX * 0.5 * Math.abs(Math.sin(pose.phase * Math.PI * 2)) : 0 });
+  const step = Math.floor(pose.phase * 2) % 2 === 0;
+  drawSprite(ctx, NOK, a.x, a.y, PX, {
+    facing: a.facing,
+    legs: legsFor(pose.walking, pose.phase),
+    bob: pose.walking ? -PX * 0.5 * Math.abs(Math.sin(pose.phase * Math.PI * 2)) : breath(pose.t),
+    arms: pose.walking ? (step ? 1 : -1) : 0,
+  });
 };
 
 /** Simple bamboo stilt hut, roof of palm thatch. */
@@ -64,6 +73,7 @@ export const kohPier: SceneDef = {
   ambient: "sea",
   walk: [{ x: 0, y: 340 }, { x: 960, y: 340 }, { x: 960, y: 420 }, { x: 0, y: 420 }],
   scale: () => 1,
+  hero: heroSprite,
   staticKey: (g) => String(g.flag("tide") ?? "flut"),
   paintStatic(ctx, g) {
     sky(ctx, 300, [[0, "#2a4a8a"], [0.45, "#8a6aa0"], [0.8, "#f08a6a"], [1, "#ffd08a"]]);
@@ -145,7 +155,7 @@ export const kohPier: SceneDef = {
       box: [48, 96],
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
-        drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle" });
+        drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.3) > 0 ? 1 : 0 });
       },
     },
   ],
@@ -266,6 +276,7 @@ export const kohJungle: SceneDef = {
   ambient: "jungle",
   walk: [{ x: 0, y: 344 }, { x: 960, y: 344 }, { x: 960, y: 430 }, { x: 0, y: 430 }],
   scale: () => 1,
+  hero: heroSprite,
   staticKey: (g) => `${g.flag("bananaTaken") ? 1 : 0}`,
   paintStatic(ctx, g) {
     sky(ctx, 260, [[0, "#1a4a5a"], [0.6, "#3a7a7a"], [1, "#8ac0a0"]]);
@@ -315,7 +326,7 @@ export const kohJungle: SceneDef = {
       box: [48, 96],
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
-        drawSprite(ctx, PLOY, a.x, a.y, PX, { facing: a.facing, legs: "idle" });
+        drawSprite(ctx, PLOY, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.1) > 0 ? 1 : 0 });
       },
     },
     {
@@ -466,6 +477,7 @@ export const kohCave: SceneDef = {
   ambient: "cave",
   walk: [{ x: 20, y: 360 }, { x: 940, y: 360 }, { x: 940, y: 430 }, { x: 20, y: 430 }],
   scale: () => 1,
+  hero: heroSprite,
   staticKey: (g) => `${g.flag("logbook") ? 1 : 0}${g.flag("sornHere") ? 1 : 0}`,
   paintStatic(ctx, g) {
     rect(ctx, 0, 0, 960, 440, lin(ctx, 0, 0, 0, 440, [[0, "#0a1218"], [0.6, "#14262a"], [1, "#0a1418"]]));
@@ -526,7 +538,7 @@ export const kohCave: SceneDef = {
       hidden: (g) => !g.flag("sornHere"),
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
-        drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle" });
+        drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.3) > 0 ? 1 : 0 });
       },
     },
   ],

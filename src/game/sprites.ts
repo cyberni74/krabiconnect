@@ -109,7 +109,7 @@ export const SPRITES = { nok: NOK, sorn: SORN, ploy: PLOY, monkey: MONKEY };
 export { NOK, SORN, PLOY, MONKEY };
 
 /** Draws a sprite with its feet at (x, y) in logical scene coordinates. `px` = logical size of one sprite pixel. */
-export function drawSprite(ctx: C, sp: Sprite, x: number, y: number, px: number, opts: { facing?: 1 | -1; legs?: "idle" | "a" | "b"; bob?: number } = {}) {
+export function drawSprite(ctx: C, sp: Sprite, x: number, y: number, px: number, opts: { facing?: 1 | -1; legs?: "idle" | "a" | "b"; bob?: number; arms?: -1 | 0 | 1 } = {}) {
   const legs = opts.legs === "a" ? sp.legsA : opts.legs === "b" ? sp.legsB : sp.legsIdle;
   const rows = [...sp.body, ...legs];
   const w = Math.max(...rows.map((r) => r.length));
@@ -128,8 +128,11 @@ export function drawSprite(ctx: C, sp: Sprite, x: number, y: number, px: number,
       if (ch === ".") continue;
       const col = sp.palette[ch];
       if (!col) continue;
+      // arm swing: outer columns in the arm rows move up or down by one pixel
+      const inArms = r >= 8 && r <= 12 && opts.arms;
+      const armDy = inArms ? (c < 2 ? opts.arms! : c >= w - 2 ? -opts.arms! : 0) : 0;
       ctx.fillStyle = col;
-      ctx.fillRect(Math.round(left + c * px), Math.round(top + r * px), Math.ceil(px), Math.ceil(px));
+      ctx.fillRect(Math.round(left + c * px), Math.round(top + (r + armDy) * px), Math.ceil(px), Math.ceil(px));
     }
   });
   ctx.restore();
