@@ -78,11 +78,14 @@ export const kohPier: SceneDef = {
     rock(ctx, 205, 110, 300, 90, 40, "#7a7080", "#2a2430");
     // water line depends on the tide
     const ebb = tideEbb(g);
-    const wl = ebb ? 352 : 300;
+    const wl = ebb ? 362 : 300;
     if (ebb) {
-      // wet sand + rock pools revealed by low tide
-      poly(ctx, [0, 300, 220, 300, 300, 330, 260, 352, 0, 352], lin(ctx, 0, 300, 0, 352, [[0, "#c8a878"], [1, "#8a6a4a"]]));
-      for (let i = 0; i < 6; i++) ellipse(ctx, 40 + i * 42, 336 + (i % 2) * 6, 12, 4, "#4a6a7a");
+      // low tide: a wide wet beach and a dry path to the cave, clearly visible
+      rect(ctx, 0, 300, 960, 62, lin(ctx, 0, 300, 0, 362, [[0, "#d8b888"], [1, "#9a7a52"]]));
+      poly(ctx, [0, 330, 230, 338, 300, 362, 0, 362], "#b89868");
+      for (let i = 0; i < 9; i++) ellipse(ctx, 30 + i * 50, 344 + (i % 3) * 5, 14, 4, "#4a6a7a");
+      // foam line at the new waterline
+      rect(ctx, 0, 360, 960, 3, "rgba(255,250,240,0.8)");
     }
     seaBase(ctx, wl, 440, [[0, "#3a6aa0"], [0.2, "#1a4a7a"], [1, "#0a2044"]]);
     // stilts and deck
@@ -506,7 +509,7 @@ export const kohCave: SceneDef = {
     const hx = g.hero.x;
     const hy = g.hero.y - 3 * PX * 2;
     ctx.save();
-    ctx.fillStyle = rad(ctx, hx, hy, 60, 260, [[0, "rgba(0,0,0,0)"], [0.5, "rgba(0,0,0,0.45)"], [1, "rgba(0,0,0,0.92)"]]);
+    ctx.fillStyle = rad(ctx, hx, hy, 110, 380, [[0, "rgba(0,0,0,0)"], [0.45, "rgba(0,0,0,0.25)"], [1, "rgba(0,0,0,0.78)"]]);
     ctx.fillRect(0, 0, 960, 440);
     ctx.restore();
     glow(ctx, hx + 26, hy - 10, 28, "rgba(255,240,170,0.5)");

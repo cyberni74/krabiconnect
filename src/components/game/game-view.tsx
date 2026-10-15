@@ -223,7 +223,13 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
   const overlays = (
     <>
       {ui.screen === "title" && (
-        <TitleScreen hasSave={ui.hasSave} compact={layout !== "desktop"} onNew={() => start(() => game.newGame())} onContinue={() => start(() => game.continueGame())} />
+        <TitleScreen
+          hasSave={ui.hasSave}
+          compact={layout !== "desktop"}
+          other={chapter === "ch1" ? { href: "/insel", label: "Kapitel 3: Die Gezeitenhöhle" } : { href: "/abenteuer", label: "Kapitel 1 & 2: Krabbenbucht" }}
+          onNew={() => start(() => game.newGame())}
+          onContinue={() => start(() => game.continueGame())}
+        />
       )}
       {ui.screen === "end" && <EndScreen text={ui.endText} onAgain={() => game.newGame()} />}
       {layout === "portrait" && playing && !portraitOk && (
@@ -454,7 +460,7 @@ function IconBtn({ children, label, onClick }: { children: React.ReactNode; labe
   );
 }
 
-function TitleScreen({ hasSave, compact, onNew, onContinue }: { hasSave: boolean; compact: boolean; onNew: () => void; onContinue: () => void }) {
+function TitleScreen({ hasSave, compact, other, onNew, onContinue }: { hasSave: boolean; compact: boolean; other: { href: string; label: string }; onNew: () => void; onContinue: () => void }) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-black/30 via-black/10 to-black/70 px-4 text-center">
       <div className="font-[Kanit] text-[10px] uppercase tracking-[0.35em] text-[#f3dfb0]/80 sm:text-sm">Ein Piraten-Abenteuer in zwei Kapiteln</div>
@@ -471,6 +477,9 @@ function TitleScreen({ hasSave, compact, onNew, onContinue }: { hasSave: boolean
           </button>
         )}
       </div>
+      <a href={other.href} className="mt-4 font-[Kanit] text-sm text-[#9fe0ff] underline underline-offset-4 hover:text-white sm:mt-6">
+        {other.label} →
+      </a>
       {compact && <div className="mt-3 font-[Kanit] text-xs text-[#e9dcc0]/70">Tippen zum Gehen · Gedrückt halten zum Anschauen · 🔍 zeigt Hotspots</div>}
     </div>
   );
