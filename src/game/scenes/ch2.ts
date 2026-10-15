@@ -318,6 +318,26 @@ export const mangrove: SceneDef = {
   id: "mangrove",
   title: "Mangroveninsel",
   art: "/art/mangrove.png",
+  artOverlay(ctx, g) {
+    if (!g.flag("hornDropped") || g.flag("horn")) return;
+    ctx.save();
+    ctx.translate(382, 405);
+    ctx.rotate(-0.25);
+    ellipse(ctx, 0, 9, 26, 6, "rgba(0,0,0,0.35)");
+    // spiral conch: pointed spire on the left, wide mouth on the right
+    poly(ctx, [-24, 4, -6, -10, 14, -9, 26, 2, 16, 11, -6, 10], lin(ctx, 0, -10, 0, 11, [[0, "#f8e2d0"], [0.6, "#e3ab90"], [1, "#b96f55"]]), "#6a3a2a", 1.5);
+    ctx.strokeStyle = "rgba(120,60,40,0.55)";
+    ctx.lineWidth = 1.5;
+    for (const x of [-14, -6, 2, 10]) {
+      ctx.beginPath();
+      ctx.moveTo(x, -8 + Math.abs(x) * 0.05);
+      ctx.quadraticCurveTo(x + 4, 0, x, 9);
+      ctx.stroke();
+    }
+    ellipse(ctx, 22, 3, 5, 7, "#d9777a");
+    ellipse(ctx, 23, 3, 2.5, 4, "#7a2a3a");
+    ctx.restore();
+  },
   ambient: "jungle",
   walk: [{ x: 40, y: 372 }, { x: 700, y: 362 }, { x: 900, y: 360 }, { x: 944, y: 372 }, { x: 944, y: 430 }, { x: 40, y: 430 }],
   scale: depth(360, 0.9, 430, 1.04),
