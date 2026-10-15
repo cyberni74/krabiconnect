@@ -14,9 +14,7 @@ const legsFor = (walking: boolean, phase: number): "a" | "b" | "idle" => (walkin
 /** Gentle breathing for standing characters: one pixel up every few beats. */
 const breath = (t: number) => (Math.sin(t * 2.5) > 0.75 ? -PX : 0);
 
-/** Generated pixel sprites for Nok: standing and mid-stride (72 px tall, drawn at 2 logical px per sprite pixel). */
-const nokStand: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/nok-stand.png" }) : null;
-const nokWalk: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/nok-walk.png" }) : null;
+/** Generated pixel frames are 72 px tall (monkey 44) and drawn at 2 logical px per sprite pixel. */
 
 function drawImageSprite(ctx: C, img: HTMLImageElement, x: number, y: number, facing: 1 | -1, bob: number) {
   const w = img.naturalWidth * 2;
@@ -29,12 +27,20 @@ function drawImageSprite(ctx: C, img: HTMLImageElement, x: number, y: number, fa
   ctx.restore();
 }
 
+const frameImg = (name: string): HTMLImageElement =>
+  typeof Image !== "undefined" ? Object.assign(new Image(), { src: `/insel/${name}.png` }) : ({ complete: false } as HTMLImageElement);
+/** Walk cycle of Nok: stand, stride A, passing, stride B. */
+const NOK_FRAMES = ["nok-stand", "nok-walk", "nok-passing", "nok-stride-b"].map(frameImg);
+const SORN_IMG = { idle: frameImg("sorn-idle"), talk: frameImg("sorn-talk") };
+const PLOY_IMG = { idle: frameImg("ploy-idle"), talk: frameImg("ploy-talk") };
+const MONKEY_IMG = { idle: frameImg("monkey-idle"), screech: frameImg("monkey-screech") };
+
 const heroSprite = (ctx: C, a: ActorRuntime, pose: { walking: boolean; phase: number; t: number }) => {
   spriteShadow(ctx, a.x, a.y, PX);
-  if (nokStand?.complete && nokWalk?.complete) {
-    const img = pose.walking ? nokWalk : nokStand;
+  if (NOK_FRAMES.every((f) => f.complete)) {
+    const idx = pose.walking ? Math.floor(pose.phase * 4) % 4 : 0;
     const bob = pose.walking ? -2 * Math.abs(Math.sin(pose.phase * Math.PI * 2)) * 2 : breath(pose.t);
-    drawImageSprite(ctx, img, a.x, a.y, a.facing, bob);
+    drawImageSprite(ctx, NOK_FRAMES[idx], a.x, a.y, a.facing, bob);
     return;
   }
   const step = Math.floor(pose.phase * 2) % 2 === 0;
@@ -183,7 +189,8 @@ export const kohPier: SceneDef = {
       box: [48, 96],
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
-        drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.3) > 0 ? 1 : 0 });
+        if (SORN_IMG.idle.complete) drawImageSprite(ctx, a.talking ? SORN_IMG.talk : SORN_IMG.idle, a.x, a.y, a.facing, breath(a.t));
+        else drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.3) > 0 ? 1 : 0 });
       },
     },
   ],
@@ -354,7 +361,8 @@ export const kohJungle: SceneDef = {
       box: [48, 96],
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
-        drawSprite(ctx, PLOY, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.1) > 0 ? 1 : 0 });
+        if (PLOY_IMG.idle.complete) drawImageSprite(ctx, a.talking ? PLOY_IMG.talk : PLOY_IMG.idle, a.x, a.y, a.facing, breath(a.t));
+        else drawSprite(ctx, PLOY, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.1) > 0 ? 1 : 0 });
       },
     },
     {
@@ -368,6 +376,11 @@ export const kohJungle: SceneDef = {
       pos: (g) => (g.flag("monkeyHasLamp") ? { x: 440, y: 360 } : { x: 430, y: 200 }),
       draw: (ctx, a, g) => {
         const bob = Math.sin(a.t * 5) * PX * 0.5;
+        if (MONKEY_IMG.idle.complete) {
+          drawImageSprite(ctx, a.talking ? MONKEY_IMG.screech : MONKEY_IMG.idle, a.x, a.y, a.facing, bob);
+          if (g.flag("monkeyHasLamp")) glow(ctx, a.x + 12, a.y - 3 * PX, 14, "rgba(255,240,160,0.8)");
+          return;
+        }
         // tail
         ctx.strokeStyle = "#7a4a2a";
         ctx.lineWidth = PX;
@@ -566,7 +579,8 @@ export const kohCave: SceneDef = {
       hidden: (g) => !g.flag("sornHere"),
       draw: (ctx, a) => {
         spriteShadow(ctx, a.x, a.y, PX);
-        drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.3) > 0 ? 1 : 0 });
+        if (SORN_IMG.idle.complete) drawImageSprite(ctx, a.talking ? SORN_IMG.talk : SORN_IMG.idle, a.x, a.y, a.facing, breath(a.t));
+        else drawSprite(ctx, SORN, a.x, a.y, PX, { facing: a.facing, legs: "idle", bob: breath(a.t), arms: Math.sin(a.t * 1.3) > 0 ? 1 : 0 });
       },
     },
   ],
