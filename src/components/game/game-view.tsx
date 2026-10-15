@@ -26,6 +26,24 @@ function posterize(c: CanvasRenderingContext2D, w: number, h: number) {
 
 const VERB_ICON: Record<string, string> = { walk: "👣", look: "👁", take: "✋", use: "⚙", talk: "💬", give: "🎁" };
 
+/** iPhones cannot show web pages fullscreen; only an installed home-screen app has no browser bars. */
+function useInstallHint(): boolean {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const ios = /iPhone|iPod/.test(ua) || (/iPad/.test(ua) && !document.documentElement.requestFullscreen);
+    const standalone = (navigator as Navigator & { standalone?: boolean }).standalone === true || window.matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches;
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem("krabbenbucht-install-hint") === "1";
+    } catch {
+      /* storage unavailable */
+    }
+    setShow(ios && !standalone && !dismissed);
+  }, []);
+  return show;
+}
+
 function useLayout(): { layout: Layout; touch: boolean } {
   const read = () => {
     if (typeof window === "undefined") return { layout: "desktop" as Layout, touch: false };
@@ -58,6 +76,8 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
   });
   const ui = useSyncExternalStore(game.subscribe, game.getSnapshot, game.getSnapshot);
   const { layout, touch } = useLayout();
+  const installHint = useInstallHint();
+  const [hintGone, setHintGone] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -235,6 +255,15 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
           onNew={() => start(() => game.newGame())}
           onContinue={() => start(() => game.continueGame())}
           onChapter={(n) => start(() => game.newGame(n))}
+          installHint={installHint && !hintGone}
+          onHintDone={() => {
+            setHintGone(true);
+            try {
+              localStorage.setItem("krabbenbucht-install-hint", "1");
+            } catch {
+              /* ignore */
+            }
+          }}
         />
       )}
       {ui.screen === "end" && <EndScreen text={ui.endText} onAgain={() => game.newGame()} />}
@@ -466,7 +495,7 @@ function IconBtn({ children, label, onClick }: { children: React.ReactNode; labe
   );
 }
 
-function TitleScreen({ hasSave, title, subtitle, compact, onNew, onContinue, onChapter }: { hasSave: boolean; title: string; subtitle: string; compact: boolean; onNew: () => void; onContinue: () => void; onChapter: (n: 1 | 2 | 3) => void }) {
+function TitleScreen({ hasSave, title, subtitle, compact, onNew, onContinue, onChapter, installHint, onHintDone }: { hasSave: boolean; title: string; subtitle: string; compact: boolean; onNew: () => void; onContinue: () => void; onChapter: (n: 1 | 2 | 3) => void; installHint: boolean; onHintDone: () => void }) {
   const [pick, setPick] = useState(false);
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-black/30 via-black/10 to-black/70 px-4 text-center">
@@ -494,6 +523,12 @@ function TitleScreen({ hasSave, title, subtitle, compact, onNew, onContinue, onC
               Kapitel {n}
             </button>
           ))}
+        </div>
+      )}
+      {installHint && (
+        <div className="mt-3 max-w-md rounded-xl border border-[#e9c873]/50 bg-black/65 px-3 py-2 font-[Kanit] text-xs text-[#f3dfb0] backdrop-blur">
+          <b>Vollbild ohne Browserleiste:</b> Tippe unten im Safari auf <b>Teilen</b> und wähle <b>„Zum Home-Bildschirm“</b>. Dann startet das Spiel wie eine App.
+          <button onClick={onHintDone} className="ml-2 underline underline-offset-2 text-[#9fe0ff]">Verstanden</button>
         </div>
       )}
       {compact && <div className="mt-3 font-[Kanit] text-xs text-[#e9dcc0]/70">Tippen zum Gehen · Gedrückt halten zum Anschauen · 🔍 zeigt Hotspots</div>}
