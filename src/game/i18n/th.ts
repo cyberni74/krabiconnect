@@ -608,4 +608,6 @@ export const TH: Record<string, string> = {
  "…Sie ist zu einer kleinen, sehr beleidigten Seegurke geschrumpft.": "…เธอหดเป็นแตงกวาทะเลตัวเล็กที่ขุ่นเคืองมาก",
  "…und damit genau das beleuchtet, was ich gesucht habe: die Gezeitenperle auf dem Grund der Bucht!": "…และส่องสว่างสิ่งที่ฉันตามหาพอดี ไข่มุกน้ำขึ้นน้ำลงที่ก้นอ่าว!",
  "…und die Schaufel. Aber die tausche ich nur. Gegen eine frische Kokosnuss. Ich bin süchtig nach Makronen.": "…และพลั่ว แต่ฉันแลกอย่างเดียว กับมะพร้าวสด ฉันติดขนมมาการอง"
+ ,
+ "Ha! Ein Reimduell. Ich habe da einen Konter, den jeder Pirat der Bucht fürchtet.": "ฮ่า! ประลองสัมผัสเหรอ ฉันมีคำโต้ที่โจรสลัดทุกคนในอ่าวหวาดกลัว"
 };

@@ -743,6 +743,14 @@ async function rosaTalk(g: G) {
       },
     },
     {
+      text: "Kennst du einen guten Konter für ein Reimduell?",
+      show: () => !!g.flag("duelKnown"),
+      run: async () => {
+        await g.say("Ha! Ein Reimduell. Ich habe da einen Konter, den jeder Pirat der Bucht fürchtet.", "rosa");
+        await teach(g, 3, "rosa");
+      },
+    },
+    {
       text: "Erzähl mir von dir.",
       run: async () => {
         await g.say("Ich bin auf einem Schiff geboren, im Sturm, bei Ebbe. Seitdem habe ich keine Angst und kein Geduld.", "rosa");
