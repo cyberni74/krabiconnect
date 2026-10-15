@@ -30,20 +30,23 @@ export interface ChapterDef {
   inv: string[];
   intro: (g: G) => Promise<void>;
   endText: string;
+  /** Generated hero frames: stand, stride A, passing, stride B. */
+  heroFrames?: string[];
 }
 
 export const CHAPTERS: Record<"ch1" | "insel", ChapterDef> = {
   ch1: {
     key: "krabbenbucht-save-v1",
     start: "pier",
-    x: 760,
-    y: 384,
+    x: 620,
+    y: 396,
     facing: -1,
     inv: [],
     intro: async (g) => {
       await g.card("Kapitel 1", "Licht, Richtung und ein Lied");
       await pier.enter?.(g);
     },
+    heroFrames: ["/chars/finn-stand.png", "/chars/finn-walk.png", "/chars/finn-passing.png", "/chars/finn-stride-b.png"],
     endText: "Die Flut ist zurück, Morwenna ist eine Seegurke, und Finn Kielwasser ist offiziell Pirat. Ein bisschen jedenfalls.",
   },
   insel: {

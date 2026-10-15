@@ -23,10 +23,9 @@ const questDone = (g: G) => !!(g.flag("lit") && g.has("kompass") && g.has("medai
 export const pier: SceneDef = {
   id: "pier",
   title: "Der alte Steg",
+  art: "/art/pier.png",
   ambient: "sea",
-  walk: [
-    { x: 10, y: 342 }, { x: 690, y: 342 }, { x: 760, y: 330 }, { x: 952, y: 330 }, { x: 952, y: 408 }, { x: 10, y: 408 },
-  ],
+  walk: [{ x: 0, y: 332 }, { x: 960, y: 350 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: depth(330, 0.9, 408, 1.04),
   staticKey: (g) => `${g.flag("rope") ? 1 : 0}${g.flag("tideGone") ? 1 : 0}`,
   paintStatic(ctx, g) {
@@ -142,10 +141,14 @@ export const pier: SceneDef = {
   actors: [
     {
       id: "barnabas",
+      sprite: {
+        frames: { idle: "/chars/barnabas-idle.png", talk: "/chars/barnabas-talk.png" },
+        pick: (a) => (a.talking ? "talk" : "idle"),
+      },
       name: "Opa Barnabas",
       color: "#ffe28a",
-      x: 268,
-      y: 360,
+      x: 330,
+      y: 382,
       facing: 1,
       box: [60, 100],
       draw: (ctx, a) => {
@@ -155,6 +158,11 @@ export const pier: SceneDef = {
     },
     {
       id: "morwenna",
+      sprite: {
+        frames: { idle: "/chars/morwenna-idle.png", talk: "/chars/morwenna-talk.png" },
+        pick: (a) => (a.talking ? "talk" : "idle"),
+        float: 8,
+      },
       name: "Morwenna",
       color: "#8fffe0",
       x: 520,
@@ -165,15 +173,15 @@ export const pier: SceneDef = {
     },
   ],
   hotspots: [
-    { id: "moon", name: "Mond", rect: [690, 56, 60, 60], look: "Der Mond. Er hängt da oben, als würde ihm der ganze Ozean gehören." },
-    { id: "boat", name: "Ruderboot", rect: [370, 284, 140, 34], at: { x: 440, y: 346 }, look: "Ein Ruderboot. Ohne Ruder. Das erklärt, warum es noch hier ist.", take: "Das Boot passt nicht in meine Hosentasche. Ich hab's ausgemessen.", use: "Ohne Ruder paddle ich nur im Kreis. Das hatte ich schon mal." },
-    { id: "lantern", name: "Laterne", rect: [184, 196, 34, 50], look: "Eine Laterne. Sie flackert, als würde sie mir zuzwinkern.", take: "Opa Barnabas braucht sie zum Lesen. Er liest Wellen." },
-    { id: "crates", name: "Kisten", rect: [20, 256, 140, 92], at: { x: 120, y: 360 }, look: "„Gepökelter Hering – Nicht vor 1720 öffnen.“ Lieber nicht.", take: "Viel zu schwer. Und sie riechen." , use: "Ich setze mich nicht auf Heringskisten. Grundsatz." },
+    { id: "moon", name: "Mond", rect: [545, 35, 60, 60], look: "Der Mond. Er hängt da oben, als würde ihm der ganze Ozean gehören." },
+    { id: "boat", name: "Ruderboot", rect: [337, 265, 145, 80], at: { x: 410, y: 372 }, look: "Ein Ruderboot. Ohne Ruder. Das erklärt, warum es noch hier ist.", take: "Das Boot passt nicht in meine Hosentasche. Ich hab's ausgemessen.", use: "Ohne Ruder paddle ich nur im Kreis. Das hatte ich schon mal." },
+    { id: "lantern", name: "Laterne", rect: [190, 100, 60, 70], look: "Eine Laterne. Sie flackert, als würde sie mir zuzwinkern.", take: "Opa Barnabas braucht sie zum Lesen. Er liest Wellen." },
+    { id: "crates", name: "Kisten", rect: [0, 165, 200, 215], at: { x: 215, y: 372 }, look: "„Gepökelter Hering – Nicht vor 1720 öffnen.“ Lieber nicht.", take: "Viel zu schwer. Und sie riechen." , use: "Ich setze mich nicht auf Heringskisten. Grundsatz." },
     {
       id: "rope",
       name: "Seil",
-      rect: [536, 316, 64, 60],
-      at: { x: 560, y: 380 },
+      rect: [735, 300, 110, 110],
+      at: { x: 790, y: 424 },
       hidden: (g) => !!g.flag("rope"),
       look: "Ein aufgerolltes Seil um den Poller. Niemand scheint es zu brauchen.",
       take: async (g) => {
@@ -184,12 +192,12 @@ export const pier: SceneDef = {
         await g.say("Ein Seil. Jeder ordentliche Pirat braucht ein Seil.");
       },
     },
-    { id: "bollard", name: "Poller", rect: [540, 312, 44, 44], hidden: (g) => !g.flag("rope"), at: { x: 560, y: 380 }, look: "Ein eiserner Poller. Kalt, rund, zuverlässig." },
+    { id: "bollard", name: "Poller", rect: [735, 300, 110, 110], hidden: (g) => !g.flag("rope"), at: { x: 790, y: 424 }, look: "Ein eiserner Poller. Kalt, rund, zuverlässig." },
     {
       id: "barnabas",
       name: "Opa Barnabas",
       actor: "barnabas",
-      at: { x: 340, y: 372 },
+      at: { x: 400, y: 396 },
       face: -1,
       look: "Opa Barnabas. Er sitzt hier, seit es Stege gibt. Manche sagen, der Steg wurde um ihn herum gebaut.",
       talk: (g) => barnabasTalk(g),
@@ -203,7 +211,7 @@ export const pier: SceneDef = {
       name: "Hafengasse",
       rect: [880, 250, 80, 170],
       exit: true,
-      at: { x: 940, y: 370 },
+      at: { x: 940, y: 372 },
       look: "Da geht's in die Hafengasse von Krabbenbucht.",
       walk: (g) => g.goto("street", 60, 392, 1),
     },
@@ -270,10 +278,9 @@ async function barnabasTalk(g: G) {
 export const street: SceneDef = {
   id: "street",
   title: "Hafengasse",
+  art: "/art/street.png",
   ambient: "wind",
-  walk: [
-    { x: 0, y: 338 }, { x: 470, y: 338 }, { x: 505, y: 318 }, { x: 585, y: 318 }, { x: 615, y: 338 }, { x: 960, y: 338 }, { x: 960, y: 430 }, { x: 0, y: 430 },
-  ],
+  walk: [{ x: 0, y: 350 }, { x: 960, y: 350 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: depth(318, 0.8, 430, 1.05),
   staticKey: (g) => (g.flag("lit") ? "lit" : "dark"),
   paintStatic(ctx, g) {
@@ -393,17 +400,17 @@ export const street: SceneDef = {
     }
   },
   hotspots: [
-    { id: "lighthouse", name: "Leuchtturm", rect: [512, 64, 36, 90], look: (g) => g.say(g.flag("lit") ? "Der Leuchtturm strahlt! Das war ich. Ich bin quasi ein Leuchtturmwärter." : "Der Leuchtturm. Er ist dunkel. Ein dunkler Leuchtturm ist wie ein Witz ohne Pointe.") },
-    { id: "toLight", name: "Pfad zum Leuchtturm", poly: [{ x: 480, y: 336 }, { x: 600, y: 336 }, { x: 556, y: 212 }, { x: 524, y: 212 }], exit: true, at: { x: 545, y: 320 }, look: "Ein steiler Pfad hinauf zur Klippe.", walk: (g) => g.goto("lighthouse", 110, 396, 1) },
-    { id: "tavernDoor", name: "Taverne „Zum Rostigen Anker“", rect: [210, 222, 82, 120], exit: true, at: { x: 250, y: 348 }, look: "Aus der Taverne dringen Gelächter, Musik und ein Geruch nach verbranntem Zwieback.", walk: async (g) => { g.sfx("door"); await g.goto("tavern", 110, 400, 1); } },
-    { id: "tavernSign", name: "Wirtshausschild", rect: [74, 146, 120, 54], look: "Ein Anker. Das Schild ist so rostig wie der Name verspricht." },
-    { id: "shopDoor", name: "Pfefferkorns Krimskrams", rect: [730, 236, 74, 106], exit: true, at: { x: 766, y: 348 }, look: "Ein Laden für alles, was man braucht, und vieles, was man nicht braucht.", walk: async (g) => { g.sfx("door"); await g.goto("shop", 120, 404, 1); } },
-    { id: "lamp", name: "Laterne", rect: [600, 186, 30, 40], look: "Eine Straßenlaterne. Sie brennt mit Walnussöl. Riecht nach Weihnachten." },
+    { id: "lighthouse", name: "Leuchtturm", rect: [555, 40, 50, 100], look: (g) => g.say(g.flag("lit") ? "Der Leuchtturm strahlt! Das war ich. Ich bin quasi ein Leuchtturmwärter." : "Der Leuchtturm. Er ist dunkel. Ein dunkler Leuchtturm ist wie ein Witz ohne Pointe.") },
+    { id: "toLight", name: "Pfad zum Leuchtturm", rect: [540, 170, 230, 150], exit: true, at: { x: 620, y: 380 }, look: "Ein steiler Pfad hinauf zur Klippe.", walk: (g) => g.goto("lighthouse", 110, 396, 1) },
+    { id: "tavernDoor", name: "Taverne „Zum Rostigen Anker“", rect: [140, 200, 90, 125], exit: true, at: { x: 200, y: 352 }, look: "Aus der Taverne dringen Gelächter, Musik und ein Geruch nach verbranntem Zwieback.", walk: async (g) => { g.sfx("door"); await g.goto("tavern", 110, 400, 1); } },
+    { id: "tavernSign", name: "Wirtshausschild", rect: [120, 70, 90, 85], look: "Ein Anker. Das Schild ist so rostig wie der Name verspricht." },
+    { id: "shopDoor", name: "Pfefferkorns Krimskrams", rect: [785, 140, 85, 200], exit: true, at: { x: 820, y: 352 }, look: "Ein Laden für alles, was man braucht, und vieles, was man nicht braucht.", walk: async (g) => { g.sfx("door"); await g.goto("shop", 120, 404, 1); } },
+    { id: "lamp", name: "Laterne", rect: [305, 130, 45, 170], look: "Eine Straßenlaterne. Sie brennt mit Walnussöl. Riecht nach Weihnachten." },
     {
       id: "cat",
       name: "Schwarze Katze",
-      rect: [912, 276, 44, 40],
-      at: { x: 900, y: 372 },
+      rect: [680, 60, 50, 50],
+      at: { x: 700, y: 380 },
       look: "Eine schwarze Katze. Sie schaut mich an, als wüsste sie, wie das alles ausgeht.",
       talk: async (g) => {
         await g.say("Miez, miez?");
@@ -413,7 +420,7 @@ export const street: SceneDef = {
       take: "Sie hat Krallen. Ich habe Hände. Ich verliere.",
       give: { fisch: "Sie ist nicht hier.", kokos: "Die Katze schaut die Kokosnuss an. Dann mich. Dann wieder die Kokosnuss. Nein." },
     },
-    { id: "toPier", name: "Zum Steg", rect: [0, 300, 40, 140], exit: true, at: { x: 10, y: 392 }, walk: (g) => g.goto("pier", 900, 372, -1) },
+    { id: "toPier", name: "Zum Steg", rect: [0, 320, 50, 112], exit: true, at: { x: 10, y: 392 }, walk: (g) => g.goto("pier", 900, 372, -1) },
     { id: "toBeach", name: "Zum Strand", rect: [920, 360, 40, 80], exit: true, at: { x: 952, y: 410 }, walk: (g) => g.goto("beach", 60, 418, 1) },
   ],
 };
@@ -422,6 +429,7 @@ export const street: SceneDef = {
 export const tavern: SceneDef = {
   id: "tavern",
   title: "Zum Rostigen Anker",
+  art: "/art/tavern.png",
   ambient: "tavern",
   walk: [{ x: 20, y: 372 }, { x: 940, y: 372 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(372, 0.98, 432, 1.08),
@@ -491,10 +499,14 @@ export const tavern: SceneDef = {
   actors: [
     {
       id: "mo",
+      sprite: {
+        frames: { idle: "/chars/mo-idle.png", talk: "/chars/mo-talk.png" },
+        pick: (a) => (a.talking ? "talk" : "idle"),
+      },
       name: "Mo",
       color: "#9fe6a0",
-      x: 160,
-      y: 334,
+      x: 150,
+      y: 254,
       facing: 1,
       scale: 0.98,
       box: [70, 128],
@@ -510,10 +522,14 @@ export const tavern: SceneDef = {
     },
     {
       id: "rosa",
+      sprite: {
+        frames: { sit: "/chars/rosa-sit.png" },
+        pick: () => "sit",
+      },
       name: "Kapitänin Rosa",
       color: "#ff9d8a",
-      x: 470,
-      y: 382,
+      x: 450,
+      y: 396,
       facing: 1,
       box: [70, 110],
       draw: (ctx, a) => {
@@ -531,10 +547,14 @@ export const tavern: SceneDef = {
     },
     {
       id: "knut",
+      sprite: {
+        frames: { asleep: "/chars/knut-asleep.png", awake: "/chars/knut-awake.png" },
+        pick: (a, g) => (a.talking && g.flag("knutAwake") ? "awake" : "asleep"),
+      },
       name: "Knut",
       color: "#a8d0ff",
-      x: 700,
-      y: 392,
+      x: 760,
+      y: 380,
       facing: 1,
       box: [90, 80],
       draw: (ctx, a, g) => {
@@ -560,16 +580,16 @@ export const tavern: SceneDef = {
     },
   ],
   hotspots: [
-    { id: "door", name: "Tür", rect: [0, 190, 54, 160], exit: true, at: { x: 40, y: 400 }, walk: async (g) => { g.sfx("door"); await g.goto("street", 250, 352, 1); } },
-    { id: "window", name: "Fenster", rect: [400, 100, 140, 110], look: (g) => g.say(g.flag("tideGone") ? "Da draußen… wo das Meer war, ist nur noch Schlamm!" : "Der Mond über der Bucht. Kitschig. Ich liebe es.") },
-    { id: "painting", name: "Gemälde", rect: [690, 90, 120, 84], look: "Ein Gemälde der „Rostigen Möwe“. Der Maler hat den Rost weggelassen. Künstlerische Freiheit." },
-    { id: "bottles", name: "Flaschen", rect: [40, 70, 250, 110], look: "„Seemanns Trost“, „Kielholer Spezial“, „Nicht Trinken“. Letztere ist halb leer.", take: "Mo würde mich mit dem Zapfhahn erschlagen." },
-    { id: "fire", name: "Kamin", rect: [780, 210, 150, 120], look: "Ein knisterndes Feuer. Darüber hängt ein Topf mit etwas, das blubbert und mich ansieht.", use: "Mir ist warm genug, danke." },
+    { id: "door", name: "Tür", rect: [0, 340, 70, 92], exit: true, at: { x: 40, y: 410 }, walk: async (g) => { g.sfx("door"); await g.goto("street", 250, 352, 1); } },
+    { id: "window", name: "Fenster", rect: [378, 95, 195, 110], look: (g) => g.say(g.flag("tideGone") ? "Da draußen… wo das Meer war, ist nur noch Schlamm!" : "Der Mond über der Bucht. Kitschig. Ich liebe es.") },
+    { id: "painting", name: "Gemälde", rect: [235, 115, 60, 60], look: "Ein Gemälde der „Rostigen Möwe“. Der Maler hat den Rost weggelassen. Künstlerische Freiheit." },
+    { id: "bottles", name: "Flaschen", rect: [0, 20, 190, 160], look: "„Seemanns Trost“, „Kielholer Spezial“, „Nicht Trinken“. Letztere ist halb leer.", take: "Mo würde mich mit dem Zapfhahn erschlagen." },
+    { id: "fire", name: "Kamin", rect: [790, 100, 170, 200], look: "Ein knisterndes Feuer. Darüber hängt ein Topf mit etwas, das blubbert und mich ansieht.", use: "Mir ist warm genug, danke." },
     {
       id: "mo",
       name: "Mo",
       actor: "mo",
-      at: { x: 300, y: 384 },
+      at: { x: 300, y: 396 },
       face: -1,
       look: "Mo, der Wirt. Er hat Arme wie Ankerketten und poliert dasselbe Glas seit drei Jahren.",
       talk: (g) => moTalk(g),
@@ -579,7 +599,7 @@ export const tavern: SceneDef = {
       id: "rosa",
       name: "Kapitänin Rosa",
       actor: "rosa",
-      at: { x: 420, y: 404 },
+      at: { x: 380, y: 410 },
       face: 1,
       look: "Kapitänin Rosa Rumfass. Ihr Blick sagt: „Ich habe schon Kraken verprügelt.“ Ihr Hut sagt: „Mehrere.“",
       talk: (g) => rosaTalk(g),
@@ -593,7 +613,7 @@ export const tavern: SceneDef = {
       id: "knut",
       name: "Knut",
       actor: "knut",
-      at: { x: 640, y: 412 },
+      at: { x: 700, y: 410 },
       face: 1,
       look: (g) => g.say(g.flag("knutGrog") ? "Knut schläft wieder. Er lächelt. Er träumt von Haien, die singen." : "Ein Seemann namens Knut. Er schläft auf dem Tisch. In der Hand hält er etwas fest."),
       talk: async (g) => {
@@ -760,6 +780,7 @@ async function chapterOneEnd(g: G) {
 export const shop: SceneDef = {
   id: "shop",
   title: "Pfefferkorns Krimskrams",
+  art: "/art/shop.png",
   ambient: "tavern",
   walk: [{ x: 20, y: 376 }, { x: 940, y: 376 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(376, 0.98, 432, 1.08),
@@ -877,10 +898,15 @@ export const shop: SceneDef = {
   actors: [
     {
       id: "pfeffer",
+      sprite: {
+        frames: { idle: "/chars/pfeffer-idle.png", talk: "/chars/pfeffer-talk.png" },
+        pick: (a) => (a.talking ? "talk" : "idle"),
+        crop: 0.78,
+      },
       name: "Frau Pfefferkorn",
       color: "#f0b8ff",
-      x: 640,
-      y: 336,
+      x: 770,
+      y: 287,
       facing: -1,
       scale: 0.98,
       box: [60, 124],
@@ -901,15 +927,15 @@ export const shop: SceneDef = {
     },
   ],
   hotspots: [
-    { id: "door", name: "Tür", rect: [0, 190, 60, 162], exit: true, at: { x: 40, y: 404 }, walk: async (g) => { g.sfx("door"); await g.goto("street", 766, 352, 1); } },
-    { id: "puffer", name: "Kugelfisch", rect: [584, 54, 74, 64], look: "Ein ausgestopfter Kugelfisch. Er wirkt beleidigt. Vermutlich wegen des Ausstopfens." },
-    { id: "bottleship", name: "Buddelschiff", rect: [710, 44, 110, 44], look: "Ein Schiff in einer Flasche. Wie kommt es da rein? Wie komme ICH auf ein Schiff? Fragen über Fragen." },
-    { id: "wallmap", name: "Landkarte", rect: [520, 104, 88, 72], look: "Eine Karte der Andamanensee. Ganz unten links steht: „Hier wohnt eine Hexe. Nicht hinfahren.“" },
-    { id: "shelves", name: "Regale", rect: [140, 60, 300, 190], look: "Gläser mit eingelegten Dingen. Ich glaube, eins davon hat mir zugezwinkert.", take: "„Finger weg vom Kram, der kostet!“ ruft Frau Pfefferkorn, ohne aufzusehen." },
+    { id: "door", name: "Tür", rect: [0, 80, 115, 230], exit: true, at: { x: 60, y: 404 }, walk: async (g) => { g.sfx("door"); await g.goto("street", 766, 352, 1); } },
+    { id: "puffer", name: "Kugelfisch", rect: [360, 25, 80, 75], look: "Ein ausgestopfter Kugelfisch. Er wirkt beleidigt. Vermutlich wegen des Ausstopfens." },
+    { id: "bottleship", name: "Buddelschiff", rect: [490, 25, 130, 70], look: "Ein Schiff in einer Flasche. Wie kommt es da rein? Wie komme ICH auf ein Schiff? Fragen über Fragen." },
+    { id: "wallmap", name: "Landkarte", rect: [470, 110, 155, 125], look: "Eine Karte der Andamanensee. Ganz unten links steht: „Hier wohnt eine Hexe. Nicht hinfahren.“" },
+    { id: "shelves", name: "Regale", rect: [150, 60, 210, 240], look: "Gläser mit eingelegten Dingen. Ich glaube, eins davon hat mir zugezwinkert.", take: "„Finger weg vom Kram, der kostet!“ ruft Frau Pfefferkorn, ohne aufzusehen." },
     {
       id: "oil",
       name: "Lampenöl",
-      rect: [446, 186, 54, 74],
+      rect: [690, 60, 70, 90],
       hidden: (g) => !!g.flag("oilBought"),
       look: "Eine Kanne Lampenöl. Preisschild: 2 Dublonen.",
       take: (g) => buyOil(g),
@@ -917,8 +943,8 @@ export const shop: SceneDef = {
     {
       id: "shovel",
       name: "Schaufel",
-      rect: [870, 210, 60, 160],
-      at: { x: 860, y: 404 },
+      rect: [880, 350, 80, 82],
+      at: { x: 850, y: 410 },
       hidden: (g) => !!g.flag("shovelTraded"),
       look: "Eine prächtige Schaufel. Ein Schild sagt: „Unverkäuflich. Außer vielleicht.“",
       take: async (g) => {
@@ -929,7 +955,7 @@ export const shop: SceneDef = {
       id: "pfeffer",
       name: "Frau Pfefferkorn",
       actor: "pfeffer",
-      at: { x: 560, y: 400 },
+      at: { x: 700, y: 404 },
       face: 1,
       look: "Frau Pfefferkorn. Sie verkauft alles. Sogar Dinge, die ihr nicht gehören, munkelt man.",
       talk: (g) => pfefferTalk(g),
@@ -1001,8 +1027,28 @@ const SAND: number[] = [0, 404, 200, 374, 420, 316, 700, 266, 960, 254, 960, 440
 export const beach: SceneDef = {
   id: "beach",
   title: "Mondscheinstrand",
+  art: "/art/beach.png",
+  artOverlay(ctx, g) {
+    if (!g.flag("bottle") && !g.flag("tideGone")) {
+      ctx.save();
+      ctx.translate(128, 360);
+      ctx.rotate(0.9);
+      ctx.fillStyle = "rgba(90,170,120,0.9)";
+      ctx.beginPath();
+      ctx.roundRect(-6, -14, 12, 24, 5);
+      ctx.fill();
+      rect(ctx, -3, -22, 6, 9, "#4a8a6a");
+      rect(ctx, -3, -26, 6, 4, "#a0763f");
+      ctx.restore();
+    }
+    if (g.flag("dug")) {
+      ellipse(ctx, 700, 372, 34, 10, "#2c2638");
+      ellipse(ctx, 742, 382, 18, 6, "#cbb58a");
+      crate(ctx, 676, 384, 40, 22, "#5a3a20");
+    }
+  },
   ambient: "sea",
-  walk: [{ x: 30, y: 432 }, { x: 30, y: 414 }, { x: 200, y: 392 }, { x: 420, y: 336 }, { x: 700, y: 292 }, { x: 944, y: 284 }, { x: 944, y: 432 }],
+  walk: [{ x: 0, y: 392 }, { x: 300, y: 360 }, { x: 700, y: 340 }, { x: 960, y: 340 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: depth(284, 0.7, 432, 1.06),
   staticKey: (g) => `${g.flag("bottle") ? 1 : 0}${g.flag("dug") ? 1 : 0}${g.flag("tideGone") ? 1 : 0}`,
   paintStatic(ctx, g) {
@@ -1083,13 +1129,13 @@ export const beach: SceneDef = {
     ellipse(ctx, cx + 4, 406, 2, 2, "#fff");
   },
   hotspots: [
-    { id: "moonB", name: "Mond", rect: [196, 36, 70, 70], look: "Der Mond küsst das Meer. Und vielleicht auch eine Palme, wenn er sich vorlehnt." },
-    { id: "sea", name: "Meer", rect: [0, 216, 600, 100], look: (g) => g.say(g.flag("tideGone") ? "Wo das Meer war, glänzt nur noch Schlick." : "Das Meer. Ganz schön groß, aus der Nähe.") },
+    { id: "moonB", name: "Mond", rect: [185, 35, 70, 70], look: "Der Mond küsst das Meer. Und vielleicht auch eine Palme, wenn er sich vorlehnt." },
+    { id: "sea", name: "Meer", rect: [0, 200, 300, 110], look: (g) => g.say(g.flag("tideGone") ? "Wo das Meer war, glänzt nur noch Schlick." : "Das Meer. Ganz schön groß, aus der Nähe.") },
     {
       id: "bottle",
       name: "Flasche",
-      rect: [156, 372, 44, 40],
-      at: { x: 196, y: 404 },
+      rect: [100, 340, 60, 45],
+      at: { x: 140, y: 408 },
       hidden: (g) => !!g.flag("bottle") || !!g.flag("tideGone"),
       look: "Eine Flasche, die im Spülsaum schaukelt. Da ist etwas drin!",
       take: async (g) => {
@@ -1103,8 +1149,8 @@ export const beach: SceneDef = {
     {
       id: "palm",
       name: "Palme",
-      rect: [470, 100, 160, 236],
-      at: { x: 590, y: 344 },
+      rect: [300, 60, 310, 300],
+      at: { x: 560, y: 380 },
       look: "Eine große Palme. Oben hängen Kokosnüsse. Ganz oben. Unerreichbar oben.",
       take: "Die Palme ist fest verwurzelt. Ich auch. Das wird nichts.",
       use: "Ich klettere hoch? Ohne Hilfsmittel? Ich habe die Arme eines Geigers.",
@@ -1126,16 +1172,16 @@ export const beach: SceneDef = {
     {
       id: "rock",
       name: "Schiefer Felsen",
-      rect: [760, 240, 130, 100],
-      at: { x: 760, y: 360 },
+      rect: [735, 120, 225, 230],
+      at: { x: 720, y: 392 },
       look: "Ein schiefer Felsen. Er lehnt sich, als wollte er der Palme etwas zuflüstern.",
       take: "Der Felsen wiegt etwa so viel wie ein Elefant. Ich wiege etwa so viel wie ein Elefantenohr.",
     },
     {
       id: "spot",
       name: (g) => (g.flag("readMap") ? "Mondbeschienene Stelle" : "Sand"),
-      rect: [700, 350, 110, 40],
-      at: { x: 700, y: 380 },
+      rect: [640, 350, 120, 50],
+      at: { x: 690, y: 392 },
       face: 1,
       look: (g) => g.say(g.flag("dug") ? "Ein Loch und eine leere Kiste. Mein Werk." : g.flag("readMap") ? "Drei Schritt vom schiefen Felsen, genau da, wo das Mondlicht hinfällt. HIER!" : "Sand. Sehr viel Sand. Und Mondlicht."),
       useWith: {
@@ -1158,9 +1204,9 @@ export const beach: SceneDef = {
       },
       use: "Mit den Händen graben? Ich bin Pirat, kein Hund.",
     },
-    { id: "jungle", name: "Pfad in den Dschungel", rect: [860, 180, 100, 110], exit: true, at: { x: 940, y: 292 }, look: "Ein Pfad in den Dschungel. Von dort klingt Mandolinenmusik.", walk: (g) => g.goto("clearing", 80, 400, 1) },
+    { id: "jungle", name: "Pfad in den Dschungel", rect: [880, 160, 80, 200], exit: true, at: { x: 940, y: 392 }, look: "Ein Pfad in den Dschungel. Von dort klingt Mandolinenmusik.", walk: (g) => g.goto("clearing", 80, 400, 1) },
     { id: "toStreet", name: "Zur Hafengasse", rect: [0, 380, 40, 60], exit: true, at: { x: 34, y: 426 }, walk: (g) => g.goto("street", 900, 392, -1) },
-    { id: "drift", name: "Treibholz", rect: [456, 376, 130, 32], look: "Treibholz. Es ist weit gereist, um hier nutzlos herumzuliegen. Wie mein Onkel.", take: "Damit kann ich nichts anfangen." },
+    { id: "drift", name: "Treibholz", rect: [30, 360, 340, 70], look: "Treibholz. Es ist weit gereist, um hier nutzlos herumzuliegen. Wie mein Onkel.", take: "Damit kann ich nichts anfangen." },
   ],
 };
 
@@ -1168,6 +1214,7 @@ export const beach: SceneDef = {
 export const clearing: SceneDef = {
   id: "clearing",
   title: "Lichtung der Reime",
+  art: "/art/clearing.png",
   ambient: "jungle",
   walk: [{ x: 20, y: 364 }, { x: 940, y: 364 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(364, 0.95, 432, 1.06),
@@ -1216,9 +1263,13 @@ export const clearing: SceneDef = {
   actors: [
     {
       id: "zach",
+      sprite: {
+        frames: { idle: "/chars/zach-idle.png", talk: "/chars/zach-talk.png" },
+        pick: (a) => (a.talking ? "talk" : "idle"),
+      },
       name: "Zacharias Zunge",
       color: "#ffb36b",
-      x: 640,
+      x: 600,
       y: 388,
       facing: -1,
       box: [60, 134],
@@ -1226,14 +1277,14 @@ export const clearing: SceneDef = {
     },
   ],
   hotspots: [
-    { id: "tree", name: "Riesenbaum", rect: [60, 0, 160, 340], look: "Ein uralter Baum. In die Rinde ist geritzt: „Z. war hier. Z. ist der Beste. Z. hat das geschrieben.“" },
-    { id: "signC", name: "Schild", rect: [820, 236, 130, 46], look: "„Reimduelle! Eintritt frei, Austritt peinlich.“" },
-    { id: "beamC", name: "Mondlicht", rect: [480, 0, 160, 300], look: "Ein Mondstrahl fällt durch das Blätterdach. Sehr dramatisch. Zacharias hat sich garantiert extra hier hingestellt." },
+    { id: "tree", name: "Riesenbaum", rect: [20, 0, 270, 330], look: "Ein uralter Baum. In die Rinde ist geritzt: „Z. war hier. Z. ist der Beste. Z. hat das geschrieben.“" },
+    { id: "signC", name: "Schild", rect: [850, 180, 100, 115], look: "„Reimduelle! Eintritt frei, Austritt peinlich.“" },
+    { id: "beamC", name: "Mondlicht", rect: [440, 0, 170, 300], look: "Ein Mondstrahl fällt durch das Blätterdach. Sehr dramatisch. Zacharias hat sich garantiert extra hier hingestellt." },
     {
       id: "zach",
       name: "Zacharias Zunge",
       actor: "zach",
-      at: { x: 560, y: 396 },
+      at: { x: 520, y: 396 },
       face: 1,
       look: "Zacharias Zunge, Meister des Reimduells. Sein Schnurrbart ist so gepflegt, dass er vermutlich eine eigene Kabine hat.",
       talk: (g) => zachTalk(g),
@@ -1289,8 +1340,9 @@ async function zachTalk(g: G) {
 export const lighthouse: SceneDef = {
   id: "lighthouse",
   title: "Klippe am Leuchtturm",
+  art: "/art/lighthouse.png",
   ambient: "wind",
-  walk: [{ x: 10, y: 380 }, { x: 640, y: 352 }, { x: 800, y: 354 }, { x: 950, y: 366 }, { x: 950, y: 432 }, { x: 10, y: 432 }],
+  walk: [{ x: 0, y: 340 }, { x: 960, y: 340 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: depth(352, 0.92, 432, 1.06),
   staticKey: (g) => `${g.flag("lit") ? 1 : 0}${g.flag("oilIn") ? 1 : 0}`,
   paintStatic(ctx, g) {
@@ -1385,8 +1437,8 @@ export const lighthouse: SceneDef = {
     {
       id: "lamp",
       name: "Leuchtfeuer",
-      rect: [690, 40, 60, 60],
-      at: { x: 720, y: 362 },
+      rect: [800, 25, 70, 50],
+      at: { x: 820, y: 376 },
       look: (g) => g.say(g.flag("lit") ? "Es brennt! Hell wie… ein Leuchtturm." : g.flag("oilIn") ? "Das Öl ist drin. Jetzt fehlt nur noch ein Funke." : "Das Leuchtfeuer oben im Turm. Der Brenner ist trocken wie Opa Barnabas' Humor."),
       use: (g) => g.say(g.flag("lit") ? "Es brennt schon. Ich will es nicht noch heller machen, sonst wacht die ganze Stadt auf." : "Ich brauche etwas zum Brennen. Und etwas zum Anzünden."),
       useWith: {
@@ -1410,21 +1462,21 @@ export const lighthouse: SceneDef = {
     {
       id: "lh",
       name: "Leuchtturm",
-      rect: [672, 104, 96, 196],
+      rect: [785, 30, 100, 200],
       look: "Ein rot-weißer Leuchtturm. Er sieht aus wie eine riesige Zuckerstange mit Verantwortung.",
     },
     {
       id: "lhDoor",
       name: "Turmtür",
-      rect: [704, 290, 32, 58],
-      at: { x: 720, y: 362 },
+      rect: [800, 215, 60, 60],
+      at: { x: 820, y: 376 },
       look: "Die Tür zum Turm. Dahinter: 127 Stufen. Ich hab sie nicht gezählt. Doch, hab ich.",
       use: "Ohne Öl und Feuer brauche ich da oben nicht hinauf.",
       useWith: { oel: (g) => climb(g, async () => { g.remove("oel"); g.set("oilIn"); await g.say("Öl eingefüllt!"); }) },
     },
-    { id: "bench", name: "Bank", rect: [516, 344, 80, 34], at: { x: 556, y: 384 }, look: "Eine Bank mit Inschrift: „Für Wärter Henning. Er hat geleuchtet.“", use: "Keine Zeit zum Ausruhen! Piraten ruhen nie. Außer Knut." },
-    { id: "signL", name: "Schild", rect: [240, 280, 110, 40], look: "„Leuchtturm. Bitte nicht dagegenlaufen.“ Hilfreich." },
-    { id: "seaL", name: "Meer", rect: [0, 292, 420, 60], look: "Tief unter mir rollt das Meer gegen die Felsen. Mir wird ein bisschen schwindelig." },
+    { id: "bench", name: "Bank", rect: [100, 230, 165, 95], at: { x: 200, y: 380 }, look: "Eine Bank mit Inschrift: „Für Wärter Henning. Er hat geleuchtet.“", use: "Keine Zeit zum Ausruhen! Piraten ruhen nie. Außer Knut." },
+    { id: "signL", name: "Schild", rect: [10, 205, 70, 60], look: "„Leuchtturm. Bitte nicht dagegenlaufen.“ Hilfreich." },
+    { id: "seaL", name: "Meer", rect: [440, 160, 300, 100], look: "Tief unter mir rollt das Meer gegen die Felsen. Mir wird ein bisschen schwindelig." },
     { id: "toStreet2", name: "Pfad hinunter", rect: [0, 340, 40, 100], exit: true, at: { x: 16, y: 404 }, walk: (g) => g.goto("street", 545, 330, 1) },
   ],
 };

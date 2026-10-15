@@ -13,6 +13,16 @@ type C = CanvasRenderingContext2D;
 export const deck: SceneDef = {
   id: "deck",
   title: "Deck der Rostigen Möwe",
+  art: "/art/deck.png",
+  artOverlay(ctx, g) {
+    if (!g.flag("scope")) {
+      ctx.save();
+      ctx.translate(375, 352);
+      ctx.rotate(-0.1);
+      rect(ctx, -26, -5, 52, 10, lin(ctx, 0, -5, 0, 5, [[0, "#ffe9a0"], [0.5, "#c8932c"], [1, "#7a5410"]]));
+      ctx.restore();
+    }
+  },
   ambient: "ship",
   walk: [{ x: 40, y: 360 }, { x: 900, y: 360 }, { x: 900, y: 430 }, { x: 40, y: 430 }],
   scale: depth(360, 0.96, 430, 1.06),
@@ -135,20 +145,28 @@ export const deck: SceneDef = {
   actors: [
     {
       id: "rosa",
+      sprite: {
+        frames: { idle: "/chars/rosa-idle.png", talk: "/chars/rosa-talk.png" },
+        pick: (a) => (a.talking ? "talk" : "idle"),
+      },
       name: "Kapitänin Rosa",
       color: "#ff9d8a",
-      x: 780,
-      y: 380,
+      x: 700,
+      y: 392,
       facing: 1,
       box: [60, 134],
       draw: (ctx, a) => drawPerson(ctx, ROSA, a, { talking: a.talking, t: a.t }),
     },
     {
       id: "parrot",
+      sprite: {
+        frames: { idle: "/chars/parrot-idle.png", squawk: "/chars/parrot-squawk.png" },
+        pick: (a) => (a.talking ? "squawk" : "idle"),
+      },
       name: "Krächz",
       color: "#7dff9a",
-      x: 290,
-      y: 290,
+      x: 300,
+      y: 336,
       facing: 1,
       scale: 1.1,
       box: [36, 60],
@@ -156,13 +174,13 @@ export const deck: SceneDef = {
     },
   ],
   hotspots: [
-    { id: "sunD", name: "Sonnenaufgang", rect: [600, 200, 80, 60], look: "Ein Sonnenaufgang auf See. Wenn Oma mich jetzt sehen könnte! Sie würde fragen, warum ich nicht an Deck schrubbe." },
-    { id: "sail", name: "Segel", rect: [350, 40, 420, 190], look: "Das Großsegel. Jemand hat ein Loch mit einem Möwen-Flicken repariert. Daher der Name, schätze ich." },
+    { id: "sunD", name: "Sonnenaufgang", rect: [560, 155, 70, 50], look: "Ein Sonnenaufgang auf See. Wenn Oma mich jetzt sehen könnte! Sie würde fragen, warum ich nicht an Deck schrubbe." },
+    { id: "sail", name: "Segel", rect: [150, 0, 570, 125], look: "Das Großsegel. Jemand hat ein Loch mit einem Möwen-Flicken repariert. Daher der Name, schätze ich." },
     {
       id: "barrelD",
       name: "Fass mit Heringen",
-      rect: [104, 296, 74, 90],
-      at: { x: 200, y: 392 },
+      rect: [0, 255, 115, 150],
+      at: { x: 160, y: 400 },
       face: -1,
       look: "Ein Fass voll gepökelter Heringe. Die Bordverpflegung. Für drei Monate. Oder drei Tage, wenn Knut mitfährt.",
       take: async (g) => {
@@ -177,8 +195,8 @@ export const deck: SceneDef = {
     {
       id: "scope",
       name: "Fernrohr",
-      rect: [404, 320, 70, 30],
-      at: { x: 440, y: 396 },
+      rect: [340, 330, 70, 35],
+      at: { x: 375, y: 400 },
       hidden: (g) => !!g.flag("scope"),
       look: "Ein Messing-Fernrohr auf einer Kiste.",
       take: async (g) => {
@@ -193,8 +211,8 @@ export const deck: SceneDef = {
     {
       id: "wheel",
       name: "Steuerrad",
-      rect: [784, 252, 92, 100],
-      at: { x: 740, y: 398 },
+      rect: [742, 190, 185, 190],
+      at: { x: 640, y: 400 },
       face: 1,
       look: "Das Steuerrad der Möwe. Rosa lässt keinen dran. Außer, man hat einen sehr guten Grund.",
       use: (g) => g.say("Ich weiß ja nicht mal, wohin wir segeln sollen. Ich brauche eine Richtung."),
@@ -214,7 +232,7 @@ export const deck: SceneDef = {
       id: "rosa",
       name: "Kapitänin Rosa",
       actor: "rosa",
-      at: { x: 700, y: 396 },
+      at: { x: 600, y: 402 },
       face: 1,
       look: "Rosa steht am Steuer, als wäre sie dort festgewachsen. Der Wind macht ihren Hut nur noch beeindruckender.",
       talk: (g) => rosaDeck(g),
@@ -244,7 +262,7 @@ export const deck: SceneDef = {
     {
       id: "seaD",
       name: "Meer",
-      rect: [0, 250, 960, 36],
+      rect: [0, 190, 735, 60],
       look: "Wenigstens hier draußen gibt es noch Wasser.",
       useWith: { fernrohr: "Am Horizont im Südwesten: Mangroven. Und ein Reiher mit etwas Glänzendem unter dem Fuß." },
     },
@@ -296,6 +314,7 @@ async function rosaDeck(g: G) {
 export const mangrove: SceneDef = {
   id: "mangrove",
   title: "Mangroveninsel",
+  art: "/art/mangrove.png",
   ambient: "jungle",
   walk: [{ x: 40, y: 372 }, { x: 700, y: 362 }, { x: 900, y: 360 }, { x: 944, y: 372 }, { x: 944, y: 430 }, { x: 40, y: 430 }],
   scale: depth(360, 0.9, 430, 1.04),
@@ -383,6 +402,10 @@ export const mangrove: SceneDef = {
   actors: [
     {
       id: "crab",
+      sprite: {
+        frames: { idle: "/chars/crab-idle.png", dance: "/chars/crab-dance.png" },
+        pick: (_a, g) => (g.flag("crabDance") ? "dance" : "idle"),
+      },
       name: "Sir Kneifzange",
       color: "#ff8a6a",
       x: 830,
@@ -394,6 +417,20 @@ export const mangrove: SceneDef = {
     },
     {
       id: "heron",
+      sprite: {
+        frames: { idle: "/chars/heron-idle.png" },
+        pick: () => "idle",
+        after: (ctx, a, g) => {
+          if (!g.flag("hornDropped")) {
+            ctx.save();
+            ctx.translate(a.x + 16, a.y - 4);
+            ctx.rotate(-0.2);
+            ellipse(ctx, 0, -6, 18, 9, lin(ctx, -18, 0, 18, 0, [[0, "#f6d7c4"], [1, "#d08f73"]]));
+            poly(ctx, [12, -12, 30, -4, 12, 0], "#e3b19a");
+            ctx.restore();
+          }
+        },
+      },
       name: "Reiher",
       color: "#e0f0ff",
       x: 340,
@@ -405,7 +442,7 @@ export const mangrove: SceneDef = {
     },
   ],
   hotspots: [
-    { id: "boatM", name: "Beiboot", rect: [10, 396, 120, 36], exit: true, at: { x: 120, y: 420 }, look: "Unser Beiboot. Damit komme ich zurück zur Möwe.", walk: (g) => g.goto("deck", 300, 400, 1) },
+    { id: "boatM", name: "Beiboot", rect: [20, 200, 150, 90], exit: true, at: { x: 120, y: 420 }, look: "Unser Beiboot. Damit komme ich zurück zur Möwe.", walk: (g) => g.goto("deck", 300, 400, 1) },
     { id: "trees", name: "Mangroven", rect: [20, 0, 720, 200], look: "Mangroven. Sie stehen auf Stelzen im Wasser, wie Bäume, die nasse Füße hassen." },
     {
       id: "horn",
@@ -476,7 +513,7 @@ export const mangrove: SceneDef = {
     {
       id: "bridge",
       name: "Brücke",
-      rect: [760, 260, 200, 90],
+      rect: [800, 130, 160, 150],
       exit: true,
       at: { x: 930, y: 366 },
       look: "Eine wackelige Brücke tiefer in den Dschungel. Dahinter: Steine. Uralte Steine.",
@@ -528,6 +565,18 @@ const ORDER = ["sichel", "halb", "voll"];
 export const temple: SceneDef = {
   id: "temple",
   title: "Tempel der Gezeiten",
+  art: "/art/temple.png",
+  artOverlay(ctx, g) {
+    if (g.flag("doorOpen")) {
+      ctx.fillStyle = rad(ctx, 470, 300, 10, 150, [[0, "#1a3a4a"], [1, "#04080a"]]);
+      ctx.fillRect(404, 154, 134, 172);
+      rect(ctx, 452, 312, 36, 16, "#5a5a48");
+      if (!g.flag("mirror")) {
+        ellipse(ctx, 470, 296, 18, 18, "#c9b36a");
+        ellipse(ctx, 470, 296, 14, 14, lin(ctx, 456, 282, 484, 310, [[0, "#f0f6ff"], [1, "#5a6c8c"]]));
+      }
+    }
+  },
   ambient: "jungle",
   walk: [{ x: 20, y: 372 }, { x: 940, y: 372 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(372, 0.95, 432, 1.05),
@@ -621,18 +670,18 @@ export const temple: SceneDef = {
     {
       id: "mural",
       name: "Wandbild",
-      rect: [56, 168, 168, 120],
-      at: { x: 140, y: 392 },
+      rect: [0, 115, 285, 170],
+      at: { x: 150, y: 392 },
       look: async (g) => {
         await g.say("Ein Wandbild: eine schmale Sichel, ein halber Mond, ein voller Mond. Darunter Wellen.");
         await g.say("Und eine Inschrift: „Wächst die Sichel bis zur Hälfte und die Hälfte bis zum Rund, öffnet sich des Meeres Mund.“");
       },
     },
-    { id: "face", name: "Steingesicht", rect: [440, 56, 80, 52], look: "Ein steinernes Gesicht. Es lächelt so, als wüsste es, dass ich gleich etwas falsch mache." },
+    { id: "face", name: "Steingesicht", rect: [430, 20, 80, 80], look: "Ein steinernes Gesicht. Es lächelt so, als wüsste es, dass ich gleich etwas falsch mache." },
     ...SYMBOLS.map((s, i) => ({
       id: "sym_" + s,
       name: s === "voll" ? "Vollmond-Stein" : s === "sichel" ? "Sichelmond-Stein" : "Halbmond-Stein",
-      rect: [415 + i * 46, 241, 38, 38] as [number, number, number, number],
+      rect: (s === "sichel" ? [450, 187, 40, 40] : s === "voll" ? [450, 235, 40, 40] : [450, 280, 40, 40]) as [number, number, number, number],
       at: { x: 480, y: 392 },
       face: 1 as const,
       hidden: (g: G) => !!g.flag("doorOpen"),
@@ -643,7 +692,7 @@ export const temple: SceneDef = {
     {
       id: "door",
       name: (g) => (g.flag("doorOpen") ? "Tempeleingang" : "Steintor"),
-      rect: [400, 170, 160, 210],
+      rect: [398, 140, 145, 190],
       at: { x: 480, y: 392 },
       exit: true,
       look: (g) => g.say(g.flag("doorOpen") ? "Das Tor ist offen. Von drinnen weht kalte, salzige Luft." : "Ein Steintor mit drei runden Mondsteinen. Kein Schlüsselloch. Nur Rätsel. Ich hasse Rätsel. Ich liebe Rätsel."),
@@ -669,7 +718,7 @@ export const temple: SceneDef = {
         await g.say("Ein Mondspiegel! Rosas Oma: „Zeig ihr den Spiegel.“ Krächz: „Hexe hasst Spieglein!“ Langsam ergibt alles Sinn.");
       },
     },
-    { id: "statue", name: "Zerbrochene Statue", rect: [760, 260, 120, 120], look: "Eine Statue einer Nixe. Ihr Gesicht wurde weggekratzt. Jemand mochte sein Spiegelbild nicht." },
+    { id: "statue", name: "Zerbrochene Statue", rect: [758, 160, 200, 240], look: "Eine Statue einer Nixe. Ihr Gesicht wurde weggekratzt. Jemand mochte sein Spiegelbild nicht." },
   ],
 };
 
@@ -727,6 +776,7 @@ async function pressSymbol(g: G, s: string) {
 export const grotto: SceneDef = {
   id: "grotto",
   title: "Morwennas Grotte",
+  art: "/art/grotto.png",
   ambient: "cave",
   walk: [{ x: 20, y: 372 }, { x: 420, y: 364 }, { x: 560, y: 404 }, { x: 940, y: 404 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(364, 0.95, 432, 1.05),
@@ -808,6 +858,11 @@ export const grotto: SceneDef = {
   actors: [
     {
       id: "morwenna",
+      sprite: {
+        frames: { idle: "/chars/morwenna-idle.png", talk: "/chars/morwenna-talk.png", cucumber: "/chars/morwenna-cucumber.png" },
+        pick: (a, g) => (g.flag("witchDone") ? "cucumber" : a.talking ? "talk" : "idle"),
+        float: (g) => (g.flag("witchDone") ? 0 : 6),
+      },
       name: "Morwenna",
       color: "#8fffe0",
       x: 800,
@@ -824,7 +879,7 @@ export const grotto: SceneDef = {
     {
       id: "beamG",
       name: "Mondstrahl",
-      rect: [210, 20, 90, 360],
+      rect: [105, 10, 200, 350],
       at: { x: 252, y: 384 },
       look: "Ein Mondstrahl fällt durch ein Loch in der Decke. In Morwennas Grotte ist immer Mitternacht.",
       use: "Ich stelle mich ins Mondlicht. Ich fühle mich sehr bedeutungsvoll. Sonst passiert nichts.",
@@ -852,8 +907,8 @@ export const grotto: SceneDef = {
     {
       id: "pearl",
       name: "Gezeitenperle",
-      rect: [630, 190, 60, 60],
-      at: { x: 640, y: 406 },
+      rect: [700, 150, 65, 65],
+      at: { x: 700, y: 404 },
       hidden: (g) => !!g.flag("pearl"),
       look: "Die Gezeitenperle! Sie schwebt über dem Strudel und pulsiert wie ein Herz aus Meerwasser.",
       take: async (g) => {
@@ -877,7 +932,7 @@ export const grotto: SceneDef = {
     {
       id: "pool",
       name: "Strudel",
-      rect: [420, 280, 480, 90],
+      rect: [495, 235, 435, 140],
       look: "Ein Strudel im Grottenteich. Er dreht sich um die Perle wie ein Wachhund um seinen Knochen.",
       use: "Schwimmen im Hexenstrudel? Ich habe gerade erst gelernt, auf dem Steg zu stehen.",
     },

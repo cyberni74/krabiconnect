@@ -77,7 +77,21 @@ export interface Hotspot {
   give?: Record<string, Reaction>;
 }
 
+/** Image-based character: frames are public image paths, pick chooses the frame each tick. */
+export interface SpriteDef {
+  frames: Record<string, string>;
+  pick: (a: ActorRuntime, g: G) => string;
+  /** Logical px per sprite pixel (default 2). */
+  scale?: number;
+  /** Fraction of the height to draw from the top (character behind a counter). */
+  crop?: number;
+  /** Hovering amplitude in logical px. */
+  float?: number | ((g: G) => number);
+  after?: (ctx: CanvasRenderingContext2D, a: ActorRuntime, g: G) => void;
+}
+
 export interface ActorDef {
+  sprite?: SpriteDef;
   id: string;
   name: string;
   color: string;
@@ -107,6 +121,10 @@ export interface SceneDef {
   hotspots: Hotspot[];
   actors?: ActorDef[];
   enter?: Script;
+  /** Public path of a pre-made background image; when it is loaded it replaces paintStatic/paintAnim/paintFront. */
+  art?: string;
+  /** Static details (items that can be taken, opened doors) drawn on top of the background image. */
+  artOverlay?: (ctx: CanvasRenderingContext2D, g: G) => void;
   /** Replaces the default hero drawing (pixel sprite chapters). */
   hero?: (ctx: CanvasRenderingContext2D, a: ActorRuntime, pose: { walking: boolean; phase: number; t: number }, g: G) => void;
 }

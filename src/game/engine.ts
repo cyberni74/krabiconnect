@@ -754,8 +754,44 @@ export class Game implements G {
     this.hero.scale = this.scene.scale(this.hero.y);
   }
 
+  private artImgs = new Map<string, HTMLImageElement>();
+  /** A public image, once it has loaded (null until then or outside the browser). */
+  loadImg(path: string | undefined): HTMLImageElement | null {
+    if (!path || typeof Image === "undefined") return null;
+    let img = this.artImgs.get(path);
+    if (!img) {
+      img = new Image();
+      img.src = path;
+      this.artImgs.set(path, img);
+    }
+    return img.complete && img.naturalWidth > 0 ? img : null;
+  }
+  /** The scene's pre-made background, once it has loaded. */
+  sceneArt(): HTMLImageElement | null {
+    return this.loadImg(this.scene.art);
+  }
+
+  /** Draws a sprite image with its feet at (x, y); `crop` keeps only the top fraction (behind a counter). */
+  private drawImg(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, facing: Facing, dy: number, scale: number, crop: number, shadow: boolean) {
+    const w = img.naturalWidth * scale;
+    const h = img.naturalHeight * scale;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    if (shadow) {
+      ctx.fillStyle = "rgba(0,0,0,0.35)";
+      ctx.beginPath();
+      ctx.ellipse(Math.round(x), Math.round(y) - 2, Math.max(10, w * 0.35), 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.translate(Math.round(x), Math.round(y));
+    if (facing === -1) ctx.scale(-1, 1);
+    const keep = Math.round(img.naturalHeight * crop);
+    ctx.drawImage(img, 0, 0, img.naturalWidth, keep, Math.round(-w / 2), Math.round(-h + dy), w, keep * scale);
+    ctx.restore();
+  }
+
   ensureBg() {
-    const key = this.scene.id + "|" + (this.scene.staticKey?.(this) ?? "") + "|" + this.renderScale;
+    const key = this.scene.id + "|" + (this.scene.staticKey?.(this) ?? "") + "|" + this.renderScale + "|" + (this.sceneArt() ? "art" : "");
     if (this.bg && key === this.bgKey) return;
     if (typeof document === "undefined") return;
     const c = this.bg ?? document.createElement("canvas");
@@ -764,7 +800,11 @@ export class Game implements G {
     const ctx = c.getContext("2d")!;
     ctx.setTransform(this.renderScale, 0, 0, this.renderScale, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    this.scene.paintStatic(ctx, this);
+    const art = this.sceneArt();
+    if (art) {
+      ctx.drawImage(art, 0, 0, W, H);
+      this.scene.artOverlay?.(ctx, this);
+    } else this.scene.paintStatic(ctx, this);
     this.bg = c;
     this.bgKey = key;
   }
@@ -780,7 +820,8 @@ export class Game implements G {
     this.ensureBg();
     if (this.bg) ctx.drawImage(this.bg, 0, 0, W, H);
     const t = this.t;
-    this.scene.paintAnim?.(ctx, t, this);
+    const hasArt = !!this.sceneArt();
+    if (!hasArt) this.scene.paintAnim?.(ctx, t, this);
     // actors sorted by depth
     const list: { y: number; draw: () => void }[] = [];
     for (const d of this.scene.actors ?? []) {
@@ -788,20 +829,42 @@ export class Game implements G {
       const a = this.actors.get(d.id);
       if (!a) continue;
       if (!d.scale) a.scale = this.scene.scale(a.y);
-      list.push({ y: a.y, draw: () => d.draw(ctx, a, this) });
+      list.push({
+        y: a.y,
+        draw: () => {
+          const sp = d.sprite;
+          const img = sp ? this.loadImg(sp.frames[sp.pick(a, this)]) : null;
+          if (sp && img) {
+            const fl = typeof sp.float === "function" ? sp.float(this) : sp.float ?? 0;
+            const breathe = Math.sin(this.t * 2.5 + a.x) > 0.75 ? -4 : 0;
+            const dy = (fl ? -Math.sin(this.t * 1.4) * fl : 0) + breathe;
+            this.drawImg(ctx, img, a.x, a.y, a.facing, dy, sp.scale ?? 2, sp.crop ?? 1, !fl && !sp.crop);
+            sp.after?.(ctx, a, this);
+          } else d.draw(ctx, a, this);
+        },
+      });
     }
     if (this.screen === "play" && !this.flags.heroHidden) {
       list.push({
         y: this.hero.y,
-        draw: () =>
-          this.scene.hero
-            ? this.scene.hero(ctx, this.hero, { walking: this.path.length > 0, phase: this.walkPhase, t }, this)
-            : drawPerson(ctx, FINN, this.hero, { walk: this.path.length ? this.walkPhase : undefined, talking: this.hero.talking, t }),
+        draw: () => {
+          const walking = this.path.length > 0;
+          if (this.scene.hero) return this.scene.hero(ctx, this.hero, { walking, phase: this.walkPhase, t }, this);
+          const hf = this.chapter.heroFrames;
+          const frames = hf?.map((f) => this.loadImg(f));
+          if (frames && frames.every(Boolean)) {
+            const idx = walking ? Math.floor(this.walkPhase * 4) % 4 : 0;
+            const dy = walking ? -4 * Math.abs(Math.sin(this.walkPhase * Math.PI * 2)) : Math.sin(t * 2.5) > 0.75 ? -4 : 0;
+            this.drawImg(ctx, frames[idx]!, this.hero.x, this.hero.y, this.hero.facing, dy, 2, 1, true);
+            return;
+          }
+          drawPerson(ctx, FINN, this.hero, { walk: walking ? this.walkPhase : undefined, talking: this.hero.talking, t });
+        },
       });
     }
     list.sort((a, b) => a.y - b.y);
     for (const l of list) l.draw();
-    this.scene.paintFront?.(ctx, t, this);
+    if (!hasArt) this.scene.paintFront?.(ctx, t, this);
 
     if (this.flashState) {
       const k = (performance.now() - this.flashState.t0) / this.flashState.ms;
