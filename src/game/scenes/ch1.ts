@@ -5,7 +5,9 @@ import {
 import { BARNABAS, drawPerson, drawWitch, KNUT, MO, PFEFFERKORN, ROSA, ZACHARIAS } from "../people";
 import { bye, duel, learned, talk, teach } from "../story";
 import type { G, SceneDef } from "../types";
-import { cobbles, depth, house, lamppost, lampGlow } from "./common";
+import { cobbles, depth, drawPatch, house, lamppost, lampGlow, patchReady, preloadPatches } from "./common";
+
+preloadPatches("pier-rope", "shop-shovel");
 
 type C = CanvasRenderingContext2D;
 
@@ -24,10 +26,13 @@ export const pier: SceneDef = {
   id: "pier",
   title: "Der alte Steg",
   art: "/art/pier.png",
+  artOverlay(ctx, g) {
+    if (g.flag("rope")) drawPatch(ctx, "pier-rope", 472, 319);
+  },
   ambient: "sea",
   walk: [{ x: 0, y: 332 }, { x: 960, y: 350 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: depth(330, 0.9, 408, 1.04),
-  staticKey: (g) => `${g.flag("rope") ? 1 : 0}${g.flag("tideGone") ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("rope") ? 1 : 0}${g.flag("tideGone") ? 1 : 0}${patchReady("pier-rope") ? 1 : 0}`,
   paintStatic(ctx, g) {
     const gone = !!g.flag("tideGone");
     nightSky(ctx, 262);
@@ -783,6 +788,7 @@ export const shop: SceneDef = {
   title: "Pfefferkorns Krimskrams",
   art: "/art/shop.png",
   artOverlay(ctx, g) {
+    if (g.flag("shovelTraded")) drawPatch(ctx, "shop-shovel", 907, 241);
     if (g.flag("oilBought")) return;
     ctx.save();
     ctx.translate(688, 268);
@@ -802,7 +808,7 @@ export const shop: SceneDef = {
   ambient: "tavern",
   walk: [{ x: 20, y: 376 }, { x: 940, y: 376 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(376, 0.98, 432, 1.08),
-  staticKey: (g) => `${g.flag("shovelTraded") ? 1 : 0}${g.flag("oilBought") ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("shovelTraded") ? 1 : 0}${g.flag("oilBought") ? 1 : 0}${patchReady("shop-shovel") ? 1 : 0}`,
   paintStatic(ctx, g) {
     planks(ctx, 0, 0, 960, 350, "#2f4a52", "#122228", true, 34, 30);
     ctx.fillStyle = "rgba(20,10,40,0.35)";

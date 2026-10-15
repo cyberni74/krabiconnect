@@ -133,3 +133,24 @@ export function vines(ctx: C, seed: number, x: number, y: number, w: number, len
     }
   }
 }
+
+/** Small "item removed" patches that cover items baked into the background images. */
+const patchImgs = new Map<string, HTMLImageElement>();
+function patchImg(name: string) {
+  if (typeof Image === "undefined") return null;
+  let img = patchImgs.get(name);
+  if (!img) {
+    img = Object.assign(new Image(), { src: `/art/patches/${name}.png` });
+    patchImgs.set(name, img);
+  }
+  return img;
+}
+export const patchReady = (name: string) => {
+  const img = patchImg(name);
+  return !!img && img.complete && img.naturalWidth > 0;
+};
+export function drawPatch(ctx: C, name: string, x: number, y: number) {
+  if (patchReady(name)) ctx.drawImage(patchImg(name)!, x, y);
+}
+/** Starts loading early so the patch is ready when the item is taken. */
+export const preloadPatches = (...names: string[]) => names.forEach(patchImg);

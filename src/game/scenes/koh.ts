@@ -3,6 +3,9 @@ import { MONKEY, NOK, PLOY, SORN, drawSprite, spriteShadow } from "../sprites";
 import { bye, talk } from "../story";
 import { SPRITE_SCALE } from "../engine-constants";
 import type { ActorRuntime, G, SceneDef } from "../types";
+import { drawPatch, patchReady, preloadPatches } from "./common";
+
+preloadPatches("jungle-banana", "cave-logbook");
 
 type C = CanvasRenderingContext2D;
 
@@ -318,10 +321,11 @@ export const kohJungle: SceneDef = {
   walk: [{ x: 0, y: 364 }, { x: 960, y: 364 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => `${g.flag("bananaTaken") ? 1 : 0}|${artReady(jungleArt) ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("bananaTaken") ? 1 : 0}|${artReady(jungleArt) ? 1 : 0}${patchReady("jungle-banana") ? 1 : 0}`,
   paintStatic(ctx, g) {
     if (artReady(jungleArt)) {
       ctx.drawImage(jungleArt!, 0, 0, 960, 440);
+      if (g.flag("bananaTaken")) drawPatch(ctx, "jungle-banana", 32, 154);
       return;
     }
     sky(ctx, 260, [[0, "#1a4a5a"], [0.6, "#3a7a7a"], [1, "#8ac0a0"]]);
@@ -530,10 +534,11 @@ export const kohCave: SceneDef = {
   walk: [{ x: 20, y: 392 }, { x: 940, y: 392 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => `${g.flag("logbook") ? 1 : 0}${g.flag("sornHere") ? 1 : 0}|${artReady(caveArt) ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("logbook") ? 1 : 0}${g.flag("sornHere") ? 1 : 0}|${artReady(caveArt) ? 1 : 0}${patchReady("cave-logbook") ? 1 : 0}`,
   paintStatic(ctx, g) {
     if (artReady(caveArt)) {
       ctx.drawImage(caveArt!, 0, 0, 960, 440);
+      if (g.flag("logbook")) drawPatch(ctx, "cave-logbook", 858, 224);
       return;
     }
     rect(ctx, 0, 0, 960, 440, lin(ctx, 0, 0, 0, 440, [[0, "#0a1218"], [0.6, "#14262a"], [1, "#0a1418"]]));

@@ -5,7 +5,9 @@ import {
 import { drawCrab, drawHeron, drawParrot, drawPerson, drawWitch, ROSA } from "../people";
 import { bye, talk } from "../story";
 import type { G, SceneDef } from "../types";
-import { depth, stoneWall, vines } from "./common";
+import { depth, drawPatch, patchReady, preloadPatches, stoneWall, vines } from "./common";
+
+preloadPatches("grotto-pearl");
 
 type C = CanvasRenderingContext2D;
 
@@ -778,10 +780,13 @@ export const grotto: SceneDef = {
   id: "grotto",
   title: "Morwennas Grotte",
   art: "/art/grotto.png",
+  artOverlay(ctx, g) {
+    if (g.flag("pearl")) drawPatch(ctx, "grotto-pearl", 705, 159);
+  },
   ambient: "cave",
   walk: [{ x: 20, y: 372 }, { x: 420, y: 364 }, { x: 560, y: 404 }, { x: 940, y: 404 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: depth(364, 0.95, 432, 1.05),
-  staticKey: (g) => `${g.flag("witchDone") ? 1 : 0}${g.flag("pearl") ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("witchDone") ? 1 : 0}${g.flag("pearl") ? 1 : 0}${patchReady("grotto-pearl") ? 1 : 0}`,
   paintStatic(ctx, g) {
     rect(ctx, 0, 0, 960, 440, lin(ctx, 0, 0, 0, 440, [[0, "#04080e"], [0.6, "#0a1a2a"], [1, "#061018"]]));
     // cave walls
