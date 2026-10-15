@@ -107,4 +107,6 @@ export interface SceneDef {
   hotspots: Hotspot[];
   actors?: ActorDef[];
   enter?: Script;
+  /** Replaces the default hero drawing (pixel sprite chapters). */
+  hero?: (ctx: CanvasRenderingContext2D, a: ActorRuntime, pose: { walking: boolean; phase: number; t: number }, g: G) => void;
 }

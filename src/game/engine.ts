@@ -1,11 +1,10 @@
 import { audio } from "./audio";
 import { COMBOS, comboKey, itemName, ITEMS } from "./items";
 import { drawPerson, FINN } from "./people";
-import { SCENES } from "./scenes/index";
+import { CHAPTERS, SCENES, type ChapterDef } from "./scenes/index";
 import type { ActorRuntime, Facing, Flags, G, Hotspot, Pt, Reaction, SceneDef, Verb } from "./types";
 import { H, W } from "./types";
 
-const SAVE_KEY = "krabbenbucht-save-v1";
 
 export interface SaveState {
   scene: string;
@@ -36,6 +35,7 @@ export interface UiSnapshot {
   hasSave: boolean;
   muted: boolean;
   exits: ExitZone[];
+  endText: string;
 }
 
 /** Big transparent tap target for a scene exit, in percent of the frame. */
@@ -153,6 +153,8 @@ export class Game implements G {
   t = 0;
   hero: ActorRuntime = { id: "hero", x: 480, y: 380, facing: 1, talking: false, t: 0, scale: 1 };
   scene: SceneDef = SCENES.pier;
+  chapter: ChapterDef = CHAPTERS.ch1;
+  saveKey = CHAPTERS.ch1.key;
   actors = new Map<string, ActorRuntime>();
   private tweens: { a: ActorRuntime; x0: number; y0: number; x1: number; y1: number; t0: number; ms: number; done: () => void }[] = [];
   path: Pt[] = [];
@@ -204,9 +206,10 @@ export class Game implements G {
       busy: this.busy > 0,
       screen: this.screen,
       sceneTitle: this.scene.title,
-      hasSave: hasSave(),
+      hasSave: hasSave(this.saveKey),
       muted: audio.muted,
       exits: this.exitZones(),
+      endText: this.chapter.endText,
     };
     return this.snap;
   };
@@ -372,7 +375,7 @@ export class Game implements G {
   }
   finish() {
     this.screen = "end";
-    clearSave();
+    clearSave(this.saveKey);
     this.emit();
   }
 
@@ -425,28 +428,33 @@ export class Game implements G {
     if (this.screen !== "play") return;
     const s: SaveState = { scene: this.scene.id, x: this.hero.x, y: this.hero.y, facing: this.hero.facing, inv: this.inv, flags: this.flags };
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+      localStorage.setItem(this.saveKey, JSON.stringify(s));
     } catch {
       /* storage unavailable */
     }
   }
+  /** Starts a chapter from its beginning (intro card, then the start scene). */
+  setChapter(c: ChapterDef) {
+    this.chapter = c;
+    this.saveKey = c.key;
+  }
   newGame() {
     this.flags = {};
-    this.inv = [];
+    this.inv = [...this.chapter.inv];
     this.sel = null;
     this.verb = "walk";
     this.screen = "play";
-    this.enterScene(SCENES.pier, 760, 384, -1);
+    const c = this.chapter;
+    this.enterScene(SCENES[c.start], c.x, c.y, c.facing);
     this.fadeA = 1;
     void this.run(async (g) => {
       await g.fade(0, 700);
-      await g.card("Kapitel 1", "Licht, Richtung und ein Lied");
-      await SCENES.pier.enter?.(g);
+      await c.intro(g);
     });
     this.save();
   }
   continueGame() {
-    const s = loadSave();
+    const s = loadSave(this.saveKey);
     if (!s || !SCENES[s.scene]) return this.newGame();
     this.flags = s.flags ?? {};
     this.inv = s.inv ?? [];
@@ -462,7 +470,7 @@ export class Game implements G {
     this.screen = "title";
     this.speech?.resolve();
     this.speech = null;
-    this.enterScene(SCENES.pier, -200, 380);
+    this.enterScene(SCENES[this.chapter.start], -200, 380);
     this.emit();
   }
 
@@ -785,7 +793,10 @@ export class Game implements G {
     if (this.screen === "play" && !this.flags.heroHidden) {
       list.push({
         y: this.hero.y,
-        draw: () => drawPerson(ctx, FINN, this.hero, { walk: this.path.length ? this.walkPhase : undefined, talking: this.hero.talking, t }),
+        draw: () =>
+          this.scene.hero
+            ? this.scene.hero(ctx, this.hero, { walking: this.path.length > 0, phase: this.walkPhase, t }, this)
+            : drawPerson(ctx, FINN, this.hero, { walk: this.path.length ? this.walkPhase : undefined, talking: this.hero.talking, t }),
       });
     }
     list.sort((a, b) => a.y - b.y);
@@ -901,24 +912,24 @@ function itemLook(id: string): Reaction {
   };
 }
 
-export function hasSave() {
+export function hasSave(key: string) {
   try {
-    return !!localStorage.getItem(SAVE_KEY);
+    return !!localStorage.getItem(key);
   } catch {
     return false;
   }
 }
-function loadSave(): SaveState | null {
+function loadSave(key: string): SaveState | null {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
+    const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as SaveState) : null;
   } catch {
     return null;
   }
 }
-function clearSave() {
+function clearSave(key: string) {
   try {
-    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem(key);
   } catch {
     /* ignore */
   }

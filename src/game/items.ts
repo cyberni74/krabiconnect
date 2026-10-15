@@ -1,4 +1,4 @@
-import { ellipse, glow, lin, poly, rad } from "./art";
+import { ellipse, glow, lin, poly, rad, rect } from "./art";
 import type { G, Reaction } from "./types";
 
 type C = CanvasRenderingContext2D;
@@ -38,6 +38,55 @@ const paper = (ctx: C, half: 0 | 1 | 2) => {
 };
 
 export const ITEMS: Record<string, ItemDef> = {
+  banane: {
+    name: "Banane",
+    look: "Eine reife Banane. Der Affe schaut schon so, als würde er sie gern nehmen.",
+    icon: (ctx) => {
+      ctx.rotate(-0.5);
+      ctx.beginPath();
+      ctx.moveTo(-26, -14);
+      ctx.quadraticCurveTo(0, 26, 26, -16);
+      ctx.quadraticCurveTo(4, 8, -26, -14);
+      ctx.fillStyle = lin(ctx, -26, 0, 26, 0, [[0, "#f6e05a"], [0.6, "#e8b824"], [1, "#a57a10"]]);
+      ctx.fill();
+      ctx.strokeStyle = "#6a4a0a";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ellipse(ctx, -26, -14, 4, 3, "#4a3010");
+      ellipse(ctx, 26, -16, 4, 3, "#4a3010");
+    },
+  },
+  lampe: {
+    name: "Stirnlampe",
+    look: "Die Stirnlampe meiner Großmutter. Der Akku ist schwach, aber sie leuchtet.",
+    icon: (ctx) => {
+      ctx.beginPath();
+      ctx.arc(0, 0, 24, Math.PI * 0.9, Math.PI * 2.1);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "#2a2a30";
+      ctx.stroke();
+      ellipse(ctx, 0, -2, 14, 12, "#2a2a30");
+      ellipse(ctx, 0, -2, 9, 8, rad(ctx, 0, -2, 1, 9, [[0, "#ffffff"], [0.5, "#fff2a0"], [1, "#c8a040"]]));
+      glow(ctx, 0, -2, 28, "rgba(255,240,160,0.6)");
+    },
+  },
+  logbuch: {
+    name: "Logbuch",
+    look: "Das Logbuch meiner Großmutter Ploy. Auf der ersten Seite steht: „Die Höhle öffnet sich nur bei Ebbe.“",
+    icon: (ctx) => {
+      poly(ctx, [-22, -26, 22, -24, 22, 26, -22, 26], lin(ctx, 0, -26, 0, 26, [[0, "#8a5a32"], [1, "#4a2a14"]]), "#24140a", 2);
+      poly(ctx, [-18, -22, 18, -20, 18, 22, -18, 22], "#f4e6c0", "#8a6a4a", 1);
+      ctx.strokeStyle = "#6a4a2a";
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(-12, -12 + i * 8);
+        ctx.lineTo(12, -12 + i * 8);
+        ctx.stroke();
+      }
+      rect(ctx, -4, -28, 8, 4, "#c4423a");
+    },
+  },
   seil: {
     name: "Seil",
     look: "Gutes, altes Hanfseil. Riecht nach Teer und Abenteuer.",

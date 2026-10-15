@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { audio } from "@/game/audio";
 import { Game, type UiSnapshot } from "@/game/engine";
+import { CHAPTERS } from "@/game/scenes/index";
 import { itemIcon, itemName } from "@/game/items";
 import { H, VERBS, W } from "@/game/types";
 
@@ -47,8 +48,14 @@ function useLayout(): { layout: Layout; touch: boolean } {
   return s;
 }
 
-export function GameView() {
-  const [game] = useState(() => new Game());
+export type ChapterId = keyof typeof CHAPTERS;
+
+export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
+  const [game] = useState(() => {
+    const g = new Game();
+    g.setChapter(CHAPTERS[chapter]);
+    return g;
+  });
   const ui = useSyncExternalStore(game.subscribe, game.getSnapshot, game.getSnapshot);
   const { layout, touch } = useLayout();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -218,7 +225,7 @@ export function GameView() {
       {ui.screen === "title" && (
         <TitleScreen hasSave={ui.hasSave} compact={layout !== "desktop"} onNew={() => start(() => game.newGame())} onContinue={() => start(() => game.continueGame())} />
       )}
-      {ui.screen === "end" && <EndScreen onAgain={() => game.newGame()} />}
+      {ui.screen === "end" && <EndScreen text={ui.endText} onAgain={() => game.newGame()} />}
       {layout === "portrait" && playing && !portraitOk && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/90 p-4 text-center">
           <div className="animate-[spin_2.4s_ease-in-out_infinite] text-5xl">📱</div>
@@ -469,12 +476,12 @@ function TitleScreen({ hasSave, compact, onNew, onContinue }: { hasSave: boolean
   );
 }
 
-function EndScreen({ onAgain }: { onAgain: () => void }) {
+function EndScreen({ text, onAgain }: { text: string; onAgain: () => void }) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 px-4 text-center">
       <h2 className="font-[Pirata_One] text-5xl text-[#f2c76b] sm:text-8xl">Ende</h2>
       <p className="mt-2 max-w-xl font-[Kanit] text-sm text-[#e9dcc0] sm:text-lg">
-        Die Flut ist zurück, Morwenna ist eine Seegurke, und Finn Kielwasser ist offiziell Pirat. Ein bisschen jedenfalls.
+        {text}
       </p>
       <button onClick={onAgain} className="mt-5 rounded-full border-2 border-[#e9c873] bg-[#3a2410] px-6 py-2.5 font-[Kanit] font-semibold text-[#ffe9a8] hover:bg-[#5a3818]">
         Nochmal spielen
