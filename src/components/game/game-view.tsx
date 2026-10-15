@@ -8,8 +8,8 @@ import { H, VERBS, W } from "@/game/types";
 type Layout = "desktop" | "landscape" | "portrait";
 
 /** Each native pixel of the game world is drawn as a PIXEL_SIZE × PIXEL_SIZE block (4× the classic 320×200 grid). */
-const PIXEL_SIZE = 4;
-const PALETTE_STEPS = 10;
+const PIXEL_SIZE = 2;
+const PALETTE_STEPS = 12;
 
 /** Snap each colour channel to a few levels so the world reads as pixel art. */
 function posterize(c: CanvasRenderingContext2D, w: number, h: number) {
