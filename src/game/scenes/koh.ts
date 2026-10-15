@@ -95,6 +95,10 @@ function longtail(ctx: C, x: number, y: number, s: number, hull: string, t: numb
 const tideEbb = (g: G) => g.flag("tide") === "ebbe";
 
 /** Hand-made pixel background (generated, then cropped to the scene size). Falls back to the painted scene until loaded. */
+const jungleArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-jungle.png" }) : null;
+const caveArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-cave.png" }) : null;
+const artReady = (img: HTMLImageElement | null) => !!img && img.complete && img.naturalWidth > 0;
+
 const pierArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-pier.png" }) : null;
 
 export const kohPier: SceneDef = {
@@ -220,7 +224,7 @@ export const kohPier: SceneDef = {
         if (!tideEbb(g)) return g.say("Der Weg liegt unter Wasser. Erst die Ebbe an der Gezeitenuhr.");
         if (!g.has("lampe")) return g.say("Die Höhle ist stockdunkel. Ohne Licht stolpere ich ins Wasser.");
         g.sfx("door");
-        await g.goto("koh_cave", 110, 388, 1);
+        await g.goto("koh_cave", 110, 404, 1);
       },
     },
     {
@@ -309,11 +313,15 @@ export const kohJungle: SceneDef = {
   id: "koh_jungle",
   title: "Dschungelpfad",
   ambient: "jungle",
-  walk: [{ x: 0, y: 344 }, { x: 960, y: 344 }, { x: 960, y: 430 }, { x: 0, y: 430 }],
+  walk: [{ x: 0, y: 364 }, { x: 960, y: 364 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => `${g.flag("bananaTaken") ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("bananaTaken") ? 1 : 0}|${artReady(jungleArt) ? 1 : 0}`,
   paintStatic(ctx, g) {
+    if (artReady(jungleArt)) {
+      ctx.drawImage(jungleArt!, 0, 0, 960, 440);
+      return;
+    }
     sky(ctx, 260, [[0, "#1a4a5a"], [0.6, "#3a7a7a"], [1, "#8ac0a0"]]);
     ridge(ctx, 210, 0, 960, 260, 70, "#2a5a4a", 0.35);
     // dense jungle behind
@@ -345,6 +353,7 @@ export const kohJungle: SceneDef = {
     grain(ctx, 0.04);
   },
   paintAnim(ctx, t) {
+    if (artReady(jungleArt)) return;
     palm(ctx, 90, 330, 230, 0.2, t, "#3a2a1a", "#143a22", "#2a6a3a", 213);
     palm(ctx, 870, 330, 240, -0.2, t, "#3a2a1a", "#143a22", "#2a6a3a", 214);
     fireflies(ctx, t, 218, 10, 60, 180, 840, 150, "rgba(190,255,130,0.9)");
@@ -355,8 +364,8 @@ export const kohJungle: SceneDef = {
       id: "ploy",
       name: "Mae Ploy",
       color: "#9fe6a0",
-      x: 650,
-      y: 384,
+      x: 730,
+      y: 392,
       facing: -1,
       box: [48, 96],
       draw: (ctx, a) => {
@@ -373,7 +382,7 @@ export const kohJungle: SceneDef = {
       y: 200,
       facing: -1,
       box: [40, 40],
-      pos: (g) => (g.flag("monkeyHasLamp") ? { x: 440, y: 360 } : { x: 430, y: 200 }),
+      pos: (g) => (g.flag("monkeyHasLamp") ? { x: 440, y: 376 } : { x: 525, y: 240 }),
       draw: (ctx, a, g) => {
         const bob = Math.sin(a.t * 5) * PX * 0.5;
         if (MONKEY_IMG.idle.complete) {
@@ -406,8 +415,8 @@ export const kohJungle: SceneDef = {
     {
       id: "banana",
       name: "Bananenstaude",
-      rect: [270, 230, 60, 110],
-      at: { x: 300, y: 392 },
+      rect: [20, 60, 190, 240],
+      at: { x: 220, y: 398 },
       hidden: (g) => !!g.flag("bananaTaken"),
       look: "Eine Bananenstaude mit reifen, gelben Früchten. Der Affe am Nachbarbaum beobachtet jede Bewegung.",
       take: async (g) => {
@@ -421,14 +430,14 @@ export const kohJungle: SceneDef = {
     {
       id: "hut",
       name: "Hütte von Mae Ploy",
-      rect: [560, 180, 200, 172],
+      rect: [600, 20, 360, 330],
       look: "Die Hütte von Mae Ploy. Trockene Kräuter hängen an der Wand. Unter dem Dach hängt ein Glockenspiel aus Bambus.",
     },
     {
       id: "ploy",
       name: "Mae Ploy",
       actor: "ploy",
-      at: { x: 620, y: 396 },
+      at: { x: 660, y: 400 },
       face: -1,
       look: "Mae Ploy. Sie sieht aus wie jemand, dem die Insel gehört, und der das nicht laut sagen muss.",
       talk: (g) => ployTalk(g),
@@ -458,7 +467,7 @@ export const kohJungle: SceneDef = {
           g.add("lampe");
           g.refresh();
           await g.say("Der Affe lässt die Lampe fallen, schnappt sich die Banane und verschwindet im Blätterdach.");
-          await g.moveActor("monkey", 430, 200, 900);
+          await g.moveActor("monkey", 525, 240, 900);
           g.refresh();
         },
         lampe: "Die Lampe brauche ich. Die gebe ich nicht her.",
@@ -477,7 +486,7 @@ export const kohJungle: SceneDef = {
       g.refresh();
       g.sfx("wrong");
       await g.say("Der Affe hat meine Stirnlampe geklaut! Ohne Licht kommt niemand in die Höhle.");
-      await g.moveActor("monkey", 440, 360, 800);
+      await g.moveActor("monkey", 440, 376, 800);
       await g.say("Ich brauche eine Banane als Tauschmittel. Die Staude ist gleich hier.");
     }
   },
@@ -516,11 +525,15 @@ export const kohCave: SceneDef = {
   id: "koh_cave",
   title: "Gezeitenhöhle",
   ambient: "cave",
-  walk: [{ x: 20, y: 360 }, { x: 940, y: 360 }, { x: 940, y: 430 }, { x: 20, y: 430 }],
+  walk: [{ x: 20, y: 392 }, { x: 940, y: 392 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => `${g.flag("logbook") ? 1 : 0}${g.flag("sornHere") ? 1 : 0}`,
+  staticKey: (g) => `${g.flag("logbook") ? 1 : 0}${g.flag("sornHere") ? 1 : 0}|${artReady(caveArt) ? 1 : 0}`,
   paintStatic(ctx, g) {
+    if (artReady(caveArt)) {
+      ctx.drawImage(caveArt!, 0, 0, 960, 440);
+      return;
+    }
     rect(ctx, 0, 0, 960, 440, lin(ctx, 0, 0, 0, 440, [[0, "#0a1218"], [0.6, "#14262a"], [1, "#0a1418"]]));
     // cave ceiling and stalactites
     for (let i = 0; i < 26; i++) {
@@ -548,6 +561,7 @@ export const kohCave: SceneDef = {
     grain(ctx, 0.05);
   },
   paintAnim(ctx, t) {
+    if (artReady(caveArt)) return;
     seaShimmer(ctx, t, 372, 420, 520, "rgba(120,220,220,0.5)", 0.5);
     // dripping water
     for (let i = 0; i < 3; i++) {
@@ -562,7 +576,8 @@ export const kohCave: SceneDef = {
     const hx = g.hero.x;
     const hy = g.hero.y - 3 * PX * 2;
     ctx.save();
-    ctx.fillStyle = rad(ctx, hx, hy, 110, 380, [[0, "rgba(0,0,0,0)"], [0.45, "rgba(0,0,0,0.25)"], [1, "rgba(0,0,0,0.78)"]]);
+    const strong = artReady(caveArt) ? 0.42 : 0.78;
+    ctx.fillStyle = rad(ctx, hx, hy, 140, 460, [[0, "rgba(0,0,0,0)"], [0.5, `rgba(0,0,0,${strong * 0.3})`], [1, `rgba(0,0,0,${strong})`]]);
     ctx.fillRect(0, 0, 960, 440);
     ctx.restore();
     glow(ctx, hx + 26, hy - 10, 28, "rgba(255,240,170,0.5)");
@@ -588,9 +603,9 @@ export const kohCave: SceneDef = {
     {
       id: "toPierW",
       name: "Ausgang zum Steg",
-      rect: [0, 290, 70, 150],
+      rect: [690, 140, 120, 110],
       exit: true,
-      at: { x: 40, y: 390 },
+      at: { x: 740, y: 400 },
       look: "Der Ausgang zur Klippe. Dahinter das Licht des Tages.",
       walk: async (g) => {
         g.sfx("door");
@@ -600,8 +615,8 @@ export const kohCave: SceneDef = {
     {
       id: "logbuch",
       name: "Logbuch",
-      rect: [780, 300, 60, 46],
-      at: { x: 800, y: 392 },
+      rect: [860, 220, 100, 70],
+      at: { x: 860, y: 406 },
       hidden: (g) => !!g.flag("logbook"),
       look: "Das Logbuch meiner Großmutter! Auf dem Ledereinband steht ihr Name: Ploy Kham Nang.",
       take: async (g) => {
@@ -617,15 +632,15 @@ export const kohCave: SceneDef = {
     {
       id: "crates",
       name: "Kisten",
-      rect: [140, 340, 140, 52],
-      at: { x: 220, y: 396 },
+      rect: [0, 130, 240, 300],
+      at: { x: 250, y: 408 },
       look: "Versiegelte Kisten mit Stempeln aus Bangkok. Eine trägt die Aufschrift „Vorsicht: Fische sind nicht die Fracht.“",
       take: "Die Kisten sind nagelfest. Oder eher: Sorn ist nagelfest, wenn es um die Kisten geht.",
     },
     {
       id: "pool",
       name: "Gezeitenbecken",
-      rect: [300, 370, 440, 60],
+      rect: [240, 230, 520, 130],
       look: "Ein tiefes Becken aus Salzwasser. Es hebt und senkt sich – ganz langsam, als würde die Insel atmen.",
       use: "Schwimmen in der Höhle? Ohne Taucheranzug? Nein danke.",
     },
