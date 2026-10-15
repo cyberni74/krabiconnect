@@ -69,6 +69,8 @@ export interface Hotspot {
   at?: Pt;
   face?: Facing;
   exit?: boolean;
+  /** Exit hotspots only get a tap zone when this returns true (default: always). */
+  zone?: (g: G) => boolean;
   hidden?: (g: G) => boolean;
   look?: Reaction;
   take?: Reaction;

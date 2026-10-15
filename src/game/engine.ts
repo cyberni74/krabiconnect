@@ -226,7 +226,7 @@ export class Game implements G {
     if (this.screen !== "play") return [];
     const out: ExitZone[] = [];
     for (const h of this.scene.hotspots) {
-      if (!h.exit || h.hidden?.(this)) continue;
+      if (!h.exit || h.hidden?.(this) || (h.zone && !h.zone(this))) continue;
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       if (h.rect) {
         [x0, y0] = [h.rect[0], h.rect[1]];

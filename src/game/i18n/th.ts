@@ -610,4 +610,8 @@ export const TH: Record<string, string> = {
  "…und die Schaufel. Aber die tausche ich nur. Gegen eine frische Kokosnuss. Ich bin süchtig nach Makronen.": "…และพลั่ว แต่ฉันแลกอย่างเดียว กับมะพร้าวสด ฉันติดขนมมาการอง"
  ,
  "Ha! Ein Reimduell. Ich habe da einen Konter, den jeder Pirat der Bucht fürchtet.": "ฮ่า! ประลองสัมผัสเหรอ ฉันมีคำโต้ที่โจรสลัดทุกคนในอ่าวหวาดกลัว"
+ ,
+ "Ein runder Stein mit einem Mondsymbol. Er sitzt fest im Tor. Mit „Benutze“ kann man ihn hineindrücken.": "หินกลมมีรูปพระจันทร์ ติดแน่นอยู่ในประตู เลือก “ใช้” แล้วกดเข้าไปได้",
+ "Die Mondsteine sitzen fest im Tor. Ich muss sie drücken – nur in welcher Reihenfolge? Das Wandbild links verrät es bestimmt.": "หินจันทร์ติดแน่นอยู่ในประตู ต้องกดมัน แต่ลำดับไหนล่ะ? ภาพจิตรกรรมทางซ้ายคงบอกได้",
+ "Das Tor ist verschlossen. Ich muss die drei Mondsteine im Tor drücken – das Wandbild links verrät die Reihenfolge.": "ประตูล็อกอยู่ ต้องกดหินจันทร์สามก้อนบนประตู ภาพจิตรกรรมทางซ้ายบอกลำดับ"
 };

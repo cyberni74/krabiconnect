@@ -590,6 +590,24 @@ export const temple: SceneDef = {
   title: "Tempel der Gezeiten",
   art: "/art/temple.png",
   artOverlay(ctx, g) {
+    if (!g.flag("doorOpen")) {
+      // bottom disc: a clear half moon (the painted one looks like a second crescent)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(469, 305, 16, 0, Math.PI * 2);
+      ctx.fillStyle = "#25231b";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(469, 305, 14, Math.PI / 2, -Math.PI / 2);
+      ctx.closePath();
+      ctx.fillStyle = lin(ctx, 455, 291, 469, 319, [[0, "#e4d6aa"], [1, "#a89a72"]]);
+      ctx.fill();
+      // pressed stones glow
+      const pressed = String(g.flag("seq") ?? "").split(",");
+      const spots: Record<string, number> = { sichel: 204, voll: 255, halb: 305 };
+      for (const k of pressed) if (spots[k]) glow(ctx, 469, spots[k], 34, "rgba(150,230,255,0.75)");
+      ctx.restore();
+    }
     if (g.flag("doorOpen")) {
       ctx.fillStyle = rad(ctx, 470, 300, 10, 150, [[0, "#1a3a4a"], [1, "#04080a"]]);
       ctx.fillRect(404, 154, 134, 172);
@@ -705,10 +723,10 @@ export const temple: SceneDef = {
       id: "sym_" + s,
       name: s === "voll" ? "Vollmond-Stein" : s === "sichel" ? "Sichelmond-Stein" : "Halbmond-Stein",
       rect: (s === "sichel" ? [450, 187, 40, 40] : s === "voll" ? [450, 235, 40, 40] : [450, 280, 40, 40]) as [number, number, number, number],
-      at: { x: 480, y: 392 },
+      at: { x: 392, y: 396 },
       face: 1 as const,
       hidden: (g: G) => !!g.flag("doorOpen"),
-      look: "Ein runder Stein mit einem Mondsymbol. Man kann ihn hineindrücken.",
+      look: "Ein runder Stein mit einem Mondsymbol. Er sitzt fest im Tor. Mit „Benutze“ kann man ihn hineindrücken.",
       use: (g: G) => pressSymbol(g, s),
       take: "Er ist fest im Tor verankert. Aber man kann ihn drücken.",
     })),
@@ -718,9 +736,13 @@ export const temple: SceneDef = {
       rect: [398, 140, 145, 190],
       at: { x: 480, y: 392 },
       exit: true,
-      look: (g) => g.say(g.flag("doorOpen") ? "Das Tor ist offen. Von drinnen weht kalte, salzige Luft." : "Ein Steintor mit drei runden Mondsteinen. Kein Schlüsselloch. Nur Rätsel. Ich hasse Rätsel. Ich liebe Rätsel."),
+      zone: (g) => !!g.flag("doorOpen"),
+      look: async (g) => {
+        await g.say(g.flag("doorOpen") ? "Das Tor ist offen. Von drinnen weht kalte, salzige Luft." : "Ein Steintor mit drei runden Mondsteinen. Kein Schlüsselloch. Nur Rätsel. Ich hasse Rätsel. Ich liebe Rätsel.");
+        if (!g.flag("doorOpen")) await g.say("Die Mondsteine sitzen fest im Tor. Ich muss sie drücken – nur in welcher Reihenfolge? Das Wandbild links verrät es bestimmt.");
+      },
       walk: async (g) => {
-        if (!g.flag("doorOpen")) return g.say("Das Tor ist verschlossen. Die drei Mondsteine müssen der Schlüssel sein.");
+        if (!g.flag("doorOpen")) return g.say("Das Tor ist verschlossen. Ich muss die drei Mondsteine im Tor drücken – das Wandbild links verrät die Reihenfolge.");
         if (!g.flag("mirror")) await g.say("Erst sollte ich mir das Ding auf dem Sockel ansehen.");
         await g.goto("grotto", 80, 410, 1);
       },
