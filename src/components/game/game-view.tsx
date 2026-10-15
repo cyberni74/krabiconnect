@@ -72,6 +72,10 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
   }, [game, touch]);
 
   useEffect(() => {
+    game.preload();
+  }, [game]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
@@ -225,13 +229,15 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
       {ui.screen === "title" && (
         <TitleScreen
           hasSave={ui.hasSave}
+          title={ui.title}
+          subtitle={ui.subtitle}
           compact={layout !== "desktop"}
           other={chapter === "ch1" ? { href: "/insel", label: "Kapitel 3: Die Gezeitenhöhle" } : { href: "/abenteuer", label: "Kapitel 1 & 2: Krabbenbucht" }}
           onNew={() => start(() => game.newGame())}
           onContinue={() => start(() => game.continueGame())}
         />
       )}
-      {ui.screen === "end" && <EndScreen text={ui.endText} onAgain={() => game.newGame()} />}
+      {ui.screen === "end" && <EndScreen text={ui.endText} next={ui.next} onAgain={() => game.newGame()} />}
       {layout === "portrait" && playing && !portraitOk && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/90 p-4 text-center">
           <div className="animate-[spin_2.4s_ease-in-out_infinite] text-5xl">📱</div>
@@ -460,12 +466,12 @@ function IconBtn({ children, label, onClick }: { children: React.ReactNode; labe
   );
 }
 
-function TitleScreen({ hasSave, compact, other, onNew, onContinue }: { hasSave: boolean; compact: boolean; other: { href: string; label: string }; onNew: () => void; onContinue: () => void }) {
+function TitleScreen({ hasSave, title, subtitle, compact, other, onNew, onContinue }: { hasSave: boolean; title: string; subtitle: string; compact: boolean; other: { href: string; label: string }; onNew: () => void; onContinue: () => void }) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-black/30 via-black/10 to-black/70 px-4 text-center">
-      <div className="font-[Kanit] text-[10px] uppercase tracking-[0.35em] text-[#f3dfb0]/80 sm:text-sm">Ein Piraten-Abenteuer in zwei Kapiteln</div>
+      <div className="font-[Kanit] text-[10px] uppercase tracking-[0.35em] text-[#f3dfb0]/80 sm:text-sm">{subtitle}</div>
       <h1 className="mt-1 font-[Pirata_One] text-4xl leading-none text-[#f2c76b] drop-shadow-[0_4px_20px_rgba(255,160,60,0.6)] sm:text-7xl lg:text-8xl">
-        Die Gezeiten von Krabbenbucht
+        {title}
       </h1>
       <div className="mt-4 flex flex-wrap justify-center gap-2 sm:mt-8 sm:gap-3">
         <button onClick={onNew} className="rounded-full border-2 border-[#e9c873] bg-[#3a2410]/90 px-6 py-3 font-[Kanit] text-base font-semibold text-[#ffe9a8] shadow-lg hover:bg-[#5a3818] sm:px-7 sm:text-lg">
@@ -485,7 +491,7 @@ function TitleScreen({ hasSave, compact, other, onNew, onContinue }: { hasSave: 
   );
 }
 
-function EndScreen({ text, onAgain }: { text: string; onAgain: () => void }) {
+function EndScreen({ text, next, onAgain }: { text: string; next: { href: string; label: string } | null; onAgain: () => void }) {
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 px-4 text-center">
       <h2 className="font-[Pirata_One] text-5xl text-[#f2c76b] sm:text-8xl">Ende</h2>
@@ -495,6 +501,11 @@ function EndScreen({ text, onAgain }: { text: string; onAgain: () => void }) {
       <button onClick={onAgain} className="mt-5 rounded-full border-2 border-[#e9c873] bg-[#3a2410] px-6 py-2.5 font-[Kanit] font-semibold text-[#ffe9a8] hover:bg-[#5a3818]">
         Nochmal spielen
       </button>
+      {next && (
+        <a href={next.href} className="mt-3 rounded-full border-2 border-[#9fe0ff]/70 bg-[#0c1a24]/90 px-6 py-2.5 font-[Kanit] font-semibold text-[#cfefff] hover:bg-[#14283a]">
+          {next.label}
+        </a>
+      )}
     </div>
   );
 }

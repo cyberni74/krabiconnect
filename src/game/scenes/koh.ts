@@ -171,6 +171,7 @@ export const kohPier: SceneDef = {
     grain(ctx, 0.04);
   },
   paintAnim(ctx, t, g) {
+    if (artReady(pierArt)) return;
     twinkle(ctx, 205, 6, 120, t);
     if (!tideEbb(g)) seaShimmer(ctx, t, 300, 360, 560, "rgba(255,230,190,0.85)", 0.5);
     longtail(ctx, 180, 376, 1, "#7a4a22", t);

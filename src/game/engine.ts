@@ -36,6 +36,9 @@ export interface UiSnapshot {
   muted: boolean;
   exits: ExitZone[];
   endText: string;
+  title: string;
+  subtitle: string;
+  next: { href: string; label: string } | null;
 }
 
 /** Big transparent tap target for a scene exit, in percent of the frame. */
@@ -210,6 +213,9 @@ export class Game implements G {
       muted: audio.muted,
       exits: this.exitZones(),
       endText: this.chapter.endText,
+      title: this.chapter.title,
+      subtitle: this.chapter.subtitle,
+      next: this.chapter.next ?? null,
     };
     return this.snap;
   };
@@ -374,6 +380,8 @@ export class Game implements G {
     }
   }
   finish() {
+    this.cardState = null;
+    this.speech = null;
     this.screen = "end";
     clearSave(this.saveKey);
     this.emit();
@@ -766,6 +774,18 @@ export class Game implements G {
     }
     return img.complete && img.naturalWidth > 0 ? img : null;
   }
+  /** Starts loading every image of the current chapter so scenes never pop in. */
+  preload() {
+    const koh = this.chapter.start.startsWith("koh_");
+    this.loadImg(this.chapter.titleArt);
+    for (const f of this.chapter.heroFrames ?? []) this.loadImg(f);
+    for (const sc of Object.values(SCENES)) {
+      if (sc.id.startsWith("koh_") !== koh) continue;
+      this.loadImg(sc.art);
+      for (const a of sc.actors ?? []) for (const f of Object.values(a.sprite?.frames ?? {})) this.loadImg(f);
+    }
+  }
+
   /** The scene's pre-made background, once it has loaded. */
   sceneArt(): HTMLImageElement | null {
     return this.loadImg(this.scene.art);
@@ -804,7 +824,7 @@ export class Game implements G {
     if (art) {
       ctx.drawImage(art, 0, 0, W, H);
       this.scene.artOverlay?.(ctx, this);
-    } else this.scene.paintStatic(ctx, this);
+    } else if (!this.scene.art) this.scene.paintStatic(ctx, this);
     this.bg = c;
     this.bgKey = key;
   }
@@ -817,6 +837,13 @@ export class Game implements G {
   }
 
   private drawWorld(ctx: CanvasRenderingContext2D) {
+    if (this.screen === "title") {
+      const key = this.loadImg(this.chapter.titleArt);
+      if (key) {
+        ctx.drawImage(key, 0, 0, W, H);
+        return;
+      }
+    }
     this.ensureBg();
     if (this.bg) ctx.drawImage(this.bg, 0, 0, W, H);
     const t = this.t;
@@ -840,7 +867,7 @@ export class Game implements G {
             const dy = (fl ? -Math.sin(this.t * 1.4) * fl : 0) + breathe;
             this.drawImg(ctx, img, a.x, a.y, a.facing, dy, sp.scale ?? 2, sp.crop ?? 1, !fl && !sp.crop);
             sp.after?.(ctx, a, this);
-          } else d.draw(ctx, a, this);
+          } else if (!sp) d.draw(ctx, a, this);
         },
       });
     }
@@ -852,10 +879,12 @@ export class Game implements G {
           if (this.scene.hero) return this.scene.hero(ctx, this.hero, { walking, phase: this.walkPhase, t }, this);
           const hf = this.chapter.heroFrames;
           const frames = hf?.map((f) => this.loadImg(f));
-          if (frames && frames.every(Boolean)) {
-            const idx = walking ? Math.floor(this.walkPhase * 4) % 4 : 0;
-            const dy = walking ? -4 * Math.abs(Math.sin(this.walkPhase * Math.PI * 2)) : Math.sin(t * 2.5) > 0.75 ? -4 : 0;
-            this.drawImg(ctx, frames[idx]!, this.hero.x, this.hero.y, this.hero.facing, dy, 2, 1, true);
+          if (hf) {
+            if (frames!.every(Boolean)) {
+              const idx = walking ? Math.floor(this.walkPhase * 4) % 4 : 0;
+              const dy = walking ? -4 * Math.abs(Math.sin(this.walkPhase * Math.PI * 2)) : Math.sin(t * 2.5) > 0.75 ? -4 : 0;
+              this.drawImg(ctx, frames![idx]!, this.hero.x, this.hero.y, this.hero.facing, dy, 2, 1, true);
+            }
             return;
           }
           drawPerson(ctx, FINN, this.hero, { walk: walking ? this.walkPhase : undefined, talking: this.hero.talking, t });

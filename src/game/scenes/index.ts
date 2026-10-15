@@ -32,6 +32,11 @@ export interface ChapterDef {
   endText: string;
   /** Generated hero frames: stand, stride A, passing, stride B. */
   heroFrames?: string[];
+  title: string;
+  subtitle: string;
+  titleArt: string;
+  /** Where the end screen leads next. */
+  next?: { href: string; label: string };
 }
 
 export const CHAPTERS: Record<"ch1" | "insel", ChapterDef> = {
@@ -46,6 +51,10 @@ export const CHAPTERS: Record<"ch1" | "insel", ChapterDef> = {
       await g.card("Kapitel 1", "Licht, Richtung und ein Lied");
       await pier.enter?.(g);
     },
+    title: "Die Gezeiten von Krabbenbucht",
+    subtitle: "Ein Piraten-Abenteuer in zwei Kapiteln",
+    titleArt: "/art/title-krabbenbucht.png",
+    next: { href: "/insel", label: "Weiter mit Kapitel 3: Die Gezeitenhöhle →" },
     heroFrames: ["/chars/finn-stand.png", "/chars/finn-walk.png", "/chars/finn-passing.png", "/chars/finn-stride-b.png"],
     endText: "Die Flut ist zurück, Morwenna ist eine Seegurke, und Finn Kielwasser ist offiziell Pirat. Ein bisschen jedenfalls.",
   },
@@ -55,6 +64,9 @@ export const CHAPTERS: Record<"ch1" | "insel", ChapterDef> = {
     x: 780,
     y: 384,
     facing: 1,
+    title: "Die Gezeitenhöhle",
+    subtitle: "Kapitel 3 · Koh Kham Nang",
+    titleArt: "/art/title-insel.png",
     inv: ["lampe"],
     intro: async (g) => {
       await g.card("Kapitel 3", "Die Gezeitenhöhle von Koh Kham Nang");
