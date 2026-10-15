@@ -166,7 +166,7 @@ export const deck: SceneDef = {
       name: "Krächz",
       color: "#7dff9a",
       x: 300,
-      y: 336,
+      y: 352,
       facing: 1,
       scale: 1.1,
       box: [36, 60],
@@ -578,7 +578,7 @@ export const temple: SceneDef = {
     }
   },
   ambient: "jungle",
-  walk: [{ x: 20, y: 372 }, { x: 940, y: 372 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
+  walk: [{ x: 20, y: 376 }, { x: 720, y: 376 }, { x: 720, y: 432 }, { x: 20, y: 432 }],
   scale: depth(372, 0.95, 432, 1.05),
   staticKey: (g) => `${g.flag("doorOpen") ? 1 : 0}${g.flag("mirror") ? 1 : 0}${String(g.flag("seq") ?? "")}`,
   paintStatic(ctx, g) {

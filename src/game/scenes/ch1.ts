@@ -1204,7 +1204,7 @@ export const beach: SceneDef = {
       },
       use: "Mit den Händen graben? Ich bin Pirat, kein Hund.",
     },
-    { id: "jungle", name: "Pfad in den Dschungel", rect: [880, 160, 80, 200], exit: true, at: { x: 940, y: 392 }, look: "Ein Pfad in den Dschungel. Von dort klingt Mandolinenmusik.", walk: (g) => g.goto("clearing", 80, 400, 1) },
+    { id: "jungle", name: "Pfad in den Dschungel", rect: [880, 160, 80, 200], exit: true, at: { x: 940, y: 392 }, look: "Ein Pfad in den Dschungel. Von dort klingt Mandolinenmusik.", walk: (g) => g.goto("clearing", 320, 384, 1) },
     { id: "toStreet", name: "Zur Hafengasse", rect: [0, 380, 40, 60], exit: true, at: { x: 34, y: 426 }, walk: (g) => g.goto("street", 900, 392, -1) },
     { id: "drift", name: "Treibholz", rect: [30, 360, 340, 70], look: "Treibholz. Es ist weit gereist, um hier nutzlos herumzuliegen. Wie mein Onkel.", take: "Damit kann ich nichts anfangen." },
   ],
@@ -1216,7 +1216,7 @@ export const clearing: SceneDef = {
   title: "Lichtung der Reime",
   art: "/art/clearing.png",
   ambient: "jungle",
-  walk: [{ x: 20, y: 364 }, { x: 940, y: 364 }, { x: 940, y: 432 }, { x: 20, y: 432 }],
+  walk: [{ x: 200, y: 360 }, { x: 300, y: 312 }, { x: 660, y: 308 }, { x: 790, y: 350 }, { x: 770, y: 404 }, { x: 300, y: 414 }],
   scale: depth(364, 0.95, 432, 1.06),
   paintStatic(ctx) {
     sky(ctx, 440, [[0, "#04101a"], [0.5, "#0a2026"], [1, "#0c1a1a"]]);
@@ -1290,7 +1290,7 @@ export const clearing: SceneDef = {
       talk: (g) => zachTalk(g),
       give: { grog: "„Grog? Vor einem Duell? Meine Stimmbänder sind ein Tempel!“", medaille: "„Die hast du gewonnen. Behalt sie, bevor ich weine.“" },
     },
-    { id: "toBeach2", name: "Zum Strand", rect: [0, 330, 40, 110], exit: true, at: { x: 22, y: 410 }, walk: (g) => g.goto("beach", 900, 300, -1) },
+    { id: "toBeach2", name: "Zum Strand", rect: [0, 330, 40, 110], exit: true, at: { x: 22, y: 410 }, walk: (g) => g.goto("beach", 900, 380, -1) },
   ],
 };
 
@@ -1342,7 +1342,7 @@ export const lighthouse: SceneDef = {
   title: "Klippe am Leuchtturm",
   art: "/art/lighthouse.png",
   ambient: "wind",
-  walk: [{ x: 0, y: 340 }, { x: 960, y: 340 }, { x: 960, y: 432 }, { x: 0, y: 432 }],
+  walk: [{ x: 0, y: 340 }, { x: 480, y: 332 }, { x: 480, y: 432 }, { x: 0, y: 432 }],
   scale: depth(352, 0.92, 432, 1.06),
   staticKey: (g) => `${g.flag("lit") ? 1 : 0}${g.flag("oilIn") ? 1 : 0}`,
   paintStatic(ctx, g) {
@@ -1477,7 +1477,7 @@ export const lighthouse: SceneDef = {
     { id: "bench", name: "Bank", rect: [100, 230, 165, 95], at: { x: 200, y: 380 }, look: "Eine Bank mit Inschrift: „Für Wärter Henning. Er hat geleuchtet.“", use: "Keine Zeit zum Ausruhen! Piraten ruhen nie. Außer Knut." },
     { id: "signL", name: "Schild", rect: [10, 205, 70, 60], look: "„Leuchtturm. Bitte nicht dagegenlaufen.“ Hilfreich." },
     { id: "seaL", name: "Meer", rect: [440, 160, 300, 100], look: "Tief unter mir rollt das Meer gegen die Felsen. Mir wird ein bisschen schwindelig." },
-    { id: "toStreet2", name: "Pfad hinunter", rect: [0, 340, 40, 100], exit: true, at: { x: 16, y: 404 }, walk: (g) => g.goto("street", 545, 330, 1) },
+    { id: "toStreet2", name: "Pfad hinunter", rect: [0, 340, 40, 100], exit: true, at: { x: 16, y: 404 }, walk: (g) => g.goto("street", 545, 362, 1) },
   ],
 };
 

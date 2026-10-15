@@ -609,7 +609,7 @@ export const kohCave: SceneDef = {
       look: "Der Ausgang zur Klippe. Dahinter das Licht des Tages.",
       walk: async (g) => {
         g.sfx("door");
-        await g.goto("koh_pier", 120, 384, 1);
+        await g.goto("koh_pier", 680, 392, 1);
       },
     },
     {
