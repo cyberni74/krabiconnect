@@ -25,7 +25,7 @@ function posterize(c: CanvasRenderingContext2D, w: number, h: number) {
   c.putImageData(img, 0, 0);
 }
 
-const VERB_ICON: Record<string, string> = { walk: "👣", look: "👁", take: "✋", use: "⚙", talk: "💬", give: "🎁" };
+const VERB_ICON: Record<string, string> = { walk: "👣", look: "👁\uFE0F", take: "✋", use: "🔧", talk: "💬", give: "🎁" };
 
 /** iPhones cannot show web pages fullscreen; only an installed home-screen app has no browser bars. */
 function useInstallHint(): boolean {
@@ -82,7 +82,6 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const [verbMenu, setVerbMenu] = useState(false);
   const [bag, setBag] = useState(false);
   const [portraitOk, setPortraitOk] = useState(false);
   const [fs, setFs] = useState(false);
@@ -175,7 +174,6 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
   // close popovers when a script starts
   useEffect(() => {
     if (ui.busy || ui.choices) {
-      setVerbMenu(false);
       setBag(false);
     }
   }, [ui.busy, ui.choices]);
@@ -243,7 +241,6 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
           press.current = null;
           return;
         }
-        setVerbMenu(false);
         setBag(false);
         game.click(toLogical(e));
       }}
@@ -307,7 +304,6 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
 
   /* ---------- compact landscape: full-screen canvas + floating controls ---------- */
   if (compact) {
-    const verbLabel = VERBS.find((v) => v.id === ui.verb)?.label ?? "";
     return (
       <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none" }}>
         <div ref={wrapRef} className="relative max-h-full w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc(100dvh * ${W / H})` }}>
@@ -315,26 +311,34 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
           {playing && <ExitZones ui={ui} game={game} />}
           {topButtons}
           {playing && (
-            <div className="pointer-events-none absolute left-1/2 top-1.5 z-10 max-w-[60%] -translate-x-1/2 truncate rounded-full bg-black/45 px-3 py-0.5 text-center font-[Kanit] text-sm font-semibold text-[#9fe0ff]">
+            <div className="pointer-events-none absolute left-1/2 top-12 z-10 max-w-[70%] -translate-x-1/2 truncate rounded-full bg-black/45 px-3 py-0.5 text-center font-[Kanit] text-sm font-semibold text-[#9fe0ff]">
               {ui.sentence || ui.sceneTitle}
             </div>
           )}
           {playing && !ui.choices && (
             <>
-              <div className="absolute bottom-2 z-20 flex items-end gap-2" style={{ left: "max(0.5rem, env(safe-area-inset-left))" }}>
-                <button
-                  onClick={() => { setBag(false); setVerbMenu((v) => !v); }}
-                  className={`flex h-12 items-center gap-1.5 rounded-full border-2 px-3.5 font-[Kanit] text-sm font-semibold shadow-lg backdrop-blur ${ui.busy ? "opacity-50" : ""} ${ui.verb !== "walk" ? "border-[#e9c873] bg-[#3a2814]/90 text-[#ffe9a8]" : "border-[#5a3a20] bg-black/60 text-[#e9dcc0]"}`}
-                >
-                  <span className="text-lg">{VERB_ICON[ui.verb]}</span>
-                  {tr(ui.verb === "walk" ? "Aktion" : verbLabel)}
-                  {ui.sel && <img src={itemIcon(ui.sel)} alt="" className="h-7 w-7" />}
-                </button>
+              {/* slim verb bar, top left */}
+              <div className="absolute top-2 z-20 flex items-center gap-1" style={{ left: "max(0.5rem, env(safe-area-inset-left))" }}>
+                {VERBS.map((v) => (
+                  <button
+                    key={v.id}
+                    title={tr(v.id === "walk" ? "Automatisch" : v.label)}
+                    aria-label={tr(v.id === "walk" ? "Automatisch" : v.label)}
+                    onClick={() => {
+                      game.setVerb(v.id);
+                      setBag((v.id === "use" || v.id === "give") && ui.inv.length > 0);
+                    }}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full border text-base shadow backdrop-blur ${ui.busy ? "opacity-50" : ""} ${ui.verb === v.id ? "border-[#e9c873] bg-[#3a2814]/95" : "border-[#4a3220] bg-black/55"}`}
+                  >
+                    {VERB_ICON[v.id]}
+                  </button>
+                ))}
+                {ui.sel && <img src={itemIcon(ui.sel)} alt="" className="ml-1 h-8 w-8 rounded-md border border-[#9fe0ff]/70 bg-black/55 p-0.5" />}
               </div>
               <div className="absolute bottom-2 z-20" style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}>
                 <button
-                  onClick={() => { setVerbMenu(false); setBag((b) => !b); }}
-                  className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#5a3a20] bg-black/60 text-2xl shadow-lg backdrop-blur ${ui.busy ? "opacity-50" : ""}`}
+                  onClick={() => setBag((b) => !b)}
+                  className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#5a3a20] bg-black/60 text-xl shadow-lg backdrop-blur ${ui.busy ? "opacity-50" : ""}`}
                   aria-label={tr("Inventar")}
                 >
                   🎒
@@ -343,34 +347,24 @@ export function GameView({ chapter = "ch1" }: { chapter?: ChapterId }) {
                   )}
                 </button>
               </div>
-              {verbMenu && (
-                <div className="absolute bottom-16 z-30 grid grid-cols-3 gap-1.5 rounded-2xl border border-[#5a3a20] bg-[#120c08]/95 p-2 shadow-2xl" style={{ left: "max(0.5rem, env(safe-area-inset-left))" }}>
-                  {VERBS.map((v) => (
+              {bag && (
+                <div className="absolute bottom-2 left-1/2 z-30 flex max-w-[70%] -translate-x-1/2 gap-1.5 overflow-x-auto rounded-2xl border border-[#5a3a20] bg-[#120c08]/90 p-1.5 shadow-2xl backdrop-blur">
+                  {ui.inv.length === 0 && <div className="px-3 py-2 font-[Kanit] text-sm text-[#7a6650]">{tr("Taschen leer. Noch.")}</div>}
+                  {ui.inv.map((id) => (
                     <button
-                      key={v.id}
+                      key={id}
+                      title={itemName(id, game)}
+                      aria-label={itemName(id, game)}
                       onClick={() => {
-                        game.setVerb(v.id);
-                        setVerbMenu(false);
-                        if ((v.id === "use" || v.id === "give") && ui.inv.length) setBag(true);
+                        const wasSel = ui.sel;
+                        game.clickItem(id);
+                        if ((ui.verb === "use" || ui.verb === "give") && !wasSel) setBag(false);
                       }}
-                      className={`flex h-14 w-20 flex-col items-center justify-center rounded-xl border font-[Kanit] text-xs font-semibold ${ui.verb === v.id ? "border-[#e9c873] bg-[#3a2814] text-[#ffe9a8]" : "border-[#3a2a1a] bg-[#1a120c] text-[#d9c39a]"}`}
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#9fe0ff] bg-[#1c2a34]" : "border-[#3a2a1a] bg-[#1a120c]"}`}
                     >
-                      <span className="text-lg leading-none">{VERB_ICON[v.id]}</span>
-                      {tr(v.id === "walk" ? "Automatisch" : v.label)}
+                      <img src={itemIcon(id)} alt="" className="h-8 w-8 object-contain" draggable={false} />
                     </button>
                   ))}
-                </div>
-              )}
-              {bag && (
-                <div className="absolute inset-x-2 bottom-16 z-30 rounded-2xl border border-[#5a3a20] bg-[#120c08]/95 p-2 shadow-2xl">
-                  <div className="mb-1 px-1 font-[Kanit] text-xs text-[#a89070]">
-                    {ui.verb === "use" || ui.verb === "give" ? (ui.sel ? `${ui.sentence} … ${tr("dann ins Bild tippen oder zweiten Gegenstand wählen")}` : tr("Gegenstand wählen")) : tr("Tippen = anschauen · erst „Benutze“ oder „Gib“ wählen, um ihn einzusetzen")}
-                  </div>
-                  <InventoryGrid ui={ui} game={game} onPick={(id) => {
-                    const wasSel = ui.sel;
-                    game.clickItem(id);
-                    if ((ui.verb === "use" || ui.verb === "give") && !wasSel) setBag(false);
-                  }} cols="grid-cols-6" />
                 </div>
               )}
             </>
