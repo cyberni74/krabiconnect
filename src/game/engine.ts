@@ -555,6 +555,41 @@ export class Game implements G {
     return null;
   }
 
+  /** Short periodic glint on every item that can still be picked up. */
+  private drawGlints(ctx: CanvasRenderingContext2D) {
+    if (this.screen !== "play" || this.busy > 0 || this.cardState) return;
+    const k = (this.t % 4.2) / 1.2;
+    if (k >= 1) return;
+    const env = Math.sin(k * Math.PI);
+    ctx.save();
+    for (const h of this.scene.hotspots) {
+      if (h.actor || h.exit || typeof h.take !== "function" || h.hidden?.(this)) continue;
+      const c = this.hotspotCenter(h);
+      if (!c) continue;
+      const r = 8 + 20 * env;
+      ctx.globalAlpha = env;
+      ctx.strokeStyle = "rgba(255,236,150,0.9)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 10 + 22 * k, 0, Math.PI * 2);
+      ctx.globalAlpha = env * (1 - k) * 0.9;
+      ctx.stroke();
+      ctx.globalAlpha = env;
+      ctx.fillStyle = "#fff6c8";
+      ctx.shadowColor = "#ffd75e";
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const rr = i % 2 ? r * 0.22 : r;
+        const ang = (i * Math.PI) / 4;
+        ctx.lineTo(c.x + Math.cos(ang) * rr, c.y + Math.sin(ang) * rr);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   private drawReveal(ctx: CanvasRenderingContext2D) {
     const left = this.revealUntil - performance.now();
     if (left <= 0 || this.screen !== "play") return;
@@ -934,6 +969,7 @@ export class Game implements G {
   }
 
   private drawUi(ctx: CanvasRenderingContext2D) {
+    this.drawGlints(ctx);
     this.drawReveal(ctx);
     if (this.speech) this.drawSpeech(ctx, this.speech);
     if (this.fadeA > 0) {
