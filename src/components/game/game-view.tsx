@@ -6,6 +6,23 @@ import { H, VERBS, W } from "@/game/types";
 
 type Layout = "desktop" | "landscape" | "portrait";
 
+/** Each native pixel of the game world is drawn as a PIXEL_SIZE × PIXEL_SIZE block (4× the classic 320×200 grid). */
+const PIXEL_SIZE = 4;
+const PALETTE_STEPS = 10;
+
+/** Snap each colour channel to a few levels so the world reads as pixel art. */
+function posterize(c: CanvasRenderingContext2D, w: number, h: number) {
+  const img = c.getImageData(0, 0, w, h);
+  const d = img.data;
+  const step = 255 / (PALETTE_STEPS - 1);
+  for (let i = 0; i < d.length; i += 4) {
+    d[i] = Math.round(d[i] / step) * step;
+    d[i + 1] = Math.round(d[i + 1] / step) * step;
+    d[i + 2] = Math.round(d[i + 2] / step) * step;
+  }
+  c.putImageData(img, 0, 0);
+}
+
 const VERB_ICON: Record<string, string> = { walk: "👣", look: "👁", take: "✋", use: "⚙", talk: "💬", give: "🎁" };
 
 function useLayout(): { layout: Layout; touch: boolean } {
@@ -71,14 +88,27 @@ export function GameView() {
     ro.observe(wrap);
     let raf = 0;
     let last = performance.now();
+    // Pixel pass: the world is drawn at 1/PIXEL_SIZE, colour-reduced, then scaled up with hard pixel edges.
+    const low = document.createElement("canvas");
+    low.width = W / PIXEL_SIZE;
+    low.height = H / PIXEL_SIZE;
+    const lctx = low.getContext("2d", { willReadFrequently: true })!;
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       raf = requestAnimationFrame(loop);
       try {
         game.update(dt, now);
+        lctx.setTransform(1, 0, 0, 1, 0, 0);
+        lctx.clearRect(0, 0, low.width, low.height);
+        game.draw(lctx, 1 / PIXEL_SIZE, "world");
+        posterize(lctx, low.width, low.height);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(low, 0, 0, canvas.width, canvas.height);
+        ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-        game.draw(ctx, scale);
+        game.draw(ctx, scale, "ui");
       } catch (err) {
         console.error(err);
       }

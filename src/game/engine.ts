@@ -761,8 +761,14 @@ export class Game implements G {
     this.bgKey = key;
   }
 
-  draw(ctx: CanvasRenderingContext2D, scale: number) {
+  /** "world" = scenery and characters (goes through the pixel pass), "ui" = text and fades (kept sharp), "all" = both. */
+  draw(ctx: CanvasRenderingContext2D, scale: number, layer: "world" | "ui" | "all" = "all") {
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    if (layer !== "ui") this.drawWorld(ctx);
+    if (layer !== "world") this.drawUi(ctx);
+  }
+
+  private drawWorld(ctx: CanvasRenderingContext2D) {
     this.ensureBg();
     if (this.bg) ctx.drawImage(this.bg, 0, 0, W, H);
     const t = this.t;
@@ -796,6 +802,9 @@ export class Game implements G {
         ctx.globalAlpha = 1;
       }
     }
+  }
+
+  private drawUi(ctx: CanvasRenderingContext2D) {
     this.drawReveal(ctx);
     if (this.speech) this.drawSpeech(ctx, this.speech);
     if (this.fadeA > 0) {
