@@ -243,7 +243,9 @@ export class Game implements G {
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
       const x = Math.max(0, Math.min(W - w, cx - w / 2));
-      const y = Math.max(0, Math.min(H - hh, cy - hh / 2));
+      let y = Math.max(0, Math.min(H - hh, cy - hh / 2));
+      // keep corner zones above the floating action and bag buttons
+      if (x < 190 || x + w > W - 110) y = Math.max(0, Math.min(y, H - 74 - hh));
       const arrow = cx < W * 0.2 ? "←" : cx > W * 0.8 ? "→" : "↑";
       out.push({ id: h.id, name: this.hsName(h), left: (x / W) * 100, top: (y / H) * 100, width: (w / W) * 100, height: (hh / H) * 100, arrow });
     }
