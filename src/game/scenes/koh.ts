@@ -5,7 +5,7 @@ import { SPRITE_SCALE } from "../engine-constants";
 import type { ActorRuntime, G, SceneDef } from "../types";
 import { drawPatch, patchReady, preloadPatches } from "./common";
 
-preloadPatches("jungle-banana", "cave-logbook");
+preloadPatches("jungle-banana", "cave-logbook", "koh-deck");
 
 type C = CanvasRenderingContext2D;
 
@@ -109,13 +109,14 @@ export const kohPier: SceneDef = {
   id: "koh_pier",
   title: "Bootssteg von Koh Kham Nang",
   ambient: "sea",
-  walk: [{ x: 620, y: 396 }, { x: 960, y: 396 }, { x: 960, y: 432 }, { x: 620, y: 432 }],
+  walk: [{ x: 340, y: 404 }, { x: 960, y: 404 }, { x: 960, y: 436 }, { x: 322, y: 436 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => `${String(g.flag("tide") ?? "flut")}|${pierArt?.complete ? 1 : 0}`,
+  staticKey: (g) => `${String(g.flag("tide") ?? "flut")}|${pierArt?.complete ? 1 : 0}${patchReady("koh-deck") ? 1 : 0}`,
   paintStatic(ctx, g) {
     if (pierArt?.complete && pierArt.naturalWidth) {
       ctx.drawImage(pierArt, 0, 0, 960, 440);
+      drawPatch(ctx, "koh-deck", 319, 394);
       return;
     }
     sky(ctx, 300, [[0, "#2a4a8a"], [0.45, "#8a6aa0"], [0.8, "#f08a6a"], [1, "#ffd08a"]]);
@@ -192,8 +193,8 @@ export const kohPier: SceneDef = {
       id: "sorn",
       name: "Kapitän Sorn",
       color: "#ffb36b",
-      x: 860,
-      y: 404,
+      x: 665,
+      y: 412,
       facing: -1,
       box: [76, 176],
       draw: (ctx, a) => {
@@ -237,7 +238,7 @@ export const kohPier: SceneDef = {
       name: "Dschungelpfad",
       rect: [920, 250, 40, 180],
       exit: true,
-      at: { x: 935, y: 416 },
+      at: { x: 935, y: 420 },
       look: "Der Pfad führt von der Hafenmole in den dichten Dschungel.",
       walk: (g) => g.goto("koh_jungle", 60, 396, 1),
     },
@@ -258,7 +259,7 @@ export const kohPier: SceneDef = {
       id: "sorn",
       name: "Kapitän Sorn",
       actor: "sorn",
-      at: { x: 775, y: 410 },
+      at: { x: 575, y: 418 },
       face: 1,
       look: "Kapitän Sorn. Schnurrbart, Strohhut und ein Blick, der jede Ware sofort abschätzt.",
       talk: (g) => sornTalk(g),
@@ -416,7 +417,7 @@ export const kohJungle: SceneDef = {
       exit: true,
       at: { x: 40, y: 392 },
       look: "Der Pfad zurück zur Hafenmole.",
-      walk: (g) => g.goto("koh_pier", 770, 410, -1),
+      walk: (g) => g.goto("koh_pier", 800, 418, -1),
     },
     {
       id: "banana",
@@ -616,7 +617,7 @@ export const kohCave: SceneDef = {
       look: "Der Ausgang zur Klippe. Dahinter das Licht des Tages.",
       walk: async (g) => {
         g.sfx("door");
-        await g.goto("koh_pier", 690, 410, 1);
+        await g.goto("koh_pier", 420, 418, 1);
       },
     },
     {

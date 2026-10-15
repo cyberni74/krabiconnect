@@ -1074,6 +1074,6 @@ async function finale(g: G) {
   await g.card("Monate später…", "Eine Insel vor Krabi, weit im Süden");
   g.beginChapter(["lampe"]);
   await g.card("Kapitel 3", "Die Gezeitenhöhle von Koh Kham Nang");
-  await g.goto("koh_pier", 700, 410, 1);
+  await g.goto("koh_pier", 500, 418, 1);
 }
 
