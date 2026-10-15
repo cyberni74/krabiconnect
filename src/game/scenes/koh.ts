@@ -67,15 +67,22 @@ function longtail(ctx: C, x: number, y: number, s: number, hull: string, t: numb
 /* ===================== KOH PIER ===================== */
 const tideEbb = (g: G) => g.flag("tide") === "ebbe";
 
+/** Hand-made pixel background (generated, then cropped to the scene size). Falls back to the painted scene until loaded. */
+const pierArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-pier.png" }) : null;
+
 export const kohPier: SceneDef = {
   id: "koh_pier",
   title: "Bootssteg von Koh Kham Nang",
   ambient: "sea",
-  walk: [{ x: 0, y: 340 }, { x: 960, y: 340 }, { x: 960, y: 420 }, { x: 0, y: 420 }],
+  walk: [{ x: 620, y: 330 }, { x: 960, y: 330 }, { x: 960, y: 430 }, { x: 620, y: 430 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => String(g.flag("tide") ?? "flut"),
+  staticKey: (g) => `${String(g.flag("tide") ?? "flut")}|${pierArt?.complete ? 1 : 0}`,
   paintStatic(ctx, g) {
+    if (pierArt?.complete && pierArt.naturalWidth) {
+      ctx.drawImage(pierArt, 0, 0, 960, 440);
+      return;
+    }
     sky(ctx, 300, [[0, "#2a4a8a"], [0.45, "#8a6aa0"], [0.8, "#f08a6a"], [1, "#ffd08a"]]);
     sun(ctx, 760, 180);
     cloud(ctx, 201, 240, 110, 360, 26, "rgba(255,200,180,0.9)", "rgba(160,90,120,0.9)", 0.6);
@@ -149,8 +156,8 @@ export const kohPier: SceneDef = {
       id: "sorn",
       name: "Kapitän Sorn",
       color: "#ffb36b",
-      x: 690,
-      y: 378,
+      x: 860,
+      y: 372,
       facing: 1,
       box: [48, 96],
       draw: (ctx, a) => {
@@ -214,7 +221,7 @@ export const kohPier: SceneDef = {
       id: "sorn",
       name: "Kapitän Sorn",
       actor: "sorn",
-      at: { x: 660, y: 396 },
+      at: { x: 840, y: 398 },
       face: 1,
       look: "Kapitän Sorn. Schnurrbart, Strohhut und ein Blick, der jede Ware sofort abschätzt.",
       talk: (g) => sornTalk(g),

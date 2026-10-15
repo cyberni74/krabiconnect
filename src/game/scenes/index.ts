@@ -49,7 +49,7 @@ export const CHAPTERS: Record<"ch1" | "insel", ChapterDef> = {
   insel: {
     key: "koh-kham-nang-save-v1",
     start: "koh_pier",
-    x: 200,
+    x: 780,
     y: 384,
     facing: 1,
     inv: ["lampe"],
