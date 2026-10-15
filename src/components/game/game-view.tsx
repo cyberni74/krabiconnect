@@ -446,11 +446,11 @@ function ExitZones({ ui, game }: { ui: UiSnapshot; game: Game }) {
           key={e.id}
           aria-label={`${tr("Weiter")}: ${e.name}`}
           onClick={() => game.useExit(e.id)}
-          className="group absolute z-10 flex flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-[#9fe0ff]/35 bg-[#9fe0ff]/5 transition active:bg-[#9fe0ff]/25"
-          style={{ left: `${e.left}%`, top: `${e.top}%`, width: `${e.width}%`, height: `${e.height}%`, minWidth: 64, minHeight: 64 }}
+          className="group absolute z-10 flex flex-col items-center justify-center gap-0.5 rounded-xl border border-dashed border-[#9fe0ff]/25 bg-[#9fe0ff]/[0.03] transition active:bg-[#9fe0ff]/25"
+          style={{ left: `${e.left}%`, top: `${e.top}%`, width: `${e.width}%`, height: `${e.height}%`, minWidth: 44, minHeight: 44 }}
         >
-          <span className="animate-pulse text-3xl leading-none text-[#e6f8ff]/80 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{e.arrow}</span>
-          <span className="max-w-full truncate px-1 font-[Kanit] text-[11px] font-semibold text-[#e6f8ff]/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">{e.name}</span>
+          <span className="animate-pulse text-xl leading-none text-[#e6f8ff]/70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{e.arrow}</span>
+          <span className="max-w-full truncate px-1 font-[Kanit] text-[9px] font-semibold text-[#e6f8ff]/70 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">{e.name}</span>
         </button>
       ))}
     </>

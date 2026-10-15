@@ -2,6 +2,9 @@ import type { Ambient } from "./types";
 
 type Sfx = "pickup" | "coin" | "dig" | "door" | "magic" | "splash" | "fanfare" | "wrong" | "horn";
 
+/** Master loudness; a compressor behind it keeps peaks from clipping. */
+const MASTER = 2.6;
+
 /** Procedural WebAudio: ambient beds, a small original melody loop and sound effects. */
 class Audio {
   ctx: AudioContext | null = null;
@@ -27,8 +30,11 @@ class Audio {
       if (!AC) return;
       this.ctx = new AC();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.6;
-      this.master.connect(this.ctx.destination);
+      this.master.gain.value = this.muted ? 0 : MASTER;
+      const comp = this.ctx.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.ratio.value = 6;
+      this.master.connect(comp).connect(this.ctx.destination);
       const len = this.ctx.sampleRate * 2;
       this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
       const d = this.noiseBuf.getChannelData(0);
@@ -54,7 +60,7 @@ class Audio {
     } catch {
       /* ignore */
     }
-    if (this.master && this.ctx) this.master.gain.setTargetAtTime(this.muted ? 0 : 0.6, this.ctx.currentTime, 0.1);
+    if (this.master && this.ctx) this.master.gain.setTargetAtTime(this.muted ? 0 : MASTER, this.ctx.currentTime, 0.1);
   }
 
   setAmbient(a: Ambient) {

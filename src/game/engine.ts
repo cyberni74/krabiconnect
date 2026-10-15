@@ -239,9 +239,9 @@ export class Game implements G {
           y1 = Math.max(y1, p.y);
         }
       } else continue;
-      // at least 90×90 logical px so it is easy to hit with a thumb
-      const w = Math.min(W, Math.max(x1 - x0, 90));
-      const hh = Math.min(H, Math.max(y1 - y0, 90));
+      // at least 60×60 logical px: easy to hit, but unobtrusive
+      const w = Math.min(W, Math.min(Math.max(x1 - x0, 60), 150));
+      const hh = Math.min(H, Math.min(Math.max(y1 - y0, 60), 130));
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
       const x = Math.max(0, Math.min(W - w, cx - w / 2));
