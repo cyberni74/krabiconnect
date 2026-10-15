@@ -99,9 +99,11 @@ function longtail(ctx: C, x: number, y: number, s: number, hull: string, t: numb
 const tideEbb = (g: G) => g.flag("tide") === "ebbe";
 
 async function turnClock(g: G) {
-  g.set("tide", tideEbb(g) ? "flut" : "ebbe");
   g.sfx("splash");
+  await g.fade(1, 350);
+  g.set("tide", tideEbb(g) ? "flut" : "ebbe");
   g.refresh();
+  await g.fade(0, 450);
   await g.say(tideEbb(g) ? "Ebbe! Das Wasser zieht sich zurück und gibt den Sand frei." : "Flut! Das Wasser steigt wieder über den Sand.");
 }
 
@@ -170,6 +172,7 @@ const caveArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.a
 const artReady = (img: HTMLImageElement | null) => !!img && img.complete && img.naturalWidth > 0;
 
 const pierArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-pier.png" }) : null;
+const pierEbbArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-pier-ebb.png" }) : null;
 
 export const kohPier: SceneDef = {
   id: "koh_pier",
@@ -178,10 +181,11 @@ export const kohPier: SceneDef = {
   walk: [{ x: 340, y: 404 }, { x: 960, y: 404 }, { x: 960, y: 436 }, { x: 322, y: 436 }],
   scale: () => 1,
   hero: heroSprite,
-  staticKey: (g) => `${String(g.flag("tide") ?? "flut")}|${pierArt?.complete ? 1 : 0}${patchReady("koh-deck") ? 1 : 0}`,
+  staticKey: (g) => `${String(g.flag("tide") ?? "flut")}|${pierArt?.complete ? 1 : 0}${pierEbbArt?.complete ? 1 : 0}${patchReady("koh-deck") ? 1 : 0}`,
   paintStatic(ctx, g) {
     if (pierArt?.complete && pierArt.naturalWidth) {
-      ctx.drawImage(pierArt, 0, 0, 960, 440);
+      const ebbArt = tideEbb(g) && artReady(pierEbbArt) ? pierEbbArt : pierArt;
+      ctx.drawImage(ebbArt!, 0, 0, 960, 440);
       drawPatch(ctx, "koh-deck", 319, 394);
       drawTideClock(ctx, tideEbb(g));
       return;
