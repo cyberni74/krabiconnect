@@ -98,6 +98,72 @@ function longtail(ctx: C, x: number, y: number, s: number, hull: string, t: numb
 /* ===================== KOH PIER ===================== */
 const tideEbb = (g: G) => g.flag("tide") === "ebbe";
 
+async function turnClock(g: G) {
+  g.set("tide", tideEbb(g) ? "flut" : "ebbe");
+  g.sfx("splash");
+  g.refresh();
+  await g.say(tideEbb(g) ? "Ebbe! Das Wasser zieht sich zurück und gibt den Sand frei." : "Flut! Das Wasser steigt wieder über den Sand.");
+}
+
+/** Tide clock: a post with a brass-rimmed shell dial; the hand points up for high tide and down for low tide. */
+function drawTideClock(ctx: CanvasRenderingContext2D, ebb: boolean) {
+  const cx = 470;
+  const cy = 304;
+  // post
+  rect(ctx, cx - 5, cy + 10, 10, 94, lin(ctx, cx - 5, 0, cx + 5, 0, [[0, "#6a4630"], [0.5, "#4a2e1e"], [1, "#2e1c12"]]));
+  rect(ctx, cx - 5, cy + 10, 2, 94, "rgba(255,190,130,0.35)");
+  rect(ctx, cx - 9, 392, 18, 5, "#2e1c12");
+  // dial
+  ctx.save();
+  glow(ctx, cx, cy, 46, "rgba(255,200,130,0.35)");
+  ctx.fillStyle = "#2a1a10";
+  ctx.beginPath();
+  ctx.arc(cx, cy + 2, 29, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#c8a04a";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 27, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#f2e4cc";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+  ctx.fill();
+  // upper half: high water (blue waves), lower half: low water (sand)
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.fillStyle = "#5aa6c8";
+  ctx.fillRect(cx - 22, cy - 22, 44, 22);
+  ctx.fillStyle = "#d8bd86";
+  ctx.fillRect(cx - 22, cy, 44, 22);
+  ctx.strokeStyle = "#e8f6ff";
+  ctx.lineWidth = 2;
+  for (const dy of [-15, -8]) {
+    ctx.beginPath();
+    ctx.moveTo(cx - 14, cy + dy);
+    ctx.quadraticCurveTo(cx - 7, cy + dy - 4, cx, cy + dy);
+    ctx.quadraticCurveTo(cx + 7, cy + dy + 4, cx + 14, cy + dy);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#a8864e";
+  for (const [dx, dy] of [[-10, 9], [2, 14], [11, 8]]) ctx.fillRect(cx + dx, cy + dy, 3, 2);
+  ctx.restore();
+  // hand
+  ctx.strokeStyle = "#8a1e1e";
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx, cy + (ebb ? 17 : -17));
+  ctx.stroke();
+  ctx.fillStyle = "#3a0e0e";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 /** Hand-made pixel background (generated, then cropped to the scene size). Falls back to the painted scene until loaded. */
 const jungleArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-jungle.png" }) : null;
 const caveArt: HTMLImageElement | null = typeof Image !== "undefined" ? Object.assign(new Image(), { src: "/insel/koh-cave.png" }) : null;
@@ -117,6 +183,7 @@ export const kohPier: SceneDef = {
     if (pierArt?.complete && pierArt.naturalWidth) {
       ctx.drawImage(pierArt, 0, 0, 960, 440);
       drawPatch(ctx, "koh-deck", 319, 394);
+      drawTideClock(ctx, tideEbb(g));
       return;
     }
     sky(ctx, 300, [[0, "#2a4a8a"], [0.45, "#8a6aa0"], [0.8, "#f08a6a"], [1, "#ffd08a"]]);
@@ -208,16 +275,16 @@ export const kohPier: SceneDef = {
     {
       id: "clock",
       name: "Gezeitenuhr",
-      rect: [456, 170, 52, 160],
-      at: { x: 500, y: 380 },
-      look: (g) => g.say(tideEbb(g) ? "Die Muschelscheibe zeigt Ebbe. Das Wasser ist weit draußen, der Sand liegt frei." : "Die Muschelscheibe zeigt Flut. Das Wasser steht hoch am Steg."),
-      take: "Die Uhr ist am Pfahl festgebunden. Nur ein Dreh genügt.",
-      walk: async (g) => {
-        g.set("tide", tideEbb(g) ? "flut" : "ebbe");
-        g.sfx("splash");
-        g.refresh();
-        await g.say(tideEbb(g) ? "Ebbe! Das Wasser zieht sich zurück und gibt den Sand frei." : "Flut! Das Wasser steigt wieder über den Sand.");
+      rect: [434, 268, 72, 130],
+      at: { x: 470, y: 414 },
+      look: async (g) => {
+        await g.say(tideEbb(g) ? "Die Muschelscheibe zeigt Ebbe. Das Wasser ist weit draußen, der Sand liegt frei." : "Die Muschelscheibe zeigt Flut. Das Wasser steht hoch am Steg.");
+        const i = await g.choose(["Den Zeiger drehen", "Lassen"]);
+        if (i === 0) await turnClock(g);
       },
+      take: "Die Uhr ist am Pfahl festgebunden. Nur ein Dreh genügt.",
+      use: (g) => turnClock(g),
+      walk: (g) => turnClock(g),
     },
     {
       id: "toCave",

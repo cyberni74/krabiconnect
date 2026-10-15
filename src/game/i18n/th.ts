@@ -650,4 +650,7 @@ export const TH: Record<string, string> = {
  "Die Höhle ist nur bei Ebbe zugänglich. Dreh die Gezeitenuhr am Steg.": "ถ้ำเข้าได้เฉพาะตอนน้ำลง หมุนนาฬิกาน้ำขึ้นน้ำลงที่ท่าเรือ" ,
  "Geh den Felsweg links in die Höhle und nimm das Logbuch.": "เดินตามทางหินทางซ้ายเข้าถ้ำ แล้วหยิบสมุดบันทึก" ,
  "Hinweis": "คำใบ้"
+ ,
+ "Den Zeiger drehen": "หมุนเข็ม",
+ "Lassen": "ปล่อยไว้"
 };
