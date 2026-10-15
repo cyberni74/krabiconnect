@@ -85,8 +85,8 @@ export const CHAPTER_STARTS: Record<1 | 2 | 3, ChapterStart> = {
   },
   3: {
     scene: "koh_pier",
-    x: 780,
-    y: 384,
+    x: 700,
+    y: 410,
     facing: 1,
     inv: ["lampe"],
     flags: { chapter: 3 },
