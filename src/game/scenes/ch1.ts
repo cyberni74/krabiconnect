@@ -1374,6 +1374,27 @@ export const lighthouse: SceneDef = {
   id: "lighthouse",
   title: "Klippe am Leuchtturm",
   art: "/art/lighthouse.png",
+  artOverlay(ctx, g) {
+    if (!g.flag("lit")) return;
+    // the lamp burns: warm glow in the lantern room and two sweeping beams
+    const lx = 829;
+    const ly = 62;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for (const [tx, ty0, ty1] of [[0, 20, 100], [960, 10, 90]] as const) {
+      ctx.fillStyle = lin(ctx, lx, 0, tx, 0, [[0, "rgba(255,226,140,0.28)"], [1, "rgba(255,226,140,0)"]]);
+      ctx.beginPath();
+      ctx.moveTo(lx, ly - 6);
+      ctx.lineTo(tx, ty0);
+      ctx.lineTo(tx, ty1);
+      ctx.lineTo(lx, ly + 6);
+      ctx.closePath();
+      ctx.fill();
+    }
+    glow(ctx, lx, ly, 70, "rgba(255,214,120,0.75)");
+    glow(ctx, lx, ly, 22, "rgba(255,250,210,1)");
+    ctx.restore();
+  },
   ambient: "wind",
   walk: [{ x: 0, y: 340 }, { x: 480, y: 332 }, { x: 480, y: 432 }, { x: 0, y: 432 }],
   scale: depth(352, 0.92, 432, 1.06),
@@ -1470,7 +1491,7 @@ export const lighthouse: SceneDef = {
     {
       id: "lamp",
       name: "Leuchtfeuer",
-      rect: [800, 25, 70, 50],
+      rect: [795, 20, 80, 85],
       at: { x: 820, y: 376 },
       look: (g) => g.say(g.flag("lit") ? "Es brennt! Hell wie… ein Leuchtturm." : g.flag("oilIn") ? "Das Öl ist drin. Jetzt fehlt nur noch ein Funke." : "Das Leuchtfeuer oben im Turm. Der Brenner ist trocken wie Opa Barnabas' Humor."),
       use: (g) => g.say(g.flag("lit") ? "Es brennt schon. Ich will es nicht noch heller machen, sonst wacht die ganze Stadt auf." : "Ich brauche etwas zum Brennen. Und etwas zum Anzünden."),
@@ -1513,6 +1534,16 @@ export const lighthouse: SceneDef = {
     { id: "toStreet2", name: "Pfad hinunter", rect: [0, 340, 40, 100], exit: true, at: { x: 16, y: 404 }, walk: (g) => g.goto("street", 545, 362, 1) },
   ],
 };
+
+/* Oil and flint work on the whole tower, not only on the small lamp rectangle. */
+{
+  const lampH = lighthouse.hotspots.find((h) => h.id === "lamp")!;
+  for (const id of ["lh", "lhDoor"]) {
+    const h = lighthouse.hotspots.find((x) => x.id === id)!;
+    h.useWith = { ...lampH.useWith, ...h.useWith, oel: lampH.useWith!.oel, feuerstein: lampH.useWith!.feuerstein };
+    if (id === "lh") h.use = lampH.use;
+  }
+}
 
 async function climb(g: G, inner: () => Promise<void>) {
   await g.fade(1, 300);
