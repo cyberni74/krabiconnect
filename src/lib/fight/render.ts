@@ -1,4 +1,18 @@
-import { CHARS, SPRITES, STAGES, spriteUrl, stageUrl, CHAR_IDS, STAGE_IDS, type CharId, type PoseId, type StageId } from "./data";
+import {
+  CHARS,
+  CHAR_IDS,
+  FX_IDS,
+  SPRITES,
+  STAGES,
+  STAGE_IDS,
+  fxUrl,
+  spriteUrl,
+  stageUrl,
+  type CharId,
+  type FxId,
+  type PoseId,
+  type StageId,
+} from "./data";
 import {
   ARENA_W,
   GROUND_Y,
@@ -34,6 +48,7 @@ function img(url: string) {
 export function preload(chars: CharId[], stage?: StageId): Promise<void> {
   const urls = chars.flatMap((c) => POSES.map((p) => spriteUrl(c, p)));
   if (stage) urls.push(stageUrl(stage));
+  if (chars.length) urls.push(...FX_IDS.map(fxUrl));
   return Promise.all(
     urls.map(
       (u) =>
@@ -55,7 +70,14 @@ export function preloadAll() {
 
 // ── render state (client-side only, never networked) ────────────────────────
 interface Particle {
-  kind: "spark" | "dust" | "ring" | "text" | "ember" | "streak" | "bolt";
+  kind: "spark" | "dust" | "ring" | "text" | "ember" | "streak" | "bolt" | "sprite";
+  fx?: FxId;
+  /** Sprite growth: scale goes from s0 to s1 over the particle's life. */
+  s0?: number;
+  s1?: number;
+  flip?: boolean;
+  /** Anchor the sprite at its bottom edge (dust, quake). */
+  bottom?: boolean;
   x: number;
   y: number;
   vx: number;
@@ -133,6 +155,34 @@ function burst(rs: RenderState, x: number, y: number, n: number, color: string, 
   }
 }
 
+function fxSprite(
+  rs: RenderState,
+  fx: FxId,
+  x: number,
+  y: number,
+  size: number,
+  max: number,
+  opts: { s0?: number; s1?: number; rot?: number; flip?: boolean; bottom?: boolean; vx?: number; vy?: number } = {},
+) {
+  rs.particles.push({
+    kind: "sprite",
+    fx,
+    x,
+    y,
+    vx: opts.vx ?? 0,
+    vy: opts.vy ?? 0,
+    life: 0,
+    max,
+    color: "",
+    size,
+    s0: opts.s0 ?? 0.5,
+    s1: opts.s1 ?? 1.1,
+    rot: opts.rot ?? 0,
+    flip: opts.flip,
+    bottom: opts.bottom,
+  });
+}
+
 function floatText(rs: RenderState, x: number, y: number, text: string, color: string, size = 30) {
   rs.particles.push({ kind: "text", x, y, vx: 0, vy: -1.2, life: 0, max: 50, color, size, text });
 }
@@ -145,12 +195,14 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
     const col = CHARS[attacker.char].color;
     switch (e.type) {
       case "hit":
+        fxSprite(rs, "hit", e.x, sy, 120, 11, { rot: rand(-0.6, 0.6) });
         burst(rs, e.x, sy, 10, "#fff6c2", 9);
         burst(rs, e.x, sy, 6, col, 7);
         rs.particles.push({ kind: "ring", x: e.x, y: sy, vx: 0, vy: 0, life: 0, max: 12, color: "#fff", size: 40 });
         if (e.text) floatText(rs, e.x, sy - 50, e.text, "#facc15", 26);
         break;
       case "heavyHit":
+        fxSprite(rs, "heavy", e.x, sy, 210, 15, { rot: rand(-0.4, 0.4), s0: 0.4, s1: 1.2 });
         burst(rs, e.x, sy, 18, "#fff6c2", 14, 4);
         burst(rs, e.x, sy, 10, col, 10, 4);
         rs.particles.push({ kind: "ring", x: e.x, y: sy, vx: 0, vy: 0, life: 0, max: 16, color: "#fff", size: 80 });
@@ -160,11 +212,15 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
         }
         if (e.text) floatText(rs, e.x, sy - 60, e.text, "#facc15", 28);
         break;
-      case "block":
+      case "block": {
+        const atkLeft = s.f[e.who === 0 ? 1 : 0].x < s.f[e.who].x;
+        fxSprite(rs, "block", e.x, sy, 130, 12, { flip: atkLeft, s0: 0.8, s1: 1.05 });
         burst(rs, e.x, sy, 8, "#7dd3fc", 6, 2.5);
         rs.particles.push({ kind: "ring", x: e.x, y: sy, vx: 0, vy: 0, life: 0, max: 10, color: "#7dd3fc", size: 34 });
         break;
+      }
       case "parry":
+        fxSprite(rs, "block", e.x, sy, 200, 20, { flip: s.f[e.who === 0 ? 1 : 0].x < s.f[e.who].x, s0: 0.6, s1: 1.3 });
         rs.particles.push({ kind: "ring", x: e.x, y: sy, vx: 0, vy: 0, life: 0, max: 22, color: "#ffffff", size: 120 });
         burst(rs, e.x, sy, 16, "#e0f2fe", 10, 3);
         floatText(rs, e.x, sy - 70, "PARRY!", "#38bdf8", 34);
@@ -176,6 +232,7 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
         burst(rs, e.x, sy, 10, "#a3e635", 6);
         break;
       case "throw":
+        fxSprite(rs, "heavy", e.x, sy, 180, 14);
         burst(rs, e.x, sy, 14, "#fde68a", 9);
         floatText(rs, e.x, sy - 60, "WURF!", "#fb923c", 32);
         break;
@@ -186,6 +243,12 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
       case "land":
       case "dash":
       case "jump":
+        fxSprite(rs, "dust", e.x, GROUND_Y + 6, (e.power ?? 1) > 1 ? 190 : 120, 26, {
+          bottom: true,
+          s0: 0.5,
+          s1: 1.15,
+          flip: Math.random() < 0.5,
+        });
         for (let i = 0; i < ((e.power ?? 1) > 1 ? 14 : 6); i++) {
           rs.particles.push({
             kind: "dust",
@@ -211,6 +274,7 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
         rs.superOwner = e.who;
         break;
       case "projClash":
+        fxSprite(rs, "heavy", e.x, sy, 220, 16, { rot: rand(-0.5, 0.5) });
         burst(rs, e.x, sy, 20, "#fff", 12, 4);
         rs.particles.push({ kind: "ring", x: e.x, y: sy, vx: 0, vy: 0, life: 0, max: 16, color: "#fff", size: 90 });
         break;
@@ -219,6 +283,7 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
         burst(rs, e.x, sy, 22, "#93c5fd", 12, 3);
         break;
       case "ko":
+        fxSprite(rs, "ko", e.x, sy, 420, 34, { s0: 0.3, s1: 1.3 });
         rs.flashT = 14;
         rs.flashColor = "rgba(255,255,255,0.8)";
         burst(rs, e.x, sy, 30, "#fff6c2", 16, 5);
@@ -257,6 +322,7 @@ export function processEvents(rs: RenderState, s: GameState, events: GameEvent[]
 
 // ── drawing ─────────────────────────────────────────────────────────────────
 function drawStage(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderState, camX: number, now: number) {
+  const st = STAGES[s.stage];
   const bg = img(stageUrl(s.stage));
   if (bg.complete && bg.naturalWidth) {
     const scale = (VIEW_H * 1.1) / bg.naturalHeight;
@@ -264,7 +330,7 @@ function drawStage(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderState,
     const h = VIEW_H * 1.1;
     const range = w - VIEW_W;
     const ox = -(camX / (ARENA_W - VIEW_W)) * range;
-    ctx.drawImage(bg, ox, VIEW_H - h + 6, w, h);
+    ctx.drawImage(bg, ox, VIEW_H - h + 6 + st.shift, w, h);
   } else {
     ctx.fillStyle = "#111827";
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
@@ -277,22 +343,26 @@ function drawStage(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderState,
   ctx.fillRect(0, GROUND_Y - 30, VIEW_W, VIEW_H);
 
   // Ambient particles per stage.
+  const kind = st.ambient;
+  if (kind === "none") return;
   const amb = rs.ambient;
-  const target = s.stage === "neon" ? 70 : s.stage === "temple" ? 26 : 14;
+  const target = kind === "rain" ? 80 : kind === "confetti" ? 40 : kind === "embers" ? 36 : 18;
   while (amb.length < target) {
-    if (s.stage === "neon") {
-      amb.push({ kind: "streak", x: rand(0, VIEW_W), y: rand(-VIEW_H, 0), vx: -1.5, vy: rand(13, 17), life: 0, max: 999, color: "rgba(186,230,253,0.35)", size: 1, rot: 0 });
-    } else if (s.stage === "temple") {
-      amb.push({ kind: "ember", x: rand(0, VIEW_W), y: rand(120, GROUND_Y), vx: rand(-0.3, 0.3), vy: rand(-0.3, 0.3), life: rand(0, 200), max: 400, color: "#d9f99d", size: rand(1.5, 3) });
+    if (kind === "rain") {
+      amb.push({ kind: "streak", x: rand(0, VIEW_W), y: rand(-VIEW_H, 0), vx: -1.5, vy: rand(13, 17), life: 0, max: 999, color: "rgba(254,205,211,0.35)", size: 1, rot: 0 });
+    } else if (kind === "embers") {
+      amb.push({ kind: "ember", x: rand(0, VIEW_W), y: rand(GROUND_Y - 40, VIEW_H), vx: rand(-0.4, 0.4), vy: rand(-1.6, -0.6), life: rand(0, 200), max: 300, color: Math.random() < 0.5 ? "#fb923c" : "#fde047", size: rand(1.2, 2.6) });
+    } else if (kind === "confetti") {
+      amb.push({ kind: "spark", x: rand(0, VIEW_W), y: rand(-VIEW_H, 0), vx: rand(-0.6, 0.6), vy: rand(0.8, 1.8), life: 0, max: 999, color: Math.random() < 0.5 ? "#60a5fa" : "#f8fafc", size: rand(3, 6), rot: rand(0, 6) });
     } else {
-      amb.push({ kind: "ember", x: rand(0, VIEW_W), y: rand(0, 250), vx: rand(0.2, 0.6), vy: rand(-0.1, 0.1), life: rand(0, 300), max: 600, color: "rgba(255,237,213,0.6)", size: rand(1, 2) });
+      amb.push({ kind: "ember", x: rand(0, VIEW_W), y: rand(60, GROUND_Y), vx: rand(0.1, 0.4), vy: rand(-0.15, 0.15), life: rand(0, 300), max: 600, color: "rgba(226,232,240,0.45)", size: rand(1, 2) });
     }
   }
   for (const p of amb) {
     p.x += p.vx;
     p.y += p.vy;
     p.life++;
-    if (s.stage === "neon") {
+    if (kind === "rain") {
       ctx.strokeStyle = p.color;
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -303,21 +373,61 @@ function drawStage(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderState,
         p.y = rand(-80, 0);
         p.x = rand(0, VIEW_W + 60);
       }
+    } else if (kind === "confetti") {
+      p.rot = (p.rot ?? 0) + 0.08;
+      ctx.save();
+      ctx.translate(p.x + Math.sin(now / 400 + p.size) * 6, p.y);
+      ctx.rotate(p.rot);
+      ctx.scale(1, Math.abs(Math.sin(p.rot)));
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.66);
+      ctx.restore();
+      if (p.y > GROUND_Y + 20) {
+        p.y = rand(-60, 0);
+        p.x = rand(0, VIEW_W);
+      }
     } else {
-      const a = 0.5 + 0.5 * Math.sin(now / 300 + p.x);
-      ctx.globalAlpha = a;
+      const a = kind === "embers" ? 1 - p.life / p.max : 0.5 + 0.5 * Math.sin(now / 300 + p.x);
+      ctx.globalAlpha = Math.max(0, a);
       ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
       if (p.x > VIEW_W + 10) p.x = -10;
+      if (p.x < -10) p.x = VIEW_W + 10;
       if (p.life > p.max) {
         p.life = 0;
         p.x = rand(0, VIEW_W);
+        if (kind === "embers") p.y = rand(GROUND_Y - 40, VIEW_H);
       }
     }
   }
+}
+
+/** Draw an effect sprite centred at (x, y), or bottom-anchored. */
+function drawFx(
+  ctx: CanvasRenderingContext2D,
+  fx: FxId,
+  x: number,
+  y: number,
+  size: number,
+  opts: { rot?: number; flip?: boolean; bottom?: boolean; alpha?: number; additive?: boolean } = {},
+) {
+  const im = img(fxUrl(fx));
+  if (!im.complete || !im.naturalWidth) return false;
+  const w = size;
+  const h = (size * im.naturalHeight) / im.naturalWidth;
+  ctx.save();
+  ctx.translate(x, y);
+  if (opts.rot) ctx.rotate(opts.rot);
+  if (opts.flip) ctx.scale(-1, 1);
+  if (opts.alpha !== undefined) ctx.globalAlpha = opts.alpha;
+  if (opts.additive) ctx.globalCompositeOperation = "lighter";
+  ctx.drawImage(im, -w / 2, opts.bottom ? -h : -h / 2, w, h);
+  ctx.restore();
+  return true;
 }
 
 function spriteBox(f: Fighter, pose: PoseId) {
@@ -435,8 +545,22 @@ function drawFighter(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderStat
     ctx.restore();
   }
 
+  // Water vortex around Kai's rush moves.
+  if (m && (m.id === "tidalKnee" || m.id === "monsoonRush") && f.t >= m.startup - 2) {
+    drawFx(ctx, "water", x + f.facing * 25, y - 115 * c.size, 210 * c.size, {
+      rot: (now / 90) * f.facing,
+      alpha: 0.9,
+      flip: f.facing < 0,
+    });
+  }
+
   // Super aura.
   if (m?.isSuper && f.state === "attack") {
+    drawFx(ctx, "aura", x, y + 12, 300 * c.size, {
+      bottom: true,
+      additive: true,
+      alpha: 0.55 + 0.25 * Math.sin(now / 60),
+    });
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
     const g = ctx.createRadialGradient(x, y - 120, 10, x, y - 120, 170);
@@ -451,6 +575,17 @@ function drawFighter(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderStat
 function drawProjectile(ctx: CanvasRenderingContext2D, p: Projectile, camX: number, now: number) {
   const cx = p.x - camX;
   const cy = GROUND_Y - p.y - p.h / 2;
+  const flip = p.dir < 0;
+  const pulse = 1 + 0.06 * Math.sin(now / 45);
+  // Painted effect sprites; the procedural shapes below are the fallback.
+  if (p.kind === "volt" && drawFx(ctx, "volt", cx - p.dir * 70, cy, 230 * pulse, { flip })) return;
+  if (p.kind === "blaze" && drawFx(ctx, "fire", cx - p.dir * 75, cy, 240 * pulse, { flip })) return;
+  if (p.kind === "inferno" && drawFx(ctx, "fire", cx - p.dir * 150, cy, 480 * pulse, { flip })) {
+    drawFx(ctx, "ko", cx, cy, 200 * pulse, { additive: true, alpha: 0.5, rot: now / 200 });
+    return;
+  }
+  if (p.kind === "quake" && drawFx(ctx, "quake", cx - p.dir * 50, GROUND_Y + 6, 230, { flip, bottom: true })) return;
+  if (p.kind === "titan" && drawFx(ctx, "quake", cx - p.dir * 90, GROUND_Y + 8, 440 * pulse, { flip, bottom: true })) return;
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
   switch (p.kind) {
@@ -603,6 +738,18 @@ function drawParticles(ctx: CanvasRenderingContext2D, rs: RenderState, camX: num
         ctx.arc(x, p.y, p.size * (0.3 + k), 0, Math.PI * 2);
         ctx.stroke();
         break;
+      case "sprite": {
+        const sc = (p.s0 ?? 0.5) + ((p.s1 ?? 1) - (p.s0 ?? 0.5)) * Math.sqrt(k);
+        ctx.restore();
+        drawFx(ctx, p.fx ?? "hit", x, p.y, p.size * sc, {
+          rot: p.rot,
+          flip: p.flip,
+          bottom: p.bottom,
+          alpha: 1 - k * k,
+        });
+        ctx.save();
+        break;
+      }
       case "text":
         ctx.font = `${p.size}px ${FONT}`;
         ctx.textAlign = "center";

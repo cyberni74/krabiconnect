@@ -1,4 +1,4 @@
--- KRABI CLASH: WebRTC signaling relay for online 1v1 rooms.
+-- TikTok Fight: WebRTC signaling relay for online 1v1 rooms.
 -- Rows are unowned and short-lived (anonymous random peer ids, no personal data);
 -- the API deletes stale peers and delivered signals.
 CREATE TABLE IF NOT EXISTS fight_peers (

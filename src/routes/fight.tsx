@@ -23,7 +23,7 @@ export const Route = createFileRoute("/fight")({
   },
   head: () => ({
     meta: [
-      { title: "KRABI CLASH – 2-Spieler-Fighting-Game" },
+      { title: "TikTok Fight – 2-Spieler-Fighting-Game" },
       { name: "theme-color", content: "#09090b" },
       {
         name: "description",
@@ -187,7 +187,7 @@ function FightPage() {
     setScreen(to);
   };
 
-  const bg = match?.stage ?? "beach";
+  const bg = match?.stage ?? "berlin";
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-zinc-950 text-white" style={{ fontFamily: `"Chakra Petch", ui-sans-serif, system-ui, sans-serif` }}>
@@ -212,7 +212,7 @@ function FightPage() {
             className="text-lg tracking-wide text-white"
             style={DISPLAY}
           >
-            KRABI<span className="text-orange-400">CLASH</span>
+            TIKTOK<span className="text-[#fe2c55]">FIGHT</span>
           </button>
           <div className="flex items-center gap-2">
             <button
@@ -328,12 +328,15 @@ function TitleScreen({
       <div className="flex flex-col items-center gap-5 text-center">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-orange-300/80">Arcade Fighting</p>
-          <h1 className="mt-1 text-5xl leading-[0.9] text-white drop-shadow-[0_6px_0_rgba(0,0,0,0.6)] sm:text-7xl" style={DISPLAY}>
-            KRABI
+          <h1
+            className="mt-1 text-5xl leading-[0.9] text-white sm:text-7xl"
+            style={{ ...DISPLAY, textShadow: "-3px -2px 0 #25f4ee, 3px 2px 0 #fe2c55, 0 10px 0 rgba(0,0,0,0.5)" }}
+          >
+            TIKTOK
             <br />
-            <span className="bg-gradient-to-b from-amber-200 to-orange-500 bg-clip-text text-transparent">CLASH</span>
+            FIGHT
           </h1>
-          <p className="mt-3 text-sm text-white/70">Vier Kämpfer. Drei Arenen. Supers, Parrys, Combos & Würfe.</p>
+          <p className="mt-3 text-sm text-white/70">Vier Kämpfer. Sechs deutsche Arenen. Supers, Parrys, Combos & Würfe.</p>
         </div>
 
         <div className="flex w-full max-w-xs flex-col gap-3">

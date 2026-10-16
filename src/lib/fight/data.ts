@@ -1,7 +1,7 @@
 import sprites from "./sprites.json";
 
 export type CharId = "kai" | "rin" | "brutus" | "nova";
-export type StageId = "beach" | "neon" | "temple";
+export type StageId = "bahnhof" | "berlin" | "reeperbahn" | "koeln" | "wiesn" | "zeche";
 export type PoseId =
   | "idle"
   | "punch"
@@ -566,20 +566,32 @@ export const CHARS: Record<CharId, CharDef> = {
 
 export const CHAR_IDS: CharId[] = ["kai", "rin", "brutus", "nova"];
 
+export type Ambient = "rain" | "embers" | "confetti" | "dust" | "none";
+
 export interface StageDef {
   id: StageId;
   name: string;
   place: string;
   tint: string;
+  ambient: Ambient;
+  /** Moves the backdrop down (view px) so its floor meets the fighters' feet. */
+  shift: number;
 }
 
 export const STAGES: Record<StageId, StageDef> = {
-  beach: { id: "beach", name: "Railay Sunset", place: "Krabi", tint: "#ff9a3c" },
-  neon: { id: "neon", name: "Neon Rooftop", place: "Bangkok", tint: "#c026d3" },
-  temple: { id: "temple", name: "Dschungeltempel", place: "Khao Sok", tint: "#4ade80" },
+  bahnhof: { id: "bahnhof", name: "Hauptbahnhof", place: "Gleis 9¾ des Grauens", tint: "#64748b", ambient: "dust", shift: 45 },
+  berlin: { id: "berlin", name: "Brandenburger Tor", place: "Berlin", tint: "#f97316", ambient: "none", shift: 0 },
+  reeperbahn: { id: "reeperbahn", name: "Reeperbahn", place: "Hamburg", tint: "#e11d48", ambient: "rain", shift: 0 },
+  koeln: { id: "koeln", name: "Domplatte", place: "Köln", tint: "#fb923c", ambient: "none", shift: 0 },
+  wiesn: { id: "wiesn", name: "Festzelt", place: "München", tint: "#3b82f6", ambient: "confetti", shift: 0 },
+  zeche: { id: "zeche", name: "Zeche", place: "Ruhrpott", tint: "#ea580c", ambient: "embers", shift: 0 },
 };
 
-export const STAGE_IDS: StageId[] = ["beach", "neon", "temple"];
+export const STAGE_IDS: StageId[] = ["bahnhof", "berlin", "reeperbahn", "koeln", "wiesn", "zeche"];
 
 export const spriteUrl = (c: CharId, p: PoseId) => `/fight/${c}_${p}.webp`;
 export const stageUrl = (s: StageId) => `/fight/stage_${s}.webp`;
+
+export type FxId = "hit" | "heavy" | "block" | "fire" | "volt" | "quake" | "water" | "ko" | "dust" | "aura";
+export const FX_IDS: FxId[] = ["hit", "heavy", "block", "fire", "volt", "quake", "water", "ko", "dust", "aura"];
+export const fxUrl = (f: FxId) => `/fight/fx_${f}.webp`;

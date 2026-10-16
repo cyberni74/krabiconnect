@@ -19,7 +19,7 @@ async function db() {
 }
 
 /**
- * WebRTC signaling relay for KRABI CLASH online rooms (the contract
+ * WebRTC signaling relay for TikTok Fight online rooms (the contract
  * `src/lib/multiplayer/p2p.ts` polls). GET registers/refreshes the caller and
  * returns the room roster plus signals addressed to it; POST relays one signal
  * or leaves the room. Game data never passes through here.

@@ -53,7 +53,7 @@ export function SelectScreen({ mode, net, initial, onStart, onBack, netMessageRe
       if (startedRef.current) return;
       startedRef.current = true;
       const s = stateRef.current;
-      const stage = STAGE_IDS[si] ?? "beach";
+      const stage = STAGE_IDS[si] ?? "berlin";
       const p1 = CHAR_IDS[s.cursor[0]];
       const p2 = CHAR_IDS[s.cursor[1]];
       if (mode === "online" && net?.role === "host") net.send({ t: "start", p1, p2, stage });
@@ -278,7 +278,7 @@ export function SelectScreen({ mode, net, initial, onStart, onBack, netMessageRe
 
       {bothReady && (
         <div className="rounded-xl border border-white/10 bg-black/40 p-3 backdrop-blur">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
             {[...STAGE_IDS, "random" as const].map((st, i) => {
               const sel = stageIdx === i;
               return (
