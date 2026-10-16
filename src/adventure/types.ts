@@ -84,7 +84,7 @@ export interface ExitSpec {
 }
 
 export interface NpcSpec {
-  /** Frame name -> sprite key (public/g/chars/<key>.png). "idle" is required, "talk" optional. */
+  /** Frame name -> sprite key (public/g/chars/<key>.webp). "idle" is required, "talk" optional. */
   frames: Record<string, string>;
   /** Called every frame, returns the frame name to show (default idle/talk logic). */
   pick?: (n: NpcRuntime, g: G) => string | null;

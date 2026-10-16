@@ -142,3 +142,12 @@ Bran: walk 4 + action 4 (bend, reach, swing, dig). NPCs: idle, talk (+1 Spezialp
 ## Asset-Listen (Items)
 Kernitems: schaufel, eimer, seil, silber, stiefel_alt, nadel_zwirn, feuerstein, holzstab, pech, fackel, flasche_leer, weihwasser, gruftschluessel, reliquie, klingenbruch, kohle, hammer, schwert, wasser(eimer), brot, wurst, siegelbrief, siegelring, halvard_brief, rabenfeder, kerzenwachs, alraune, schlangenzunge, moorwasser, gegengift, hexentalisman, fieberkraut, hufeisen, lappen, sand, wein, schlafkraut, zellenschluessel, helm, brustpanzer, armschienen, schild, spiegelschild, weisheitssiegel, giftflasche, drachenei, horn, brett, kohlekiste_schluessel, kreide, weihrauch.
 Ablenkungs-Items: totenkopf, kerzenstummel, rostiger_dolch, trockenes_brot, tote_ratte, knochen, apfelrest, wuerfel, zinnbecher, holzloeffel, nagel, tonscherbe, zahn, kamm, rosenkranz, pergamentfetzen, haarlocke, pilz, kreuzanhaenger, spielfigur, gaensefeder, rattenfalle, kerzenhalter, messingknopf, hufnagel, glasauge, rabenkralle.
+
+### Kapitel 1 — Umsetzung (ch1*.ts, Stand der Implementierung)
+Alle Flags `c1_*`. Abhängigkeitskette: Anschlagbrett (Runenfolge Rabe-Lamm-Kreuz, auch Fenster/Bibel) -> Sakristeischrank (Gruftschlüssel, leere Flasche) -> Falltür.
+Fackel = Holzstab (Waldrand) + Pechfass (Dorf) + Feuerstein (Werkzeugschrank, Schmiede); brennt 16 Handgriffe in der Gruft, danach per Feuerstein neu entzünden oder Fackelhalter nutzen.
+Wasser: Eimer (Schmiede) + Seil (Galgen, Rabe zuerst mit Brot/toter Ratte füttern -> Rabenfeder) + Brunnen. Wasser füllt Löschfass, Weihwasserbecken (-> Flasche -> Weihwasser) und Ser Halvard.
+Schmiede-Stufen `c1_forge` 0..7 (Kohle, Feuerstein, Blasebalg flicken + 3x pumpen, Klingenbruch aus der Gruft, 4 Hammerschläge, Löschfass (optional Weihwasser = `c1_gesegnet`), Schleifstein); Gero verlangt 2 Silber, Münzbeutel oder 10x Blasebalg.
+Gruft: Skelettwächter mit Weihwasser besänftigen, sonst Rauswurf; Reliquienschrein per Platten Rabe-Lamm-Kreuz; Reliquie -> Anselm -> Siegelbrief + Kerzenwachs.
+Waldrand: Falle mit Nagel reparieren, Wurst als Köder -> Wölfe fliehen; Halvard bekommt Wasser, stellt eine Ehrenfrage (Brief immer, Siegelring bei Ehre >= 1).
+Ehre: Tuch +1 / Münzbeutel -1 (Leichenkarren), Gräber für Oswin +1, Opferstock +1, Hilda +1, Halvard-Antwort +1.

@@ -1,22 +1,24 @@
 import manifest from "./manifest.json";
 
 export type AssetKind = "bg" | "props" | "items" | "chars";
+/** Stored px per logical unit for sprites. */
+export const DENSITY = 4;
 const sizes = manifest as unknown as Record<AssetKind, Record<string, [number, number]>>;
 
 export const hasAsset = (kind: AssetKind, key: string) => !!sizes[kind]?.[key];
 
-/** Stored pixel size of an asset (sprites are stored at 2x logical size). */
+/** Stored pixel size of an asset (stored at DENSITY px per logical unit). */
 export function sizeOf(kind: AssetKind, key: string): [number, number] | undefined {
   return sizes[kind]?.[key];
 }
 
-/** Logical size in scene units (sprites are stored at 2x). */
+/** Logical size in scene units (DENSITY stored px per unit). */
 export function logicalSize(kind: AssetKind, key: string): [number, number] | undefined {
   const s = sizes[kind]?.[key];
-  return s && (kind === "bg" ? s : [s[0] / 2, s[1] / 2]);
+  return s && (kind === "bg" ? s : [s[0] / DENSITY, s[1] / DENSITY]);
 }
 
-export const assetUrl = (kind: AssetKind, key: string) => `/g/${kind}/${key}.${kind === "bg" ? "webp" : "png"}`;
+export const assetUrl = (kind: AssetKind, key: string) => `/g/${kind}/${key}.webp`;
 
 const cache = new Map<string, HTMLImageElement>();
 

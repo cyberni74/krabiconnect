@@ -1,6 +1,6 @@
 import type { ItemDef } from "../types";
 
-/** Global item catalog. Every id has an icon at public/g/items/<id>.png. */
+/** Global item catalog. Every id has an icon at public/g/items/<id>.webp. */
 export const ITEMS: Record<string, ItemDef> = {
   // ---- tools & materials
   schaufel: { name: "Schaufel", look: "Eine abgenutzte Totengräberschaufel. Sie hat mehr Menschen begraben als der Pfarrer gesegnet hat." },

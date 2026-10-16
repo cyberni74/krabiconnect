@@ -10,7 +10,7 @@ import { CHAPTER_TITLES, world } from "@/adventure/world";
 type Layout = "desktop" | "landscape" | "portrait";
 
 const VERB_ICON: Record<string, string> = { walk: "👣", look: "👁️", take: "✋", use: "🔧", talk: "💬", give: "🎁" };
-const itemIcon = (id: string) => `/g/items/${id}.png`;
+const itemIcon = (id: string) => `/g/items/${id}.webp`;
 const GOLD = "#d8b25a";
 
 function useInstallHint(): boolean {

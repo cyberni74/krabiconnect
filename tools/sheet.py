@@ -43,23 +43,25 @@ def main():
     p.add_argument('--heights', default='')           # per-sprite logical heights (stored at 2x)
     p.add_argument('--minarea', type=int, default=250)
     p.add_argument('--dil', type=int, default=14)
+    p.add_argument('--density', type=int, default=2)   # stored px per logical unit
     p.add_argument('--thr', type=int, default=40)
     p.add_argument('--canvas', action='store_true')     # pad all to common canvas, feet at bottom, centered
     a = p.parse_args()
     im = Image.open(a.sheet).convert('RGBA')
     names = a.names.split(',')
-    boxes = [b for b in components(im, dil=a.dil, minarea=a.minarea, thr=a.thr) if not ((b[3]-b[1]) > 700 and (b[2]-b[0]) < 130)]
+    k = im.width / 1344.0   # sheets generated at 2k are ~2x larger: scale thresholds
+    boxes = [b for b in components(im, dil=round(a.dil * k), minarea=round(a.minarea * k * k), thr=a.thr) if not ((b[3]-b[1]) > 700 * k and (b[2]-b[0]) < 130 * k)]
     boxes = order(boxes, a.rows)
     if len(boxes) != len(names):
         print(f'ERROR found {len(boxes)} components, expected {len(names)}: {boxes}'); sys.exit(2)
     crops = [im.crop(b) for b in boxes]
     if a.scale: s = a.scale
-    elif a.ref >= 0 and a.refh: s = a.refh / crops[a.ref].height
+    elif a.ref >= 0 and a.refh: s = a.refh * a.density / crops[a.ref].height
     elif a.maxh: s = a.maxh / max(c.height for c in crops)
     else: s = 1.0
     if a.maxw: s = min(s, a.maxw / max(c.width for c in crops))
     if a.heights:
-        hs = [int(x) * 2 for x in a.heights.split(',')]
+        hs = [int(x) * a.density for x in a.heights.split(',')]
         outs = [c.resize((max(1, round(c.width * h / c.height)), h), Image.LANCZOS) for c, h in zip(crops, hs)]
     else:
         outs = [c.resize((max(1, round(c.width * s)), max(1, round(c.height * s))), Image.LANCZOS) for c in crops]
