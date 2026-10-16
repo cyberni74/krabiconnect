@@ -14,9 +14,9 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: game ? "Die Gezeiten von Krabbenbucht" : APP_NAME },
-      { name: "theme-color", content: game ? "#0b0806" : "#070d14" },
-      { name: "apple-mobile-web-app-title", content: game ? "Krabbenbucht" : "Captain Tide" },
+      { title: game ? "Rabenschwur" : APP_NAME },
+      { name: "theme-color", content: game ? "#050404" : "#070d14" },
+      { name: "apple-mobile-web-app-title", content: game ? "Rabenschwur" : "Captain Tide" },
       {
         httpEquiv: "Content-Security-Policy",
         content:
