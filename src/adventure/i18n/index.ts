@@ -1,7 +1,7 @@
 import { TH } from "./th";
 
 export type Lang = "de" | "th";
-const LS = "krabbenbucht-lang";
+const LS = "rabenschwur-lang";
 
 let lang: Lang = "de";
 const listeners = new Set<() => void>();
@@ -33,12 +33,23 @@ export const onLang = (f: () => void) => {
 
 /** UI strings of the interface (not part of the story text). */
 const UI: Record<string, string> = {
+  "Rabenschwur": "ปฏิญาณอีกา",
+  "Ein düsteres Ritterabenteuer": "การผจญภัยของอัศวินในยุคมืด",
+  "Der Rabeneid": "คำสาบานอีกา",
+  "Das Hexenmoor": "บึงแม่มด",
+  "Burg Grauwacht": "ปราสาทเกราว็อคท์",
+  "Der Vulkan": "ภูเขาไฟ",
   "Neues Spiel": "เกมใหม่",
   "Weiterspielen": "เล่นต่อ",
   "Kapitel wählen": "เลือกบท",
+  "Kapitel 1": "บทที่ 1",
+  "Kapitel 2": "บทที่ 2",
+  "Kapitel 3": "บทที่ 3",
+  "Kapitel 4": "บทที่ 4",
   "Zurück": "กลับ",
-  "Aktion": "คำสั่ง",
-  "Rucksack": "กระเป๋า",
+  "Schließen": "ปิด",
+  "Leer.": "ว่างเปล่า",
+  "Tippe einen Gegenstand an, um ihn einzustecken.": "แตะสิ่งของเพื่อเก็บใส่กระเป๋า",
   "Taschen leer. Noch.": "กระเป๋าว่าง ตอนนี้นะ",
   "Gehe zu": "ไปที่",
   "Schau an": "ดู",
@@ -57,27 +68,29 @@ const UI: Record<string, string> = {
   "Im Querformat siehst du die ganze Szene.": "แนวนอนจะเห็นฉากทั้งหมด",
   "Trotzdem hochkant spielen": "เล่นแนวตั้งต่อ",
   "Hotspots zeigen": "แสดงจุดที่แตะได้",
+  "Hinweis": "คำใบ้",
   "Ton an": "เปิดเสียง",
   "Ton aus": "ปิดเสียง",
   "Vollbild": "เต็มจอ",
   "Zum Titelbild": "กลับหน้าแรก",
   "Inventar": "สิ่งของ",
-  "Gegenstand wählen": "เลือกสิ่งของ",
-  "dann ins Bild tippen oder zweiten Gegenstand wählen": "แล้วแตะที่ภาพ หรือเลือกสิ่งของอีกชิ้น",
-  "Tippen = anschauen · erst „Benutze“ oder „Gib“ wählen, um ihn einzusetzen": "แตะ = ดู · เลือก “ใช้” หรือ “ให้” ก่อนจึงจะใช้ของได้",
+  "Tippen zum Fortfahren": "แตะเพื่อไปต่อ",
+  "Klicken zum Fortfahren": "คลิกเพื่อไปต่อ",
   "Tippen zum Gehen · Gedrückt halten zum Anschauen · 🔍 zeigt Hotspots": "แตะเพื่อเดิน · กดค้างเพื่อดู · 🔍 แสดงจุดที่แตะได้",
   "Tippen = gehen / ansehen / reden · Gedrückt halten = anschauen · 🔍 zeigt alle Hotspots · speichert automatisch": "แตะ = เดิน / ดู / คุย · กดค้าง = ดู · 🔍 แสดงจุดทั้งหมด · บันทึกอัตโนมัติ",
   "Verb wählen, dann auf etwas klicken · Rechtsklick = Anschauen / Reden · Leertaste überspringt Text · Spielstand speichert automatisch": "เลือกคำสั่งแล้วคลิกที่สิ่งของ · คลิกขวา = ดู / คุย · ช่องว่างข้ามข้อความ · บันทึกอัตโนมัติ · Shift+L เปลี่ยนภาษา",
-  "Weiter": "ไปต่อ",
+  "Das funktioniert so nicht.": "แบบนี้ไม่ได้ผล",
+  "Wie soll das gehen?": "จะทำได้ยังไง?",
+  "Netter Versuch, Bran.": "พยายามได้ดี แบรน",
+  "Nichts Besonderes.": "ไม่มีอะไรพิเศษ",
+  "Das lasse ich lieber hier.": "ปล่อยไว้ตรงนี้ดีกว่า",
+  "Das kann ich nicht mitnehmen.": "เอาไปไม่ได้",
+  "Was soll ich denn geben? Erst einen Gegenstand wählen.": "จะให้อะไรล่ะ? เลือกของก่อน",
+  "Das passt nicht zusammen.": "สองอย่างนี้เข้ากันไม่ได้",
+  "Ich gebe mir selbst etwas? Wie großzügig.": "ให้ของกับตัวเองเหรอ? ใจกว้างจริง",
 };
 
-const PATTERNS: [RegExp, (m: RegExpMatchArray) => string][] = [
-  [/^(\d+) Dublonen?$/, (m) => `${m[1]} ดับลูน`],
-  [/^Gemerkt! Das sind (\d) von 4 Strophen\.$/, (m) => `จำได้แล้ว! ได้ ${m[1]} จาก 4 ท่อน`],
-  [/^Du kennst bisher (\d) von 4 Strophen\. .*$/, (m) => `เจ้ารู้แล้ว ${m[1]} จาก 4 ท่อน คนที่ท่าเรือรู้ท่อนโปรดของข้าทุกคน น่าเสียดาย`],
-  [/^Wenn dir einer kommt mit: „(.*)“$/, (m) => `ถ้าใครมาว่า “${tr(m[1])}”`],
-  [/^Dann sag: „(.*)“$/, (m) => `ก็ตอบว่า “${tr(m[1])}”`],
-];
+const PATTERNS: [RegExp, (m: RegExpMatchArray) => string][] = [];
 
 export const missing = new Set<string>();
 
