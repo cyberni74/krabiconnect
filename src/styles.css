@@ -266,3 +266,13 @@ html[data-hide-grok-chrome] a[href*="grok.com"][href*="remix"] {
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+  }
+}

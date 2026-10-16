@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as FightRouteImport } from './routes/fight'
 import { Route as TideRouteImport } from './routes/tide'
 import { Route as ApiPresenceRouteImport } from './routes/api/presence'
+import { Route as ApiRtcRouteImport } from './routes/api/rtc'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FightRoute = FightRouteImport.update({
+  id: '/fight',
+  path: '/fight',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TideRoute = TideRouteImport.update({
@@ -34,39 +41,53 @@ const ApiPresenceRoute = ApiPresenceRouteImport.update({
   path: '/api/presence',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRtcRoute = ApiRtcRouteImport.update({
+  id: '/api/rtc',
+  path: '/api/rtc',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/fight': typeof FightRoute
   '/tide': typeof TideRoute
   '/api/presence': typeof ApiPresenceRoute
+  '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/fight': typeof FightRoute
   '/tide': typeof TideRoute
   '/api/presence': typeof ApiPresenceRoute
+  '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/fight': typeof FightRoute
   '/tide': typeof TideRoute
   '/api/presence': typeof ApiPresenceRoute
+  '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$' | '/tide' | '/api/presence'
+  fullPaths: '/' | '/$' | '/fight' | '/tide' | '/api/presence' | '/api/rtc'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$' | '/tide' | '/api/presence'
-  id: '__root__' | '/' | '/$' | '/tide' | '/api/presence'
+  to: '/' | '/$' | '/fight' | '/tide' | '/api/presence' | '/api/rtc'
+  id:
+    '__root__' | '/' | '/$' | '/fight' | '/tide' | '/api/presence' | '/api/rtc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  FightRoute: typeof FightRoute
   TideRoute: typeof TideRoute
   ApiPresenceRoute: typeof ApiPresenceRoute
+  ApiRtcRoute: typeof ApiRtcRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,6 +106,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fight': {
+      id: '/fight'
+      path: '/fight'
+      fullPath: '/fight'
+      preLoaderRoute: typeof FightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tide': {
       id: '/tide'
       path: '/tide'
@@ -99,14 +127,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPresenceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/rtc': {
+      id: '/api/rtc'
+      path: '/api/rtc'
+      fullPath: '/api/rtc'
+      preLoaderRoute: typeof ApiRtcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  FightRoute: FightRoute,
   TideRoute: TideRoute,
   ApiPresenceRoute: ApiPresenceRoute,
+  ApiRtcRoute: ApiRtcRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
