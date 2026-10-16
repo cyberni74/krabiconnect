@@ -1,4 +1,4 @@
-import { CHARS, CHAR_IDS } from "@/lib/fight/data";
+import { CHARS, CHAR_IDS, spriteUrl } from "@/lib/fight/data";
 import { ArcadeButton, DISPLAY, Kbd } from "./ui";
 
 const ROWS: [string, React.ReactNode][] = [
@@ -67,7 +67,7 @@ export function MoveList({ onClose }: { onClose: () => void }) {
             const c = CHARS[id];
             return (
               <div key={id} className="flex gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <img src={`/fight/${id}_idle.webp`} alt="" className="h-20 w-12 object-contain" />
+                <img src={spriteUrl(id, "idle")} alt="" className="h-20 w-12 object-contain" />
                 <div className="text-xs leading-relaxed text-white/75">
                   <p className="text-sm text-white" style={{ ...DISPLAY, color: c.color }}>
                     {c.name}

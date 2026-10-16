@@ -369,14 +369,14 @@ function Preview({ slot, char, ready, label }: { slot: 0 | 1; char: CharId; read
         src={spriteUrl(char, ready ? "special" : "idle")}
         alt={d.name}
         className={cn(
-          "pointer-events-none absolute bottom-0 h-[78%] max-w-none animate-[fadeIn_.25s_ease-out] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]",
+          "pointer-events-none absolute bottom-0 hidden h-[78%] max-w-none animate-[fadeIn_.25s_ease-out] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] sm:block",
           slot === 0 ? "left-1/2 -translate-x-1/2" : "right-1/2 translate-x-1/2 -scale-x-100",
         )}
         draggable={false}
       />
       <div className="relative z-10">
         <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold text-white", slot === 0 ? "bg-rose-500" : "bg-sky-500")}>{label}</span>
-        <h3 className="mt-1 text-2xl leading-none text-white sm:text-4xl" style={DISPLAY}>
+        <h3 className="mt-1 text-lg leading-none text-white sm:text-4xl" style={DISPLAY}>
           {d.name}
         </h3>
         <p className="text-xs text-white/70 sm:text-sm">{d.title}</p>

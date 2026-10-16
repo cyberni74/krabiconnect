@@ -16,3 +16,6 @@ tmp
 .grok/preview.pid
 attachments
 artifacts
+artifact/dist/
+artifact/page.html
+artifact/page.html

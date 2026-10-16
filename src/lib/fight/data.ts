@@ -591,9 +591,11 @@ export const STAGES: Record<StageId, StageDef> = {
 
 export const STAGE_IDS: StageId[] = ["bahnhof", "berlin", "reeperbahn", "koeln", "wiesn", "zeche"];
 
-export const spriteUrl = (c: CharId, p: PoseId) => `/fight/${c}_${SPRITES[c]?.[p]?.src ?? p}.webp`;
-export const stageUrl = (s: StageId) => `/fight/stage_${s}.webp`;
+const BASE = import.meta.env.BASE_URL;
+
+export const spriteUrl = (c: CharId, p: PoseId) => `${BASE}fight/${c}_${SPRITES[c]?.[p]?.src ?? p}.webp`;
+export const stageUrl = (s: StageId) => `${BASE}fight/stage_${s}.webp`;
 
 export type FxId = "hit" | "heavy" | "block" | "fire" | "volt" | "quake" | "water" | "ko" | "dust" | "aura";
 export const FX_IDS: FxId[] = ["hit", "heavy", "block", "fire", "volt", "quake", "water", "ko", "dust", "aura"];
-export const fxUrl = (f: FxId) => `/fight/fx_${f}.webp`;
+export const fxUrl = (f: FxId) => `${BASE}fight/fx_${f}.webp`;
