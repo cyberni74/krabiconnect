@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FightAI, type Difficulty } from "@/lib/fight/ai";
 import type { Sfx } from "@/lib/fight/audio";
-import { CHARS, type CharId, type StageId } from "@/lib/fight/data";
+import { CHARS, spriteUrl, type CharId, type StageId } from "@/lib/fight/data";
 import { IN, VIEW_H, VIEW_W, createGame, step, type GameState } from "@/lib/fight/engine";
 import { InputHub } from "@/lib/fight/input";
 import type { FightNet, NetMsg } from "@/lib/fight/net";
@@ -249,7 +249,7 @@ export function FightView({ mode, p1, p2, stage, difficulty, net, sfx, netMessag
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
             <div className="flex w-full max-w-xl flex-col items-center gap-3 px-4 text-center">
               {winnerChar && (
-                <img src={`/fight/${winnerChar}_special.webp`} alt="" className="h-24 object-contain drop-shadow-[0_0_30px_rgba(251,191,36,0.6)] sm:h-40" />
+                <img src={spriteUrl(winnerChar, "special")} alt="" className="h-24 object-contain drop-shadow-[0_0_30px_rgba(251,191,36,0.6)] sm:h-40" />
               )}
               <h3 className="text-3xl leading-none text-white sm:text-5xl" style={DISPLAY}>
                 {matchWinner === -1 ? "UNENTSCHIEDEN" : mode === "local" ? `P${matchWinner + 1} GEWINNT` : youWon ? "SIEG!" : "NIEDERLAGE"}

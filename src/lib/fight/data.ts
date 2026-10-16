@@ -1,6 +1,6 @@
 import sprites from "./sprites.json";
 
-export type CharId = "kai" | "rin" | "brutus" | "nova";
+export type CharId = "king" | "streamer" | "gymbro" | "queen";
 export type StageId = "bahnhof" | "berlin" | "reeperbahn" | "koeln" | "wiesn" | "zeche";
 export type PoseId =
   | "idle"
@@ -22,6 +22,8 @@ export interface SpriteMeta {
   hr?: number;
   /** Drawn width relative to the standing height (lying poses). */
   wr?: number;
+  /** Pose has no own art: draw this pose's image with a procedural transform. */
+  src?: PoseId;
 }
 
 export const SPRITES = sprites as Record<CharId, Record<PoseId, SpriteMeta>>;
@@ -262,24 +264,24 @@ const throwMove: MoveDef = {
 export const COMMON_MOVES = { jab, heavy, lowPunch, sweep, airPunch, airKick, upper, throwMove };
 
 export const CHARS: Record<CharId, CharDef> = {
-  kai: {
-    id: "kai",
-    name: "KAI",
-    title: "Der Gezeitenbrecher",
-    origin: "Krabi, Thailand",
-    color: "#e5383b",
-    color2: "#ffd166",
+  king: {
+    id: "king",
+    name: "LIVE-KÖNIG",
+    title: "Der Geschenke-Regen",
+    origin: "24/7 live",
+    color: "#facc15",
+    color2: "#a855f7",
     size: 1,
     hp: 1000,
     speed: 1.1,
     power: 1,
     jump: 1,
-    passive: "Flow",
-    passiveDesc: "Jeder Treffer in Combo lädt +50 % Super-Energie.",
+    passive: "Combo-Streak",
+    passiveDesc: "Jeder Combo-Treffer lädt +50 % Super-Energie.",
     stats: { power: 4, speed: 4, defense: 3, range: 3 },
     special: {
-      id: "tidalKnee",
-      name: "Tidal Knee",
+      id: "giftRush",
+      name: "Gift-Rush",
       pose: "special",
       startup: 7,
       active: 14,
@@ -297,8 +299,8 @@ export const CHARS: Record<CharId, CharDef> = {
       meter: 10,
     },
     superMove: {
-      id: "monsoonRush",
-      name: "MONSUN-STURM",
+      id: "megaGift",
+      name: "MEGA-GESCHENK",
       pose: "special",
       startup: 6,
       active: 34,
@@ -317,14 +319,14 @@ export const CHARS: Record<CharId, CharDef> = {
       meter: 0,
     },
   },
-  rin: {
-    id: "rin",
-    name: "RIN",
-    title: "Die Volt-Kunoichi",
-    origin: "Neo-Bangkok",
+  streamer: {
+    id: "streamer",
+    name: "STREAMERIN",
+    title: "Die Lag-Hexe",
+    origin: "Gaming-Zimmer, 3 Uhr nachts",
     color: "#22d3ee",
-    color2: "#3b82f6",
-    size: 0.97,
+    color2: "#ec4899",
+    size: 0.95,
     hp: 900,
     speed: 1.22,
     power: 0.92,
@@ -333,8 +335,8 @@ export const CHARS: Record<CharId, CharDef> = {
     passiveDesc: "Kann in der Luft ein zweites Mal springen.",
     stats: { power: 3, speed: 5, defense: 2, range: 4 },
     special: {
-      id: "voltShot",
-      name: "Volt Shot",
+      id: "lagBolt",
+      name: "Lag-Blitz",
       pose: "special",
       startup: 11,
       active: 2,
@@ -364,8 +366,8 @@ export const CHARS: Record<CharId, CharDef> = {
       },
     },
     superMove: {
-      id: "thunderLance",
-      name: "DONNERLANZE",
+      id: "liveBeam",
+      name: "LIVE-BEAM",
       pose: "special",
       startup: 10,
       active: 40,
@@ -398,24 +400,24 @@ export const CHARS: Record<CharId, CharDef> = {
       },
     },
   },
-  brutus: {
-    id: "brutus",
-    name: "BRUTUS",
-    title: "Der Eisenbär",
-    origin: "Phuket Underground",
-    color: "#22c55e",
-    color2: "#a3e635",
+  gymbro: {
+    id: "gymbro",
+    name: "GYMBRO",
+    title: "Der Protein-Panzer",
+    origin: "Fitnessstudio, Bank 3",
+    color: "#84cc16",
+    color2: "#ef4444",
     size: 1.12,
     hp: 1120,
     speed: 0.82,
     power: 1.12,
     jump: 0.9,
-    passive: "Eisenhaut",
-    passiveDesc: "Roundhouse & Quake Slam absorbieren einen Treffer (Super-Armor).",
+    passive: "Pump",
+    passiveDesc: "Roundhouse & Protein-Beben halten einen Treffer aus (Super-Armor).",
     stats: { power: 5, speed: 2, defense: 5, range: 3 },
     special: {
-      id: "quakeSlam",
-      name: "Quake Slam",
+      id: "proteinQuake",
+      name: "Protein-Beben",
       pose: "special",
       startup: 17,
       active: 3,
@@ -448,8 +450,8 @@ export const CHARS: Record<CharId, CharDef> = {
       },
     },
     superMove: {
-      id: "titanQuake",
-      name: "TITANEN-BEBEN",
+      id: "legDay",
+      name: "LEG-DAY-BEBEN",
       pose: "special",
       startup: 14,
       active: 3,
@@ -482,24 +484,24 @@ export const CHARS: Record<CharId, CharDef> = {
       },
     },
   },
-  nova: {
-    id: "nova",
-    name: "NOVA",
-    title: "Die Feuermönchin",
-    origin: "Tempel von Tiger Cave",
-    color: "#f97316",
-    color2: "#facc15",
-    size: 0.95,
+  queen: {
+    id: "queen",
+    name: "TREND-QUEEN",
+    title: "Die Flammen-Tänzerin",
+    origin: "For You Page",
+    color: "#f43f5e",
+    color2: "#a855f7",
+    size: 0.98,
     hp: 950,
     speed: 1,
     power: 1,
     jump: 1,
-    passive: "Glut",
-    passiveDesc: "Ihre Spezialangriffe setzen den Gegner in Brand (Schaden über Zeit).",
+    passive: "Shitstorm",
+    passiveDesc: "Ihre Feuerangriffe setzen den Gegner in Brand (Schaden über Zeit).",
     stats: { power: 4, speed: 3, defense: 3, range: 5 },
     special: {
-      id: "blazeOrb",
-      name: "Blaze Orb",
+      id: "trendFire",
+      name: "Trend-Feuer",
       pose: "special",
       startup: 12,
       active: 2,
@@ -529,8 +531,8 @@ export const CHARS: Record<CharId, CharDef> = {
       },
     },
     superMove: {
-      id: "phoenixInferno",
-      name: "PHÖNIX-INFERNO",
+      id: "fypInferno",
+      name: "FYP-INFERNO",
       pose: "special",
       startup: 12,
       active: 2,
@@ -564,7 +566,7 @@ export const CHARS: Record<CharId, CharDef> = {
   },
 };
 
-export const CHAR_IDS: CharId[] = ["kai", "rin", "brutus", "nova"];
+export const CHAR_IDS: CharId[] = ["king", "streamer", "gymbro", "queen"];
 
 export type Ambient = "rain" | "embers" | "confetti" | "dust" | "none";
 
@@ -589,7 +591,7 @@ export const STAGES: Record<StageId, StageDef> = {
 
 export const STAGE_IDS: StageId[] = ["bahnhof", "berlin", "reeperbahn", "koeln", "wiesn", "zeche"];
 
-export const spriteUrl = (c: CharId, p: PoseId) => `/fight/${c}_${p}.webp`;
+export const spriteUrl = (c: CharId, p: PoseId) => `/fight/${c}_${SPRITES[c]?.[p]?.src ?? p}.webp`;
 export const stageUrl = (s: StageId) => `/fight/stage_${s}.webp`;
 
 export type FxId = "hit" | "heavy" | "block" | "fire" | "volt" | "quake" | "water" | "ko" | "dust" | "aura";

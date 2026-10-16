@@ -309,7 +309,7 @@ function TitleScreen({
   onMode: (m: Mode) => void;
   onMoves: () => void;
 }) {
-  const [hero, setHero] = useState<[CharId, CharId]>(["kai", "nova"]);
+  const [hero, setHero] = useState<[CharId, CharId]>(["king", "queen"]);
   useEffect(() => {
     const iv = setInterval(() => {
       setHero(() => {

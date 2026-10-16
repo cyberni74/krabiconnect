@@ -445,6 +445,40 @@ function spriteBox(f: Fighter, pose: PoseId) {
   return { dw, dh, ax: meta.ax };
 }
 
+interface Xform {
+  rot: number;
+  sx: number;
+  sy: number;
+  dx: number;
+  ko?: boolean;
+}
+
+/** Fake a pose from the idle image when a fighter has no art for it. */
+function simulatedPose(pose: PoseId): Xform {
+  switch (pose) {
+    case "punch":
+      return { rot: 0.1, sx: 1.05, sy: 0.98, dx: 14 };
+    case "kick":
+      return { rot: -0.22, sx: 1, sy: 0.96, dx: -6 };
+    case "block":
+      return { rot: -0.06, sx: 0.93, sy: 0.97, dx: -6 };
+    case "hit":
+      return { rot: -0.3, sx: 1, sy: 1, dx: -16 };
+    case "crouch":
+      return { rot: 0, sx: 1.08, sy: 0.72, dx: 0 };
+    case "jump":
+      return { rot: 0.12, sx: 1, sy: 0.88, dx: 0 };
+    case "special":
+      return { rot: 0.08, sx: 1.07, sy: 1.02, dx: 10 };
+    case "ko":
+      return { rot: -Math.PI / 2, sx: 1, sy: 1, dx: 0, ko: true };
+    default:
+      return { rot: 0, sx: 1, sy: 1, dx: 0 };
+  }
+}
+
+const isSimulated = (c: CharId, pose: PoseId) => !!SPRITES[c][pose].src;
+
 function drawSprite(
   ctx: CanvasRenderingContext2D,
   f: Fighter,
@@ -460,6 +494,13 @@ function drawSprite(
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(facing, 1);
+  if (isSimulated(f.char, pose)) {
+    const t = simulatedPose(pose);
+    // A lying body rests on its side: lift it by the part that would sink below ground.
+    ctx.translate(t.dx, t.ko ? -ax * dw * 0.9 : 0);
+    ctx.rotate(t.rot);
+    ctx.scale(t.sx, t.sy);
+  }
   if (opts.rot) ctx.rotate(opts.rot);
   const sy = 1 + (opts.bob ?? 0);
   const sx = 1 - (opts.bob ?? 0) * 0.5;
@@ -545,13 +586,59 @@ function drawFighter(ctx: CanvasRenderingContext2D, s: GameState, rs: RenderStat
     ctx.restore();
   }
 
-  // Water vortex around Kai's rush moves.
-  if (m && (m.id === "tidalKnee" || m.id === "monsoonRush") && f.t >= m.startup - 2) {
-    drawFx(ctx, "water", x + f.facing * 25, y - 115 * c.size, 210 * c.size, {
+  // Golden gift storm around the Live-König's rush moves.
+  if (m && (m.id === "giftRush" || m.id === "megaGift") && f.t >= m.startup - 2) {
+    drawFx(ctx, "ko", x + f.facing * 30, y - 120 * c.size, 200 * c.size, {
       rot: (now / 90) * f.facing,
-      alpha: 0.9,
-      flip: f.facing < 0,
+      alpha: 0.8,
+      additive: true,
     });
+  }
+
+  // Simulated attack poses get a motion swoosh at the hitbox so the hit reads clearly.
+  if (m && !m.proj && m.hb.w > 0 && isSimulated(f.char, pose) && f.t >= m.startup - 1 && f.t < m.startup + m.active + 2) {
+    const sz = c.size;
+    const near = x + f.facing * m.hb.x * sz;
+    const far = x + f.facing * (m.hb.x + m.hb.w) * sz;
+    const hy = y - (m.hb.y + m.hb.h / 2) * sz;
+    const prog = (f.t - m.startup + 1) / (m.active + 3);
+    ctx.save();
+    ctx.globalAlpha = 1 - prog * 0.7;
+    ctx.lineCap = "round";
+    for (let k = -1; k <= 1; k++) {
+      ctx.strokeStyle = k === 0 ? "#ffffff" : c.color;
+      ctx.lineWidth = k === 0 ? 5 : 3;
+      ctx.beginPath();
+      ctx.moveTo(near - f.facing * 20, hy + k * 14);
+      ctx.lineTo(far, hy + k * 6);
+      ctx.stroke();
+    }
+    const g = ctx.createRadialGradient(far, hy, 2, far, hy, 34 * sz);
+    g.addColorStop(0, "rgba(255,255,255,0.95)");
+    g.addColorStop(0.4, `${c.color}cc`);
+    g.addColorStop(1, `${c.color}00`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(far, hy, 34 * sz, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Charge glow while winding up a projectile.
+  if (m?.proj && f.t < m.startup + 2 && f.state === "attack") {
+    const hx = x + f.facing * 70 * c.size;
+    const hy = y - 140 * c.size;
+    const r = 18 + (f.t / Math.max(1, m.startup)) * 30;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const g = ctx.createRadialGradient(hx, hy, 1, hx, hy, r);
+    g.addColorStop(0, "rgba(255,255,255,0.9)");
+    g.addColorStop(1, `${c.color}00`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(hx, hy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   // Super aura.

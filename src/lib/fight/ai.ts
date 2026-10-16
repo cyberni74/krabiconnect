@@ -73,7 +73,7 @@ export class FightAI {
         plan = IN.U | toward;
         hold = 6;
         this.seq = [IN.U | toward, ...Array(12).fill(toward), IN.K];
-      } else if (r < 0.45 && f.char === "kai") {
+      } else if (r < 0.45 && f.char === "king") {
         plan = IN.S;
         hold = 3;
       } else if (r < 0.55) {

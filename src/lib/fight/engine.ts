@@ -452,7 +452,7 @@ function handleInput(s: GameState, i: 0 | 1, input: number) {
         return;
       }
     }
-    if (f.state === "jump" && f.char === "rin" && !f.doubleJumpUsed && pressed & IN.U) {
+    if (f.state === "jump" && f.char === "streamer" && !f.doubleJumpUsed && pressed & IN.U) {
       f.doubleJumpUsed = true;
       f.vy = JUMP_V * 0.85;
       f.vx = input & IN.R ? 4.5 : input & IN.L ? -4.5 : f.vx * 0.5;
@@ -625,7 +625,7 @@ function resolveHit(
     dm &&
     !d.armorUsed &&
     d.t < dm.startup + dm.active &&
-    (dm.armor || (d.char === "brutus" && dm.id === "heavy"));
+    (dm.armor || (d.char === "gymbro" && dm.id === "heavy"));
   if (!blockOk && armored && !spec.kd) {
     d.armorUsed = true;
     d.hp -= spec.dmg * 0.5;
@@ -678,7 +678,7 @@ function resolveHit(
   const dmg = spec.dmg * CHARS[a.char].power * scale * (counter ? 1.2 : 1);
   applyDamage(s, ai, di, dmg, counter);
   a.comboDmg += dmg;
-  addMeter(a, spec.meter * (a.char === "kai" && a.combo > 1 ? 1.5 : 1));
+  addMeter(a, spec.meter * (a.char === "king" && a.combo > 1 ? 1.5 : 1));
   if (spec.burn) d.burn = 100;
 
   const airborne = d.y > 0;
@@ -843,7 +843,7 @@ function spawnProj(s: GameState, i: 0 | 1, def: ProjDef, _special: boolean) {
     hitsLeft: def.hits,
     lastHit: -99,
     def,
-    burn: f.char === "nova",
+    burn: f.char === "queen",
   });
 }
 
@@ -954,7 +954,7 @@ function checkMeleeHits(s: GameState, inputs: [number, number]) {
         launch: m.launch,
         chip: !!(m.isSpecial || m.isSuper),
         isThrow: m.isThrow,
-        burn: a.char === "nova" && !!m.isSpecial,
+        burn: a.char === "queen" && !!m.isSpecial,
         meter: m.meter,
         heavy: m.dmg >= 75 || !!m.isSuper,
       },
