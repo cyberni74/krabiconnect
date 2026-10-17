@@ -291,7 +291,7 @@ export function AdventureView() {
           {topButtons}
           {playing && (
             <div style={{ top: "calc(3rem + env(safe-area-inset-top, 0px))" }} className="pointer-events-none absolute left-1/2 z-10 max-w-[70%] -translate-x-1/2 truncate rounded-full bg-black/50 px-3 py-0.5 text-center font-[Kanit] text-sm font-semibold text-[#e9d9a8]">
-              {ui.sentence || ui.sceneTitle}
+              {(ui.sel ? ui.sentence : "") || ui.target || ui.sceneTitle}
             </div>
           )}
           {playing && !ui.choices && !ui.panel && (

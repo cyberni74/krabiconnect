@@ -20,6 +20,8 @@ export interface UiSnapshot {
   verb: Verb;
   sel: string | null;
   sentence: string;
+  /** Name of the thing under the pointer or the last one clicked; "" when none. */
+  target: string;
   inv: string[];
   choices: string[] | null;
   busy: boolean;
@@ -75,6 +77,7 @@ export class Game implements G {
   verb: Verb = "walk";
   sel: string | null = null;
   hover: Hover = null;
+  lastTarget: Hover = null;
   hoverItem: string | null = null;
   touch = false;
   muted = audio.muted;
@@ -130,6 +133,7 @@ export class Game implements G {
       verb: this.verb,
       sel: this.sel,
       sentence: this.sentence(),
+      target: this.targetName(),
       inv: [...this.inv],
       choices: this.choices?.options ?? null,
       busy: this.busy > 0,
@@ -541,6 +545,7 @@ export class Game implements G {
     if (this.skip()) return;
     if (this.busy > 0 || this.choices || this.cardState || this.panel) return;
     const t = this.thingAt(p);
+    this.lastTarget = t;
     if (!t) {
       this.sel = null;
       this.verb = "walk";
@@ -673,6 +678,13 @@ export class Game implements G {
     if (this.screen !== "play" || this.busy > 0 || this.choices || this.cardState || this.panel) return;
     audio.unlock();
     void this.runBusy(this.world.hint(this));
+  }
+
+  targetName(): string {
+    const t = this.hover ?? this.lastTarget;
+    if (t) return this.thingName(t);
+    if (this.hoverItem && this.hoverItem !== this.sel) return this.itemName(this.hoverItem);
+    return "";
   }
 
   sentence() {
