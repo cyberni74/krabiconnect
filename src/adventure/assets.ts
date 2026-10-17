@@ -18,7 +18,10 @@ export function logicalSize(kind: AssetKind, key: string): [number, number] | un
   return s && (kind === "bg" ? s : [s[0] / DENSITY, s[1] / DENSITY]);
 }
 
-export const assetUrl = (kind: AssetKind, key: string) => `/g/${kind}/${key}.webp`;
+/** Where /g/* lives; the standalone build points this at its own folder. */
+export const ASSET_BASE = (globalThis as { __ASSET_BASE?: string }).__ASSET_BASE ?? "/";
+
+export const assetUrl = (kind: AssetKind, key: string) => `${ASSET_BASE}g/${kind}/${key}.webp`;
 
 const cache = new Map<string, HTMLImageElement>();
 

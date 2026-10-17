@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { audio } from "@/adventure/audio";
-import { preload } from "@/adventure/assets";
+import { ASSET_BASE, preload } from "@/adventure/assets";
 import manifest from "@/adventure/manifest.json";
 import { Game, type UiSnapshot } from "@/adventure/engine";
 import { getLang, loadLang, onLang, setLang, tr } from "@/adventure/i18n";
@@ -10,7 +10,7 @@ import { CHAPTER_TITLES, world } from "@/adventure/world";
 type Layout = "desktop" | "landscape" | "portrait";
 
 const VERB_ICON: Record<string, string> = { walk: "👣", look: "👁️", take: "✋", use: "🔧", talk: "💬", give: "🎁" };
-const itemIcon = (id: string) => `/g/items/${id}.webp`;
+const itemIcon = (id: string) => `${ASSET_BASE}g/items/${id}.webp`;
 const GOLD = "#d8b25a";
 
 function useInstallHint(): boolean {
@@ -500,7 +500,7 @@ function TitleScreen({ hasSave, compact, onNew, onContinue, onChapter, installHi
   const [pick, setPick] = useState(false);
   const th = getLang() === "th";
   return (
-    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center" style={{ background: "#050404 url(/g/title.webp) center/cover" }}>
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center" style={{ background: `#050404 url(${ASSET_BASE}g/title.webp) center/cover` }}>
       <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/10 to-black/80" />
       <LangToggle />
       <div className="relative flex flex-col items-center">
