@@ -133,6 +133,8 @@ export interface Thing {
   give?: Record<string, Reaction>;
   /** Verb performed when the thing is tapped with the automatic verb (default derived). */
   primary?: Verb;
+  /** Sparkle only while true (e.g. a take-able item is still there). Default: always for primary "take". */
+  glint?: (g: G) => boolean;
 }
 
 export type FxKind = "fog" | "embers" | "dust" | "rain" | "ash" | "fireflies" | "drips" | "smoke";

@@ -224,6 +224,7 @@ export const dorfplatz: SceneDef = {
       id: "galgen",
       name: "Galgen",
       sprite: (g) => (F(g, "galgen_leer") ? "galgen_leer" : "galgen"),
+      glint: (g) => !F(g, "galgen_leer"),
       x: 425,
       y: 366,
       look: (g) =>
@@ -398,16 +399,9 @@ export const dorfplatz: SceneDef = {
       x: 140,
       y: 340,
       look: "Ein Heuhaufen. In jedem steckt angeblich eine Nadel. In diesem auch noch etwas anderes.",
-      take: "Ich nehme eine Hand voll Heu. Nützlich für Pferde, die es hier nicht mehr gibt.",
-      use: async (g) => {
-        if (F(g, "taken_c1_stiefel")) return g.say("Ich wühle noch einmal. Nur Heu, Mäuse und die Erinnerung an bessere Zeiten.");
-        g.set("taken_c1_stiefel", true);
-        await g.pose("pick", 600);
-        g.add("stiefel_alt");
-        g.sfx("pickup");
-        await g.say("Ich wühle bis zum Ellbogen... und ziehe einen alten Lederstiefel heraus. Nur einen.");
-        await g.say("Wer verliert hier nur einen Stiefel? Und woher kommt der zweite Fuß? Besser, ich frage nicht.");
-      },
+      primary: "use",
+      take: (g) => wuehlen(g),
+      use: (g) => wuehlen(g),
     },
 
     /* ---------------------------------------------------------- the hearse cart (honor choice) */
@@ -525,6 +519,16 @@ async function rabeFuettern(g: G, item: string, line: string) {
   g.frame("rabe", "idle");
   await g.say("Zum Dank zupft er sich eine schwarze Feder aus und lässt sie vor mir fallen. Eine Rabenfeder. Man sagt, sie bringt Unglück. Oder Tinte.");
   await g.say("Jetzt ist er mit dem Fressen beschäftigt. Das Seil am Galgen gehört mir, wenn ich will.");
+}
+
+async function wuehlen(g: G) {
+  if (F(g, "taken_c1_stiefel")) return g.say("Ich wühle noch einmal. Nur Heu, Mäuse und die Erinnerung an bessere Zeiten.");
+  g.set("taken_c1_stiefel", true);
+  await g.pose("pick", 600);
+  g.add("stiefel_alt");
+  g.sfx("pickup");
+  await g.say("Ich wühle bis zum Ellbogen... und ziehe einen alten Lederstiefel heraus. Nur einen.");
+  await g.say("Wer verliert hier nur einen Stiefel? Und woher kommt der zweite Fuß? Besser, ich frage nicht.");
 }
 
 async function karrenWahl(g: G) {

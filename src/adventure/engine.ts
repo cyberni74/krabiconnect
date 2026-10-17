@@ -932,7 +932,7 @@ export class Game implements G {
     const env = Math.sin(k * Math.PI);
     ctx.save();
     for (const t of this.visible()) {
-      if (t.primary !== "take") continue;
+      if (t.primary !== "take" || (t.glint && !t.glint(this))) continue;
       const b = this.boxOf(t) ?? this.hitOf(t);
       if (!b) continue;
       const cx = b.x + b.w / 2;
