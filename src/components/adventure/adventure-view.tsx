@@ -285,7 +285,7 @@ export function AdventureView() {
   /* ---------- compact landscape: full-screen canvas + floating controls ---------- */
   if (compact) {
     return (
-      <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none" }}>
+      <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none", padding: "calc(env(safe-area-inset-top, 0px) + var(--embed-top, 0px)) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)", boxSizing: "border-box" }}>
         <div ref={wrapRef} className="relative max-h-full w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc(100dvh * ${W / H})` }}>
           {canvasEl}
           {topButtons}
