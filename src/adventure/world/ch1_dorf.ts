@@ -131,6 +131,8 @@ export const dorfplatz: SceneDef = {
             text: "Was ist mit dem Leichenkarren?",
             show: () => true,
             run: async () => {
+              if (F(g, "c1_beutel_genommen")) return says(g, "brandt", "Der Beutel fehlt, und du hast die Miene eines Diebes. Ich habe nichts gesehen. Lass dir das nicht zur Gewohnheit werden.");
+              if (F(g, "c1_tuch_gelegt")) return says(g, "brandt", "Du hast ihn zugedeckt. Das war anständig. Der Fuhrmann hat es verdient.");
               await says(g, "brandt", "Der steht seit gestern da. Der Fuhrmann ist an Schlimmerem gestorben als am Karren.");
               await says(g, "brandt", "Wer noch Anstand hat, deckt ihn zu. Wer keinen hat, durchsucht ihn. Ich schaue nicht hin, ich bin im Dienst.");
             },
@@ -199,6 +201,8 @@ export const dorfplatz: SceneDef = {
           {
             text: "Was ist mit dem Leichenkarren?",
             run: async () => {
+              if (F(g, "c1_beutel_genommen")) return says(g, "hilda", "Man hat Bertold den Beutel vom Gürtel geschnitten. Das ist das Letzte, was ein Toter braucht. Schäm dich, Junge.");
+              if (F(g, "c1_tuch_gelegt")) return says(g, "hilda", "Du hast ihn zugedeckt. Danke, Junge. Die Toten merken sich so etwas.");
               await says(g, "hilda", "Der arme Bertold. Fuhrmann, immer pünktlich. Nur diesmal zu pünktlich.");
               await says(g, "hilda", "Keiner deckt ihn zu. Ich würde es tun, aber meine Knie... Wenn du Anstand hast, Junge, hilf ihm. Die Toten merken sich so etwas.");
             },

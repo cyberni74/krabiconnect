@@ -20,7 +20,7 @@ async function pour(g: G) {
 async function pump(g: G) {
   if (!F(g, "c1_blasebalg_heil")) {
     g.sfx("wrong");
-    return g.say("Der Blasebalg faucht, aber die Luft pfeift durch ein Loch in der Seite. Ein Windstoß für die Maus, keiner für die Esse.");
+    return g.say("Der Blasebalg faucht, aber die Luft pfeift durch ein Loch in der Seite. Ein Windstoß für die Maus, keiner für die Esse. Das Loch muss zu: ein Stück Leder darüber, mit Nadel und Zwirn festnähen.");
   }
   const s = st(g);
   if (s < 2) return g.say("Luft in einen kalten Kamin? Nur Asche fliegt mir ins Gesicht. Zuerst muss etwas brennen.");
@@ -321,7 +321,7 @@ export const schmiede: SceneDef = {
       sprite: (g) => (F(g, "c1_blasebalg_heil") ? "blasebalg_heil" : "blasebalg_kaputt"),
       x: 448,
       y: 352,
-      look: (g) => (F(g, "c1_blasebalg_heil") ? "Der Blasebalg, notdürftig mit Stiefelleder geflickt. Er hält. Meistens." : "Ein riesiger Blasebalg mit einem Loch von der Größe einer Faust. Das pfeift schön, aber nicht nützlich."),
+      look: (g) => (F(g, "c1_blasebalg_heil") ? "Der Blasebalg, notdürftig mit Stiefelleder geflickt. Er hält. Meistens." : "Ein riesiger Blasebalg mit einem Loch von der Größe einer Faust. Ein Stück Leder darüber, mit Nadel und Zwirn festgenäht, und er hält. Benutze Stiefel oder Nadel und Zwirn darauf."),
       take: "Zu schwer, zu groß, zu festgenagelt.",
       use: (g) => pump(g),
       useWith: {
