@@ -253,7 +253,7 @@ export const waldrand: SceneDef = {
           await g.say("Die Falle steht offen wie ein Maul. Jetzt fehlt noch ein Köder.");
         },
         wurst: (g) => bait(g, "wurst"),
-        knochen: (g) => bait(g, "knochen"),
+        knochen: "Ein abgenagter Knochen? Den hat schon jemand verschmäht. Der Wolf will etwas mit Fleisch dran. Wurst, am besten.",
         brot_alt: "Brot als Köder? Wölfe sind keine Raben. Sie wollen etwas, das einmal gelebt hat.",
         tote_ratte: "Eine tote Ratte als Köder? Der Wolf schaut mich beleidigt an. Es muss mehr sein. Wurst, am besten.",
       },
