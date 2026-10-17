@@ -268,7 +268,7 @@ export function AdventureView() {
   );
 
   const topButtons = playing && (
-    <div className="absolute right-2 top-2 z-20 flex gap-1.5" style={compact ? { right: "max(0.5rem, env(safe-area-inset-right))" } : undefined}>
+    <div className="absolute right-2 top-2 z-20 flex gap-1.5" style={compact ? { right: "max(0.5rem, env(safe-area-inset-right))", top: "calc(0.5rem + env(safe-area-inset-top, 0px))" } : undefined}>
       <IconBtn label={tr("Hinweis")} onClick={() => game.showHint()}>💡</IconBtn>
       <IconBtn label={tr("Hotspots zeigen")} onClick={() => game.reveal()}>🔍</IconBtn>
       <IconBtn label={tr(ui.muted ? "Ton an" : "Ton aus")} onClick={() => { audio.unlock(); audio.toggleMute(); game.emit(); }}>
@@ -285,18 +285,18 @@ export function AdventureView() {
   /* ---------- compact landscape: full-screen canvas + floating controls ---------- */
   if (compact) {
     return (
-      <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none", padding: "calc(env(safe-area-inset-top, 0px) + var(--embed-top, 0px)) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)", boxSizing: "border-box" }}>
+      <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none",  }}>
         <div ref={wrapRef} className="relative max-h-full w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc(100dvh * ${W / H})` }}>
           {canvasEl}
           {topButtons}
           {playing && (
-            <div className="pointer-events-none absolute left-1/2 top-12 z-10 max-w-[70%] -translate-x-1/2 truncate rounded-full bg-black/50 px-3 py-0.5 text-center font-[Kanit] text-sm font-semibold text-[#e9d9a8]">
+            <div style={{ top: "calc(3rem + env(safe-area-inset-top, 0px))" }} className="pointer-events-none absolute left-1/2 z-10 max-w-[70%] -translate-x-1/2 truncate rounded-full bg-black/50 px-3 py-0.5 text-center font-[Kanit] text-sm font-semibold text-[#e9d9a8]">
               {ui.sentence || ui.sceneTitle}
             </div>
           )}
           {playing && !ui.choices && !ui.panel && (
             <>
-              <div className="absolute top-2 z-20 flex items-center gap-1" style={{ left: "max(0.5rem, env(safe-area-inset-left))" }}>
+              <div className="absolute top-2 z-20 flex items-center gap-1" style={{ left: "max(0.5rem, env(safe-area-inset-left))", top: "calc(0.5rem + env(safe-area-inset-top, 0px))" }}>
                 {VERBS.map((v) => (
                   <button
                     key={v.id}
