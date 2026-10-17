@@ -542,10 +542,14 @@ export class Game implements G {
   click(p: Pt, alt = false) {
     audio.unlock();
     if (this.screen !== "play") return;
+    // Name the target first, so it also shows when the click only skips text or arrives mid-walk.
+    const t = this.thingAt(p);
+    if (t !== this.lastTarget) {
+      this.lastTarget = t;
+      this.emit();
+    }
     if (this.skip()) return;
     if (this.busy > 0 || this.choices || this.cardState || this.panel) return;
-    const t = this.thingAt(p);
-    this.lastTarget = t;
     if (!t) {
       this.sel = null;
       this.verb = "walk";
