@@ -7,6 +7,31 @@ import { F, txt } from "./ch1_shared";
  * waldrand — Wölfe, Wolfsfalle mit Köder, sterbender Ser Halvard (Bürge)
  * ========================================================================= */
 
+async function bait(g: G, item: string) {
+  if (F(g, "c1_falle_zu")) return g.say("Die Falle ist schon zugeschnappt. Der Köder wäre jetzt Verschwendung.");
+  if (!F(g, "c1_falle_heil")) return g.say("In eine kaputte Falle einen Köder legen? Dann hole ich mir nur Mäuse. Zuerst muss der Bolzen repariert werden.");
+  g.remove(item);
+  g.set("c1_koeder", true);
+  await g.pose("use", 600);
+  await g.say(item === "wurst" ? "Ich lege die Räucherwurst auf den Auslöser. Der Duft zieht durch den Nebel wie ein Versprechen." : "Ich lege den Knochen auf den Auslöser. Er riecht nach Hoffnung und alten Zeiten.");
+  await g.walk(640, 405);
+  await g.say("Ich verstecke mich hinter dem Baumstumpf und halte die Luft an.");
+  await g.wait(500);
+  g.frame("wolf1", "idle");
+  await g.moveNpc("wolf1", 470, 396, 900);
+  g.sfx("clank");
+  g.shake(500);
+  g.set("c1_falle_zu", true);
+  await g.say("KLACK! Ein Jaulen, ein Zerren. Der Wolf reißt sich los, mit eingeklemmtem Schweif und gekränkter Ehre.");
+  g.frame("wolf1", "flee");
+  g.frame("wolf2", "flee");
+  const w1 = g.moveNpc("wolf1", -80, 380, 900);
+  const w2 = g.moveNpc("wolf2", -80, 410, 1100);
+  await Promise.all([w1, w2]);
+  g.set("c1_wolves_weg", true);
+  await g.say("Beide Wölfe sind im Wald verschwunden, mit dem Köder im Magen und einem Schwur auf Rache. Die Bahn zu Halvard ist frei.");
+}
+
 const halvard = (g: G, ...l: string[]) => says(g, "halvard", ...l);
 const wolvesGone = (g: G) => F(g, "c1_wolves_weg");
 
@@ -227,30 +252,8 @@ export const waldrand: SceneDef = {
           await g.say("Ich schiebe den Nagel durch das Scharnier. Dann spanne ich die Federn auseinander, vorsichtig, wie eine Kreuzotter. Klack.");
           await g.say("Die Falle steht offen wie ein Maul. Jetzt fehlt noch ein Köder.");
         },
-        wurst: async (g) => {
-          if (F(g, "c1_falle_zu")) return g.say("Die Falle ist schon zugeschnappt. Wurst wäre jetzt Verschwendung.");
-          if (!F(g, "c1_falle_heil")) return g.say("In eine kaputte Falle Wurst legen? Dann hole ich mir nur Mäuse. Zuerst muss der Bolzen repariert werden.");
-          g.remove("wurst");
-          g.set("c1_koeder", true);
-          await g.pose("use", 600);
-          await g.say("Ich lege die Räucherwurst auf den Auslöser. Der Duft zieht durch den Nebel wie ein Versprechen.");
-          await g.walk(640, 405);
-          await g.say("Ich verstecke mich hinter dem Baumstumpf und halte die Luft an.");
-          await g.wait(500);
-          g.frame("wolf1", "idle");
-          await g.moveNpc("wolf1", 470, 396, 900);
-          g.sfx("clank");
-          g.shake(500);
-          g.set("c1_falle_zu", true);
-          await g.say("KLACK! Ein Jaulen, ein Zerren. Der Wolf reißt sich los, mit eingeklemmtem Schweif und gekränkter Ehre.");
-          g.frame("wolf1", "flee");
-          g.frame("wolf2", "flee");
-          const w1 = g.moveNpc("wolf1", -80, 380, 900);
-          const w2 = g.moveNpc("wolf2", -80, 410, 1100);
-          await Promise.all([w1, w2]);
-          g.set("c1_wolves_weg", true);
-          await g.say("Beide Wölfe sind im Wald verschwunden, mit der Wurst im Magen und einem Schwur auf Rache. Die Bahn zu Halvard ist frei.");
-        },
+        wurst: (g) => bait(g, "wurst"),
+        knochen: (g) => bait(g, "knochen"),
         brot_alt: "Brot als Köder? Wölfe sind keine Raben. Sie wollen etwas, das einmal gelebt hat.",
         tote_ratte: "Eine tote Ratte als Köder? Der Wolf schaut mich beleidigt an. Es muss mehr sein. Wurst, am besten.",
       },

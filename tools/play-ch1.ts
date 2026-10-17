@@ -139,9 +139,10 @@ expectSay("Bolzen");
 h.expectInv("wurst");
 await h.act(W, "falle", "use", "nagel");
 h.expectFlag("c1_falle_heil");
-await h.act(W, "falle", "use", "wurst");
+h.g.inv.push("knochen");
+await h.act(W, "falle", "give", "knochen"); // a bone works as bait too
 h.expectFlag("c1_wolves_weg");
-h.expectNoInv("wurst");
+h.expectNoInv("knochen");
 await h.act(W, "steinhaufen", "use");
 h.take("steinhaufen", "zinnring");
 await h.act(W, "tornister", "use");
