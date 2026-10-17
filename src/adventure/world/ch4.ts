@@ -530,6 +530,7 @@ const drachenhoehle: SceneDef = {
           {
             text: "Ich bringe dir dein Ei zurück.",
             show: () => g.has("drachenei"),
+            done: () => !!g.flag("c4_ei_zurueck"),
             run: async () => {
               await endGnade(g);
               return "end" as const;
@@ -538,10 +539,12 @@ const drachenhoehle: SceneDef = {
           {
             text: "Nimm das Ei. Es liegt auf dem Altar.",
             show: () => !g.has("drachenei") && !g.flag("c4_ei_weg"),
+            done: () => !!g.flag("c4_ei_weg"),
             run: () => says(g, "drache", "Ich darf es nicht berühren, solange der Bann nicht gebrochen ist. Du musst es mir bringen. Du allein."),
           },
           {
             text: "Ich bin gekommen, um dich zu erschlagen.",
+            done: () => !!g.flag("c4_dead"),
             run: async () => {
               await says(g, "drache", "Dann tu es. Ich bin müde. Aber das Ei stirbt dann mit mir.");
               await endRache(g);
@@ -609,6 +612,7 @@ const drachenhoehle: SceneDef = {
             {
               text: "Ich werde Euch binden.",
               show: () => !g.flag("c4_malvor_tied") && g.has("seil"),
+              done: () => !!g.flag("c4_malvor_tied"),
               run: async () => {
                 await g.pose("use", 600);
                 g.remove("seil");
@@ -647,6 +651,7 @@ const drachenhoehle: SceneDef = {
           {
             text: "Was wollt Ihr von mir?",
             show: () => !g.flag("c4_bribed"),
+            done: () => !!g.flag("c4_bribed"),
             run: async () => {
               await says(g, "malvor", "Dass du gehst. Nimm das Gold, das hier liegt, so viel du tragen kannst. Ich nenne dich Ritter, noch vor Roderic. Niemand erfährt, was du gesehen hast.");
               const i = await g.choose(["Ich nehme Euer Angebot an.", "Niemals."]);
@@ -663,6 +668,7 @@ const drachenhoehle: SceneDef = {
           },
           {
             text: "Ich halte Euch auf. Hier und jetzt.",
+            done: () => !!g.flag("c4_fire"),
             run: async () => {
               await confront(g);
               return "end" as const;

@@ -109,9 +109,9 @@ export const burgtor: SceneDef = {
           await says(g, "grimm", "Totengräber. Das spart uns später die Kosten. Aber die Regeln gelten.", "Klinge, Segen, Bürge. Zeig sie vor, dann sehen wir weiter.");
         });
         await talk(g, () => [
-          { text: "Was genau muss ich vorzeigen?", run: () => says(g, "grimm", "Eine Klinge, den Segen der Kirche und einen Bürgen. Das hast du in Aschenfurt schon gehört.", "Zeig es mir einfach. Gib mir die Dinge.") },
+          { text: "Was genau muss ich vorzeigen?", done: () => !!g.flag("c3_gate_open"), run: () => says(g, "grimm", "Eine Klinge, den Segen der Kirche und einen Bürgen. Das hast du in Aschenfurt schon gehört.", "Zeig es mir einfach. Gib mir die Dinge.") },
           { text: "Ich bin ein Bote des Königs.", show: () => !proofs(g), run: async () => { await says(g, "grimm", "Aha. Dann zeig mir das königliche Siegel."); await hero(g, "Ich hatte es hier. Irgendwo. Es war da."); await says(g, "grimm", "Ich schlafe seit drei Nächten schlecht, aber so schlecht schlafe ich nicht."); } },
-          { text: "Was ist mit dem Fallgitter?", run: async () => { if (proofs(g)) await says(g, "grimm", "Das Gitter hängt, die Winde klemmt, die Kurbel ist weg. Wilm behauptet, sie sei ihm 'abhandengekommen'.", "Wenn du sie flickst, kurbeln wir. Kram in der Wachstube, Schubkarre, Fass. Schau dich um."); else await says(g, "grimm", "Erst die Beweise. Dann reden wir über Gitter."); } },
+          { text: "Was ist mit dem Fallgitter?", done: () => !!g.flag("c3_gate_open"), run: async () => { if (proofs(g)) await says(g, "grimm", "Das Gitter hängt, die Winde klemmt, die Kurbel ist weg. Wilm behauptet, sie sei ihm 'abhandengekommen'.", "Wenn du sie flickst, kurbeln wir. Kram in der Wachstube, Schubkarre, Fass. Schau dich um."); else await says(g, "grimm", "Erst die Beweise. Dann reden wir über Gitter."); } },
           { text: "Wie steht es in der Burg?", run: async () => { await says(g, "grimm", "Der König ist krank. Der Kanzler regiert. Die Köchin gibt der Suppe die Schuld.", "Ich gebe der Pest die Schuld. Aber das ist nur mein Dienstgrad."); } },
           { text: "Wer ist der Kanzler?", show: () => !!g.flag("c3_met_grimm"), run: async () => { await says(g, "grimm", "Malvor. Ein Mann mit schönen Händen und leerem Blick. Er lässt alle Briefe durch seine Hände gehen.", "Ich sage nichts weiter. Meine Stiefel haben Ohren."); } },
           { text: "Ihr seht müde aus, Hauptmann.", run: async () => { await says(g, "grimm", "Ich bin müde, seit der König krank ist. Und der König war schon vorher müde. Das ist ansteckend."); } },
@@ -139,8 +139,8 @@ export const burgtor: SceneDef = {
       talk: async (g) => {
         await once(g, "c3_met_wilm", async () => { await says(g, "wilm", "Psst. Wenn der Hauptmann fragt: Ich stehe aufrecht und nüchtern. Beides.", "Wilm, Torwache. Ich habe vier Dienstjahre und zwei Kinder, von denen eines von mir ist."); });
         await talk(g, () => [
-          { text: "Was stimmt mit der Winde nicht?", run: async () => { await says(g, "wilm", "Die klemmt. Rost, Pech, Bosheit. Die Kurbel hat der Winter geholt. Oder ich.", "Ein Stück Eisen, lang und stark, sollte reichen. Die Schubkarre da hinten ist voll damit."); } },
-          { text: "Brauche ich Schmiere für die Winde?", run: () => says(g, "wilm", "Schmiere? Unser Pechfass! Pech ist zäh und stinkt. Wie unser Hauptmann.") },
+          { text: "Was stimmt mit der Winde nicht?", done: () => !!g.flag("c3_winde_kurbel"), run: async () => { await says(g, "wilm", "Die klemmt. Rost, Pech, Bosheit. Die Kurbel hat der Winter geholt. Oder ich.", "Ein Stück Eisen, lang und stark, sollte reichen. Die Schubkarre da hinten ist voll damit."); } },
+          { text: "Brauche ich Schmiere für die Winde?", done: () => !!g.flag("c3_winde_fett"), run: () => says(g, "wilm", "Schmiere? Unser Pechfass! Pech ist zäh und stinkt. Wie unser Hauptmann.") },
           { text: "Du siehst durstig aus.", show: () => !g.flag("c3_wilm_drunk"), run: async () => { await says(g, "wilm", "Durstig? Ich? Ein Mann des Dienstes, der niemals trinkt? Ha.", "Gut, da steht das Weinfass des Hauptmanns. Ein Becher hängt unterm Wachtisch. Ich habe nichts gesagt."); } },
           { text: "Wie ist der Hauptmann so?", run: () => says(g, "wilm", "Grimm? Der beste. Er brüllt nur, wenn ihn jemand sieht, der ihn dafür bezahlt.") },
           { text: "Wie läuft's in der Burg?", run: () => says(g, "wilm", "Der König liegt im Bett. Der Kanzler im Ohr des Königs. Und die Köchin in Dauerfehde mit dem Knappen Eduard.") },

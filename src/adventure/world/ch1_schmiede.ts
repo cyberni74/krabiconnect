@@ -24,13 +24,11 @@ async function pump(g: G) {
   }
   const s = st(g);
   if (s < 2) return g.say("Luft in einen kalten Kamin? Nur Asche fliegt mir ins Gesicht. Zuerst muss etwas brennen.");
-  if (s > 3) return g.say("Genug geblasen. Zu viel Wind verbrennt das Eisen, sagt Gero. Und er muss es wissen.");
-  await g.pose("use", 500);
-  g.sfx("fire");
-  const n = g.inc("c1_pumps");
-  if (n < 3) {
-    await g.say(n === 1 ? "Pffff. Die Glut wird heller. Ich muss weiter pumpen." : "Fffff. Die Kohlen glühen orange. Noch einmal.");
-    return;
+  if (s > 2) return g.say("Die Esse glüht schon weiß. Weiter mit dem Klingenbruch.");
+  // one click = the whole forge pumping, so the player does not have to click three times
+  for (let i = 0; i < 3; i++) {
+    await g.pose("use", 350);
+    g.sfx("fire");
   }
   g.set("c1_forge", 3);
   g.flash("#ff8030", 500);

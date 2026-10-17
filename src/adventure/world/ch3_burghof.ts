@@ -111,7 +111,7 @@ export const burghof: SceneDef = {
       talk: async (g) => {
         await once(g, "c3_met_pip", async () => { await says(g, "pip", "Neu hier? Ich bin Pip, der Stallmeister. Das sage ich, weil mir sonst keiner glaubt."); });
         await talk(g, () => [
-          { text: "Was ist mit dem Pferd los?", run: async () => { await says(g, "pip", "Donnerhuf hat sein Eisen verloren. Irgendwo im Stall, glaube ich. Vielleicht im Futtertrog.", "Aber er tritt. Er tritt jeden, der nicht nach Apfel riecht. Berta hat Äpfel."); } },
+          { text: "Was ist mit dem Pferd los?", done: () => !!g.flag("c3_t_pferd"), run: async () => { await says(g, "pip", "Donnerhuf hat sein Eisen verloren. Irgendwo im Stall, glaube ich. Vielleicht im Futtertrog.", "Aber er tritt. Er tritt jeden, der nicht nach Apfel riecht. Berta hat Äpfel."); } },
           { text: "Wo finde ich Werkzeug?", run: () => says(g, "pip", "Auf meiner Werkbank da vorn: Hammer, Nägel und anderes Zeug. Pass auf die Zange auf. Sie beißt.") },
           { text: "Wer ist Ser Eduard?", run: () => says(g, "pip", "Der Knappe, der immer den besten Platz in der Schlange hat. Er mag mich nicht. Ich mag ihn nicht. So sind wir Freunde.") },
           { text: "Hast du ein Seil?", show: () => !g.flag("c3_t_pferd"), run: () => says(g, "pip", "Klar. Aber nur für Leute, die dem Pferd helfen. Das ist die Regel. Meine Regel.") },
@@ -129,13 +129,13 @@ export const burghof: SceneDef = {
           await says(g, "roderic", "Erstens: Das Pferd Donnerhuf beschlagen. Zweitens: Die Ordensrüstung in der Rüstkammer herrichten. Drittens: Suppe zu den Gefangenen bringen.", "Viertens: Den Hof fegen. Und fünftens, aber das erfährst du von selbst.");
         });
         await talk(g, () => [
-          { text: "Wie steht meine Aufgabenliste?", run: () => says(g, "roderic", status(g, "c3_t_pferd", "Donnerhuf beschlagen"), status(g, "c3_t_ruestung", "Ordensrüstung in der Rüstkammer richten"), status(g, "c3_t_suppe", "Suppe zu den Gefangenen bringen"), status(g, "c3_t_hof", "Hof fegen")) },
+          { text: "Wie steht meine Aufgabenliste?", done: () => !!g.flag("c3_demut_done"), run: () => says(g, "roderic", status(g, "c3_t_pferd", "Donnerhuf beschlagen"), status(g, "c3_t_ruestung", "Ordensrüstung in der Rüstkammer richten"), status(g, "c3_t_suppe", "Suppe zu den Gefangenen bringen"), status(g, "c3_t_hof", "Hof fegen")) },
           { text: "Ich habe alle Aufgaben erledigt.", show: () => taskCount(g) === 4 && !g.flag("c3_demut_done"), run: async () => { await completeDemut(g); } },
           { text: "Was ist das für ein Orden?", run: () => says(g, "roderic", "Der Orden der Raben schützt die Schwachen, bewacht die Toten und verwaltet die Schulden der Lebenden.", "Meistens ist das Letzte das Anstrengendste.") },
           { text: "Wie geht es dem König?", run: async () => { await says(g, "roderic", "Schlecht. Schon seit Wochen. Die Ärzte sagen Fieber. Die Köchin sagt Schierling. Ich sage nichts, aus Gewohnheit.", "Der Kanzler lässt niemanden zu ihm außer sich selbst."); } },
           { text: "Wo ist Ser Aldric?", run: async () => { g.set("c3_met_roderic_aldric", true); await says(g, "roderic", "Aldric? Mein bester Mann. Vor Wochen zur Grenze gesandt, seither kein Wort. Der Kanzler sagt: gefallen.", "Ich sage: Aldric fällt nicht. Er stolpert höchstens, und das auch nur auf Befehl."); } },
           { text: "Wo kann ich suchen?", run: () => says(g, "roderic", "Der Burghof gehört dir. Rüstkammer links, Bibliothek rechts, Kerkerluke vorn. Der Thronsaal steht dir offen, wenn du demütig warst.") },
-          { text: "Was soll ich in der Rüstkammer?", run: () => says(g, "roderic", "Der Rüstungsständer ist leer. Brustpanzer, Helm, Armschienen liegen irgendwo. Ordnung ist die Demut des Soldaten.", "Und poliere den alten Schild, wenn du schon da bist. Du wirst nicht oft einen Spiegel in der Hand haben.") },
+          { text: "Was soll ich in der Rüstkammer?", done: () => !!g.flag("c3_t_ruestung"), run: () => says(g, "roderic", "Der Rüstungsständer ist leer. Brustpanzer, Helm, Armschienen liegen irgendwo. Ordnung ist die Demut des Soldaten.", "Und poliere den alten Schild, wenn du schon da bist. Du wirst nicht oft einen Spiegel in der Hand haben.") },
           bye("Geh. Und schlafe nicht im Stehen. Das tun nur Pferde und Hauptleute.", "roderic", g, "Auf Wiedersehen."),
         ]);
       } }),

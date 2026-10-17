@@ -74,9 +74,9 @@ export const kerker: SceneDef = {
         await once(g, "c3_met_knorr", async () => { await says(g, "knorr", "Wer kommt da? Besuch? Ich habe keine Besuchszeiten. Ich habe nur Zeiten, in denen ich nicht besoffen bin. Und die sind selten."); });
         await talk(g, () => [
           { text: "Wer ist im Kerker?", run: () => says(g, "knorr", "Ein Ritter, den keiner kennt. Die Ratten sind meine Freunde. Und ein Skelett in der Zelle da hinten, das zahlt keine Miete.") },
-          { text: "Darf ich den Gefangenen Suppe bringen?", run: () => says(g, "knorr", "Suppe? Meinetwegen. Aber ich bekomme einen Schluck vom Kanzlerwein, wenn der Gefangene satt wird. Das ist Brauch.") },
+          { text: "Darf ich den Gefangenen Suppe bringen?", done: () => !!g.flag("c3_t_suppe"), run: () => says(g, "knorr", "Suppe? Meinetwegen. Aber ich bekomme einen Schluck vom Kanzlerwein, wenn der Gefangene satt wird. Das ist Brauch.") },
           { text: "Kann ich den Gefangenen sprechen?", run: () => says(g, "knorr", "Von mir aus. Er kann nirgendwohin. Und ich will nicht wissen, was ihr redet.") },
-          { text: "Was ist das für ein Schlüsselbund?", run: () => says(g, "knorr", "Hier? Der Schlüssel der Zelle hängt am Haken dort drüben, hinterm Tisch. Ich trage nur den Bund, damit ich wichtig aussehe.") },
+          { text: "Was ist das für ein Schlüsselbund?", done: () => !!g.flag("c3_key_taken"), run: () => says(g, "knorr", "Hier? Der Schlüssel der Zelle hängt am Haken dort drüben, hinterm Tisch. Ich trage nur den Bund, damit ich wichtig aussehe.") },
           { text: "Was trinkt Ihr da?", run: () => says(g, "knorr", "Medizin. Gegen Langeweile, Nüchternheit und Familie. Hast du Medizin dabei? Ich würde sie nehmen.") },
           { text: "Der Kanzler besucht den Gefangenen?", show: () => !!g.flag("c3_knorr_drunk"), run: () => says(g, "knorr", "Hicks. Immer nachts. Er bringt Wein und Papiere. Und er geht ohne beides. Aber ich sage nichts.") },
           bye("Wenn du Wein siehst, bring ihn mit. Wenn nicht, bring dich selbst. Hicks.", "knorr", g, "Auf Wiedersehen."),
@@ -118,7 +118,7 @@ export const kerker: SceneDef = {
         await talk(g, () => [
           { text: "Warum seid Ihr eingesperrt?", run: async () => { await says(g, "aldric", "Ich sah Malvor in der Küche, wie er etwas Schwarzes in den Wein des Königs goss. Am nächsten Tag war ich hier."); g.set("c3_aldric_know", true); } },
           { text: "Habt Ihr Hunger?", show: () => !g.flag("c3_t_suppe"), run: () => says(g, "aldric", "Hunger? Ich habe seit Tagen nur Ratten gehört. Wenn du etwas Warmes hast, ich wäre dir ewig dankbar.") },
-          { text: "Wie komme ich an den Schlüssel?", run: async () => { await says(g, "aldric", "Er hängt dort am Haken. Knorr hütet ihn mit seinem Leben. Und seinem Bierkrug. Der ist sein Schwachpunkt.", "Gib ihm Wein. Viel Wein. Und etwas Schlafkraut, falls Berta welches hat. Dann ist er ein sanftes Lamm."); } },
+          { text: "Wie komme ich an den Schlüssel?", done: () => !!g.flag("c3_key_taken"), run: async () => { await says(g, "aldric", "Er hängt dort am Haken. Knorr hütet ihn mit seinem Leben. Und seinem Bierkrug. Der ist sein Schwachpunkt.", "Gib ihm Wein. Viel Wein. Und etwas Schlafkraut, falls Berta welches hat. Dann ist er ein sanftes Lamm."); } },
           { text: "Was wisst Ihr über Malvor?", show: () => !!g.flag("c3_t_suppe") || !!g.flag("c3_aldric_know"), run: async () => { g.set("c3_aldric_story", true); await says(g, "aldric", "Er will das Drachenhorn. Den Vulkan Kharn, das Ei, die Macht. Er baut an einem Plan.", "Sein Geheimfach hat vier Runenknöpfe: Rabe, Kreuz, Rabe, Lamm. Das hat er im Rausch gemurmelt, als er hier war."); } },
           { text: "Seid Ihr verletzt?", run: () => says(g, "aldric", "Nur mein Stolz. Und ein Zahn. Aber den habe ich schon verschmerzt.") },
           bye("Beeil dich. Der König hat nicht mehr viele Abende.", "aldric", g, "Auf Wiedersehen."),

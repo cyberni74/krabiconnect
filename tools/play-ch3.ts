@@ -102,7 +102,7 @@ async function main() {
   await h.act("burghof", "pferd", "give", "apfel");
   await h.act("burghof", "pferd", "give", "hufeisen");
   h.expectFlag("c3_t_pferd"); h.expectInv("seil");
-  await h.act("burghof", "pip", "talk", undefined, ["Pferd", "Werkzeug", "Kanzler"]);
+  await h.act("burghof", "pip", "talk", undefined, ["Werkzeug", "Kanzler"]);
   say(h, "horse shod");
 
   // Berta's spoon -> wine + sleeping herb

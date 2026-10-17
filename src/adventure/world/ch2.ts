@@ -460,6 +460,7 @@ const hexenhuette: SceneDef = {
           {
             text: "Ich brauche ein Gegengift gegen Schierling.",
             show: () => !g.flag("c2_recipe"),
+            done: () => !!g.flag("c2_gegengift"),
             run: async () => {
               await says(g, "morwenna", "Schierling. Der König, nehme ich an. Der Rabenorden sucht Hilfe, wenn es zu spät ist.");
               await hero(g, "Wenn Ihr es nicht tut, stirbt er. Und ich werde nie Ritter.");
@@ -473,12 +474,14 @@ const hexenhuette: SceneDef = {
           {
             text: "Wie war die Reihenfolge noch mal?",
             show: () => !!g.flag("c2_recipe") && !g.flag("c2_kocht"),
+            done: () => !!g.flag("c2_kocht"),
             run: () =>
               says(g, "morwenna", "Das Nasse. Das Leichte. Das Tiefe. Das Böse. Das Feuer.", "Nasses ist im Moor, Leichtes hat Flügel, Tiefes hat Wurzeln, Böses hat eine gespaltene Zunge."),
           },
           {
             text: "Wo finde ich die Zutaten?",
             show: () => !!g.flag("c2_recipe") && !g.flag("c2_kocht"),
+            done: () => !!g.flag("c2_kocht"),
             run: async () => {
               await says(g, "morwenna", "Draußen auf dem Steg, nicht in meiner Hütte. Ich lasse mich nicht ausrauben, ich lasse mich nur besuchen.");
               if (!g.has("moorwasser") && !g.flag("c2_in_moorwasser")) await says(g, "morwenna", "Das Wasser: Dein Eimer tut es im Tümpel. Ich trinke es nicht, aber das ist Geschmackssache.");
@@ -509,11 +512,13 @@ const hexenhuette: SceneDef = {
           {
             text: "Was verlangt Ihr für Euren Talisman?",
             show: () => !!g.flag("c2_recipe") && !g.has("hexentalisman") && !g.flag("c2_gegengift"),
+            done: () => g.has("hexentalisman"),
             run: () => says(g, "morwenna", "Erst das Gegengift. Dann reden wir. Ich verschenke nichts, bevor ich weiß, ob du es wert bist."),
           },
           {
             text: "Könnte ich ein Gefäß für das Gegengift bekommen?",
             show: () => !!g.flag("c2_kocht") && !g.flag("c2_gegengift") && !g.has("flasche_leer"),
+            done: () => !!g.flag("c2_gegengift"),
             run: async () => {
               await says(g, "morwenna", "Ohne Flasche? Dann schöpfst du es mit den Händen. Nein. Hier.");
               g.add("flasche_leer");
@@ -523,6 +528,7 @@ const hexenhuette: SceneDef = {
           {
             text: "Was wisst Ihr über den Drachen im Vulkan?",
             show: () => !!g.flag("c2_gegengift"),
+            done: () => !!g.flag("c2_dragon_hint"),
             run: async () => {
               await says(g, "morwenna", "Aschenschlund. Man erzählt, er hütet ein Vermögen aus Gold. Nein. Ich war einmal in meiner Jugend in seinem Rauch.");
               await says(g, "morwenna", "Der Drache hütet kein Gold, Junge. Er hütet ein Ei. Das Gold ist sein Nestpolster.");
