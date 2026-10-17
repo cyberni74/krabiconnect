@@ -129,6 +129,7 @@ export const gruft: SceneDef = {
             },
             {
               text: "Wie öffnet man den Schrein?",
+              done: () => F(g, "c1_schrein_offen"),
               run: async () => {
                 await says(g, "skelett", "Drei Steinplatten. Das Zeichen des Wächters zuerst, dann des Sanften, dann des Erlösers.");
                 await says(g, "skelett", "Ich bin Skelett. Ich habe das alles auswendig gelernt. Es gibt hier unten sonst nichts zu tun.");
@@ -136,6 +137,7 @@ export const gruft: SceneDef = {
             },
             {
               text: "Darf ich die Reliquie mitnehmen?",
+              done: () => F(g, "taken_reliquie"),
               run: async () => {
                 await says(g, "skelett", "Für den Pater? Für den Segen? Nimm sie. Ich werde sie vermissen. Und dann kommt jemand anderes, um sie zu stehlen.");
               },

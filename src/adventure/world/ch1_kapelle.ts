@@ -175,6 +175,7 @@ export const kapelle: SceneDef = {
           },
           {
             text: "Das Weihwasserbecken ist leer.",
+            done: () => F(g, "c1_becken_voll"),
             run: async () => {
               await anselm(g, "Seit der letzten Messe. Kein Wasser mehr, die Brunnen sind verseucht. Der auf dem Dorfplatz ist der einzige, der noch klar ist, aber ihm fehlt Seil und Eimer.");
               await anselm(g, "Gieß das Wasser einfach hinein, ich segne es dann mit meinem Glauben. Das reicht für die Flasche. Eine leere liegt in der Sakristei.");
@@ -195,6 +196,7 @@ export const kapelle: SceneDef = {
           },
           {
             text: "Was ist mit dem Sakristeischrank?",
+            done: () => F(g, "c1_rune_offen"),
             show: () => !!g.flag("c1_anselm_quest") || F(g, "c1_gruft_bekannt"),
             run: async () => {
               await anselm(g, "Mein Küster, Gott hab ihn selig, hat das Schloss gebaut. Drei Runen: Rabe, Lamm, Kreuz. In welcher Reihenfolge? Fragt mich nicht.");
@@ -263,6 +265,7 @@ export const kapelle: SceneDef = {
           },
           {
             text: "Habt Ihr eine Fackel für mich?",
+            done: () => g.has("fackel"),
             run: async () => {
               await oswin(g, "Eine Fackel? Nein, aber ich weiß, wie man eine macht. Einen Stab, Pech vom Dorfplatz, und Feuer. Am Waldrand liegt genug Holz.");
               await oswin(g, "Und denk dran: Pech brennt nicht ewig. In der Gruft hast du Licht für ein paar Handgriffe. Dann musst du wieder hoch und neu anzünden.");

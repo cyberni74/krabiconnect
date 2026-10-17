@@ -31,12 +31,15 @@ export const once = async (g: G, flag: string, fn: () => Promise<void> | void) =
 /* ---------------------------------------------------------------- dialogue */
 export interface TalkOpt {
   text: string;
+  /** Prerequisite: the topic is offered only while this holds. */
   show?: () => boolean;
+  /** The topic's task is finished: the topic is no longer offered. */
+  done?: () => boolean;
   run: () => Promise<void | "end"> | void | "end";
 }
 export async function talk(g: G, build: () => TalkOpt[]) {
   for (;;) {
-    const opts = build().filter((o) => !o.show || o.show());
+    const opts = build().filter((o) => (!o.show || o.show()) && !o.done?.());
     if (!opts.length) return;
     const i = await g.choose(opts.map((o) => o.text));
     const r = await opts[i].run();

@@ -229,7 +229,7 @@ h.expectInv("weihwasser");
 
 /* Oswin's job: 3 graves, honor, silver */
 await h.act(K, "grab_1", "use"); // no job yet
-await h.act(K, "oswin", "talk", undefined, ["Braucht Ihr Hilfe", "Was wisst Ihr über die Gruft", "Habt Ihr eine Fackel", "Bis später"]);
+await h.act(K, "oswin", "talk", undefined, ["Braucht Ihr Hilfe", "Was wisst Ihr über die Gruft", "Bis später"]);
 h.expectInv("schaufel");
 await h.act(K, "grab_1", "use");
 await h.act(K, "grab_2", "use", "schaufel");
@@ -272,7 +272,7 @@ h.expectInv("flasche_leer");
 await h.act(G, "reliquie", "take");
 h.expectInv("reliquie");
 await h.act(G, "g_klingenbruch", "take");
-await h.act(G, "skelett", "talk", undefined, ["Was bewacht", "Wie öffnet", "Danke, Wächter"]);
+await h.act(G, "skelett", "talk", undefined, ["Was bewacht", "Danke, Wächter"]);
 await h.act(G, "sarkophag_b", "use");
 h.take("sarkophag_b", "zahn");
 h.take("sarkophag_b", "schnalle");
@@ -300,7 +300,7 @@ await h.act(G, "fackelhalter", "take");
 h.expectInv("fackel");
 
 /* ---------------------------------------------------------------- segen */
-await h.act(K, "anselm", "talk", undefined, ["Ich brauche den Segen", "Wie komme ich in die Gruft", "Was ist mit dem Sakristeischrank", "Der Herr sei mit Euch"]);
+await h.act(K, "anselm", "talk", undefined, ["Ich brauche den Segen", "Wie komme ich in die Gruft", "Der Herr sei mit Euch"]);
 await h.act(K, "anselm", "give", "reliquie");
 h.expectInv("siegelbrief", "kerzenwachs");
 h.expectFlag("have_blessing");

@@ -89,6 +89,7 @@ export const dorfplatz: SceneDef = {
         await talk(g, () => [
           {
             text: "Was genau brauche ich für die Prüfung?",
+            done: () => F(g, "have_blade") && F(g, "have_blessing") && F(g, "have_sponsor"),
             run: async () => {
               await says(g, "brandt", "Drei Dinge, Totengräberjunge. Eine Klinge, einen Segen und einen Bürgen.");
               await says(g, "brandt", "Die Klinge muss von dir sein. Der Orden prüft, ob du Hitze und Hammerschlag verträgst.");
@@ -98,6 +99,7 @@ export const dorfplatz: SceneDef = {
           },
           {
             text: "Wo bekomme ich eine Klinge?",
+            done: () => F(g, "have_blade"),
             run: async () => {
               await says(g, "brandt", "Gero, der Schmied. Brummig, lahm, und er hat noch nie freiwillig jemandem geholfen.");
               await says(g, "brandt", "Er schmiedet nicht selbst, seit die Hand nicht mehr will. Aber er weiß genau, wie es geht. Und er sagt es dir. Meistens laut.");
@@ -105,6 +107,7 @@ export const dorfplatz: SceneDef = {
           },
           {
             text: "Und der Segen?",
+            done: () => F(g, "have_blessing"),
             run: async () => {
               await says(g, "brandt", "Pater Anselm in der Kapelle. Er sitzt auf seinem Segen wie ein Geizhals auf dem Gold.");
               await says(g, "brandt", "Man munkelt, in der Gruft fehle etwas. Ein Heiligtum. Er wird dir mehr sagen, wenn du ihm einen Gefallen tust.");
@@ -112,6 +115,7 @@ export const dorfplatz: SceneDef = {
           },
           {
             text: "Wer könnte für mich bürgen?",
+            done: () => F(g, "have_sponsor"),
             run: async () => {
               await says(g, "brandt", "Ser Halvard. Ritter des Ordens, ein ehrlicher Mann. Er ritt vor Wochen zum Waldrand und kam nie zurück.");
               await says(g, "brandt", "Wenn die Wölfe ihn nicht haben, dann liegt er noch dort. Aber ich schicke keinen meiner Männer. Die Wölfe haben Hunger und ich Familie.");
@@ -129,6 +133,7 @@ export const dorfplatz: SceneDef = {
           },
           {
             text: "Was ist mit dem Leichenkarren?",
+            done: () => F(g, "c1_karren_entschieden"),
             show: () => true,
             run: async () => {
               if (F(g, "c1_beutel_genommen")) return says(g, "brandt", "Der Beutel fehlt, und du hast die Miene eines Diebes. Ich habe nichts gesehen. Lass dir das nicht zur Gewohnheit werden.");
@@ -191,6 +196,7 @@ export const dorfplatz: SceneDef = {
           },
           {
             text: "Kennt Ihr eine verschlossene Kiste?",
+            done: () => F(g, "unlocked_kiste_dorf"),
             run: async () => {
               await says(g, "hilda", "Die Kiste da unten gehörte meinem seligen Kunz. Er hat sie vor Jahren mit einem Eisenschlüssel zugesperrt.");
               await says(g, "hilda", "Den Schlüssel hat er beim Schmied verloren, als er betrunken war. Gero hat ihn bestimmt irgendwo verstaut, in einer Schublade, wo er niemanden stört.");
@@ -200,6 +206,7 @@ export const dorfplatz: SceneDef = {
           },
           {
             text: "Was ist mit dem Leichenkarren?",
+            done: () => F(g, "c1_karren_entschieden"),
             run: async () => {
               if (F(g, "c1_beutel_genommen")) return says(g, "hilda", "Man hat Bertold den Beutel vom Gürtel geschnitten. Das ist das Letzte, was ein Toter braucht. Schäm dich, Junge.");
               if (F(g, "c1_tuch_gelegt")) return says(g, "hilda", "Du hast ihn zugedeckt. Danke, Junge. Die Toten merken sich so etwas.");
@@ -534,6 +541,7 @@ async function wuehlen(g: G) {
 async function karrenWahl(g: G) {
   await g.say("Bertold, der Fuhrmann, liegt unter einem fadenscheinigen Tuch. Das Tuch ist verrutscht. Der Geldbeutel an seinem Gürtel lockt.");
   const c = await g.choose(["Den Münzbeutel nehmen.", "Das Tuch zurechtlegen.", "Lieber die Finger davonlassen."]);
+  g.set("c1_karren_entschieden", true);
   if (c === 0) {
     if (F(g, "c1_beutel_genommen")) return g.say("Ich habe ihn schon genommen. Er brennt in meiner Tasche wie ein schlechtes Gewissen.");
     g.set("c1_beutel_genommen", true);

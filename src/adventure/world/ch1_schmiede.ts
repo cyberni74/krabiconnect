@@ -102,6 +102,7 @@ const gero_talk = async (g: G) => {
   await talk(g, () => [
     {
       text: "Wie schmiedet man ein Schwert?",
+      done: () => F(g, "have_blade"),
       run: async () => {
         const s = st(g);
         if (s === 0 && !F(g, "unlocked_kohlekiste")) await gero(g, "Zuerst Feuer. Kohle liegt in der Kohlekiste. Den Schlüssel dazu habe ich irgendwo in meinem Werkzeugschrank verstaut. Unten oder in der Mitte, such halt.");
@@ -118,6 +119,7 @@ const gero_talk = async (g: G) => {
     },
     {
       text: "Was kostet mich das?",
+      done: () => F(g, "c1_gero_bezahlt"),
       run: async () => {
         await gero(g, "Zwei Silber, oder zehn Mal pumpen. Mir ist beides recht. Mein Rücken zieht das Pumpen vor, mein Magen das Silber.");
         await gero(g, "Wenn du Dreckiges anbietest, etwa einen Beutel vom Karren, sage ich nichts. Ich sehe nur, dass er schwer ist.");
@@ -188,6 +190,7 @@ const gero_talk = async (g: G) => {
     },
     {
       text: "Habt Ihr noch Hinweise zur Kiste auf dem Dorfplatz?",
+      done: () => F(g, "unlocked_kiste_dorf"),
       show: () => !!g.flag("c1_kiste_bekannt"),
       run: async () => {
         await gero(g, "Kunz' Kiste? Den Schlüssel dazu hat er mir damals im Suff gegeben. Ich habe ihn weggelegt. In die unterste Schublade, glaube ich, zu den toten Ratten und anderem Gerümpel.");
