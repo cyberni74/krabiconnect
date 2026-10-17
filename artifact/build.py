@@ -7,7 +7,7 @@ css = (d / "dist/game.css").read_text()
 html = f"""<title>Rabenschwur</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;1,400&family=Pirata+One&display=swap">
 <style>
-:root{{color-scheme:dark;--embed-top:44px}}
+:root{{color-scheme:dark;--embed-top:0px}}
 html,body{{margin:0;height:100%;background:#050404;color:#e9d9a8}}
 {css}
 </style>
