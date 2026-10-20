@@ -45,6 +45,7 @@ async function hammerHit(g: G) {
     return g.say("Es gibt nichts zu schmieden. Erst muss das Eisen glühen. Auf kaltes Metall zu hauen bringt nur Funken in den Ohren.");
   }
   if (s > 4) return g.say("Die Klinge ist fertig geformt. Weitere Schläge machen sie nur schiefer.");
+  if (!g.has("klingenbruch")) return g.say("Der Amboss wartet auf das Eisen. Ich habe nichts in der Hand, nur den Hammer.");
   await g.pose("swing", 600);
   g.sfx("hammer");
   const n = g.inc("c1_hits");
@@ -301,12 +302,11 @@ export const schmiede: SceneDef = {
             g.sfx("wrong");
             return gero(g, "Halt! Den Bruch in eine lauwarme Esse? Das gibt Pfusch! Erst Weißglut, du Dummkopf.");
           }
-          if (s > 3) return g.say("Der Klingenbruch liegt längst in der Glut oder ist schon eine Klinge. Ich habe keinen zweiten.");
-          g.remove("klingenbruch");
+          if (s > 3) return g.say("Der Klingenbruch glüht schon in meiner Hand. Ich habe keinen zweiten.");
           g.set("c1_forge", 4);
           g.sfx("clank");
           await g.pose("use", 500);
-          await g.say("Ich lege den rostigen Klingenbruch in die Glut. Der Rost fällt ab wie schlechte Gewissen.");
+          await g.say("Ich halte den rostigen Klingenbruch in die Glut und lasse ihn nicht los. Der Rost fällt ab wie schlechte Gewissen.");
           await g.say("Das Eisen wird rot, orange und dann gelb. Ich warte, bis es singt.");
           await gero(g, "Gut so. Jetzt zum Amboss, solange es glüht. Hammer ist auf der Werkbank.");
         },
@@ -350,7 +350,7 @@ export const schmiede: SceneDef = {
       use: (g) => hammerHit(g),
       useWith: {
         hammer: (g) => hammerHit(g),
-        klingenbruch: "Den Klingenbruch kalt auf den Amboss legen? Er bleibt, was er ist: Schrott. Erst muss er glühen.",
+        klingenbruch: (g) => (st(g) >= 4 ? hammerHit(g) : g.say("Den Klingenbruch kalt auf den Amboss legen? Er bleibt, was er ist: Schrott. Erst muss er glühen.")),
       },
     },
     {
@@ -361,7 +361,7 @@ export const schmiede: SceneDef = {
       y: 350,
       look: (g) => (F(g, "c1_fass_voll") ? "Das Löschfass, bis zum Rand voll mit klarem Wasser. Ein stilles, gefährliches Bad." : "Das Löschfass. Ein feuchter Rest am Boden, mehr nicht. Gero hat seit Wochen kein Wasser mehr geschleppt."),
       take: "Es ist ein Fass. Es ist voll oder leer, und trotzdem viel zu schwer.",
-      use: (g) => quench(g),
+      use: (g) => g.say(g.has("klingenbruch") ? "Die Klinge muss ins Wasser. Benutze sie mit dem Fass." : "Das Wasser ist still. Was soll ich hineinhalten?"),
       useWith: {
         eimer_wasser: async (g) => {
           if (F(g, "c1_fass_voll")) return g.say("Das Fass ist randvoll. Mehr Wasser macht es nur nass.");
@@ -373,6 +373,7 @@ export const schmiede: SceneDef = {
         },
         eimer: "Der Eimer ist leer. Ein leerer Eimer in ein leeres Fass zu kippen, das ist Philosophie, aber kein Löschwasser.",
         weihwasser: (g) => bless(g),
+        klingenbruch: (g) => quench(g),
         schwert: "Das Schwert ist schon abgeschreckt, oder noch gar nicht da. Ich lasse es im Trockenen.",
       },
     },
@@ -391,9 +392,11 @@ export const schmiede: SceneDef = {
           return g.say("Ohne fertige, abgeschreckte Klinge hat der Stein nichts zu schleifen.");
         }
         if (s >= 7) return g.say("Die Klinge ist fertig. Der Schleifstein ruht sich aus, der Faulpelz.");
+        if (!g.has("klingenbruch")) return g.say("Die Klinge muss ich schon in der Hand halten, sonst schleife ich nur Luft.");
         await g.pose("use", 800);
         g.sfx("clank");
         await g.say("Ich drehe die Kurbel. Funken sprühen wie ein kleines Feuerwerk. Das Schwert wird immer schärfer.");
+        g.remove("klingenbruch");
         g.sfx("magic");
         g.set("c1_forge", 7);
         g.set("c1_klinge_fertig", true);

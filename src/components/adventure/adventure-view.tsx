@@ -296,23 +296,6 @@ export function AdventureView() {
           )}
           {playing && !ui.choices && !ui.panel && (
             <>
-              <div className="absolute top-2 z-20 flex items-center gap-1" style={{ left: "max(0.5rem, env(safe-area-inset-left))", top: "calc(0.5rem + env(safe-area-inset-top, 0px))" }}>
-                {VERBS.map((v) => (
-                  <button
-                    key={v.id}
-                    title={tr(v.id === "walk" ? "Automatisch" : v.label)}
-                    aria-label={tr(v.id === "walk" ? "Automatisch" : v.label)}
-                    onClick={() => {
-                      game.setVerb(v.id);
-                      setBag((v.id === "use" || v.id === "give") && ui.inv.length > 0);
-                    }}
-                    className={`flex h-9 w-9 items-center justify-center rounded-full border text-base shadow backdrop-blur ${ui.busy ? "opacity-50" : ""} ${ui.verb === v.id ? "border-[#d8b25a] bg-[#3a2a12]/95" : "border-[#4a3a2a] bg-black/60"}`}
-                  >
-                    {VERB_ICON[v.id]}
-                  </button>
-                ))}
-                {ui.sel && <img src={itemIcon(ui.sel)} alt="" className="ml-1 h-8 w-8 rounded-md border border-[#d8b25a]/70 bg-black/60 p-0.5" />}
-              </div>
               <div className="absolute bottom-2 z-20" style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}>
                 <button
                   onClick={() => setBag((b) => !b)}
@@ -350,6 +333,25 @@ export function AdventureView() {
           {ui.choices && <Choices ui={ui} game={game} className="absolute bottom-2 left-1/2 z-30 max-h-[55%] w-[min(92%,640px)] -translate-x-1/2 overflow-y-auto !gap-0 !p-1 bg-[#0f0b08]/88" />}
           {overlays}
         </div>
+        {playing && !ui.choices && !ui.panel && (
+              <div className="absolute z-30 flex items-center gap-1" style={{ left: "max(0.5rem, env(safe-area-inset-left))", top: "max(0.25rem, env(safe-area-inset-top, 0px))" }}>
+                {VERBS.map((v) => (
+                  <button
+                    key={v.id}
+                    title={tr(v.id === "walk" ? "Automatisch" : v.label)}
+                    aria-label={tr(v.id === "walk" ? "Automatisch" : v.label)}
+                    onClick={() => {
+                      game.setVerb(v.id);
+                      setBag((v.id === "use" || v.id === "give") && ui.inv.length > 0);
+                    }}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full border text-base shadow backdrop-blur ${ui.busy ? "opacity-50" : ""} ${ui.verb === v.id ? "border-[#d8b25a] bg-[#3a2a12]/95" : "border-[#4a3a2a] bg-black/60"}`}
+                  >
+                    {VERB_ICON[v.id]}
+                  </button>
+                ))}
+                {ui.sel && <img src={itemIcon(ui.sel)} alt="" className="ml-1 h-8 w-8 rounded-md border border-[#d8b25a]/70 bg-black/60 p-0.5" />}
+              </div>
+        )}
       </div>
     );
   }

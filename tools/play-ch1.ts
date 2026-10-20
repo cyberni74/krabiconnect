@@ -326,7 +326,9 @@ h.expectInv("weihwasser");
 await h.act(S, "loeschfass", "use", "weihwasser");
 h.expectFlag("c1_gesegnet");
 h.expectInv("flasche_leer");
-await h.act(S, "loeschfass", "use");
+await h.act(S, "loeschfass", "use"); // no item chosen: just a hint
+stage(5);
+await h.act(S, "loeschfass", "use", "klingenbruch"); // quench the blade in the bucket
 stage(6);
 await h.act(S, "schleifstein", "use");
 stage(7);

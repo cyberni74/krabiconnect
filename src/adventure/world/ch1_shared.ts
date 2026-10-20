@@ -9,6 +9,14 @@ export const hasAllThree = (g: G) => g.has("schwert") && g.has("siegelbrief") &&
 /** Extra items of this chapter (icon exists in public/g/items, but is not in the shared catalog). */
 export const items: Record<string, ItemDef> = {
   stiefel_alt: { name: "Alter Stiefel", look: "Ein einzelner, steifer Lederstiefel. Wer verliert nur einen? Und warum fehlt der Fuß nicht?" },
+  /* The blade is one object through the whole forge; its name follows the stage. */
+  klingenbruch: {
+    name: (g) => {
+      const s = N(g, "c1_forge");
+      return s >= 6 ? "Abgeschreckte Klinge" : s === 5 ? "Geformte Klinge" : s === 4 ? "Glühender Klingenbruch" : "Klingenbruch";
+    },
+    look: "Die Hälfte eines Schwertes, vom Rost zerfressen. Irgendwer hat damit mehr Mut als Glück gehabt.",
+  },
 };
 
 /* ------------------------------------------------------------------ torch / darkness (gruft) */
