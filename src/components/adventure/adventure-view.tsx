@@ -80,7 +80,6 @@ export function AdventureView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const [bag, setBag] = useState(false);
   const [portraitOk, setPortraitOk] = useState(false);
   const [fs, setFs] = useState(false);
   const compact = layout === "landscape";
@@ -148,10 +147,6 @@ export function AdventureView() {
       document.removeEventListener("fullscreenchange", onFs);
     };
   }, [game, layout]);
-
-  useEffect(() => {
-    if (ui.busy || ui.choices || ui.panel) setBag(false);
-  }, [ui.busy, ui.choices, ui.panel]);
 
   const toLogical = (e: { clientX: number; clientY: number }) => {
     const r = canvasRef.current!.getBoundingClientRect();
@@ -221,7 +216,6 @@ export function AdventureView() {
           press.current = null;
           return;
         }
-        setBag(false);
         game.click(toLogical(e));
       }}
       onContextMenu={(e) => {
@@ -296,38 +290,7 @@ export function AdventureView() {
           )}
           {playing && !ui.choices && !ui.panel && (
             <>
-              <div className="absolute bottom-2 z-20" style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}>
-                <button
-                  onClick={() => setBag((b) => !b)}
-                  className={`relative flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#5a4a30] bg-black/65 text-xl shadow-lg backdrop-blur ${ui.busy ? "opacity-50" : ""}`}
-                  aria-label={tr("Inventar")}
-                >
-                  🎒
-                  {ui.inv.length > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8a1c1c] px-1 font-[Kanit] text-[11px] font-bold text-white">{ui.inv.length}</span>
-                  )}
-                </button>
-              </div>
-              {bag && (
-                <div className="absolute bottom-2 left-1/2 z-30 flex max-w-[70%] -translate-x-1/2 gap-1.5 overflow-x-auto rounded-2xl border border-[#5a4a30] bg-[#0f0b08]/92 p-1.5 shadow-2xl backdrop-blur">
-                  {ui.inv.length === 0 && <div className="px-3 py-2 font-[Kanit] text-sm text-[#7a6a50]">{tr("Taschen leer. Noch.")}</div>}
-                  {ui.inv.map((id) => (
-                    <button
-                      key={id}
-                      title={game.itemName(id)}
-                      aria-label={game.itemName(id)}
-                      onClick={() => {
-                        const wasSel = ui.sel;
-                        game.clickItem(id);
-                        if ((ui.verb === "use" || ui.verb === "give") && !wasSel) setBag(false);
-                      }}
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#d8b25a] bg-[#2a2212]" : "border-[#3a2e20] bg-[#17120c]"}`}
-                    >
-                      <img src={itemIcon(id)} alt="" className="h-8 w-8 object-contain" draggable={false} />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <InventoryStrip ui={ui} game={game} />
             </>
           )}
           {ui.choices && <Choices ui={ui} game={game} className="absolute bottom-2 left-1/2 z-30 max-h-[55%] w-[min(92%,640px)] -translate-x-1/2 overflow-y-auto !gap-0 !p-1 bg-[#0f0b08]/88" />}
@@ -342,7 +305,6 @@ export function AdventureView() {
                     aria-label={tr(v.id === "walk" ? "Automatisch" : v.label)}
                     onClick={() => {
                       game.setVerb(v.id);
-                      setBag((v.id === "use" || v.id === "give") && ui.inv.length > 0);
                     }}
                     className={`flex h-9 w-9 items-center justify-center rounded-full border text-base shadow backdrop-blur ${ui.busy ? "opacity-50" : ""} ${ui.verb === v.id ? "border-[#d8b25a] bg-[#3a2a12]/95" : "border-[#4a3a2a] bg-black/60"}`}
                   >
@@ -469,6 +431,33 @@ function Choices({ ui, game, className = "" }: { ui: UiSnapshot; game: Game; cla
           className="rounded-md px-3 py-1.5 text-left font-[Kanit] text-[15px] text-[#e2c98a] transition hover:bg-[#241a10] hover:text-white active:bg-[#241a10] sm:text-base"
         >
           {c}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Compact layout: the inventory is always visible as a strip. Tap an item to use it, tap another item to combine. */
+function InventoryStrip({ ui, game }: { ui: UiSnapshot; game: Game }) {
+  if (ui.inv.length === 0) return null;
+  return (
+    <div className="absolute bottom-2 z-20 flex max-w-[70%] -translate-x-1/2 gap-1 overflow-x-auto rounded-2xl border border-[#5a4a30] bg-black/60 p-1 shadow-xl backdrop-blur" style={{ left: "50%" }}>
+      {ui.inv.map((id) => (
+        <button
+          key={id}
+          title={game.itemName(id)}
+          aria-label={game.itemName(id)}
+          onClick={() => {
+            if (ui.sel === id) game.setVerb("walk");
+            else if (ui.sel && (ui.verb === "use" || ui.verb === "give")) game.clickItem(id);
+            else {
+              game.setVerb(ui.verb === "give" ? "give" : "use");
+              game.clickItem(id);
+            }
+          }}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#d8b25a] bg-[#2a2212]" : "border-[#3a2e20] bg-[#17120c]/90"} ${ui.busy ? "opacity-50" : ""}`}
+        >
+          <img src={itemIcon(id)} alt="" className="h-8 w-8 object-contain" draggable={false} />
         </button>
       ))}
     </div>
