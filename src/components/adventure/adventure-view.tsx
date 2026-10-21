@@ -279,8 +279,8 @@ export function AdventureView() {
   /* ---------- compact landscape: full-screen canvas + floating controls ---------- */
   if (compact) {
     return (
-      <div ref={rootRef} className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black" style={{ overscrollBehavior: "none",  }}>
-        <div ref={wrapRef} className="relative max-h-full w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc(100dvh * ${W / H})` }}>
+      <div ref={rootRef} className="fixed inset-0 flex flex-col items-center justify-center gap-1 overflow-hidden bg-black" style={{ overscrollBehavior: "none" }}>
+        <div ref={wrapRef} className="relative w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc((100dvh - 3.5rem) * ${W / H})` }}>
           {canvasEl}
           {topButtons}
           {playing && (
@@ -288,9 +288,9 @@ export function AdventureView() {
               {(ui.sel ? ui.sentence : "") || ui.target || ui.sceneTitle}
             </div>
           )}
-          {playing && !ui.choices && !ui.panel && (
+          <InventoryStrip ui={ui} game={game} />
+        {playing && !ui.choices && !ui.panel && (
             <>
-              <InventoryStrip ui={ui} game={game} />
             </>
           )}
           {ui.choices && <Choices ui={ui} game={game} className="absolute bottom-2 left-1/2 z-30 max-h-[55%] w-[min(92%,640px)] -translate-x-1/2 overflow-y-auto !gap-0 !p-1 bg-[#0f0b08]/88" />}
@@ -439,27 +439,30 @@ function Choices({ ui, game, className = "" }: { ui: UiSnapshot; game: Game; cla
 
 /** Compact layout: the inventory is always visible as a strip. Tap an item to use it, tap another item to combine. */
 function InventoryStrip({ ui, game }: { ui: UiSnapshot; game: Game }) {
-  if (ui.inv.length === 0) return null;
   return (
-    <div className="absolute bottom-2 z-20 flex max-w-[70%] -translate-x-1/2 gap-1 overflow-x-auto rounded-2xl border border-[#5a4a30] bg-black/60 p-1 shadow-xl backdrop-blur" style={{ left: "50%" }}>
-      {ui.inv.map((id) => (
-        <button
-          key={id}
-          title={game.itemName(id)}
-          aria-label={game.itemName(id)}
-          onClick={() => {
-            if (ui.sel === id) game.setVerb("walk");
-            else if (ui.sel && (ui.verb === "use" || ui.verb === "give")) game.clickItem(id);
-            else {
-              game.setVerb(ui.verb === "give" ? "give" : "use");
-              game.clickItem(id);
-            }
-          }}
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#d8b25a] bg-[#2a2212]" : "border-[#3a2e20] bg-[#17120c]/90"} ${ui.busy ? "opacity-50" : ""}`}
-        >
-          <img src={itemIcon(id)} alt="" className="h-8 w-8 object-contain" draggable={false} />
-        </button>
-      ))}
+    <div className="flex h-12 w-full items-center justify-center overflow-hidden px-2">
+      {ui.inv.length > 0 && (
+        <div className="flex max-w-full gap-1 overflow-x-auto rounded-2xl border border-[#5a4a30] bg-black/70 p-1 shadow-xl backdrop-blur">
+          {ui.inv.map((id) => (
+            <button
+              key={id}
+              title={game.itemName(id)}
+              aria-label={game.itemName(id)}
+              onClick={() => {
+                if (ui.sel === id) game.setVerb("walk");
+                else if (ui.sel && (ui.verb === "use" || ui.verb === "give")) game.clickItem(id);
+                else {
+                  game.setVerb(ui.verb === "give" ? "give" : "use");
+                  game.clickItem(id);
+                }
+              }}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#d8b25a] bg-[#2a2212]" : "border-[#3a2e20] bg-[#17120c]/90"} ${ui.busy ? "opacity-50" : ""}`}
+            >
+              <img src={itemIcon(id)} alt="" className="h-8 w-8 object-contain" draggable={false} />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
