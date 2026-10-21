@@ -78,6 +78,7 @@ export class Game implements G {
   sel: string | null = null;
   hover: Hover = null;
   lastTarget: Hover = null;
+  fastForward = false;
   hoverItem: string | null = null;
   touch = false;
   muted = audio.muted;
@@ -379,6 +380,7 @@ export class Game implements G {
 
   /* ------------------------------------------------------------ scripting primitives */
   say(text: string, who = "hero"): Promise<void> {
+    if (this.fastForward) return Promise.resolve();
     text = tr(text);
     return new Promise((resolve) => {
       const ms = Math.max(1600, text.length * 55 + 900);
@@ -389,6 +391,7 @@ export class Game implements G {
     });
   }
   choose(options: string[]): Promise<number> {
+    this.fastForward = false;
     return new Promise((resolve) => {
       this.choices = { options: options.map(tr), resolve };
       this.emit();
@@ -502,6 +505,8 @@ export class Game implements G {
       this.speech = null;
       const n = this.npcs.get(s.who);
       if (n) n.talking = false;
+      // A tap during speech fast-forwards the rest of this sequence, not just the current line.
+      this.fastForward = true;
       s.resolve();
       return true;
     }
@@ -549,6 +554,7 @@ export class Game implements G {
       this.emit();
     }
     if (this.skip()) return;
+    this.fastForward = false;
     if (this.busy > 0 || this.choices || this.cardState || this.panel) return;
     if (!t) {
       this.sel = null;
