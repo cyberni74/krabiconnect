@@ -162,6 +162,12 @@ const moorpfad: SceneDef = {
     { kind: "fog", area: [0, 240, 960, 200], n: 1.1 },
     { kind: "fireflies", area: [0, 140, 960, 220], n: 0.6 },
   ],
+  enter: async (g) => {
+    await once(g, "c2_moor_intro", async () => {
+      await hero(g, "Der Steg zur Hütte liegt im Nebel. Irrlichter tanzen darauf und lassen niemanden vorbei.");
+      await hero(g, g.has("fackel") ? "Ich habe eine Fackel. Licht vertreibt sie vielleicht. Die Laternen am Steg brauchen Feuer, und am Totem stehen Hinweise." : "Ohne Fackel komme ich hier nicht weiter. Die Laternen am Steg brauchen Feuer.");
+    });
+  },
   things: [
     // ----- exits
     exitThing([836, 40, 110, 125], {
@@ -214,7 +220,7 @@ const moorpfad: SceneDef = {
         g.set("c2_poem", true);
         await g.say("Ein Pfahl voller Krähenschädel. Zwischen den Knochen sind Zeilen eingeritzt:");
         for (const l of POEM) await g.say(l);
-        await hero(g, "Mond, Hexenhaus, Heimat. Und die Laternen am Steg kennen die Reihenfolge, nehme ich an.");
+        await hero(g, "Mond, Hexenhaus, Heimat. Die Laternen zeigen selbst, welche es ist: Die mit dem Halbmond zuerst, dann die Hütte, zuletzt das Haus mit Rauch. Zünde sie mit der Fackel an.");
       },
       take: "Das Totem ist tief im Torf verwurzelt. Die Schädel starren mich an, als wüssten sie, wie das ausgeht.",
       use: "Ich klopfe leise an einen Schädel. Er klappert. Der Nachbar auch. Eine Gemeinschaft.",
