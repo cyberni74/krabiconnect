@@ -288,7 +288,6 @@ export function AdventureView() {
               {(ui.sel ? ui.sentence : "") || ui.target || ui.sceneTitle}
             </div>
           )}
-          <InventoryStrip ui={ui} game={game} />
         {playing && !ui.choices && !ui.panel && (
             <>
             </>
@@ -296,6 +295,7 @@ export function AdventureView() {
           {ui.choices && <Choices ui={ui} game={game} className="absolute bottom-2 left-1/2 z-30 max-h-[55%] w-[min(92%,640px)] -translate-x-1/2 overflow-y-auto !gap-0 !p-1 bg-[#0f0b08]/88" />}
           {overlays}
         </div>
+        <InventoryStrip ui={ui} game={game} />
         {playing && !ui.choices && !ui.panel && (
               <div className="absolute z-30 flex items-center gap-1" style={{ left: "max(0.5rem, env(safe-area-inset-left))", top: "max(0.25rem, env(safe-area-inset-top, 0px))" }}>
                 {VERBS.map((v) => (
