@@ -279,8 +279,8 @@ export function AdventureView() {
   /* ---------- compact landscape: full-screen canvas + floating controls ---------- */
   if (compact) {
     return (
-      <div ref={rootRef} className="fixed inset-0 flex flex-col items-center justify-center gap-1 overflow-hidden bg-black" style={{ overscrollBehavior: "none" }}>
-        <div ref={wrapRef} className="relative w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc((100dvh - 3.5rem) * ${W / H})` }}>
+      <div ref={rootRef} className="fixed inset-0 flex flex-col items-center justify-center gap-1 overflow-hidden bg-black" style={{ overscrollBehavior: "none", paddingBottom: "0.75rem" }}>
+        <div ref={wrapRef} className="relative w-full" style={{ aspectRatio: `${W} / ${H}`, maxWidth: `calc((100dvh - 4.25rem) * ${W / H})` }}>
           {canvasEl}
           {topButtons}
           {playing && (
@@ -456,7 +456,8 @@ function InventoryStrip({ ui, game }: { ui: UiSnapshot; game: Game }) {
                   game.clickItem(id);
                 }
               }}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#d8b25a] bg-[#2a2212]" : "border-[#3a2e20] bg-[#17120c]/90"} ${ui.busy ? "opacity-50" : ""}`}
+              style={{ touchAction: "manipulation", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
+              className={`flex h-10 w-10 shrink-0 select-none items-center justify-center rounded-lg border ${ui.sel === id ? "border-[#d8b25a] bg-[#2a2212]" : "border-[#3a2e20] bg-[#17120c]/90"} ${ui.busy ? "opacity-50" : ""}`}
             >
               <img src={itemIcon(id)} alt="" className="h-8 w-8 object-contain" draggable={false} />
             </button>

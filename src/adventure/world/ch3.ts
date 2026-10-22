@@ -103,6 +103,7 @@ export const hint = (g: G): string => {
     return "Sprich mit Myrddin: Du hast alle drei Prüfungen bestanden.";
   }
   if (!g.flag("c3_king_cured")) {
+    if (!g.has("gegengift") && !g.flag("c3_antidote")) return "Dir fehlt das Gegengift. Morwenna braut es in ihrer Hexenhütte im Moor: Zutaten in den Kessel, dann die leere Flasche am Kessel füllen.";
     if (!g.flag("c3_antidote") && !g.flag("c3_malvor_away")) return "Lenke Kanzler Malvor ab (Halvards Brief oder der Hexentalisman) und träufle das Gegengift in den Weinkelch.";
     return "Gib im Thronsaal das Gegengift in den Kelch, solange Malvor abgelenkt ist.";
   }
