@@ -24,6 +24,11 @@ export class Harness {
       g.hero.x = x;
       g.hero.y = y;
     };
+    g.walkTo = async (x, y) => {
+      g.hero.x = x;
+      g.hero.y = y;
+      return true;
+    };
     g.moveNpc = async (id, x, y) => {
       const n = g.npc(id);
       if (n) {

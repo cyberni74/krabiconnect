@@ -92,7 +92,11 @@ export class Game implements G {
 
   npcs = new Map<string, NpcRuntime>();
   private path: Pt[] = [];
-  private walkDone: (() => void) | null = null;
+  /** Resolves a pending walk: true = arrived, false = cancelled by a newer order or a scene change. */
+  private walkDone: ((arrived: boolean) => void) | null = null;
+  /** Counts player orders; an order whose number is stale stops before it acts. */
+  private orderNo = 0;
+  private transitioning = false;
   private walkPhase = 0;
   private walking = false;
   private heroPose: { key: Pose; until: number } | null = null;
@@ -277,7 +281,7 @@ export class Game implements G {
   private enterScene(sc: SceneDef, x?: number, y?: number, facing?: Facing) {
     this.scene = sc;
     this.path = [];
-    this.walkDone?.();
+    this.walkDone?.(false);
     this.walkDone = null;
     this.walking = false;
     this.hover = null;
@@ -310,13 +314,22 @@ export class Game implements G {
   async goto(sceneId: string, x?: number, y?: number, facing?: Facing) {
     const sc = this.world.scenes[sceneId];
     if (!sc) throw new Error("unknown scene " + sceneId);
-    await this.fade(1, 320);
-    this.speech?.resolve();
-    this.speech = null;
-    await preload(this.sceneAssets(sc));
-    this.enterScene(sc, x, y, facing);
-    this.save();
-    await this.fade(0, 420);
+    // One scene change at a time; a second request while one runs is dropped.
+    if (this.transitioning) return;
+    this.transitioning = true;
+    this.orderNo++;
+    try {
+      await this.fade(1, 320);
+      this.speech?.resolve();
+      this.speech = null;
+      // a broken or slow asset must not leave the screen black
+      await Promise.race([preload(this.sceneAssets(sc)), new Promise((r) => setTimeout(r, 4000))]);
+      this.enterScene(sc, x, y, facing);
+      this.save();
+    } finally {
+      this.transitioning = false;
+      await this.fade(0, 420);
+    }
     if (sc.enter) await this.run(sc.enter);
   }
 
@@ -427,14 +440,18 @@ export class Game implements G {
     audio.sfx(name);
   }
   walk(x: number, y: number): Promise<void> {
-    this.walkDone?.();
+    return this.walkTo(x, y).then(() => undefined);
+  }
+  /** Walks to a point; resolves true on arrival, false when cancelled. */
+  walkTo(x: number, y: number): Promise<boolean> {
+    this.walkDone?.(false);
     const poly = this.walkPoly();
     this.path = findPath(this.hero, { x, y }, poly);
     return new Promise((r) => {
       this.walkDone = r;
       if (!this.path.length) {
         this.walkDone = null;
-        r();
+        r(true);
       }
     });
   }
@@ -577,13 +594,17 @@ export class Game implements G {
 
   /** Perform a verb on a thing (public for tests). */
   async act(t: Thing, verb: Verb, sel: string | null) {
+    const order = ++this.orderNo;
+    const scene = this.scene;
     this.busy++;
     this.emit();
     try {
       const needsWalk = verb !== "look" || !!t.exit;
       if (needsWalk) {
         const a = this.approach(t);
-        await this.walk(a.x, a.y);
+        const arrived = await this.walkTo(a.x, a.y);
+        // cancelled by a newer order or a scene change: this order is over
+        if (!arrived || order !== this.orderNo || this.scene !== scene) return;
         const rt = t.npc ? this.npcs.get(t.id) : undefined;
         if (t.face) this.hero.facing = t.face;
         else {
@@ -622,6 +643,7 @@ export class Game implements G {
   }
 
   private async runExit(t: Thing, _g: G) {
+    if (this.transitioning) return;
     const ex = t.exit!;
     const msg = await ex.guard?.(this);
     if (msg) {
@@ -761,7 +783,7 @@ export class Game implements G {
         if (!this.path.length) {
           const done = this.walkDone;
           this.walkDone = null;
-          done?.();
+          done?.(true);
         }
       } else {
         this.hero.x += (dx / d) * step;
